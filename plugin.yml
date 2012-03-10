@@ -1,0 +1,27 @@
+name: BlockLog
+main: me.arno.blocklog.BlockLog
+version: 0.2.0
+author: Anerach
+description: >
+            A simple and effective Anti-Grief plugin.
+commands:
+    blocklog:
+        description: Lists all the blocklog commands
+        aliases: bl
+        usage: /blocklog
+permissions:
+    blocklog.admin:
+        description: Gives access to all the blocklog commands
+        children:
+            blocklog.reload: true
+            blocklog.wand: true
+            blocklog.rollback: true
+            blocklog.save: true
+    blocklog.reload:
+        description: Gives access to the reload command
+    blocklog.wand:
+        description: Gives access to the wand command
+    blocklog.rollback:
+        description: Gives access to the rollback command
+    blocklog.reload:
+        description: Gives access to the save command

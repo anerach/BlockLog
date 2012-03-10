@@ -11,6 +11,10 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import me.arno.blocklog.listeners.LogListener;
+import me.arno.blocklog.listeners.WandListener;
+
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -27,6 +31,7 @@ public class BlockLog extends JavaPlugin {
 	public String url;
 	
 	public ArrayList<String> users = new ArrayList<String>();
+	public ArrayList<LoggedBlock> blocks = new ArrayList<LoggedBlock>();
 	
 	public void loadConfiguration() {
 		try {
@@ -36,8 +41,10 @@ public class BlockLog extends JavaPlugin {
 	    	getConfig().addDefault("mysql.password", null);
 	    	getConfig().addDefault("mysql.database", null);
 	    	getConfig().addDefault("mysql.port", 3306);
-	    	//getConfig().addDefault("blocklog.wand", 369);
+	    	getConfig().addDefault("blocklog.wand", 369);
 	    	getConfig().addDefault("blocklog.results", 5);
+	    	getConfig().addDefault("database.delay", 1);
+	    	getConfig().addDefault("database.warning", 200);
 		    getConfig().options().copyDefaults(true);
 		    saveConfig();
 		    
@@ -88,21 +95,55 @@ public class BlockLog extends JavaPlugin {
 	public void loadPlugin() {
     	loadConfiguration();
     	
-		getServer().getPluginManager().registerEvents(new BlockLogListener(this), this);
+    	new BlocksToDatabase(this);
+    	
+    	getServer().getPluginManager().registerEvents(new LogListener(this), this);
+    	getServer().getPluginManager().registerEvents(new WandListener(this), this);
     }
 	
 	@Override
 	public void onEnable() {
 		loadPlugin();
-		
 		PluginDescriptionFile pdfFile = this.getDescription();
 		log.info("[BlockLog] v" + pdfFile.getVersion() + " is enabled!");
 	}
 	
 	@Override
 	public void onDisable() {
+		saveBlocks(0);
 		PluginDescriptionFile pdfFile = this.getDescription();
 		log.info("[BlockLog] v" + pdfFile.getVersion() + " is disabled!");
+	}
+	
+	public void saveBlocks(int blockCount) {
+		int StartSize = blocks.size();
+		if(blockCount == 0)
+			StartSize = 0;
+		
+		while(blocks.size() > StartSize - blockCount) {
+			LoggedBlock block = blocks.get(0);
+	    	try {
+		    	Connection conn = getConnection();
+				Statement stmt = conn.createStatement();
+				
+		    	if(getConfig().getBoolean("mysql.enabled"))
+		    		stmt.executeUpdate("INSERT INTO blocklog (player, block_id, date, x, y, z, type) VALUES ('" + block.getPlayer() + "', " + block.getBlockId() + ", UNIX_TIMESTAMP(), " + block.getX() + ", " + block.getY() + ", " + block.getZ() + ", " + block.getType() + ")");
+				else
+					stmt.executeUpdate("INSERT INTO blocklog (player, block_id, date, x, y, z, type) VALUES ('" + block.getPlayer() + "', " + block.getBlockId() + ", strftime('%s', 'now'), " + block.getX() + ", " + block.getY() + ", " + block.getZ() + ", " + block.getType() + ")");
+		    } catch (SQLException e) {
+	    		log.info("[BlockLog][BlockToDatabase][SQL] Exception!");
+				log.info("[BlockLog][BlockToDatabase][SQL] " + e.getMessage());
+	    	}
+	    	blocks.remove(0);
+		}
+	}
+	
+	public void sendAdminMessage(String msg) {
+		for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+	    	if (player.isOp() || player.hasPermission("blocklog.notices")) {
+	    		player.sendMessage("msg");
+	        }
+	    }
 	}
 	
 	public Connection getConnection() throws SQLException
@@ -148,6 +189,22 @@ public class BlockLog extends JavaPlugin {
 				log.info("[BlockLog] Reloading!");
 				loadPlugin();
 				log.info("[BlockLog] Reloaded Succesfully!");
+			} else if(args[0].equalsIgnoreCase("help") && (player.isOp() || player.hasPermission("blocklog.help"))) {
+				player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Commands!");
+				player.sendMessage(ChatColor.DARK_RED +"/blocklog help" + ChatColor.GOLD + " - Shows this message!");
+				if(player.isOp() || player.hasPermission("blocklog.reload"))
+					player.sendMessage(ChatColor.DARK_RED +"/blocklog reload" + ChatColor.GOLD + " - Reloads blocklog config file.");
+				if(player.isOp() || player.hasPermission("blocklog.wand"))
+					player.sendMessage(ChatColor.DARK_RED +"/blocklog wand" + ChatColor.GOLD + " - Enables blocklog's wand.");
+				if(player.isOp() || player.hasPermission("blocklog.wand"))
+					player.sendMessage(ChatColor.DARK_RED +"/blocklog wand" + ChatColor.GOLD + " - Enables blocklog's wand.");
+				if(player.isOp() || player.hasPermission("blocklog.save"))
+					player.sendMessage(ChatColor.DARK_RED +"/blocklog save [amount]" + ChatColor.GOLD + " - Saves 25 or the specified amount of blocks.");
+				if(player.isOp() || player.hasPermission("blocklog.fullsave"))
+					player.sendMessage(ChatColor.DARK_RED +"/blocklog fullsave" + ChatColor.GOLD + " - Saves all the blocks.");
+				if(player.isOp() || player.hasPermission("blocklog.rollback"))
+					player.sendMessage(ChatColor.DARK_RED +"/blocklog rollback [player] <time> <sec/min/hour/day/week>" + ChatColor.GOLD + " - Restortes the whole server or edits by one player to a specified point.");
+				
 			} else if (args[0].equalsIgnoreCase("wand") && (player.isOp() || player.hasPermission("blocklog.wand"))) {
 				if(users.isEmpty()) {
 					users.add(player.getName());
@@ -159,6 +216,17 @@ public class BlockLog extends JavaPlugin {
 					users.add(player.getName());
 					player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Wand enabled!");
 				}
+			} else if (args[0].equalsIgnoreCase("fullsave") && (player.isOp() || player.hasPermission("blocklog.fullsave"))) {
+				player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Saving all the block edits!");
+				saveBlocks(0);
+				player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Successfully saved all the block edits!");
+			} else if (args[0].equalsIgnoreCase("save") && (player.isOp() || player.hasPermission("blocklog.save"))) {
+				int blockCount = 25;
+				if(args.length > 1)
+					blockCount = Integer.parseInt(args[1]);
+					
+				saveBlocks(blockCount);
+				player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Successfully saved all the block edits!");
 			} else if (args[0].equalsIgnoreCase("rollback") && (player.isOp() || player.hasPermission("blocklog.rollback"))) {
 				try {
 					if(args.length > 2) {
@@ -192,6 +260,34 @@ public class BlockLog extends JavaPlugin {
 							return true;
 						}
 						
+						int BlockCount = 0;
+						int BlockSize = blocks.size();
+						while(BlockSize > BlockCount)
+						{
+							LoggedBlock LBlock = blocks.get(BlockCount); 
+							if(LBlock.getDate() > time) {
+								
+								Material m = Material.getMaterial(LBlock.getBlockId());
+								if(args.length > 3) {
+									if(args[1].equalsIgnoreCase(LBlock.getPlayer())) {
+										if(LBlock.getType() == 0)
+											player.getWorld().getBlockAt(LBlock.getLocation()).setType(m);
+										else
+											player.getWorld().getBlockAt(LBlock.getLocation()).setType(Material.AIR);
+										
+										BlockCount++;
+									}
+								} else {
+									if(LBlock.getType() == 0)
+										player.getWorld().getBlockAt(LBlock.getLocation()).setType(m);
+									else
+										player.getWorld().getBlockAt(LBlock.getLocation()).setType(Material.AIR);
+									
+									BlockCount++;
+								}
+							}
+						}
+						
 						if(args.length > 3)
 							rs = stmt.executeQuery(String.format(getQuery("PlayerRollback"), time, args[1]));
 						else
@@ -204,11 +300,11 @@ public class BlockLog extends JavaPlugin {
 							if(type == 0)
 								player.getWorld().getBlockAt(rs.getInt("x"),rs.getInt("y"),rs.getInt("z")).setType(m);
 							else
-								player.getWorld().getBlockAt(rs.getInt("x"),rs.getInt("y"),rs.getInt("z")).setType(Material.getMaterial(0));
+								player.getWorld().getBlockAt(rs.getInt("x"),rs.getInt("y"),rs.getInt("z")).setType(Material.AIR);
 								
 							i++;
 						}
-						player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GREEN + i + ChatColor.GOLD + " blocks changed!");
+						player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GREEN + (i + BlockCount) + ChatColor.GOLD + " blocks changed!");
 						//TODO Confirm/Cancel changes directly!
 						return true;
 					}
@@ -216,9 +312,11 @@ public class BlockLog extends JavaPlugin {
 					player.sendMessage(ChatColor.DARK_GREEN + "/blocklog wand");
 					player.sendMessage(ChatColor.DARK_GREEN + "/blocklog rollback [player] <amount> <seconds/minutes/hours/days>");
 					return true;
-				} catch(SQLException ex) {
+				} catch(SQLException e) {
 					log.info("[BlockLog][Command][Rollback][SQL] Exception!");
-					log.info("[BlockLog][Command][Rollback][SQL] " + ex.getMessage());
+					log.info("[BlockLog][Command][Rollback][SQL] " + e.getMessage());
+				} catch(Exception e) {
+					e.printStackTrace();
 				}
 			}
 		}

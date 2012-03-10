@@ -13,15 +13,24 @@ permissions:
     blocklog.admin:
         description: Gives access to all the blocklog commands
         children:
+            blocklog.help: true
+            blocklog.notices: true
             blocklog.reload: true
             blocklog.wand: true
             blocklog.rollback: true
+            blocklog.fullsave: true
             blocklog.save: true
+    blocklog.help:
+        description: Gives access to the help command
+    blocklog.notices:
+        description: Everyone with this command will receive messages from blocklog
     blocklog.reload:
         description: Gives access to the reload command
     blocklog.wand:
         description: Gives access to the wand command
     blocklog.rollback:
         description: Gives access to the rollback command
-    blocklog.reload:
+    blocklog.fullsave:
+        description: Gives access to the fullsave command
+    blocklog.save:
         description: Gives access to the save command

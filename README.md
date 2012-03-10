@@ -5,8 +5,18 @@ Blocklog is an easy to use anti-grief plugin.
 Changelog
 -----------
 
+### v0.3 ###
+* [+] Multi world support
+* [*] Changed almost all the commands
+
+#### Commands ####
+* [+] Config manipulate command
+
+#### Permissions ####
+* [+] blocklog.config
+
 ### v0.2 ###
-* [-] It doesn't adds the items instantly to the database any more (Caused lagg)
+* [-] It doesn't add the blocks instantly to the database any more (Caused lagg)
 
 #### Config ####
 * [+] Configurable wand

@@ -1,6 +1,6 @@
 name: BlockLog
 main: me.arno.blocklog.BlockLog
-version: 0.2.0
+version: 0.3.0
 author: Anerach
 description: >
             A simple and effective Anti-Grief plugin.
@@ -9,12 +9,30 @@ commands:
         description: Lists all the blocklog commands
         aliases: bl
         usage: /blocklog
+    blwand:
+        description: Enables blocklog's wand!
+        usage: /blwand
+    blsave:
+        description: Pushes the specified amount of blocks to the database!
+        usage: /blsave [blocks]
+    blfullsave:
+        description: Pushes all the blocks to the database!
+        usage: /blfullsave
+    blrollback:
+        description: Rollback command for blocklog
+        aliases: blrb
+        usage: /blrollback [player] <amount> <sec/min/hour/day/week>
+    blconfig:
+        description: Change blocklog's command values ingame!
+        aliases: blcfg
+        usage: /blconfig <get/set> <key> [value]
 permissions:
     blocklog.admin:
         description: Gives access to all the blocklog commands
         children:
             blocklog.help: true
             blocklog.notices: true
+            blocklog.config: true
             blocklog.reload: true
             blocklog.wand: true
             blocklog.rollback: true
@@ -24,6 +42,8 @@ permissions:
         description: Gives access to the help command
     blocklog.notices:
         description: Everyone with this command will receive messages from blocklog
+    blocklog.config:
+        description: Gives access to the config command
     blocklog.reload:
         description: Gives access to the reload command
     blocklog.wand:

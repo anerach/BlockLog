@@ -1,15 +1,18 @@
-package me.arno.blocklog;
+package me.arno.blocklog.database;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Logger;
 
-public class BlocksToDatabase {
+import me.arno.blocklog.BlockLog;
+import me.arno.blocklog.LoggedBlock;
+
+public class PushBlocks {
 	BlockLog plugin;
 	Logger log;
 	
-	public BlocksToDatabase(BlockLog plugin) {
+	public PushBlocks(BlockLog plugin) {
 		this.plugin = plugin;
 		
 		this.log = plugin.log;
@@ -25,10 +28,10 @@ public class BlocksToDatabase {
 				    	Connection conn = plugin.getConnection();
 						Statement stmt = conn.createStatement();
 						
-				    	if(plugin.getConfig().getBoolean("mysql.enabled"))
-				    		stmt.executeUpdate("INSERT INTO blocklog (`player`, `block_id`, `date`, `x`, `y`, `z`, `type`) VALUES ('" + block.getPlayer() + "', " + block.getBlockId() + ", " + block.getDate() + ", " + block.getX() + ", " + block.getY() + ", " + block.getZ() + ", " + block.getType() + ")");
+						if(plugin.getConfig().getBoolean("mysql.enabled"))
+				    		stmt.executeUpdate("INSERT INTO blocklog (`player`, `block_id`, `world`, `date`, `x`, `y`, `z`, `type`) VALUES ('" + block.getPlayer() + "', " + block.getBlockId() + ", '" + block.getWorldName() + "', " + block.getDate() + ", " + block.getX() + ", " + block.getY() + ", " + block.getZ() + ", " + block.getType() + ")");
 						else
-							stmt.executeUpdate("INSERT INTO blocklog (player, block_id, date, x, y, z, type) VALUES ('" + block.getPlayer() + "', " + block.getBlockId() + ", " + block.getDate() + ", " + block.getX() + ", " + block.getY() + ", " + block.getZ() + ", " + block.getType() + ")");
+							stmt.executeUpdate("INSERT INTO blocklog (player, block_id, world, date, x, y, z, type) VALUES ('" + block.getPlayer() + "', " + block.getBlockId() + ", '" + block.getWorldName() + "', " + block.getDate() + ", " + block.getX() + ", " + block.getY() + ", " + block.getZ() + ", " + block.getType() + ")");
 				    } catch (SQLException e) {
 			    		log.info("[BlockLog][BlockToDatabase][SQL] Exception!");
 						log.info("[BlockLog][BlockToDatabase][SQL] " + e.getMessage());

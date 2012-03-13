@@ -17,6 +17,7 @@ public class LogListener implements Listener {
 	BlockLog plugin;
 	
 	Logger log;
+	int time = 0;
 	
 	public LogListener(BlockLog plugin) {
 		this.plugin = plugin;
@@ -39,8 +40,11 @@ public class LogListener implements Listener {
 		} else if(plugin.blocks.size() > plugin.getConfig().getInt("database.warning")) {
 			int Size = plugin.blocks.size()/100;
 			if(Size == Math.round(Size)) {
-				sendAdminMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "BlockLog reached an internal storage of " + plugin.blocks.size() + "!");
-				sendAdminMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "You can fix this by using the command " + ChatColor.DARK_BLUE + "/blocklog fullsave" + ChatColor.GOLD + " or " + ChatColor.DARK_BLUE + "/blocklog save <blocks>");
+				if(time < System.currentTimeMillis()/1000 - 60) { // Shows it only once every 1 minute incase it stays around the configured amount
+					time = (int) System.currentTimeMillis()/1000;
+					sendAdminMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "BlockLog reached an internal storage of " + plugin.blocks.size() + "!");
+					sendAdminMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "You can fix this by using the command " + ChatColor.DARK_BLUE + "/blocklog fullsave" + ChatColor.GOLD + " or " + ChatColor.DARK_BLUE + "/blocklog save <blocks>");
+				}
 			}
 		}
 	}

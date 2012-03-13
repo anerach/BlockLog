@@ -160,6 +160,28 @@ public class BlockLog extends JavaPlugin {
 
     }
 	
+	public void saveBlocks(int blockCount) {
+		if(blocks.size() > 0) {
+			int StartSize = blocks.size();
+			if(blockCount == 0)
+				StartSize = 0;
+			
+			while(blocks.size() > StartSize - blockCount) {
+				LoggedBlock block = blocks.get(0);
+		    	try {
+			    	Connection conn = dbSettings.getConnection();
+					Statement stmt = conn.createStatement();
+					stmt.executeUpdate("INSERT INTO blocklog_blocks (player, block_id, world, date, x, y, z, type) VALUES ('" + block.getPlayer() + "', " + block.getBlockId() + ", '" + block.getWorldName() + "', " + block.getDate() + ", " + block.getX() + ", " + block.getY() + ", " + block.getZ() + ", " + block.getType() + ")");
+			    	conn.close();
+		    	} catch (SQLException e) {
+		    		log.info("[BlockLog][BlockToDatabase][SQL] Exception!");
+					log.info("[BlockLog][BlockToDatabase][SQL] " + e.getMessage());
+		    	}
+		    	blocks.remove(0);
+			}
+		}
+	}
+	
 	@Override
 	public void onEnable() {
 		loadPlugin();
@@ -169,34 +191,20 @@ public class BlockLog extends JavaPlugin {
 	
 	@Override
 	public void onDisable() {
-		// Pushing all the blocks
-		while(blocks.size() > 0) {
-			LoggedBlock block = blocks.get(0);
-			try {
-		    	Connection conn = dbSettings.getConnection();
-				Statement stmt = conn.createStatement();
-				
-				stmt.executeUpdate("INSERT INTO blocklog_blocks (player, block_id, world, date, x, y, z, type, rollback_id) VALUES ('" + block.getPlayer() + "', " + block.getBlockId() + ", '" + block.getWorldName() + "', , " + block.getDate() + ", " + block.getX() + ", " + block.getY() + ", " + block.getZ() + ", " + block.getType() + ", " + block.getRollback() + ")");
-		    } catch (SQLException e) {
-	    		log.info("[BlockToDatabase][SQL] Exception!");
-				log.info("[BlockToDatabase][SQL] " + e.getMessage());
-	    	}
-	    	blocks.remove(0);
-		}
-		
+		saveBlocks(0);
 		PluginDescriptionFile pdfFile = this.getDescription();
 		log.info("[BlockLog] v" + pdfFile.getVersion() + " is disabled!");
 	}
 	
 	
-	
+	/* Help command */
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
 		Player player = null;
 		
 		if (sender instanceof Player)
 			player = (Player) sender;
 		
-		if((!commandLabel.equalsIgnoreCase("blocklog")) && (!commandLabel.equalsIgnoreCase("bl")))
+		if(cmd.getName() != "blocklog")
 			return false;
 		
 		if (player == null) {

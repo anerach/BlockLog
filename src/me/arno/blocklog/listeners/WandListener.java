@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.LoggedBlock;
+import me.arno.blocklog.database.DatabaseSettings;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -23,25 +24,19 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 public class WandListener implements Listener {
-BlockLog plugin;
+	BlockLog plugin;
 	
 	Logger log;
-	
-	String user;
-	String pass;
-	String url;
+	DatabaseSettings dbSettings;
 	
 	public WandListener(BlockLog plugin) {
 		this.plugin = plugin;
 		
-		log = plugin.log;
-		
-		user = plugin.user;
-		pass = plugin.pass;
-		url = plugin.url;
+		this.log = plugin.log;
 	}
 	
 	public void getBlockEdits(Player player, Block block) {
+		dbSettings = new DatabaseSettings(plugin);
 		try {
 			player.sendMessage(ChatColor.DARK_RED + "BlockLog History (" + plugin.getConfig().getString("blocklog.results") + " Last Edits)");
 			int BlockNumber = 0;
@@ -69,7 +64,7 @@ BlockLog plugin;
 				BlockNumber++;
 			}
 			if(BlockCount < plugin.getConfig().getInt("blocklog.results")) {
-				Connection conn = plugin.getConnection();
+				Connection conn = dbSettings.getConnection();
 				Statement stmt = conn.createStatement();
 				
 				double x = block.getX();
@@ -78,9 +73,9 @@ BlockLog plugin;
 				
 				ResultSet rs;
 				if(plugin.getConfig().getBoolean("mysql.enabled"))
-					rs = stmt.executeQuery("SELECT player, block_id, type, FROM_UNIXTIME(date, '%d-%m-%Y %H:%i:%s') AS date FROM blocklog WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' ORDER BY date DESC LIMIT " + (plugin.getConfig().getInt("blocklog.results") - BlockCount));
+					rs = stmt.executeQuery("SELECT player, block_id, type, FROM_UNIXTIME(date, '%d-%m-%Y %H:%i:%s') AS date FROM blocklog_blocks WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' ORDER BY date DESC LIMIT " + (plugin.getConfig().getInt("blocklog.results") - BlockCount));
 				else
-					rs = stmt.executeQuery("SELECT player, block_id, type, datetime(date, 'unixepoch', 'localtime') AS date FROM blocklog WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' ORDER BY date DESC LIMIT " + (plugin.getConfig().getInt("blocklog.results") - BlockCount));
+					rs = stmt.executeQuery("SELECT player, block_id, type, datetime(date, 'unixepoch', 'localtime') AS date FROM blocklog_blocks WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' ORDER BY date DESC LIMIT " + (plugin.getConfig().getInt("blocklog.results") - BlockCount));
 				
 				while(rs.next()) {
 					String str = (rs.getInt("type") == 1) ? "placed a" : "broke a";
@@ -88,6 +83,7 @@ BlockLog plugin;
 					
 					player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + rs.getString("player") + " " + ChatColor.DARK_GREEN + str + " " + ChatColor.GOLD + name);
 				}
+				conn.close();
 			}
 		} catch(SQLException e) {
 			log.info("[BlockLog][Wand][Interact][SQL] Exception!");
@@ -99,20 +95,28 @@ BlockLog plugin;
 	
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event) {
+		int BLWand = plugin.getConfig().getInt("blocklog.wand");
+		boolean WandEnabled = plugin.users.contains(event.getPlayer().getName());
 		if(!event.isCancelled()) {
-			if(event.getPlayer().getItemInHand().getType().getId() == plugin.getConfig().getInt("blocklog.wand")  && plugin.users.contains(event.getPlayer().getName()) && ((event.getAction() == Action.RIGHT_CLICK_BLOCK && !event.getPlayer().getItemInHand().getType().isBlock()) || event.getAction() == Action.LEFT_CLICK_BLOCK)) {
-				getBlockEdits(event.getPlayer(), event.getClickedBlock());
-				event.setCancelled(true);
+			if(event.getPlayer().getItemInHand().getTypeId() == BLWand  && WandEnabled) {
+				if((event.getAction() == Action.RIGHT_CLICK_BLOCK && (!event.getPlayer().getItemInHand().getType().isBlock()) || event.getAction() == Action.LEFT_CLICK_BLOCK)) {
+					getBlockEdits(event.getPlayer(), event.getClickedBlock());
+					event.setCancelled(true);
+				}
 			}
 		}
 	}
 	
 	@EventHandler
 	public void onBlockPlace(BlockPlaceEvent event) {
+		int BLWand = plugin.getConfig().getInt("blocklog.wand");
+		boolean WandEnabled = plugin.users.contains(event.getPlayer().getName());
 		if(!event.isCancelled()) {
-			if(event.getPlayer().getItemInHand().getType().getId() == plugin.getConfig().getInt("blocklog.wand") && plugin.users.contains(event.getPlayer().getName()) && event.getPlayer().getItemInHand().getType().isBlock()) {
-				getBlockEdits(event.getPlayer(), event.getBlockPlaced());
-				event.setCancelled(true);
+			if(event.getPlayer().getItemInHand().getTypeId() == BLWand && WandEnabled) {
+				if(event.getPlayer().getItemInHand().getType().isBlock()) {
+					getBlockEdits(event.getPlayer(), event.getBlockPlaced());
+					event.setCancelled(true);
+				}
 			}
 		}
 	}

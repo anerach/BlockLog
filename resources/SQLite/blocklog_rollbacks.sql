@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS 'blocklog_rollbacks' (
+	'id' INTEGER PRIMARY KEY NOT NULL,
+	'player' VARCHAR(75) NOT NULL,
+	'world' VARCHAR(75) NOT NULL,
+	'date' INTEGER NOT NULL,
+	'type' INTEGER NOT NULL
+);

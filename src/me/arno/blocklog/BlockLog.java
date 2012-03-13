@@ -1,21 +1,33 @@
 package me.arno.blocklog;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
+import me.arno.blocklog.commands.CommandClear;
 import me.arno.blocklog.commands.CommandConfig;
+import me.arno.blocklog.commands.CommandRadiusRollback;
+import me.arno.blocklog.commands.CommandReload;
 import me.arno.blocklog.commands.CommandRollback;
 import me.arno.blocklog.commands.CommandSave;
+import me.arno.blocklog.commands.CommandUndo;
 import me.arno.blocklog.commands.CommandWand;
+import me.arno.blocklog.database.DatabaseSettings;
 import me.arno.blocklog.database.PushBlocks;
 import me.arno.blocklog.listeners.LogListener;
+import me.arno.blocklog.listeners.LoginListener;
 import me.arno.blocklog.listeners.WandListener;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -24,14 +36,37 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class BlockLog extends JavaPlugin {
-	public final Logger log = Logger.getLogger("Minecraft");
+	public Logger log; //Logger.getLogger("Minecraft");
 	
-	public String user;
-	public String pass;
-	public String url;
+	public DatabaseSettings dbSettings;
 	
 	public ArrayList<String> users = new ArrayList<String>();
 	public ArrayList<LoggedBlock> blocks = new ArrayList<LoggedBlock>();
+	
+	public String NewVersion = null;
+	
+	public String getResourceContent(String file) {
+		try {
+			InputStream ResourceFile = getResource("resources/" + file);
+			 
+			final char[] buffer = new char[0x10000];
+			StringBuilder StrBuilder = new StringBuilder();
+			Reader InputReader = new InputStreamReader(ResourceFile, "UTF-8");
+			int read;
+			do {
+				read = InputReader.read(buffer, 0, buffer.length);
+				if (read > 0) {
+					StrBuilder.append(buffer, 0, read);
+				}
+			} while (read >= 0);
+			InputReader.close();
+			ResourceFile.close();
+			return StrBuilder.toString();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 	
 	public void loadConfiguration() {
 		try {
@@ -48,74 +83,88 @@ public class BlockLog extends JavaPlugin {
 		    getConfig().options().copyDefaults(true);
 		    saveConfig();
 		    
-		    if(getConfig().getBoolean("mysql.enabled")) {
-		    	user = getConfig().getString("mysql.username");
-			    pass = getConfig().getString("mysql.password");
-			    url = "jdbc:mysql://" + getConfig().getString("mysql.host") + ":" + getConfig().getString("mysql.port") + "/" + getConfig().getString("mysql.database");
-			    Connection conn = DriverManager.getConnection(url, user, pass);
+		    dbSettings = new DatabaseSettings(this);
+		    
+		    if(dbSettings.MySQLEnabled()) {
+			    Connection conn = dbSettings.getConnection();
 				Statement stmt = conn.createStatement();
-				stmt.executeUpdate("CREATE TABLE IF NOT EXISTS `blocklog` (" +
-						"`id` int(11) NOT NULL AUTO_INCREMENT," +
-						"`player` varchar(75) NOT NULL," +
-						"`world` varchar(75) NOT NULL," +
-						"`block_id` int(11) NOT NULL," +
-						"`type` tinyint(1) NOT NULL," +
-						"`rollback_id` tinyint(1) NOT NULL DEFAULT '0'," +
-						"`x` double NOT NULL," +
-						"`y` double NOT NULL," +
-						"`z` double NOT NULL," +
-						"`date` int(11) NOT NULL," +
-						"PRIMARY KEY (`id`)" +
-						") ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;");
+				
+
+				stmt.executeUpdate("RENAME TABLE blocklog TO blocklog_blocks");
+				stmt.executeUpdate(getResourceContent("MySQL/blocklog_blocks.sql"));
+				stmt.executeUpdate(getResourceContent("MySQL/blocklog_rollbacks.sql"));
 		    } else {
-		    	Class.forName("org.sqlite.JDBC");
-		    	
-		    	url = "jdbc:sqlite:plugins/BlockLog/blocklog.db";
-		    	
-		    	Connection conn = DriverManager.getConnection(url);
+		    	Connection conn = dbSettings.getConnection();
 				Statement stmt = conn.createStatement();
-				stmt.executeUpdate("CREATE TABLE IF NOT EXISTS 'blocklog' (" +
-						"'id' INTEGER PRIMARY KEY NOT NULL," +
-						"'player' VARCHAR(75) NOT NULL," +
-						"'world' VARCHAR(75) NOT NULL," +
-						"'block_id' INTEGER NOT NULL," +
-						"'type' INTEGER NOT NULL," +
-						"'rollback_id' INTEGER NOT NULL DEFAULT '0'," +
-						"'x' DOUBLE NOT NULL," +
-						"'y' DOUBLE NOT NULL," +
-						"'z' DOUBLE NOT NULL," +
-						"'date' INTEGER NOT NULL" +
-						");");
+				
+				stmt.executeUpdate("RENAME TABLE blocklog TO blocklog_blocks");
+				stmt.executeUpdate(getResourceContent("SQLite/blocklog_blocks.sql"));
+				stmt.executeUpdate(getResourceContent("SQLite/blocklog_rollbacks.sql"));
 		    }
 		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			log.info(e.getMessage()); 
 		}
 	}
 	
 	public void loadPlugin() {
+		log = getLogger();
     	loadConfiguration();
     	
     	new PushBlocks(this);
     	
     	getCommand("blrollback").setExecutor(new CommandRollback(this));
+    	getCommand("blrollbackradius").setExecutor(new CommandRadiusRollback(this));
     	getCommand("blrb").setExecutor(new CommandRollback(this));
     	getCommand("blconfig").setExecutor(new CommandConfig(this));
     	getCommand("blcfg").setExecutor(new CommandConfig(this));
     	getCommand("blwand").setExecutor(new CommandWand(this));
     	getCommand("blsave").setExecutor(new CommandSave(this));
     	getCommand("blfullsave").setExecutor(new CommandSave(this));
+    	getCommand("blreload").setExecutor(new CommandReload(this));
+    	getCommand("blclear").setExecutor(new CommandClear(this));
+    	getCommand("blundo").setExecutor(new CommandUndo(this));
     	
     	getServer().getPluginManager().registerEvents(new LogListener(this), this);
     	getServer().getPluginManager().registerEvents(new WandListener(this), this);
+    	getServer().getPluginManager().registerEvents(new LoginListener(this), this);
+    	
+    	try {
+    		URL url;
+		
+			url = new URL("http://dl.dropbox.com/u/24494712/LogBlock/version.txt");
+		
+	        URLConnection urlConnection = url.openConnection();
+	        urlConnection.setConnectTimeout(1000);
+	        urlConnection.setReadTimeout(1000);
+	        BufferedReader breader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+	
+	        StringBuilder stringBuilder = new StringBuilder();
+	
+	        String line;
+	        while((line = breader.readLine()) != null) {
+	                stringBuilder.append(line);
+	        }
+	
+	        int LatestVersion = Integer.parseInt(stringBuilder.toString().replace(".", ""));
+	        int ThisVersion = Integer.parseInt(getDescription().getVersion().replace(".", ""));
+	        if(LatestVersion > ThisVersion) {
+	        	log.info("There is a new version of BlockLog available (v" + stringBuilder.toString() + ")");
+	        	NewVersion = stringBuilder.toString();
+	        }
+	        	
+    	} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
     }
 	
 	@Override
 	public void onEnable() {
 		loadPlugin();
 		PluginDescriptionFile pdfFile = this.getDescription();
-		log.info("[BlockLog] v" + pdfFile.getVersion() + " is enabled!");
+		log.info("v" + pdfFile.getVersion() + " is enabled!");
 	}
 	
 	@Override
@@ -123,17 +172,14 @@ public class BlockLog extends JavaPlugin {
 		// Pushing all the blocks
 		while(blocks.size() > 0) {
 			LoggedBlock block = blocks.get(0);
-	    	try {
-		    	Connection conn = getConnection();
+			try {
+		    	Connection conn = dbSettings.getConnection();
 				Statement stmt = conn.createStatement();
 				
-		    	if(getConfig().getBoolean("mysql.enabled"))
-		    		stmt.executeUpdate("INSERT INTO blocklog (player, block_id, world, date, x, y, z, type) VALUES ('" + block.getPlayer() + "', " + block.getBlockId() + ", '" + block.getWorldName() + "', UNIX_TIMESTAMP(), " + block.getX() + ", " + block.getY() + ", " + block.getZ() + ", " + block.getType() + ")");
-				else
-					stmt.executeUpdate("INSERT INTO blocklog (player, block_id, world, date, x, y, z, type) VALUES ('" + block.getPlayer() + "', " + block.getBlockId() + ", '" + block.getWorldName() + "', strftime('%s', 'now'), " + block.getX() + ", " + block.getY() + ", " + block.getZ() + ", " + block.getType() + ")");
+				stmt.executeUpdate("INSERT INTO blocklog_blocks (player, block_id, world, date, x, y, z, type, rollback_id) VALUES ('" + block.getPlayer() + "', " + block.getBlockId() + ", '" + block.getWorldName() + "', , " + block.getDate() + ", " + block.getX() + ", " + block.getY() + ", " + block.getZ() + ", " + block.getType() + ", " + block.getRollback() + ")");
 		    } catch (SQLException e) {
-	    		log.info("[BlockLog][BlockToDatabase][SQL] Exception!");
-				log.info("[BlockLog][BlockToDatabase][SQL] " + e.getMessage());
+	    		log.info("[BlockToDatabase][SQL] Exception!");
+				log.info("[BlockToDatabase][SQL] " + e.getMessage());
 	    	}
 	    	blocks.remove(0);
 		}
@@ -142,21 +188,7 @@ public class BlockLog extends JavaPlugin {
 		log.info("[BlockLog] v" + pdfFile.getVersion() + " is disabled!");
 	}
 	
-	public void sendAdminMessage(String msg) {
-		for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-	    	if (player.isOp() || player.hasPermission("blocklog.notices")) {
-	    		player.sendMessage(msg);
-	        }
-	    }
-	}
 	
-	public Connection getConnection() throws SQLException
-	{
-		if(getConfig().getBoolean("mysql.enabled"))
-			return DriverManager.getConnection(url, user, pass);
-		else
-			return DriverManager.getConnection(url);
-	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
 		Player player = null;
@@ -165,33 +197,33 @@ public class BlockLog extends JavaPlugin {
 			player = (Player) sender;
 		
 		if((!commandLabel.equalsIgnoreCase("blocklog")) && (!commandLabel.equalsIgnoreCase("bl")))
-			return true;
+			return false;
 		
 		if (player == null) {
 			sender.sendMessage("This command can only be run by a player");
 			return true;
 		}
 		
-		if(args.length > 0) {
-			if(args[0].equalsIgnoreCase("reload") && (player.isOp() || player.hasPermission("blocklog.reload"))) {
-				log.info("[BlockLog] Reloading!");
-				loadPlugin();
-				log.info("[BlockLog] Reloaded Succesfully!");
-			} else if(args[0].equalsIgnoreCase("help") && (player.isOp() || player.hasPermission("blocklog.help"))) {
-				player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Commands!");
-				player.sendMessage(ChatColor.DARK_RED +"/blocklog help" + ChatColor.GOLD + " - Shows this message!");
-				if(player.isOp() || player.hasPermission("blocklog.reload"))
-					player.sendMessage(ChatColor.DARK_RED +"/blocklog reload" + ChatColor.GOLD + " - Reloads blocklog config file.");
-				if(player.isOp() || player.hasPermission("blocklog.wand"))
-					player.sendMessage(ChatColor.DARK_RED +"/blwand" + ChatColor.GOLD + " - Enables blocklog's wand.");
-				if(player.isOp() || player.hasPermission("blocklog.save"))
-					player.sendMessage(ChatColor.DARK_RED +"/blsave [amount]" + ChatColor.GOLD + " - Saves 25 or the specified amount of blocks.");
-				if(player.isOp() || player.hasPermission("blocklog.fullsave"))
-					player.sendMessage(ChatColor.DARK_RED +"/blfullsave" + ChatColor.GOLD + " - Saves all the blocks.");
-				if(player.isOp() || player.hasPermission("blocklog.rollback"))
-					player.sendMessage(ChatColor.DARK_RED +"/blrollback [player] <time> <sec/min/hour/day/week>" + ChatColor.GOLD + " - Restortes the whole server or edits by one player to a specified point.");
-			}
+		player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Commands");
+		player.sendMessage(ChatColor.DARK_RED +"/blhelp" + ChatColor.GOLD + " - Shows this message");
+		if(player.isOp() || player.hasPermission("blocklog.reload"))
+			player.sendMessage(ChatColor.DARK_RED +"/blocklog reload" + ChatColor.GOLD + " - Reloads blocklog config file");
+		if(player.isOp() || player.hasPermission("blocklog.wand"))
+			player.sendMessage(ChatColor.DARK_RED +"/blwand" + ChatColor.GOLD + " - Enables blocklog's wand");
+		if(player.isOp() || player.hasPermission("blocklog.save"))
+			player.sendMessage(ChatColor.DARK_RED +"/blsave [amount]" + ChatColor.GOLD + " - Saves 25 or the specified amount of blocks");
+		if(player.isOp() || player.hasPermission("blocklog.fullsave"))
+			player.sendMessage(ChatColor.DARK_RED +"/blfullsave" + ChatColor.GOLD + " - Saves all the blocks");
+		if(player.isOp() || player.hasPermission("blocklog.rollback")) {
+			player.sendMessage(ChatColor.DARK_RED +"/blrollback [player] <time> <sec|min|hour|day|week>" + ChatColor.GOLD + " - Restortes the whole server or edits by one player to a specified point");
+			player.sendMessage(ChatColor.DARK_RED +"/blrollbackradius [player] <time> <sec|min|hour|day|week>" + ChatColor.GOLD + " - Restortes the whole server or edits by one player to a specified point");
 		}
+		if(player.isOp() || player.hasPermission("blocklog.clear"))
+			player.sendMessage(ChatColor.DARK_RED +"/blclear <amount> <day|week>" + ChatColor.GOLD + " - Clears blocklog's history");
+		if(player.isOp() || player.hasPermission("blocklog.undo"))
+			player.sendMessage(ChatColor.DARK_RED +"/blundo [rollback]" + ChatColor.GOLD + " - Undo's the latest or specified rollback");
+		if(player.isOp() || player.hasPermission("blocklog.config"))
+			player.sendMessage(ChatColor.DARK_RED +"/blundo <get/set> <key> [value]" + ChatColor.GOLD + " - Change blocklog's command values ingame");
 		return true;
 	}
 }

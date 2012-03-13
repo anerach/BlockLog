@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.LoggedBlock;
+import me.arno.blocklog.database.DatabaseSettings;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -14,9 +15,10 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class CommandSave implements CommandExecutor{
+public class CommandSave implements CommandExecutor {
 	BlockLog plugin;
 	Logger log;
+	DatabaseSettings dbSettings;
 	
 	public CommandSave(BlockLog plugin) {
 		this.plugin = plugin;
@@ -32,14 +34,11 @@ public class CommandSave implements CommandExecutor{
 			while(plugin.blocks.size() > StartSize - blockCount) {
 				LoggedBlock block = plugin.blocks.get(0);
 		    	try {
-			    	Connection conn = plugin.getConnection();
+			    	Connection conn = dbSettings.getConnection();
 					Statement stmt = conn.createStatement();
-					
-			    	if(plugin.getConfig().getBoolean("mysql.enabled"))
-			    		stmt.executeUpdate("INSERT INTO blocklog (player, block_id, world, date, x, y, z, type) VALUES ('" + block.getPlayer() + "', " + block.getBlockId() + ", '" + block.getWorldName() + "', UNIX_TIMESTAMP(), " + block.getX() + ", " + block.getY() + ", " + block.getZ() + ", " + block.getType() + ")");
-					else
-						stmt.executeUpdate("INSERT INTO blocklog (player, block_id, world, date, x, y, z, type) VALUES ('" + block.getPlayer() + "', " + block.getBlockId() + ", '" + block.getWorldName() + "', strftime('%s', 'now'), " + block.getX() + ", " + block.getY() + ", " + block.getZ() + ", " + block.getType() + ")");
-			    } catch (SQLException e) {
+					stmt.executeUpdate("INSERT INTO blocklog_blocks (player, block_id, world, date, x, y, z, type) VALUES ('" + block.getPlayer() + "', " + block.getBlockId() + ", '" + block.getWorldName() + "', " + block.getDate() + ", " + block.getX() + ", " + block.getY() + ", " + block.getZ() + ", " + block.getType() + ")");
+			    	conn.close();
+		    	} catch (SQLException e) {
 		    		log.info("[BlockLog][BlockToDatabase][SQL] Exception!");
 					log.info("[BlockLog][BlockToDatabase][SQL] " + e.getMessage());
 		    	}
@@ -50,6 +49,7 @@ public class CommandSave implements CommandExecutor{
 	
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
+		dbSettings = new DatabaseSettings(plugin);
 		Player player = null;
 		
 		if (sender instanceof Player)

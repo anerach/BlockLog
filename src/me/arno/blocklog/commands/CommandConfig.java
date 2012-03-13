@@ -10,7 +10,7 @@ import org.bukkit.entity.Player;
 
 public class CommandConfig implements CommandExecutor {
 
-BlockLog plugin;
+	BlockLog plugin;
 	
 	public CommandConfig(BlockLog plugin) {
 		this.plugin = plugin;
@@ -22,6 +22,8 @@ BlockLog plugin;
 		
 		if (sender instanceof Player)
 			player = (Player) sender;
+		
+		
 		
 		if(!(commandLabel.equalsIgnoreCase("blconfig") || commandLabel.equalsIgnoreCase("blcfg")))
 			return false;
@@ -44,7 +46,6 @@ BlockLog plugin;
 				player.sendMessage(ChatColor.DARK_GREEN + "/blconfig help - Shows this message");
 				player.sendMessage(ChatColor.DARK_GREEN + "/blconfig set <key> <value> - Changes a blocklog config value");
 				player.sendMessage(ChatColor.DARK_GREEN + "/blconfig get <key> - Shows a blocklog config value");
-				return true;
 			} else if(Action.equalsIgnoreCase("set")) {
 				if(args.length != 3)
 					return false;
@@ -52,9 +53,18 @@ BlockLog plugin;
 				ConfigKey = args[1];
 				ConfigValue = args[2];
 				
-				plugin.getConfig().set(ConfigKey, ConfigValue);
+				if(plugin.getConfig().isString(ConfigKey))
+					plugin.getConfig().set(ConfigKey, ConfigValue);
+				else if(plugin.getConfig().isInt(ConfigKey))
+					plugin.getConfig().set(ConfigKey, Integer.parseInt(ConfigValue));
+				else if(plugin.getConfig().isBoolean(ConfigKey))
+					plugin.getConfig().set(ConfigKey, Boolean.parseBoolean(ConfigValue));
+				else
+					return false;
+				
 				player.sendMessage(ChatColor.DARK_RED +"[BlockLog][Config] " + ChatColor.GOLD + "Changed value of " + ConfigKey + " to " + ConfigValue);
-				return true;
+				plugin.saveConfig();
+				plugin.reloadConfig();
 			} else if(Action.equalsIgnoreCase("get")) {
 				if(args.length != 2)
 					return false;
@@ -72,9 +82,9 @@ BlockLog plugin;
 					return false;
 				
 				player.sendMessage(ChatColor.DARK_RED +"[BlockLog][Config] " + ChatColor.GOLD + "Value of " + ConfigKey + ": " + Result);
-				return true;
+				
 			}
-			plugin.saveConfig();
+			return true;
 		}
 		return false;
 	}

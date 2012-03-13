@@ -1,5 +1,11 @@
 package me.arno.blocklog;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+import me.arno.blocklog.database.DatabaseSettings;
+
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -8,6 +14,7 @@ import org.bukkit.entity.Player;
 public class LoggedBlock {
 	private Player player;
 	private int block_id;
+	private int rollback = 0;
 	private World world;
 	private int type;
 	private long date;
@@ -28,9 +35,42 @@ public class LoggedBlock {
 		this.z = block.getLocation().getZ();
 	}
 	
+	public LoggedBlock(Player player, int block, Location location, int type) {
+		this.player = player;
+		this.block_id = block;
+		this.world = location.getWorld();
+		this.date = System.currentTimeMillis()/1000;
+		this.type = type;
+		this.location = location;
+		this.x = location.getX();
+		this.y = location.getY();
+		this.z = location.getZ();
+	}
+
+	public void save(BlockLog plugin) {
+		DatabaseSettings dbSettings = new DatabaseSettings(plugin);
+	    try {
+		    Connection conn = dbSettings.getConnection();
+			Statement stmt = conn.createStatement();
+			
+			stmt.executeUpdate("INSERT INTO blocklog_blocks (player, block_id, world, date, x, y, z, type, rollback_id) VALUES ('" + getPlayer() + "', " + getBlockId() + ", '" + getWorldName() + "', " + getDate() + ", " + getX() + ", " + getY() + ", " + getZ() + ", " + getType() + ", " + getRollback() + ")");
+	    } catch (SQLException e) {
+	    	e.printStackTrace();
+	    }
+	}
+	
 	public String getPlayer()
 	{
 		return player.getName();
+	}
+	
+	public int getRollback()
+	{
+		return rollback;
+	}
+	
+	public void setRollback(int id) {
+		rollback = id;
 	}
 	
 	public Integer getBlockId()
@@ -43,6 +83,7 @@ public class LoggedBlock {
 	{
 		return world.getName();
 	}
+	
 	public long getDate()
 	{
 		return date;

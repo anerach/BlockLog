@@ -21,22 +21,14 @@ import me.arno.blocklog.LoggedBlock;
 import me.arno.blocklog.Rollback;
 import me.arno.blocklog.database.DatabaseSettings;
 
-public class CommandRollback implements CommandExecutor {
+public class CommandRadiusRollback implements CommandExecutor {
 	BlockLog plugin;
 	Logger log;
 	DatabaseSettings dbSettings;
 	
-	public CommandRollback(BlockLog plugin) {
+	public CommandRadiusRollback(BlockLog plugin) {
 		this.plugin = plugin;
 		this.log = plugin.log;
-	}
-	
-	public String getQuery(String str) {
-		if(str.equalsIgnoreCase("PlayerRollback"))
-			return "SELECT id,block_id,type,x,y,z FROM blocklog_blocks WHERE date > '%s' AND rollback_id = 0 AND world = '%s' AND player = '%s' ORDER BY date DESC";
-		else if(str.equalsIgnoreCase("TotalRollback"))
-			return "SELECT id,block_id,type,x,y,z FROM blocklog_blocks WHERE date > '%s' AND rollback_id = 0 AND world = '%s' ORDER BY date DESC";
-		return "";
 	}
 	
 	@Override
@@ -47,7 +39,7 @@ public class CommandRollback implements CommandExecutor {
 		if (sender instanceof Player)
 			player = (Player) sender;
 		
-		if(!(commandLabel.equalsIgnoreCase("blrollback") || commandLabel.equalsIgnoreCase("blrb")))
+		if(!(commandLabel.equalsIgnoreCase("blrollbackradius") || commandLabel.equalsIgnoreCase("blrbradius") || commandLabel.equalsIgnoreCase("blrbr")))
 			return false;
 		
 		if (player == null) {
@@ -55,12 +47,40 @@ public class CommandRollback implements CommandExecutor {
 			return true;
 		}
 		
-		if(args.length < 2 || args.length > 3)
+		if(args.length < 3 || args.length > 4)
 			return false;
+		
+		String strPlayer = null;
+		int radius;
+		int timeInt;
+		String timeVal;
+		
+		if(args.length == 3) {
+			radius = Integer.parseInt(args[0]);
+			timeInt = Integer.parseInt(args[1]);
+			timeVal = args[2];
+		} else if(args.length == 4) {
+			strPlayer = args[0];
+			radius = Integer.parseInt(args[1]);
+			timeInt = Integer.parseInt(args[2]);
+			timeVal = args[3];
+		} else
+			return false;
+		
+		int xMin = player.getLocation().getBlockX() - radius;
+		int xMax = player.getLocation().getBlockX() + radius;
+		int yMin = player.getLocation().getBlockY() - radius;
+		int yMax = player.getLocation().getBlockY() + radius;
+		int zMin = player.getLocation().getBlockZ() - radius;
+		int zMax = player.getLocation().getBlockZ() + radius;
+		
+		if(player.getWorld().getMaxHeight() < yMax)
+			yMax =	player.getWorld().getMaxHeight();
+		if(0 > yMin)
+			yMin = 0;
 		
 		try {
 			Connection conn = dbSettings.getConnection();
-				
 			Statement stmt = conn.createStatement();
 			Statement updateStmt = conn.createStatement();
 			int time;
@@ -70,9 +90,6 @@ public class CommandRollback implements CommandExecutor {
 			Set<String> Hour = new HashSet<String>(Arrays.asList("h", "hour","hours"));
 			Set<String> Day = new HashSet<String>(Arrays.asList("d", "day","days"));
 			Set<String> Week = new HashSet<String>(Arrays.asList("w", "week","weeks"));
-			
-			String timeVal = ((args.length == 3) ? args[2].toLowerCase() : args[1].toLowerCase());
-			Integer timeInt = Integer.parseInt(((args.length == 3) ? args[1] : args[0]));
 			
 			if(Second.contains(timeVal))
 				time = (int) (System.currentTimeMillis()/1000 - timeInt);
@@ -89,7 +106,7 @@ public class CommandRollback implements CommandExecutor {
 				return false;
 			}
 			
-			Rollback rb = new Rollback(plugin, player, 0);
+			Rollback rb = new Rollback(plugin, player, 1);
 			
 			int BlockCount = 0;
 			int BlockSize = plugin.blocks.size();
@@ -97,34 +114,30 @@ public class CommandRollback implements CommandExecutor {
 			while(BlockSize > BlockCount)
 			{
 				LoggedBlock LBlock = plugin.blocks.get(BlockCount); 
-				if(LBlock.getDate() > time) {
-					
+				if(LBlock.getDate() > time && (LBlock.getX() >= xMin && LBlock.getX() <= xMax ) && (LBlock.getY() >= yMin && LBlock.getY() <= yMax ) && (LBlock.getZ() >= zMin && LBlock.getZ() <= zMax )) {
 					Material m = Material.getMaterial(LBlock.getBlockId());
 					LBlock.setRollback(rb.getId());
-					if(args.length == 3) {
-						if(args[0].equalsIgnoreCase(LBlock.getPlayer())) {
+					if(strPlayer != null) {
+						if(LBlock.getPlayer() == strPlayer) {
 							if(LBlock.getType() == 0)
 								player.getWorld().getBlockAt(LBlock.getLocation()).setType(m);
 							else
 								player.getWorld().getBlockAt(LBlock.getLocation()).setType(Material.AIR);
-							
-							BlockCount++;
 						}
 					} else {
 						if(LBlock.getType() == 0)
 							player.getWorld().getBlockAt(LBlock.getLocation()).setType(m);
 						else
 							player.getWorld().getBlockAt(LBlock.getLocation()).setType(Material.AIR);
-						
-						BlockCount++;
 					}
+					BlockCount++;
 				}
 			}
 				
-			String Query =  String.format(getQuery("TotalRollback"), time, player.getWorld().getName());
+			String Query = String.format("SELECT id,block_id,type,x,y,z FROM blocklog_blocks WHERE date > '%s' AND rollback_id = 0 AND world = '%s' AND x >= %s AND x <= %s AND y >= %s AND y <= %s AND z >= %s AND z <= %s ORDER BY date DESC", time, player.getWorld().getName(), xMin,xMax,yMin,yMax,zMin,zMax);
 				
-			if(args.length == 3)
-				Query = String.format(getQuery("PlayerRollback"), time, player.getWorld().getName(), args[0]);
+			if(strPlayer != null)
+				Query = String.format("SELECT id,block_id,type,x,y,z FROM blocklog_blocks WHERE date > '%s' AND rollback_id = 0 AND world = '%s' AND x >= %s AND x <= %s AND y >= %s AND y <= %s AND z >= %s AND z <= %s AND player = '%s' ORDER BY date DESC", time, player.getWorld().getName(), xMin,xMax,yMin,yMax,zMin,zMax, strPlayer);
 			
 			ResultSet rs = stmt.executeQuery(Query);
 			
@@ -140,9 +153,10 @@ public class CommandRollback implements CommandExecutor {
 				updateStmt.executeUpdate(String.format("UPDATE blocklog_blocks SET rollback_id = %s WHERE id = %s", rb.getId(), rs.getInt("id")));
 				i++;
 			}
-			conn.close();
-			player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GREEN + (i + BlockCount) + ChatColor.GOLD + " blocks changed!");
+			
+			player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GREEN + (i + BlockCount) + ChatColor.GOLD + " blocks changed!");
 			player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "use the command " + ChatColor.GREEN + "/blundo" + ChatColor.GOLD + " to undo this rollback!");
+			conn.close();
 			return true;
 		} catch(SQLException e) {
 			e.printStackTrace();

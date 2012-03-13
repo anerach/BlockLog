@@ -26,6 +26,6 @@ public class LoginListener implements Listener {
 		Player player = event.getPlayer();
 	    if ((player.isOp() || player.hasPermission("blocklog.notices")) && plugin.NewVersion != null) {
 	    	player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "There is a new version of BlockLog available (v" + plugin.NewVersion + ")");
-	    } 
+	    }
 	}
 }

@@ -55,7 +55,7 @@ public class CommandSave implements CommandExecutor {
 		if (sender instanceof Player)
 			player = (Player) sender;
 		
-		if(!(commandLabel.equalsIgnoreCase("blsave") || !commandLabel.equalsIgnoreCase("blfullsave")))
+		if(!(cmd.getName().equalsIgnoreCase("blsave") || cmd.getName().equalsIgnoreCase("blfullsave")))
 			return false;
 		
 		if (player == null) {
@@ -63,7 +63,7 @@ public class CommandSave implements CommandExecutor {
 			return true;
 		}
 		
-		if(commandLabel.equalsIgnoreCase("blsave") && (player.isOp() || player.hasPermission("blocklog.save"))) {
+		if(cmd.getName().equalsIgnoreCase("blsave")) {
 			int blockCount = 25;
 			if(args.length == 1)
 				blockCount = Integer.parseInt(args[0]);
@@ -72,7 +72,7 @@ public class CommandSave implements CommandExecutor {
 			saveBlocks(blockCount);
 			player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Successfully saved " + blockCount + " block edits!");
 			return true;
-		} else if(commandLabel.equalsIgnoreCase("blfullsave") && (player.isOp() || player.hasPermission("blocklog.fullsave"))) {
+		} else if(cmd.getName().equalsIgnoreCase("blfullsave")) {
 			player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Saving all the block edits!");
 			saveBlocks(0);
 			player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Successfully saved all the block edits!");

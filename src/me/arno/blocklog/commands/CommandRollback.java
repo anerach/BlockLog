@@ -14,12 +14,10 @@ import org.bukkit.entity.Player;
 
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.Rollback;
-import me.arno.blocklog.database.DatabaseSettings;
 
 public class CommandRollback implements CommandExecutor {
 	BlockLog plugin;
 	Logger log;
-	DatabaseSettings dbSettings;
 	
 	public CommandRollback(BlockLog plugin) {
 		this.plugin = plugin;
@@ -28,7 +26,6 @@ public class CommandRollback implements CommandExecutor {
 	
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		dbSettings = new DatabaseSettings(plugin);
 		Player player = null;
 		
 		if (sender instanceof Player)
@@ -45,37 +42,38 @@ public class CommandRollback implements CommandExecutor {
 		if(args.length < 2 || args.length > 3)
 			return false;
 		
-		try {
-			int time;
-			
-			Set<String> Second = new HashSet<String>(Arrays.asList("s", "sec","secs","second","seconds"));
-			Set<String> Minute = new HashSet<String>(Arrays.asList("m", "min","mins","minute","minutes"));
-			Set<String> Hour = new HashSet<String>(Arrays.asList("h", "hour","hours"));
-			Set<String> Day = new HashSet<String>(Arrays.asList("d", "day","days"));
-			Set<String> Week = new HashSet<String>(Arrays.asList("w", "week","weeks"));
+		int time;
+		
+		Set<String> Second = new HashSet<String>(Arrays.asList("s", "sec","secs","second","seconds"));
+		Set<String> Minute = new HashSet<String>(Arrays.asList("m", "min","mins","minute","minutes"));
+		Set<String> Hour = new HashSet<String>(Arrays.asList("h", "hour","hours"));
+		Set<String> Day = new HashSet<String>(Arrays.asList("d", "day","days"));
+		Set<String> Week = new HashSet<String>(Arrays.asList("w", "week","weeks"));
 
-			Integer timeInt = Integer.parseInt(args[0]);
-			String timeVal = args[1].toLowerCase();
-			if(args.length == 3) {
-				timeInt = Integer.parseInt(args[1]);
-				timeVal = args[2].toLowerCase();
-			}
-			
-			if(Second.contains(timeVal))
-				time = (int) (System.currentTimeMillis()/1000 - timeInt);
-			else if(Minute.contains(timeVal))
-				time = (int) (System.currentTimeMillis()/1000 - timeInt * 60);
-			else if(Hour.contains(timeVal))
-				time = (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60);
-			else if(Day.contains(timeVal))
-				time = (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60 * 24);
-			else if(Week.contains(timeVal))
-				time = (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60 * 24 * 7);
-			else {
-				player.sendMessage(ChatColor.DARK_GREEN + "Invalid time");
-				return false;
-			}
-			
+		Integer timeInt = Integer.parseInt(args[0]);
+		String timeVal = args[1].toLowerCase();
+		
+		if(args.length == 3) {
+			timeInt = Integer.parseInt(args[1]);
+			timeVal = args[2].toLowerCase();
+		}
+		
+		if(Second.contains(timeVal))
+			time = (int) (System.currentTimeMillis()/1000 - timeInt);
+		else if(Minute.contains(timeVal))
+			time = (int) (System.currentTimeMillis()/1000 - timeInt * 60);
+		else if(Hour.contains(timeVal))
+			time = (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60);
+		else if(Day.contains(timeVal))
+			time = (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60 * 24);
+		else if(Week.contains(timeVal))
+			time = (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60 * 24 * 7);
+		else {
+			player.sendMessage(ChatColor.DARK_GREEN + "Invalid time");
+			return false;
+		}
+		
+		try {
 			Rollback rb = new Rollback(plugin, player, 0);
 			if(args.length == 3)
 				return rb.doRollback(player.getServer().getPlayer(args[0]), time);

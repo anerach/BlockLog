@@ -100,12 +100,32 @@ public class Rollback {
 	}
 	
 	public boolean doRollback(int time) throws SQLException {
-		return doRollback(null, time);
+		return doRollback(null, time, 0);
 	}
 	
 	public boolean doRollback(Player player, int time) throws SQLException {
+		return doRollback(player, time, 0);
+	}
+	
+	public boolean doRollback(int time, int radius) throws SQLException {
+		return doRollback(null, time, radius);
+	}
+	
+	public boolean doRollback(Player player, int time, int radius) throws SQLException {
 		int BlockCount = 0;
 		int BlockSize = plugin.blocks.size();
+		
+		int xMin = sender.getLocation().getBlockX() - radius;
+		int xMax = sender.getLocation().getBlockX() + radius;
+		int yMin = sender.getLocation().getBlockY() - radius;
+		int yMax = sender.getLocation().getBlockY() + radius;
+		int zMin = sender.getLocation().getBlockZ() - radius;
+		int zMax = sender.getLocation().getBlockZ() + radius;
+		
+		if(sender.getWorld().getMaxHeight() < yMax)
+			yMax =	sender.getWorld().getMaxHeight();
+		if(0 > yMin)
+			yMin = 0;
 		
 		/* Internal Stored Blocks */
 		while(BlockSize > BlockCount)
@@ -113,25 +133,49 @@ public class Rollback {
 			LoggedBlock LBlock = plugin.blocks.get(BlockCount); 
 			if(LBlock.getDate() > time) {
 				Material m = Material.getMaterial(LBlock.getBlockId());
-				if(player != null) {
-					if(player.getName().equalsIgnoreCase(LBlock.getPlayer())) {
+				if(radius == 0) {
+					if(player != null) {
+						if(player.getName().equalsIgnoreCase(LBlock.getPlayer())) {
+							if(LBlock.getType() == 0)
+								world.getBlockAt(LBlock.getLocation()).setType(m);
+							else
+								world.getBlockAt(LBlock.getLocation()).setType(Material.AIR);
+	
+							LBlock.setRollback(id);
+						}
+					} else {
 						if(LBlock.getType() == 0)
 							world.getBlockAt(LBlock.getLocation()).setType(m);
 						else
 							world.getBlockAt(LBlock.getLocation()).setType(Material.AIR);
-
+	
 						LBlock.setRollback(id);
 					}
+					BlockCount++;
 				} else {
-					if(LBlock.getType() == 0)
-						world.getBlockAt(LBlock.getLocation()).setType(m);
-					else
-						world.getBlockAt(LBlock.getLocation()).setType(Material.AIR);
-
-					LBlock.setRollback(id);
+					if((LBlock.getX() >= xMin && LBlock.getX() <= xMax ) && (LBlock.getY() >= yMin && LBlock.getY() <= yMax ) && (LBlock.getZ() >= zMin && LBlock.getZ() <= zMax )) {
+						if(player != null) {
+							if(player.getName().equalsIgnoreCase(LBlock.getPlayer())) {
+								if(LBlock.getType() == 0)
+									world.getBlockAt(LBlock.getLocation()).setType(m);
+								else
+									world.getBlockAt(LBlock.getLocation()).setType(Material.AIR);
+		
+								LBlock.setRollback(id);
+							}
+						} else {
+							if(LBlock.getType() == 0)
+								world.getBlockAt(LBlock.getLocation()).setType(m);
+							else
+								world.getBlockAt(LBlock.getLocation()).setType(Material.AIR);
+		
+							LBlock.setRollback(id);
+						}
+						BlockCount++;
+					}
 				}
-				BlockCount++;
 			}
+			
 		}
 		
 		Connection conn = dbSettings.getConnection();
@@ -139,26 +183,38 @@ public class Rollback {
 		Statement stmt = conn.createStatement();
 		Statement updateStmt = conn.createStatement();
 		
-		String Query =  String.format("SELECT id,block_id,type,x,y,z,COUNT(id) as count FROM blocklog_blocks WHERE date > '%s' AND rollback_id = 0 AND world = '%s' ORDER BY date DESC", time, world.getName());
+		String Query;
 		
-		if(player != null)
-			Query = String.format("SELECT id,block_id,type,x,y,z,COUNT(id) as count FROM blocklog_blocks WHERE date > '%s' AND rollback_id = 0 AND world = '%s' AND player = '%s' ORDER BY date DESC", time, world.getName(), player.getName());
+		if(radius == 0) {
+			Query =  String.format("SELECT id,block_id,type,x,y,z FROM blocklog_blocks WHERE date > '%s' AND rollback_id = 0 AND world = '%s' ORDER BY date DESC", time, world.getName());
+			
+			if(player != null)
+				Query = String.format("SELECT id,block_id,type,x,y,z FROM blocklog_blocks WHERE date > '%s' AND rollback_id = 0 AND world = '%s' AND player = '%s' ORDER BY date DESC", time, world.getName(), player.getName());
+		} else {
+			Query = String.format("SELECT id,block_id,type,x,y,z FROM blocklog_blocks WHERE date > '%s' AND rollback_id = 0 AND world = '%s' AND x >= %s AND x <= %s AND y >= %s AND y <= %s AND z >= %s AND z <= %s ORDER BY date DESC", time, world.getName(), xMin,xMax,yMin,yMax,zMin,zMax);
+			
+			if(player != null)
+				Query = String.format("SELECT id,block_id,type,x,y,z FROM blocklog_blocks WHERE date > '%s' AND rollback_id = 0 AND world = '%s' AND x >= %s AND x <= %s AND y >= %s AND y <= %s AND z >= %s AND z <= %s AND player = '%s' ORDER BY date DESC", time, world.getName(), xMin,xMax,yMin,yMax,zMin,zMax, player.getName());
+		}
 		
 		ResultSet rs = stmt.executeQuery(Query);
 		
+		int i = 0;
 		while(rs.next()) {
 			Material m = Material.getMaterial(rs.getInt("block_id"));
 			int type = rs.getInt("type");
 			if(type == 0)
-				player.getWorld().getBlockAt(rs.getInt("x"),rs.getInt("y"),rs.getInt("z")).setType(m);
+				world.getBlockAt(rs.getInt("x"),rs.getInt("y"),rs.getInt("z")).setType(m);
 			else
-				player.getWorld().getBlockAt(rs.getInt("x"),rs.getInt("y"),rs.getInt("z")).setType(Material.AIR);
+				world.getBlockAt(rs.getInt("x"),rs.getInt("y"),rs.getInt("z")).setType(Material.AIR);
 			
 			updateStmt.executeUpdate(String.format("UPDATE blocklog_blocks SET rollback_id = %s WHERE id = %s", id, rs.getInt("id")));
+			i++;
 		}
-		conn.close();
-		sender.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GREEN + (rs.getInt("count") + BlockCount) + ChatColor.GOLD + " blocks changed!");
+		
+		sender.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GREEN + (i + BlockCount) + ChatColor.GOLD + " blocks changed!");
 		sender.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "use the command " + ChatColor.GREEN + "/blundo" + ChatColor.GOLD + " to undo this rollback!");
+		conn.close();
 		return true;
 	}
 	

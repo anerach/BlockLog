@@ -18,14 +18,14 @@ public class CommandConfig implements CommandExecutor {
 	
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		Player player = null;
+Player player = null;
 		
 		if (sender instanceof Player)
 			player = (Player) sender;
 		
 		
 		
-		if(!(commandLabel.equalsIgnoreCase("blconfig") || commandLabel.equalsIgnoreCase("blcfg")))
+		if(!cmd.getName().equalsIgnoreCase("blconfig"))
 			return false;
 		
 		if (player == null) {

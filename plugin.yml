@@ -1,13 +1,17 @@
 name: BlockLog
 main: me.arno.blocklog.BlockLog
-version: 0.4.1
+version: 0.5.0
 author: Anerach
 description: >
             A simple and effective Anti-Grief plugin.
 commands:
     blocklog:
+        description: Shows basic blocklog information
+        aliases: bl
+        usage: /<command>
+    blhelp:
         description: Lists all the blocklog commands
-        aliases: [bl, blhelp]
+        aliases: blh
         usage: /<command>
         permission: blocklog.help
     blreload:
@@ -19,13 +23,17 @@ commands:
         usage: /<command>
         permission: blocklog.wand
     blsave:
-        description: Pushes the specified amount of blocks to the database
+        description: Saves the specified amount of blocks
         usage: /<command> [blocks]
         permission: blocklog.save
     blfullsave:
-        description: Pushes all the blocks to the database
+        description: Saves all the blocks
         usage: /<command>
         permission: blocklog.fullsave
+    blautosave:
+        description: Saves the all the blocks when the internal storage reaches a preset amount of blocks
+        usage: /<command> <blocks> <message>
+        permission: blocklog.autosave
     blrollback:
         description: Rollback command for blocklog
         aliases: blrb
@@ -47,7 +55,7 @@ commands:
     blconfig:
         description: Change blocklog's command values ingame
         aliases: blcfg
-        usage: /<command> <get/set> <key> [value]
+        usage: /<command> <get|set> <key> [value]
         permission: blocklog.config
 permissions:
     blocklog.admin:
@@ -61,8 +69,9 @@ permissions:
             blocklog.wand: true
             blocklog.rollback: true
             blocklog.undo: true
-            blocklog.fullsave: true
             blocklog.save: true
+            blocklog.fullsave: true
+            blocklog.autosave: true
     blocklog.moderator:
         description: Gives access to most of the blocklog commands
         children:
@@ -71,8 +80,8 @@ permissions:
             blocklog.wand: true
             blocklog.rollback: true
             blocklog.undo: true
-            blocklog.fullsave: true
             blocklog.save: true
+            blocklog.fullsave: true
     blocklog.help:
         description: Gives access to the help command
     blocklog.notices:
@@ -87,7 +96,9 @@ permissions:
         description: Gives access to the wand command
     blocklog.rollback:
         description: Gives access to both the rollback commands
-    blocklog.fullsave:
-        description: Gives access to the fullsave command
     blocklog.save:
         description: Gives access to the save command
+    blocklog.fullsave:
+        description: Gives access to the fullsave command
+    blocklog.autosave:
+        description: Gives access to the autosave command

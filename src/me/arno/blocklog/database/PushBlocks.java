@@ -33,8 +33,8 @@ public class PushBlocks {
 						stmt.executeUpdate("INSERT INTO blocklog_blocks (player, block_id, world, date, x, y, z, type, rollback_id) VALUES ('" + block.getPlayer() + "', " + block.getBlockId() + ", '" + block.getWorldName() + "', " + block.getDate() + ", " + block.getX() + ", " + block.getY() + ", " + block.getZ() + ", " + block.getType() + ", " + block.getRollback() + ")");
 						conn.close();
 			    	} catch (SQLException e) {
-			    		log.info("[BlockLog][BlockToDatabase][SQL] Exception!");
-						log.info("[BlockLog][BlockToDatabase][SQL] " + e.getMessage());
+			    		log.info("[SaveBlocks][SQL] Exception!");
+						log.info("[SaveBlocks][SQL] " + e.getMessage());
 			    	}
 			    	plugin.blocks.remove(0);
 		    	}

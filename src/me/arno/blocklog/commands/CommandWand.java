@@ -22,7 +22,7 @@ public class CommandWand implements CommandExecutor {
 		if (sender instanceof Player)
 			player = (Player) sender;
 		
-		if(!commandLabel.equalsIgnoreCase("blwand"))
+		if(!cmd.getName().equalsIgnoreCase("blwand"))
 			return true;
 		
 		if (player == null) {

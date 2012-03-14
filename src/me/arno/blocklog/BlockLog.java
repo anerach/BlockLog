@@ -14,8 +14,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
+import me.arno.blocklog.commands.CommandAutoSave;
 import me.arno.blocklog.commands.CommandClear;
 import me.arno.blocklog.commands.CommandConfig;
+import me.arno.blocklog.commands.CommandHelp;
 import me.arno.blocklog.commands.CommandRadiusRollback;
 import me.arno.blocklog.commands.CommandReload;
 import me.arno.blocklog.commands.CommandRollback;
@@ -36,7 +38,7 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class BlockLog extends JavaPlugin {
-	public Logger log; //Logger.getLogger("Minecraft");
+	public Logger log;
 	
 	public DatabaseSettings dbSettings;
 	
@@ -44,6 +46,8 @@ public class BlockLog extends JavaPlugin {
 	public ArrayList<LoggedBlock> blocks = new ArrayList<LoggedBlock>();
 	
 	public String NewVersion = null;
+	public int autoSave = 0;
+	public boolean autoSaveMsg = false;
 	
 	public String getResourceContent(String file) {
 		try {
@@ -112,6 +116,7 @@ public class BlockLog extends JavaPlugin {
     	
     	new PushBlocks(this);
     	
+    	getCommand("blhelp").setExecutor(new CommandHelp(this));
     	getCommand("blrollback").setExecutor(new CommandRollback(this));
     	getCommand("blrollbackradius").setExecutor(new CommandRadiusRollback(this));
     	getCommand("blrb").setExecutor(new CommandRollback(this));
@@ -123,6 +128,7 @@ public class BlockLog extends JavaPlugin {
     	getCommand("blreload").setExecutor(new CommandReload(this));
     	getCommand("blclear").setExecutor(new CommandClear(this));
     	getCommand("blundo").setExecutor(new CommandUndo(this));
+    	getCommand("blautosave").setExecutor(new CommandAutoSave(this));
     	
     	getServer().getPluginManager().registerEvents(new LogListener(this), this);
     	getServer().getPluginManager().registerEvents(new WandListener(this), this);
@@ -160,40 +166,45 @@ public class BlockLog extends JavaPlugin {
 
     }
 	
-	public void saveBlocks(int blockCount) {
-		if(blocks.size() > 0) {
-			int StartSize = blocks.size();
-			if(blockCount == 0)
-				StartSize = 0;
-			
-			while(blocks.size() > StartSize - blockCount) {
-				LoggedBlock block = blocks.get(0);
-		    	try {
-			    	Connection conn = dbSettings.getConnection();
-					Statement stmt = conn.createStatement();
-					stmt.executeUpdate("INSERT INTO blocklog_blocks (player, block_id, world, date, x, y, z, type) VALUES ('" + block.getPlayer() + "', " + block.getBlockId() + ", '" + block.getWorldName() + "', " + block.getDate() + ", " + block.getX() + ", " + block.getY() + ", " + block.getZ() + ", " + block.getType() + ")");
-			    	conn.close();
-		    	} catch (SQLException e) {
-		    		log.info("[BlockLog][BlockToDatabase][SQL] Exception!");
-					log.info("[BlockLog][BlockToDatabase][SQL] " + e.getMessage());
-		    	}
-		    	blocks.remove(0);
+	public void saveBlocks(final int blockCount) {
+		getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
+			@Override
+			public void run() {
+				if(blocks.size() > 0) {
+					int StartSize = blocks.size();
+					if(blockCount == 0)
+						StartSize = 0;
+					
+					while(blocks.size() > StartSize - blockCount) {
+						LoggedBlock block = blocks.get(0);
+				    	try {
+					    	Connection conn = dbSettings.getConnection();
+							Statement stmt = conn.createStatement();
+							stmt.executeUpdate("INSERT INTO blocklog_blocks (player, block_id, world, date, x, y, z, type) VALUES ('" + block.getPlayer() + "', " + block.getBlockId() + ", '" + block.getWorldName() + "', " + block.getDate() + ", " + block.getX() + ", " + block.getY() + ", " + block.getZ() + ", " + block.getType() + ")");
+					    	conn.close();
+				    	} catch (SQLException e) {
+				    		log.info("[SaveBlocks][SQL] Exception!");
+							log.info("[SaveBlocks][SQL] " + e.getMessage());
+				    	}
+				    	blocks.remove(0);
+					}
+				}
 			}
-		}
+		});
 	}
 	
 	@Override
 	public void onEnable() {
 		loadPlugin();
-		PluginDescriptionFile pdfFile = this.getDescription();
-		log.info("v" + pdfFile.getVersion() + " is enabled!");
+		PluginDescriptionFile PluginDesc = this.getDescription();
+		log.info("v" + PluginDesc.getVersion() + " is enabled!");
 	}
 	
 	@Override
 	public void onDisable() {
 		saveBlocks(0);
-		PluginDescriptionFile pdfFile = this.getDescription();
-		log.info("[BlockLog] v" + pdfFile.getVersion() + " is disabled!");
+		PluginDescriptionFile PluginDesc = this.getDescription();
+		log.info("v" + PluginDesc.getVersion() + " is disabled!");
 	}
 	
 	
@@ -204,7 +215,7 @@ public class BlockLog extends JavaPlugin {
 		if (sender instanceof Player)
 			player = (Player) sender;
 		
-		if(cmd.getName() != "blocklog")
+		if(!cmd.getName().equalsIgnoreCase("blocklog"))
 			return false;
 		
 		if (player == null) {
@@ -212,26 +223,7 @@ public class BlockLog extends JavaPlugin {
 			return true;
 		}
 		
-		player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Commands");
-		player.sendMessage(ChatColor.DARK_RED +"/blhelp" + ChatColor.GOLD + " - Shows this message");
-		if(player.isOp() || player.hasPermission("blocklog.reload"))
-			player.sendMessage(ChatColor.DARK_RED +"/blocklog reload" + ChatColor.GOLD + " - Reloads blocklog config file");
-		if(player.isOp() || player.hasPermission("blocklog.wand"))
-			player.sendMessage(ChatColor.DARK_RED +"/blwand" + ChatColor.GOLD + " - Enables blocklog's wand");
-		if(player.isOp() || player.hasPermission("blocklog.save"))
-			player.sendMessage(ChatColor.DARK_RED +"/blsave [amount]" + ChatColor.GOLD + " - Saves 25 or the specified amount of blocks");
-		if(player.isOp() || player.hasPermission("blocklog.fullsave"))
-			player.sendMessage(ChatColor.DARK_RED +"/blfullsave" + ChatColor.GOLD + " - Saves all the blocks");
-		if(player.isOp() || player.hasPermission("blocklog.rollback")) {
-			player.sendMessage(ChatColor.DARK_RED +"/blrollback [player] <time> <sec|min|hour|day|week>" + ChatColor.GOLD + " - Restortes the whole server or edits by one player to a specified point");
-			player.sendMessage(ChatColor.DARK_RED +"/blrollbackradius [player] <time> <sec|min|hour|day|week>" + ChatColor.GOLD + " - Restortes the whole server or edits by one player to a specified point");
-		}
-		if(player.isOp() || player.hasPermission("blocklog.clear"))
-			player.sendMessage(ChatColor.DARK_RED +"/blclear <amount> <day|week>" + ChatColor.GOLD + " - Clears blocklog's history");
-		if(player.isOp() || player.hasPermission("blocklog.undo"))
-			player.sendMessage(ChatColor.DARK_RED +"/blundo [rollback]" + ChatColor.GOLD + " - Undo's the latest or specified rollback");
-		if(player.isOp() || player.hasPermission("blocklog.config"))
-			player.sendMessage(ChatColor.DARK_RED +"/blundo <get/set> <key> [value]" + ChatColor.GOLD + " - Change blocklog's command values ingame");
+		player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "This server is using BlockLog v" + getDescription().getVersion());
 		return true;
 	}
 }

@@ -32,7 +32,7 @@ public class CommandUndo implements CommandExecutor {
 		
 		
 		
-		if(!commandLabel.equalsIgnoreCase("blundo"))
+		if(!cmd.getName().equalsIgnoreCase("blundo"))
 			return false;
 		
 		if(player == null) {

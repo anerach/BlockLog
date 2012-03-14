@@ -35,7 +35,7 @@ public class CommandClear implements CommandExecutor {
 		if (sender instanceof Player)
 			player = (Player) sender;
 		
-		if(!commandLabel.equalsIgnoreCase("blclear"))
+		if(!cmd.getName().equalsIgnoreCase("blclear"))
 			return false;
 		
 		if (player == null) {

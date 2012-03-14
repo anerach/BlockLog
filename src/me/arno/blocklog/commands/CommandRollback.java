@@ -31,7 +31,7 @@ public class CommandRollback implements CommandExecutor {
 		if (sender instanceof Player)
 			player = (Player) sender;
 		
-		if(!(commandLabel.equalsIgnoreCase("blrollback") || commandLabel.equalsIgnoreCase("blrb")))
+		if(!cmd.getName().equalsIgnoreCase("blrollback"))
 			return false;
 		
 		if (player == null) {

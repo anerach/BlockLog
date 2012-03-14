@@ -31,7 +31,7 @@ public class CommandRadiusRollback implements CommandExecutor {
 		if (sender instanceof Player)
 			player = (Player) sender;
 		
-		if(!(commandLabel.equalsIgnoreCase("blrollbackradius") || commandLabel.equalsIgnoreCase("blrbradius") || commandLabel.equalsIgnoreCase("blrbr")))
+		if(!cmd.getName().equalsIgnoreCase("blrollbackradius"))
 			return false;
 		
 		if (player == null) {

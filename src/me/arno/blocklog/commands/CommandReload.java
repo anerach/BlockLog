@@ -26,7 +26,7 @@ public class CommandReload implements CommandExecutor {
 		if (sender instanceof Player)
 			player = (Player) sender;
 		
-		if(!commandLabel.equalsIgnoreCase("blreload"))
+		if(!cmd.getName().equalsIgnoreCase("blreload"))
 			return false;
 		
 		if (player == null) {

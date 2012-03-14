@@ -5,7 +5,24 @@ Blocklog is an easy to use anti-grief plugin.
 Changelog
 -----------
 
+### v0.5 ###
+* [+] New commands
+* [*] Fixed lagg issues with rollback and undo command
+* [*] Bug fixes
+
+#### Commands ####
+* [*] Optimized block select querys command
+* [*] Fixed rollback and undo commands
+* [+] Added autosave command
+
+#### Permissions ####
+* [+] blocklog.autosave
+
+### v0.4.1 ###
+* [*] Bug fixes
+
 ### v0.4 ###
+* [+] Notifies when new version available!
 * [+] New commands
 * [*] Bug fixes
 

@@ -40,14 +40,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class BlockLog extends JavaPlugin {
 	public Logger log;
 	
-	public DatabaseSettings dbSettings;
-	
 	public ArrayList<String> users = new ArrayList<String>();
 	public ArrayList<LoggedBlock> blocks = new ArrayList<LoggedBlock>();
 	
 	public String NewVersion = null;
 	public int autoSave = 0;
 	public boolean autoSaveMsg = false;
+	public Connection conn;
 	
 	public String getResourceContent(String file) {
 		try {
@@ -73,35 +72,35 @@ public class BlockLog extends JavaPlugin {
 	}
 	
 	public void loadConfiguration() {
+	    getConfig().addDefault("database.type", "SQLite");
+	    getConfig().addDefault("database.delay", 1);
+		getConfig().addDefault("mysql.host", "localhost");
+	    getConfig().addDefault("mysql.username", "root");
+	    getConfig().addDefault("mysql.password", "");
+	    getConfig().addDefault("mysql.database", "");
+	    getConfig().addDefault("mysql.port", 3306);
+	   	getConfig().addDefault("blocklog.wand", 369);
+	    getConfig().addDefault("blocklog.results", 5);
+	    getConfig().addDefault("blocklog.warning", 500);
+		getConfig().options().copyDefaults(true);
+		saveConfig();
+	}
+	
+	public void loadDatabase() {
+		String DBType = getConfig().getString("database.type");
+		
+		Statement stmt;
 		try {
-			getConfig().addDefault("mysql.enabled", false);
-			getConfig().addDefault("mysql.host", "localhost");
-	    	getConfig().addDefault("mysql.username", "root");
-	    	getConfig().addDefault("mysql.password", null);
-	    	getConfig().addDefault("mysql.database", null);
-	    	getConfig().addDefault("mysql.port", 3306);
-	    	getConfig().addDefault("blocklog.wand", 369);
-	    	getConfig().addDefault("blocklog.results", 5);
-	    	getConfig().addDefault("database.delay", 1);
-	    	getConfig().addDefault("database.warning", 300);
-		    getConfig().options().copyDefaults(true);
-		    saveConfig();
-		    
-		    dbSettings = new DatabaseSettings(this);
-		    
-		    if(dbSettings.MySQLEnabled()) {
-			    Connection conn = dbSettings.getConnection();
-				Statement stmt = conn.createStatement();
+			if(DBType.equalsIgnoreCase("mysql")) {
+		    	conn = DatabaseSettings.getConnection(this);
+		    	stmt = conn.createStatement();
 				
-
-				stmt.executeUpdate("RENAME TABLE blocklog TO blocklog_blocks");
 				stmt.executeUpdate(getResourceContent("MySQL/blocklog_blocks.sql"));
 				stmt.executeUpdate(getResourceContent("MySQL/blocklog_rollbacks.sql"));
-		    } else {
-		    	Connection conn = dbSettings.getConnection();
-				Statement stmt = conn.createStatement();
+			} else if(DBType.equalsIgnoreCase("sqlite")) {
+			    conn = DatabaseSettings.getConnection(this);
+			    stmt = conn.createStatement();
 				
-				stmt.executeUpdate("RENAME TABLE blocklog TO blocklog_blocks");
 				stmt.executeUpdate(getResourceContent("SQLite/blocklog_blocks.sql"));
 				stmt.executeUpdate(getResourceContent("SQLite/blocklog_rollbacks.sql"));
 		    }
@@ -113,6 +112,7 @@ public class BlockLog extends JavaPlugin {
 	public void loadPlugin() {
 		log = getLogger();
     	loadConfiguration();
+    	loadDatabase();
     	
     	new PushBlocks(this);
     	
@@ -167,29 +167,21 @@ public class BlockLog extends JavaPlugin {
     }
 	
 	public void saveBlocks(final int blockCount) {
+		final Connection conn = this.conn;
 		getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
-			@Override
-			public void run() {
-				if(blocks.size() > 0) {
-					int StartSize = blocks.size();
-					if(blockCount == 0)
-						StartSize = 0;
-					
-					while(blocks.size() > StartSize - blockCount) {
-						LoggedBlock block = blocks.get(0);
-				    	try {
-					    	Connection conn = dbSettings.getConnection();
-							Statement stmt = conn.createStatement();
-							stmt.executeUpdate("INSERT INTO blocklog_blocks (player, block_id, world, date, x, y, z, type) VALUES ('" + block.getPlayer() + "', " + block.getBlockId() + ", '" + block.getWorldName() + "', " + block.getDate() + ", " + block.getX() + ", " + block.getY() + ", " + block.getZ() + ", " + block.getType() + ")");
-					    	conn.close();
-				    	} catch (SQLException e) {
-				    		log.info("[SaveBlocks][SQL] Exception!");
-							log.info("[SaveBlocks][SQL] " + e.getMessage());
-				    	}
-				    	blocks.remove(0);
+		    public void run() {
+		    	while(blocks.size() > 0) {
+					LoggedBlock block = blocks.get(0);
+					try {
+						Statement stmt = conn.createStatement();
+		
+						stmt.executeUpdate("INSERT INTO blocklog_blocks (player, block_id, world, date, x, y, z, type, rollback_id) VALUES ('" + block.getPlayer() + "', " + block.getBlockId() + ", '" + block.getWorldName() + "', , " + block.getDate() + ", " + block.getX() + ", " + block.getY() + ", " + block.getZ() + ", " + block.getType() + ", " + block.getRollback() + ")");
+					} catch (SQLException e) {
+						e.printStackTrace();
 					}
+					blocks.remove(0);
 				}
-			}
+		    }
 		});
 	}
 	
@@ -223,7 +215,7 @@ public class BlockLog extends JavaPlugin {
 			return true;
 		}
 		
-		player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "This server is using BlockLog v" + getDescription().getVersion());
+		player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "This server is using BlockLog v" + getDescription().getVersion() + " by Anerach");
 		return true;
 	}
 }

@@ -80,9 +80,12 @@ public class CommandRadiusRollback implements CommandExecutor {
 		try {
 			Rollback rb = new Rollback(plugin, player, 1);
 			if(strPlayer != null)
-				return rb.doRollback(player.getServer().getPlayer(strPlayer), time, radius);
+				rb.doRollback(player.getServer().getPlayer(strPlayer), time, radius);
 			else
-				return rb.doRollback(time, radius);
+				rb.doRollback(time, radius);
+			
+			rb.close();
+			return true;
 		} catch(SQLException e) {
 			e.printStackTrace();
 		} catch(Exception e) {

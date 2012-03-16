@@ -76,9 +76,11 @@ public class CommandRollback implements CommandExecutor {
 		try {
 			Rollback rb = new Rollback(plugin, player, 0);
 			if(args.length == 3)
-				return rb.doRollback(player.getServer().getPlayer(args[0]), time);
+				rb.doRollback(player.getServer().getPlayer(args[0]), time);
 			else
-				return rb.doRollback(time);
+				rb.doRollback(time);
+			rb.close();
+			return true;
 		} catch(SQLException e) {
 			e.printStackTrace();
 		} catch(Exception e) {

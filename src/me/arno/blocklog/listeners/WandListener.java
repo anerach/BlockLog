@@ -10,7 +10,6 @@ import java.util.logging.Logger;
 
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.LoggedBlock;
-import me.arno.blocklog.database.DatabaseSettings;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -27,7 +26,6 @@ public class WandListener implements Listener {
 	BlockLog plugin;
 	
 	Logger log;
-	DatabaseSettings dbSettings;
 	
 	public WandListener(BlockLog plugin) {
 		this.plugin = plugin;
@@ -36,7 +34,6 @@ public class WandListener implements Listener {
 	}
 	
 	public void getBlockEdits(Player player, Block block) {
-		dbSettings = new DatabaseSettings(plugin);
 		try {
 			player.sendMessage(ChatColor.DARK_RED + "BlockLog History (" + plugin.getConfig().getString("blocklog.results") + " Last Edits)");
 			int BlockNumber = 0;
@@ -64,7 +61,7 @@ public class WandListener implements Listener {
 				BlockNumber++;
 			}
 			if(BlockCount < plugin.getConfig().getInt("blocklog.results")) {
-				Connection conn = dbSettings.getConnection();
+				Connection conn = plugin.conn;
 				Statement stmt = conn.createStatement();
 				
 				double x = block.getX();
@@ -83,7 +80,6 @@ public class WandListener implements Listener {
 					
 					player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + rs.getString("player") + " " + ChatColor.DARK_GREEN + str + " " + ChatColor.GOLD + name);
 				}
-				conn.close();
 			}
 		} catch(SQLException e) {
 			log.info("[BlockLog][Wand][Interact][SQL] Exception!");

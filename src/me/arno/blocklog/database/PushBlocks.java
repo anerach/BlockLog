@@ -11,7 +11,6 @@ import me.arno.blocklog.LoggedBlock;
 public class PushBlocks {
 	BlockLog plugin;
 	Logger log;
-	DatabaseSettings dbSettings;
 	
 	public PushBlocks(BlockLog plugin) {
 		this.plugin = plugin;
@@ -22,23 +21,20 @@ public class PushBlocks {
 	
 	public void startPush() {
 		plugin.getServer().getScheduler().scheduleAsyncRepeatingTask(plugin, new Runnable() {
+			final Connection conn = plugin.conn;
 		    public void run() {
-				dbSettings = new DatabaseSettings(plugin);
 		    	if(plugin.blocks.size() > 0) {
 			    	LoggedBlock block = plugin.blocks.get(0);
 			    	try {
-				    	Connection conn = dbSettings.getConnection();
 						Statement stmt = conn.createStatement();
 						
 						stmt.executeUpdate("INSERT INTO blocklog_blocks (player, block_id, world, date, x, y, z, type, rollback_id) VALUES ('" + block.getPlayer() + "', " + block.getBlockId() + ", '" + block.getWorldName() + "', " + block.getDate() + ", " + block.getX() + ", " + block.getY() + ", " + block.getZ() + ", " + block.getType() + ", " + block.getRollback() + ")");
-						conn.close();
 			    	} catch (SQLException e) {
-			    		log.info("[SaveBlocks][SQL] Exception!");
-						log.info("[SaveBlocks][SQL] " + e.getMessage());
+			    		e.printStackTrace();
 			    	}
 			    	plugin.blocks.remove(0);
 		    	}
 		    }
-		}, 200L, plugin.getConfig().getInt("database.delay") * 20L);
+		}, 100L, plugin.getConfig().getInt("database.delay") * 20L);
 	}
 }

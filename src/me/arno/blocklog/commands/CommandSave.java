@@ -3,7 +3,6 @@ package me.arno.blocklog.commands;
 import java.util.logging.Logger;
 
 import me.arno.blocklog.BlockLog;
-import me.arno.blocklog.database.DatabaseSettings;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -14,7 +13,6 @@ import org.bukkit.entity.Player;
 public class CommandSave implements CommandExecutor {
 	BlockLog plugin;
 	Logger log;
-	DatabaseSettings dbSettings;
 	
 	public CommandSave(BlockLog plugin) {
 		this.plugin = plugin;
@@ -23,7 +21,6 @@ public class CommandSave implements CommandExecutor {
 	
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		dbSettings = new DatabaseSettings(plugin);
 		Player player = null;
 		
 		if (sender instanceof Player)

@@ -20,7 +20,6 @@ import org.bukkit.entity.Player;
 public class CommandClear implements CommandExecutor {
 	BlockLog plugin;
 	Logger log;
-	DatabaseSettings dbSettings;
 	
 	public CommandClear(BlockLog plugin) {
 		this.plugin = plugin;
@@ -29,7 +28,6 @@ public class CommandClear implements CommandExecutor {
 	
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		dbSettings = new DatabaseSettings(plugin);
 		Player player = null;
 		
 		if (sender instanceof Player)
@@ -47,7 +45,7 @@ public class CommandClear implements CommandExecutor {
 			return false;
 		
 		try {
-	    	Connection conn = dbSettings.getConnection();
+			Connection conn = DatabaseSettings.getConnection(plugin);
 			Statement stmt = conn.createStatement();
 			
 			int time;
@@ -72,10 +70,7 @@ public class CommandClear implements CommandExecutor {
 			
 			Long UNIX_TIMESTAMP = System.currentTimeMillis()/1000;
 			
-			if(dbSettings.MySQLEnabled())
-	    		stmt.executeUpdate("DELETE FROM `blocklog_blocks` WHERE `date` < " + (UNIX_TIMESTAMP - time));
-			else
-				stmt.executeUpdate("DELETE FROM blocklog_blocks WHERE date < " + (UNIX_TIMESTAMP - time));
+			stmt.executeUpdate("DELETE FROM blocklog_blocks WHERE date < " + (UNIX_TIMESTAMP - time));
 			
 			player.sendMessage(ChatColor.DARK_RED +"[BlockLog] removed block history older than " + timeVal + " " + timeType);
 	    } catch (SQLException e) {

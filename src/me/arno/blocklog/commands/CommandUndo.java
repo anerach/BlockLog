@@ -7,7 +7,6 @@ import java.sql.Statement;
 
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.Rollback;
-import me.arno.blocklog.database.DatabaseSettings;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -17,10 +16,11 @@ import org.bukkit.entity.Player;
 public class CommandUndo implements CommandExecutor {
 
 	BlockLog plugin;
-	DatabaseSettings dbSettings;
+	Connection conn;
 	
 	public CommandUndo(BlockLog plugin) {
 		this.plugin = plugin;
+		this.conn = plugin.conn;
 	}
 	
 	@Override
@@ -45,32 +45,29 @@ public class CommandUndo implements CommandExecutor {
 		
 		int RollbackId = 0;
 		
-		dbSettings = new DatabaseSettings(plugin);
 		try {
 			if(args.length == 1) {
 				RollbackId = Integer.parseInt(args[0]);
 			} else {
-				Connection conn = dbSettings.getConnection();
 				Statement stmt = conn.createStatement();
-				ResultSet rs = stmt.executeQuery("SELECT COUNT(id) AS id FROM blocklog_rollbacks");
-				rs.first();
+				ResultSet rs = stmt.executeQuery("SELECT id FROM blocklog_rollbacks ORDER BY id DESC");
+				rs.next();
 				RollbackId = rs.getInt("id");
 			}
+			
+			if(RollbackId == 0)
+				return false;
+			
+			Rollback rb = new Rollback(plugin, RollbackId);
+			if(rb.exists()) {
+				rb.undo();
+			}
+			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		
-		if(RollbackId == 0)
-			return false;
-		
-		Rollback rb = new Rollback(plugin, RollbackId);
-		
-		if(rb.exists()) {
-			rb.undo();
-			return true;
-		}
-		
 		return false;
 	}
-
 }

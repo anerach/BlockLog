@@ -23,8 +23,6 @@ public class CommandHelp implements CommandExecutor {
 		if (sender instanceof Player)
 			player = (Player) sender;
 		
-		
-		
 		if(!cmd.getName().equalsIgnoreCase("blhelp"))
 			return false;
 		
@@ -49,15 +47,15 @@ public class CommandHelp implements CommandExecutor {
 		if(player.isOp() || player.hasPermission("blocklog.autosave"))
 			player.sendMessage(ChatColor.DARK_RED +"/blautosave <blocks> <message>" + ChatColor.GOLD + " - Enables autosave feature");
 		if(player.isOp() || player.hasPermission("blocklog.rollback")) {
-			player.sendMessage(ChatColor.DARK_RED +"/blrollback [player] <time> <sec|min|hour|day|week>" + ChatColor.GOLD + " - Restortes the whole server or edits by one player to a specified point");
-			player.sendMessage(ChatColor.DARK_RED +"/blrollbackradius [player] <time> <sec|min|hour|day|week>" + ChatColor.GOLD + " - Restortes the whole server or edits by one player to a specified point");
+			player.sendMessage(ChatColor.DARK_RED +"/blrollback [player] <time> <sec|min|hour|day|week>" + ChatColor.GOLD + " - Blocklog's rollback command");
+			player.sendMessage(ChatColor.DARK_RED +"/blrollbackradius [player] <time> <sec|min|hour|day|week>" + ChatColor.GOLD + " - Blocklog's radius rollback command");
 		}
 		if(player.isOp() || player.hasPermission("blocklog.clear"))
 			player.sendMessage(ChatColor.DARK_RED +"/blclear <amount> <day|week>" + ChatColor.GOLD + " - Clears blocklog's history");
 		if(player.isOp() || player.hasPermission("blocklog.undo"))
 			player.sendMessage(ChatColor.DARK_RED +"/blundo [rollback]" + ChatColor.GOLD + " - Undo's the latest or specified rollback");
 		if(player.isOp() || player.hasPermission("blocklog.config"))
-			player.sendMessage(ChatColor.DARK_RED +"/blundo <get/set> <key> [value]" + ChatColor.GOLD + " - Change blocklog's command values ingame");
+			player.sendMessage(ChatColor.DARK_RED +"/blconfig <get/set> <key> [value]" + ChatColor.GOLD + " - Change blocklog's command values ingame");
 		
 		return false;
 	}

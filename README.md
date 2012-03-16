@@ -7,13 +7,15 @@ Changelog
 
 ### v0.5 ###
 * [+] New commands
-* [*] Fixed lagg issues with rollback and undo command
-* [*] Bug fixes
+* [*] Fixed SQLite problems
+* [*] Fixed lagg issues with rollback's and undo's
+* [*] Fixed internal storage message spamming
+* [*] Some minor bug fixes 
 
 #### Commands ####
-* [*] Optimized block select querys command
-* [*] Fixed rollback and undo commands
 * [+] Added autosave command
+* [*] Optimized block select query's
+* [*] Fixed rollback's and undo's command
 
 #### Permissions ####
 * [+] blocklog.autosave

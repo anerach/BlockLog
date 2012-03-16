@@ -42,7 +42,7 @@ Player player = null;
 		
 		if(player.isOp() || player.hasPermission("blocklog.config")) {
 			if(Action.equalsIgnoreCase("help")) {
-				player.sendMessage(ChatColor.DARK_RED +"[BlockLog][Config] " + ChatColor.GOLD + "Help");
+				player.sendMessage(ChatColor.DARK_RED + "[BlockLog][Config] " + ChatColor.GOLD + "Help");
 				player.sendMessage(ChatColor.DARK_GREEN + "/blconfig help - Shows this message");
 				player.sendMessage(ChatColor.DARK_GREEN + "/blconfig set <key> <value> - Changes a blocklog config value");
 				player.sendMessage(ChatColor.DARK_GREEN + "/blconfig get <key> - Shows a blocklog config value");

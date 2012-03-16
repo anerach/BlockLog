@@ -31,44 +31,50 @@ public class LogListener implements Listener {
 	    		player.sendMessage(msg);
 	        }
 	    }
+		log.info(msg);
 	}
 	
 	public void BlocksLimitReached() {
-		if(plugin.blocks.size() == plugin.getConfig().getInt("database.warning")) {
-			sendAdminMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "BlockLog reached an internal storage of " + plugin.getConfig().getInt("database.warning") + "!");
-			sendAdminMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "You can fix this by using the command " + ChatColor.DARK_BLUE + "/blocklog fullsave" + ChatColor.GOLD + " or " + ChatColor.DARK_BLUE + "/blocklog save <blocks>");
-		} else if(plugin.blocks.size() > plugin.getConfig().getInt("database.warning")) {
-			if(plugin.autoSave != 0) {
-				if(plugin.autoSaveMsg)
-					sendAdminMessage(ChatColor.DARK_RED + "[BlockLog][AutoSave] " + ChatColor.GOLD + "Saving " + plugin.blocks.size() + " blocks!");
-				
-				plugin.saveBlocks(0);
-				if(plugin.autoSaveMsg)
-					sendAdminMessage(ChatColor.DARK_RED + "[BlockLog][AutoSave] " + ChatColor.GOLD + "Succesfully saved all the blocks!");
+		int BlockSize = plugin.blocks.size();
+		if(plugin.autoSave == BlockSize && BlockSize != 0) {
+			if(plugin.autoSaveMsg)
+				sendAdminMessage(ChatColor.DARK_RED + "[BlockLog][AutoSave] " + ChatColor.GOLD + "Saving " + plugin.blocks.size() + " blocks!");
+			
+			plugin.saveBlocks(0);
+			if(plugin.autoSaveMsg)
+				sendAdminMessage(ChatColor.DARK_RED + "[BlockLog][AutoSave] " + ChatColor.GOLD + "Succesfully saved all the blocks!");
+		} else if(BlockSize == plugin.getConfig().getInt("blocklog.warning")) {
+			if(time < System.currentTimeMillis()) {
+				time = System.currentTimeMillis() + 30000;
+				sendAdminMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "BlockLog reached an internal storage of " + BlockSize + "!");
+				sendAdminMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "You can fix this by using the command " + ChatColor.DARK_BLUE + "/blfullsave" + ChatColor.GOLD + " or " + ChatColor.DARK_BLUE + "/blsave <blocks>");
 			}
-			if (plugin.blocks.size() % 100 == 0) {
-				if(time < System.currentTimeMillis()) { // Shows it only once every 1 minute incase it stays around the configured amount
-					time = System.currentTimeMillis() + 30000;
-					sendAdminMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "BlockLog reached an internal storage of " + plugin.blocks.size() + "!");
-					sendAdminMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "You can fix this by using the command " + ChatColor.DARK_BLUE + "/blfullsave" + ChatColor.GOLD + " or " + ChatColor.DARK_BLUE + "/blsave <blocks>");
-				}
+		} else if(BlockSize > plugin.getConfig().getInt("blocklog.warning") && BlockSize % 100 == 0) {
+			if(time < System.currentTimeMillis()) {
+				time = System.currentTimeMillis() + 30000;
+				sendAdminMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "BlockLog reached an internal storage of " + BlockSize + "!");
+				sendAdminMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "You can fix this by using the command " + ChatColor.DARK_BLUE + "/blfullsave" + ChatColor.GOLD + " or " + ChatColor.DARK_BLUE + "/blsave <blocks>");
 			}
 		}
 	}
 	
 	@EventHandler
 	public void onBlockPlace(BlockPlaceEvent event) {
+		int BLWand = plugin.getConfig().getInt("blocklog.wand");
+		boolean WandEnabled = plugin.users.contains(event.getPlayer().getName());
 		if(!event.isCancelled()) {
-			LoggedBlock lb = new LoggedBlock(event.getPlayer(), event.getBlockPlaced(), 1);
-			plugin.blocks.add(lb);
-			BlocksLimitReached();
+			if(event.getPlayer().getItemInHand().getTypeId() != BLWand || !WandEnabled) {
+				LoggedBlock lb = new LoggedBlock(plugin.conn, event.getPlayer(), event.getBlockPlaced(), 1);
+				plugin.blocks.add(lb);
+				BlocksLimitReached();
+			}
 		}
 	}
 
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent event) {
 		if(!event.isCancelled()) {
-			LoggedBlock lb = new LoggedBlock(event.getPlayer(), event.getBlock(), 0);
+			LoggedBlock lb = new LoggedBlock(plugin.conn, event.getPlayer(), event.getBlock(), 0);
 			plugin.blocks.add(lb);
 			BlocksLimitReached();
 		}

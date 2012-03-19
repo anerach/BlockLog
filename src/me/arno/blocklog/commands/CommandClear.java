@@ -72,7 +72,7 @@ public class CommandClear implements CommandExecutor {
 			
 			stmt.executeUpdate("DELETE FROM blocklog_blocks WHERE date < " + (UNIX_TIMESTAMP - time));
 			
-			player.sendMessage(ChatColor.DARK_RED +"[BlockLog] removed block history older than " + timeVal + " " + timeType);
+			player.sendMessage(ChatColor.DARK_RED +"[BlockLog] removed block history older than " + timeInt + " " + timeType);
 	    } catch (SQLException e) {
     		log.info("[BlockLog][BlockToDatabase][SQL] Exception!");
 			log.info("[BlockLog][BlockToDatabase][SQL] " + e.getMessage());

@@ -50,11 +50,15 @@ public class CommandRollback implements CommandExecutor {
 		Set<String> Day = new HashSet<String>(Arrays.asList("d", "day","days"));
 		Set<String> Week = new HashSet<String>(Arrays.asList("w", "week","weeks"));
 
-		Integer timeInt = Integer.parseInt(args[0]);
-		String timeVal = args[1].toLowerCase();
-		
-		if(args.length == 3) {
-			timeInt = Integer.parseInt(args[1]);
+		String strPlayer = null;
+		Integer timeInt = 0;
+		String timeVal = null;
+		if(args.length == 2) {
+			timeInt = Integer.valueOf(args[0]);
+			timeVal = args[1].toLowerCase();
+		} else if(args.length == 3) {
+			strPlayer = args[0];
+			timeInt = Integer.valueOf(args[1]);
 			timeVal = args[2].toLowerCase();
 		}
 		
@@ -76,7 +80,7 @@ public class CommandRollback implements CommandExecutor {
 		try {
 			Rollback rb = new Rollback(plugin, player, 0);
 			if(args.length == 3)
-				rb.doRollback(player.getServer().getPlayer(args[0]), time);
+				rb.doRollback(plugin.getServer().getPlayer(strPlayer), time);
 			else
 				rb.doRollback(time);
 			rb.close();

@@ -1,6 +1,5 @@
 package me.arno.blocklog;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
@@ -9,107 +8,117 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
+
 public class LoggedBlock {
-	private Player player;
+	private BlockLog plugin;
+	
 	private int block_id;
-	private int rollback = 0;
+	
+	private Player player;
+	private Block block;
+	private Location location;
 	private World world;
+	
 	private int type;
 	private long date;
-	private Location location;
-	private double x;
-	private double y;
-	private double z;
-	private Connection conn;
 	
-	public LoggedBlock(Connection conn, Player player, Block block, int type) {
-		this.player = player;
-		this.block_id = block.getTypeId();
-		this.world = block.getWorld();
-		this.date = System.currentTimeMillis()/1000;
-		this.type = type;
-		this.location = block.getLocation();
-		this.x = block.getLocation().getX();
-		this.y = block.getLocation().getY();
-		this.z = block.getLocation().getZ();
-		this.conn = conn;
-	}
+	private int rollback = 0;
 	
-	public LoggedBlock(Connection conn, Player player, int block, Location location, int type) {
+	
+	public LoggedBlock(BlockLog plugin, Player player, int block, Location location, int type) {
+		this.plugin = plugin;
 		this.player = player;
-		this.block_id = block;
-		this.world = location.getWorld();
-		this.date = System.currentTimeMillis()/1000;
-		this.type = type;
 		this.location = location;
-		this.x = location.getX();
-		this.y = location.getY();
-		this.z = location.getZ();
-		this.conn = conn;
-	}
-
-	public void save(BlockLog plugin) {
-	    try {
-			Statement stmt = conn.createStatement();
-			
-			stmt.executeUpdate("INSERT INTO blocklog_blocks (player, block_id, world, date, x, y, z, type, rollback_id) VALUES ('" + getPlayer() + "', " + getBlockId() + ", '" + getWorldName() + "', " + getDate() + ", " + getX() + ", " + getY() + ", " + getZ() + ", " + getType() + ", " + getRollback() + ")");
-	    } catch (SQLException e) {
-	    	e.printStackTrace();
-	    }
+		this.world = location.getWorld();
+		this.block_id = block;
+		this.date = System.currentTimeMillis()/1000;
+		this.type = type;
 	}
 	
-	public String getPlayer()
-	{
+	public LoggedBlock(BrokenBlocks block) {
+		this.plugin = block.plugin;
+		this.player = block.getPlayer();
+		this.block = block.getBlock();
+		this.location = block.getLocation();
+		this.world = block.getWorld();
+		this.date = block.getDate();
+		this.block_id = block.getId();
+		this.type = 0;
+	}
+	
+	public LoggedBlock(PlacedBlock block) {
+		this.plugin = block.plugin;
+		this.player = block.getPlayer();
+		this.block = block.getBlock();
+		this.location = block.getLocation();
+		this.world = block.getWorld();
+		this.date = block.getDate();
+		this.block_id = block.getId();
+		this.type = 1;
+	}
+	
+	public void save() {
+		try {
+			Statement stmt = plugin.conn.createStatement();
+			
+			stmt.executeUpdate("INSERT INTO blocklog_blocks (player, block_id, world, date, x, y, z, type, rollback_id) VALUES ('" + getPlayerName() + "', " + getBlockId() + ", '" + getWorld().getName() + "', " + getDate() + ", " + getX() + ", " + getY() + ", " + getZ() + ", " + getType() + ", " + getRollback() + ")");
+    	} catch (SQLException e) {
+    		e.printStackTrace();
+    	}
+	}
+	
+	public int getBlockId() {
+		return block_id;
+	}
+	
+	public Block getBlock() {
+		return block;
+	}
+	
+	public World getWorld() {
+		return world;
+	}
+	
+	public Location getLocation() {
+		return location;
+	}
+	
+	public Player getPlayer() {
+		return player;
+	}
+	
+	public String getPlayerName() {
 		return player.getName();
 	}
 	
-	public int getRollback()
-	{
+	public int getRollback() {
 		return rollback;
 	}
 	
 	public void setRollback(int id) {
-		rollback = id;
+		this.rollback = id;
 	}
 	
-	public Integer getBlockId()
-	{
-		return block_id;
-	}
-	
-	
-	public String getWorldName()
-	{
-		return world.getName();
-	}
-	
-	public long getDate()
-	{
+	public long getDate() {
 		return date;
 	}
 	
-	public int getType()
-	{
+	public int getType() {
 		return type;
 	}
 	
-	public Location getLocation()
+	public int getX()
 	{
-		return location;
+		return location.getBlockX();
 	}
 	
-	public double getX()
+	public int getY()
 	{
-		return x;
+		return location.getBlockY();
 	}
 	
-	public double getY()
+	public int getZ()
 	{
-		return y;
-	}
-	
-	public double getZ()
-	{
-		return z;
+		return location.getBlockZ();
 	}
 }

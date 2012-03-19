@@ -1,6 +1,6 @@
 name: BlockLog
 main: me.arno.blocklog.BlockLog
-version: 0.5.0
+version: 0.5.1
 author: Anerach
 description: >
             A simple and effective Anti-Grief plugin.

@@ -1,9 +1,33 @@
 Main
 ===========
-Blocklog is an easy to use anti-grief plugin.
+Block Log is a small Anti-Grief plugin with rollback support.
+This plugin is still in development and it constantly gains new features!
+
+Features
+-----------
+
+* Tracks player placed blocks.
+* Ability to rollback players, regions or the whole world
+* Ability to undo the last rollback or others with the rollback id
+* MySQL and SQLite support
+* Manual save and auto save
+* Configurable wand
+* In game config manipulation command
 
 Changelog
 -----------
+
+### v0.5.1 ###
+* [*] Fixed blocks not saving bug
+* [*] Fixed some command bugs
+* [*] Some other minor bug fixes 
+
+#### Commands ####
+* [*] Fixed rollback commands
+* [*] Fixed clear command not showing the correct message
+* [*] Updated blhelp to match the latest commands
+* [*] Autosave now also saves an higher amount of blocks than specified
+* [-] Removed console message when someone enables autosave
 
 ### v0.5 ###
 * [+] New commands

@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -64,7 +65,7 @@ public class Rollback {
 				Player player = plugin.getServer().getPlayer(rs.getString("player"));
 				this.world = plugin.getServer().getWorld(rs.getString("world"));
 				Location loc = new Location(world, rs.getDouble("x"), rs.getDouble("y"), rs.getDouble("z"));
-				LoggedBlock lb = new LoggedBlock(plugin.conn, player, rs.getInt("block_id"), loc, rs.getInt("type"));
+				LoggedBlock lb = new LoggedBlock(plugin, player, rs.getInt("block_id"), loc, rs.getInt("type"));
 				blocks.add(lb);
 			}
 			
@@ -77,6 +78,7 @@ public class Rollback {
 			{
 				if(plugin.blocks.size() >= BlockCount) {
 					LoggedBlock LBlock = LBlocks.get(0);
+					
 					if(LBlock.getRollback() == id) {
 						blocks.add(LBlock);
 						LBlocks.remove(0);
@@ -117,7 +119,6 @@ public class Rollback {
 	}
 	
 	public boolean doRollback(final Player player, final int time, final int radius) throws SQLException {
-		final Connection conn = this.conn;
 		plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable() {
 		    public void run() {
 		    	try {
@@ -144,7 +145,7 @@ public class Rollback {
 							Material m = Material.getMaterial(LBlock.getBlockId());
 							if(radius == 0) {
 								if(player != null) {
-									if(player.getName().equalsIgnoreCase(LBlock.getPlayer())) {
+									if(player.getName().equalsIgnoreCase(LBlock.getPlayerName())) {
 										if(LBlock.getType() == 0)
 											world.getBlockAt(LBlock.getLocation()).setType(m);
 										else
@@ -164,7 +165,7 @@ public class Rollback {
 							} else {
 								if((LBlock.getX() >= xMin && LBlock.getX() <= xMax ) && (LBlock.getY() >= yMin && LBlock.getY() <= yMax ) && (LBlock.getZ() >= zMin && LBlock.getZ() <= zMax )) {
 									if(player != null) {
-										if(player.getName().equalsIgnoreCase(LBlock.getPlayer())) {
+										if(player.getName().equalsIgnoreCase(LBlock.getPlayerName())) {
 											if(LBlock.getType() == 0)
 												world.getBlockAt(LBlock.getLocation()).setType(m);
 											else
@@ -226,7 +227,6 @@ public class Rollback {
 	}
 	
 	public boolean undo() {
-		final Connection conn = this.conn;
 		plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable() {
 		    public void run() {
 				try {

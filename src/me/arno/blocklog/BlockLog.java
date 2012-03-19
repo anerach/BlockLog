@@ -39,14 +39,15 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class BlockLog extends JavaPlugin {
 	public Logger log;
+	public Connection conn;
 	
 	public ArrayList<String> users = new ArrayList<String>();
 	public ArrayList<LoggedBlock> blocks = new ArrayList<LoggedBlock>();
 	
 	public String NewVersion = null;
+	
 	public int autoSave = 0;
 	public boolean autoSaveMsg = false;
-	public Connection conn;
 	
 	public String getResourceContent(String file) {
 		try {
@@ -58,9 +59,9 @@ public class BlockLog extends JavaPlugin {
 			int read;
 			do {
 				read = InputReader.read(buffer, 0, buffer.length);
-				if (read > 0) {
+				if (read > 0)
 					StrBuilder.append(buffer, 0, read);
-				}
+				
 			} while (read >= 0);
 			InputReader.close();
 			ResourceFile.close();
@@ -81,7 +82,9 @@ public class BlockLog extends JavaPlugin {
 	    getConfig().addDefault("mysql.port", 3306);
 	   	getConfig().addDefault("blocklog.wand", 369);
 	    getConfig().addDefault("blocklog.results", 5);
-	    getConfig().addDefault("blocklog.warning", 500);
+	    getConfig().addDefault("blocklog.warning.blocks", 500);
+	    getConfig().addDefault("blocklog.warning.repeat", 100);
+	    getConfig().addDefault("blocklog.warning.delay", 30);
 		getConfig().options().copyDefaults(true);
 		saveConfig();
 	}
@@ -97,15 +100,46 @@ public class BlockLog extends JavaPlugin {
 				
 				stmt.executeUpdate(getResourceContent("MySQL/blocklog_blocks.sql"));
 				stmt.executeUpdate(getResourceContent("MySQL/blocklog_rollbacks.sql"));
+				stmt.executeUpdate(getResourceContent("MySQL/blocklog_interacts.sql"));
 			} else if(DBType.equalsIgnoreCase("sqlite")) {
 			    conn = DatabaseSettings.getConnection(this);
 			    stmt = conn.createStatement();
 				
 				stmt.executeUpdate(getResourceContent("SQLite/blocklog_blocks.sql"));
 				stmt.executeUpdate(getResourceContent("SQLite/blocklog_rollbacks.sql"));
+				stmt.executeUpdate(getResourceContent("SQLite/blocklog_interacts.sql"));
 		    }
 		} catch (SQLException e) {
 			log.info(e.getMessage()); 
+		}
+	}
+	
+	public void getLatestVersion() {
+		try {
+    		URL url = new URL("http://dl.dropbox.com/u/24494712/LogBlock/version.txt");
+		
+	        URLConnection urlConnection = url.openConnection();
+	        urlConnection.setConnectTimeout(1000);
+	        urlConnection.setReadTimeout(1000);
+	        BufferedReader breader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+	
+	        StringBuilder stringBuilder = new StringBuilder();
+	
+	        String line;
+	        while((line = breader.readLine()) != null) {
+	                stringBuilder.append(line);
+	        }
+	
+	        int LatestVersion = Integer.parseInt(stringBuilder.toString().replace(".", ""));
+	        int ThisVersion = Integer.parseInt(getDescription().getVersion().replace(".", ""));
+	        if(LatestVersion > ThisVersion) {
+	        	log.info("There is a new version of BlockLog available (v" + stringBuilder.toString() + ")");
+	        	NewVersion = stringBuilder.toString();
+	        }
+    	} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -113,6 +147,7 @@ public class BlockLog extends JavaPlugin {
 		log = getLogger();
     	loadConfiguration();
     	loadDatabase();
+    	getLatestVersion();
     	
     	new PushBlocks(this);
     	
@@ -133,54 +168,16 @@ public class BlockLog extends JavaPlugin {
     	getServer().getPluginManager().registerEvents(new LogListener(this), this);
     	getServer().getPluginManager().registerEvents(new WandListener(this), this);
     	getServer().getPluginManager().registerEvents(new LoginListener(this), this);
-    	
-    	try {
-    		URL url;
-		
-			url = new URL("http://dl.dropbox.com/u/24494712/LogBlock/version.txt");
-		
-	        URLConnection urlConnection = url.openConnection();
-	        urlConnection.setConnectTimeout(1000);
-	        urlConnection.setReadTimeout(1000);
-	        BufferedReader breader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-	
-	        StringBuilder stringBuilder = new StringBuilder();
-	
-	        String line;
-	        while((line = breader.readLine()) != null) {
-	                stringBuilder.append(line);
-	        }
-	
-	        int LatestVersion = Integer.parseInt(stringBuilder.toString().replace(".", ""));
-	        int ThisVersion = Integer.parseInt(getDescription().getVersion().replace(".", ""));
-	        if(LatestVersion > ThisVersion) {
-	        	log.info("There is a new version of BlockLog available (v" + stringBuilder.toString() + ")");
-	        	NewVersion = stringBuilder.toString();
-	        }
-	        	
-    	} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
     }
 	
 	public void saveBlocks(final int blockCount) {
-		final Connection conn = this.conn;
 		getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
-		    public void run() {
-		    	while(blocks.size() > 0) {
-					LoggedBlock block = blocks.get(0);
-					try {
-						Statement stmt = conn.createStatement();
-		
-						stmt.executeUpdate("INSERT INTO blocklog_blocks (player, block_id, world, date, x, y, z, type, rollback_id) VALUES ('" + block.getPlayer() + "', " + block.getBlockId() + ", '" + block.getWorldName() + "', , " + block.getDate() + ", " + block.getX() + ", " + block.getY() + ", " + block.getZ() + ", " + block.getType() + ", " + block.getRollback() + ")");
-					} catch (SQLException e) {
-						e.printStackTrace();
-					}
-					blocks.remove(0);
-				}
+			public void run() {
+		    	if(blocks.size() > 0) {
+			    	LoggedBlock block = blocks.get(0);
+			    	block.save();
+			    	blocks.remove(0);
+		    	}
 		    }
 		});
 	}

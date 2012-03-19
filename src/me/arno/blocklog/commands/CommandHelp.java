@@ -37,7 +37,7 @@ public class CommandHelp implements CommandExecutor {
 		player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Commands");
 		player.sendMessage(ChatColor.DARK_RED +"/blhelp" + ChatColor.GOLD + " - Shows this message");
 		if(player.isOp() || player.hasPermission("blocklog.reload"))
-			player.sendMessage(ChatColor.DARK_RED +"/blocklog reload" + ChatColor.GOLD + " - Reloads blocklog config file");
+			player.sendMessage(ChatColor.DARK_RED +"/blreload" + ChatColor.GOLD + " - Reloads blocklog config file");
 		if(player.isOp() || player.hasPermission("blocklog.wand"))
 			player.sendMessage(ChatColor.DARK_RED +"/blwand" + ChatColor.GOLD + " - Enables blocklog's wand");
 		if(player.isOp() || player.hasPermission("blocklog.save"))
@@ -57,6 +57,6 @@ public class CommandHelp implements CommandExecutor {
 		if(player.isOp() || player.hasPermission("blocklog.config"))
 			player.sendMessage(ChatColor.DARK_RED +"/blconfig <get/set> <key> [value]" + ChatColor.GOLD + " - Change blocklog's command values ingame");
 		
-		return false;
+		return true;
 	}
 }

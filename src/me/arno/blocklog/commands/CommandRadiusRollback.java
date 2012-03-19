@@ -43,14 +43,19 @@ public class CommandRadiusRollback implements CommandExecutor {
 			return false;
 		
 		String strPlayer = null;
-		int radius = Integer.parseInt(args[0]);
-		int timeInt = Integer.parseInt(args[1]);
-		String timeVal = args[2];
+		int radius = 0;
+		int timeInt = 0;
+		String timeVal = null;
 		
-		if(args.length == 4) {
+		
+		if(args.length == 3) {
+			radius = Integer.valueOf(args[0]);
+			timeInt = Integer.valueOf(args[1]);
+			timeVal = args[2];
+		} else if(args.length == 4) {
 			strPlayer = args[0];
-			radius = Integer.parseInt(args[1]);
-			timeInt = Integer.parseInt(args[2]);
+			radius = Integer.valueOf(args[1]);
+			timeInt = Integer.valueOf(args[2]);
 			timeVal = args[3];
 		}
 		

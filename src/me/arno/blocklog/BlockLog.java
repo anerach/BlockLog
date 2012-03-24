@@ -122,7 +122,7 @@ public class BlockLog extends JavaPlugin {
 			} else if(DBType.equalsIgnoreCase("sqlite")) {
 			    conn = DatabaseSettings.getConnection(this);
 			    stmt = conn.createStatement();
-			    stmt.executeUpdate("ALTER TABLE 'blocklog_blocks' ADD 'datavalue' INTEGER NOT NULL AFTER 'block_id'");
+			    stmt.executeUpdate("ALTER TABLE 'blocklog_blocks' ADD COLUMN 'datavalue' INTEGER NOT NULL DEFAULT '0'");
 		    }
 			
 		} catch (SQLException e) {

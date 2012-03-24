@@ -1,25 +1,25 @@
-package me.arno.blocklog;
+package me.arno.blocklog.log;
 
+
+import me.arno.blocklog.BlockLog;
 
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 
-public class BurntBlocks {
+public class BurntBlock {
 	public BlockLog plugin;
+	public Block block;
+	public long date;
 	
-	private Block block;
-	
-	private long date;
-	
-	public BurntBlocks(BlockLog plugin, Block block) {
+	public BurntBlock(BlockLog plugin, Block block) {
 		this.plugin = plugin;
 		this.block = block;
 		this.date = System.currentTimeMillis()/1000;
 	}
 	
 	public void push() {
-		//plugin.blocks.add(new LoggedBlock(this));
+		plugin.blocks.add(new LoggedBlock(this));
 	}
 	
 	public int getId() {
@@ -40,5 +40,9 @@ public class BurntBlocks {
 	
 	public long getDate() {
 		return date;
+	}
+
+	public int getData() {
+		return block.getData();
 	}
 }

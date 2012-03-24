@@ -83,7 +83,7 @@ public class CommandRollback implements CommandExecutor {
 				rb.doRollback(plugin.getServer().getPlayer(strPlayer), time);
 			else
 				rb.doRollback(time);
-			rb.close();
+			
 			return true;
 		} catch(SQLException e) {
 			e.printStackTrace();

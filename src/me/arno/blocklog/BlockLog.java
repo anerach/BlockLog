@@ -29,6 +29,7 @@ import me.arno.blocklog.database.PushBlocks;
 import me.arno.blocklog.listeners.LogListener;
 import me.arno.blocklog.listeners.LoginListener;
 import me.arno.blocklog.listeners.WandListener;
+import me.arno.blocklog.log.LoggedBlock;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -39,6 +40,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class BlockLog extends JavaPlugin {
 	public Logger log;
+	public DatabaseSettings dbSettings;
 	public Connection conn;
 	
 	public ArrayList<String> users = new ArrayList<String>();
@@ -91,7 +93,6 @@ public class BlockLog extends JavaPlugin {
 	
 	public void loadDatabase() {
 		String DBType = getConfig().getString("database.type");
-		
 		Statement stmt;
 		try {
 			if(DBType.equalsIgnoreCase("mysql")) {
@@ -100,23 +101,38 @@ public class BlockLog extends JavaPlugin {
 				
 				stmt.executeUpdate(getResourceContent("MySQL/blocklog_blocks.sql"));
 				stmt.executeUpdate(getResourceContent("MySQL/blocklog_rollbacks.sql"));
-				stmt.executeUpdate(getResourceContent("MySQL/blocklog_interacts.sql"));
+				stmt.executeUpdate(getResourceContent("MySQL/blocklog_interactions.sql"));
 			} else if(DBType.equalsIgnoreCase("sqlite")) {
 			    conn = DatabaseSettings.getConnection(this);
 			    stmt = conn.createStatement();
 				
 				stmt.executeUpdate(getResourceContent("SQLite/blocklog_blocks.sql"));
 				stmt.executeUpdate(getResourceContent("SQLite/blocklog_rollbacks.sql"));
-				stmt.executeUpdate(getResourceContent("SQLite/blocklog_interacts.sql"));
+				stmt.executeUpdate(getResourceContent("SQLite/blocklog_interactions.sql"));
 		    }
 		} catch (SQLException e) {
-			log.info(e.getMessage()); 
+			e.printStackTrace();
+		}
+		
+		try { // Update database
+			if(DBType.equalsIgnoreCase("mysql")) {
+		    	conn = DatabaseSettings.getConnection(this);
+		    	stmt = conn.createStatement();
+		    	stmt.executeUpdate("ALTER TABLE `blocklog_blocks` ADD `datavalue` INT(11) NOT NULL AFTER `block_id`");
+			} else if(DBType.equalsIgnoreCase("sqlite")) {
+			    conn = DatabaseSettings.getConnection(this);
+			    stmt = conn.createStatement();
+			    stmt.executeUpdate("ALTER TABLE 'blocklog_blocks' ADD 'datavalue' INTEGER NOT NULL AFTER 'block_id'");
+		    }
+			
+		} catch (SQLException e) {
+			//Prints error if table already exists
 		}
 	}
 	
 	public void getLatestVersion() {
 		try {
-    		URL url = new URL("http://dl.dropbox.com/u/24494712/LogBlock/version.txt");
+    		URL url = new URL("http://dl.dropbox.com/u/24494712/BlockLog/version.txt");
 		
 	        URLConnection urlConnection = url.openConnection();
 	        urlConnection.setConnectTimeout(1000);
@@ -145,8 +161,11 @@ public class BlockLog extends JavaPlugin {
 	
 	public void loadPlugin() {
 		log = getLogger();
+		log.info("Loading the configurations");
     	loadConfiguration();
+		log.info("Loading the database");
     	loadDatabase();
+		log.info("Checking for updates");
     	getLatestVersion();
     	
     	new PushBlocks(this);
@@ -174,9 +193,19 @@ public class BlockLog extends JavaPlugin {
 		getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
 			public void run() {
 		    	if(blocks.size() > 0) {
-			    	LoggedBlock block = blocks.get(0);
-			    	block.save();
-			    	blocks.remove(0);
+		    		if(blockCount == 0) {
+		    			while(blocks.size() > 0) {
+			    			LoggedBlock block = blocks.get(0);
+					    	block.save();
+					    	blocks.remove(0);
+		    			}
+		    		} else {
+		    			for(int i=blockCount; i!=0; i--) {
+			    			LoggedBlock block = blocks.get(0);
+					    	block.save();
+					    	blocks.remove(0);
+		    			}
+		    		}
 		    	}
 		    }
 		});
@@ -191,13 +220,14 @@ public class BlockLog extends JavaPlugin {
 	
 	@Override
 	public void onDisable() {
+		getServer().getScheduler().cancelAllTasks();
 		saveBlocks(0);
 		PluginDescriptionFile PluginDesc = this.getDescription();
 		log.info("v" + PluginDesc.getVersion() + " is disabled!");
 	}
 	
 	
-	/* Help command */
+	/* Blocklog command */
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
 		Player player = null;
 		
@@ -212,7 +242,7 @@ public class BlockLog extends JavaPlugin {
 			return true;
 		}
 		
-		player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "This server is using BlockLog v" + getDescription().getVersion() + " by Anerach");
+		player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "This server is using BlockLog v" + getDescription().getVersion() + " by Anerach");
 		return true;
 	}
 }

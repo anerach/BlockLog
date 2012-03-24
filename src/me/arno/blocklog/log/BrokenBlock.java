@@ -1,12 +1,14 @@
-package me.arno.blocklog;
+package me.arno.blocklog.log;
 
+
+import me.arno.blocklog.BlockLog;
 
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-public class BrokenBlocks {
+public class BrokenBlock {
 	public BlockLog plugin;
 	
 	private Player player;
@@ -14,7 +16,7 @@ public class BrokenBlocks {
 	
 	private long date;
 	
-	public BrokenBlocks(BlockLog plugin, Player player, Block block) {
+	public BrokenBlock(BlockLog plugin, Player player, Block block) {
 		this.plugin = plugin;
 		this.player = player;
 		this.block = block;
@@ -51,5 +53,9 @@ public class BrokenBlocks {
 	
 	public long getDate() {
 		return date;
+	}
+
+	public int getData() {
+		return block.getData();
 	}
 }

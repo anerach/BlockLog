@@ -1,4 +1,6 @@
-package me.arno.blocklog;
+package me.arno.blocklog.log;
+
+import me.arno.blocklog.BlockLog;
 
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -50,5 +52,9 @@ public class PlacedBlock {
 	
 	public long getDate() {
 		return date;
+	}
+
+	public int getData() {
+		return block.getData();
 	}
 }

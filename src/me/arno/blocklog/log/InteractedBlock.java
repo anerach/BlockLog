@@ -1,4 +1,7 @@
-package me.arno.blocklog;
+package me.arno.blocklog.log;
+
+import me.arno.blocklog.BlockLog;
+import me.arno.blocklog.Interaction;
 
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -22,7 +25,7 @@ public BlockLog plugin;
 	}
 	
 	public void push() {
-		//Yet to come
+		//LoggedInteraction(this);
 	}
 	
 	public Interaction getType() {

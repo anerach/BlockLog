@@ -3,15 +3,16 @@ package me.arno.blocklog.listeners;
 import java.util.logging.Logger;
 
 import me.arno.blocklog.BlockLog;
-import me.arno.blocklog.BrokenBlocks;
-import me.arno.blocklog.BurntBlocks;
-import me.arno.blocklog.InteractedBlock;
 import me.arno.blocklog.Interaction;
-import me.arno.blocklog.PlacedBlock;
+import me.arno.blocklog.log.BrokenBlock;
+import me.arno.blocklog.log.BurntBlock;
+import me.arno.blocklog.log.InteractedBlock;
+import me.arno.blocklog.log.PlacedBlock;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -19,6 +20,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.block.BlockBurnEvent;
+import org.bukkit.event.entity.ExplosionPrimeEvent;
 
 public class LogListener implements Listener {
 	BlockLog plugin;
@@ -77,7 +79,7 @@ public class LogListener implements Listener {
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent event) {
 		if(!event.isCancelled()) {
-			BrokenBlocks block = new BrokenBlocks(plugin, event.getPlayer(), event.getBlock());
+			BrokenBlock block = new BrokenBlock(plugin, event.getPlayer(), event.getBlock());
 			block.push();
 		}
 	}
@@ -85,7 +87,7 @@ public class LogListener implements Listener {
 	@EventHandler
 	public void onBlockBurn(BlockBurnEvent event) {
 		if(!event.isCancelled()) {
-			BurntBlocks block = new BurntBlocks(plugin, event.getBlock());
+			BurntBlock block = new BurntBlock(plugin, event.getBlock());
 			block.push();
 		}
 	}
@@ -97,26 +99,34 @@ public class LogListener implements Listener {
 		
 		if(!event.isCancelled()) {
 			if(event.getPlayer().getItemInHand().getTypeId() != BLWand || !WandEnabled) {
-				if(event.getMaterial() == Material.WOOD_DOOR) {
+				if(event.getClickedBlock().getType() == Material.WOODEN_DOOR) {
 					InteractedBlock block = new InteractedBlock(plugin, event.getPlayer(), event.getClickedBlock().getLocation(), Interaction.DOOR);
 					block.push();
-				} else if(event.getMaterial() == Material.TRAP_DOOR) {
+				} else if(event.getClickedBlock().getType() == Material.TRAP_DOOR) {
 					InteractedBlock block = new InteractedBlock(plugin, event.getPlayer(), event.getClickedBlock().getLocation(), Interaction.TRAP_DOOR);
 					block.push();
-				} else if(event.getMaterial() == Material.CHEST) {
+				} else if(event.getClickedBlock().getType() == Material.CHEST) {
 					InteractedBlock block = new InteractedBlock(plugin, event.getPlayer(), event.getClickedBlock().getLocation(), Interaction.CHEST);
 					block.push();
-				} else if(event.getMaterial() == Material.DISPENSER) {
+				} else if(event.getClickedBlock().getType() == Material.DISPENSER) {
 					InteractedBlock block = new InteractedBlock(plugin, event.getPlayer(), event.getClickedBlock().getLocation(), Interaction.DISPENSER);
 					block.push();
-				} else if(event.getMaterial() == Material.STONE_BUTTON) {
+				} else if(event.getClickedBlock().getType() == Material.STONE_BUTTON) {
 					InteractedBlock block = new InteractedBlock(plugin, event.getPlayer(), event.getClickedBlock().getLocation(), Interaction.BUTTON);
 					block.push();
-				} else if(event.getMaterial() == Material.LEVER) {
+				} else if(event.getClickedBlock().getType() == Material.LEVER) {
 					InteractedBlock block = new InteractedBlock(plugin, event.getPlayer(), event.getClickedBlock().getLocation(), Interaction.LEVER);
 					block.push();
 				}
 			}
+		}
+	}
+	
+	@EventHandler
+	public void onExplosionPrime(ExplosionPrimeEvent event) {
+		if(event.getEntityType() == EntityType.CREEPER) {
+			log.info("Win");
+			log.info(Double.toString(event.getRadius()));
 		}
 	}
 }

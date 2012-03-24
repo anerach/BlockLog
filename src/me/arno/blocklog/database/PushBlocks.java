@@ -1,7 +1,7 @@
 package me.arno.blocklog.database;
 
 import me.arno.blocklog.BlockLog;
-import me.arno.blocklog.LoggedBlock;
+import me.arno.blocklog.log.LoggedBlock;
 
 public class PushBlocks {
 	BlockLog plugin;

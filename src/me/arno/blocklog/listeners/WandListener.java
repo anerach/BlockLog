@@ -9,7 +9,8 @@ import java.util.GregorianCalendar;
 import java.util.logging.Logger;
 
 import me.arno.blocklog.BlockLog;
-import me.arno.blocklog.LoggedBlock;
+import me.arno.blocklog.database.DatabaseSettings;
+import me.arno.blocklog.log.LoggedBlock;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -47,7 +48,7 @@ public class WandListener implements Listener {
 					if(BlockCount == plugin.getConfig().getInt("blocklog.results"))
 						break;
 					
-					String str = (LBlock.getType() == 1) ? "placed a" : "broke a";
+					String str = (LBlock.getTypeId() == 1) ? "placed a" : "broke a";
 					String name = Material.getMaterial(LBlock.getBlockId()).toString();
 					
 					Calendar calendar = GregorianCalendar.getInstance();
@@ -55,7 +56,7 @@ public class WandListener implements Listener {
 					
 					String date =  calendar.get(Calendar.DAY_OF_MONTH) + "-" + (calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.YEAR) + " " + calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE) + ":" + calendar.get(Calendar.SECOND);
 					
-					player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayer() + " " + ChatColor.DARK_GREEN + str + " " + ChatColor.GOLD + name);
+					player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + " " + ChatColor.DARK_GREEN + str + " " + ChatColor.GOLD + name);
 					BlockCount++;
 				}
 				BlockNumber++;
@@ -69,7 +70,7 @@ public class WandListener implements Listener {
 				double z = block.getZ();
 				
 				ResultSet rs;
-				if(plugin.getConfig().getBoolean("mysql.enabled"))
+				if(DatabaseSettings.DBType(plugin).equalsIgnoreCase("mysql"))
 					rs = stmt.executeQuery("SELECT player, block_id, type, FROM_UNIXTIME(date, '%d-%m-%Y %H:%i:%s') AS date FROM blocklog_blocks WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' ORDER BY date DESC LIMIT " + (plugin.getConfig().getInt("blocklog.results") - BlockCount));
 				else
 					rs = stmt.executeQuery("SELECT player, block_id, type, datetime(date, 'unixepoch', 'localtime') AS date FROM blocklog_blocks WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' ORDER BY date DESC LIMIT " + (plugin.getConfig().getInt("blocklog.results") - BlockCount));
@@ -82,8 +83,7 @@ public class WandListener implements Listener {
 				}
 			}
 		} catch(SQLException e) {
-			log.info("[BlockLog][Wand][Interact][SQL] Exception!");
-			log.info("[BlockLog][Wand][Interact][SQL] " + e.getMessage());
+			e.getStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

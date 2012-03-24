@@ -89,7 +89,6 @@ public class CommandRadiusRollback implements CommandExecutor {
 			else
 				rb.doRollback(time, radius);
 			
-			rb.close();
 			return true;
 		} catch(SQLException e) {
 			e.printStackTrace();

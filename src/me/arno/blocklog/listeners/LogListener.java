@@ -1,18 +1,20 @@
 package me.arno.blocklog.listeners;
 
+import java.util.List;
 import java.util.logging.Logger;
 
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.Interaction;
 import me.arno.blocklog.log.BrokenBlock;
 import me.arno.blocklog.log.BurntBlock;
+import me.arno.blocklog.log.ExplodedBlock;
 import me.arno.blocklog.log.InteractedBlock;
 import me.arno.blocklog.log.PlacedBlock;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
-import org.bukkit.entity.EntityType;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -20,7 +22,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.block.BlockBurnEvent;
-import org.bukkit.event.entity.ExplosionPrimeEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 
 public class LogListener implements Listener {
 	BlockLog plugin;
@@ -123,10 +125,11 @@ public class LogListener implements Listener {
 	}
 	
 	@EventHandler
-	public void onExplosionPrime(ExplosionPrimeEvent event) {
-		if(event.getEntityType() == EntityType.CREEPER) {
-			log.info("Win");
-			log.info(Double.toString(event.getRadius()));
+	public void onEntityExplode(EntityExplodeEvent event) {
+		List<Block> blockList = event.blockList();
+		for(Block block : blockList) {
+			ExplodedBlock explBlock = new ExplodedBlock(plugin, block);
+			explBlock.push();
 		}
 	}
 }

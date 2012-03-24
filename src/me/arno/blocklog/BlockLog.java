@@ -1,18 +1,17 @@
 package me.arno.blocklog;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.logging.Logger;
+
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import me.arno.blocklog.commands.CommandAutoSave;
 import me.arno.blocklog.commands.CommandClear;
@@ -38,6 +37,10 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 public class BlockLog extends JavaPlugin {
 	public Logger log;
@@ -48,7 +51,8 @@ public class BlockLog extends JavaPlugin {
 	public ArrayList<LoggedBlock> blocks = new ArrayList<LoggedBlock>();
 	public ArrayList<LoggedInteraction> interactions = new ArrayList<LoggedInteraction>();
 	
-	public String NewVersion = null;
+	public String newVersion;
+	public String currentVersion;
 	
 	public int autoSave = 0;
 	public boolean autoSaveMsg = false;
@@ -132,43 +136,50 @@ public class BlockLog extends JavaPlugin {
 		}
 	}
 	
-	public void getLatestVersion() {
-		try {
-    		URL url = new URL("http://dl.dropbox.com/u/24494712/BlockLog/version.txt");
-		
-	        URLConnection urlConnection = url.openConnection();
-	        urlConnection.setConnectTimeout(1000);
-	        urlConnection.setReadTimeout(1000);
-	        BufferedReader breader = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-	
-	        StringBuilder stringBuilder = new StringBuilder();
-	
-	        String line;
-	        while((line = breader.readLine()) != null) {
-	                stringBuilder.append(line);
-	        }
-	
-	        int LatestVersion = Integer.parseInt(stringBuilder.toString().replace(".", ""));
-	        int ThisVersion = Integer.parseInt(getDescription().getVersion().replace(".", ""));
-	        if(LatestVersion > ThisVersion) {
-	        	log.info("There is a new version of BlockLog available (v" + stringBuilder.toString() + ")");
-	        	NewVersion = stringBuilder.toString();
-	        }
-    	} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+	public String loadLatestVersion(String currentVersion) {
+        String pluginUrlString = "http://dev.bukkit.org/server-mods/block-log/files.rss";
+        try {
+            URL url = new URL(pluginUrlString);
+            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(url.openConnection().getInputStream());
+            doc.getDocumentElement().normalize();
+            NodeList nodes = doc.getElementsByTagName("item");
+            Node firstNode = nodes.item(0);
+            if (firstNode.getNodeType() == 1) {
+                Element firstElement = (Element)firstNode;
+                NodeList firstElementTagName = firstElement.getElementsByTagName("title");
+                Element firstNameElement = (Element) firstElementTagName.item(0);
+                NodeList firstNodes = firstNameElement.getChildNodes();
+                return firstNodes.item(0).getNodeValue().replace("BlockLog", "").trim();
+            }
+        }
+        catch (Exception e) {
+        	e.printStackTrace();
+        }
+        return currentVersion;
+    }
 	
 	public void loadPlugin() {
+		double tmpCurrentVersion;
+		double tmpNewVersion;
+		currentVersion = getDescription().getVersion();
 		log = getLogger();
+		
 		log.info("Loading the configurations");
-    	loadConfiguration();
+	    loadConfiguration();
+	    
 		log.info("Loading the database");
-    	loadDatabase();
+	    loadDatabase();
+	    
 		log.info("Checking for updates");
-    	getLatestVersion();
+		newVersion = loadLatestVersion(currentVersion);
+		
+		tmpCurrentVersion = Double.valueOf(currentVersion.replaceFirst("\\.", ""));
+		tmpNewVersion = Double.valueOf(newVersion.replaceFirst("\\.", ""));
+		
+		if(tmpNewVersion > tmpCurrentVersion) {
+			log.warning("BlockLog v" + newVersion + " is released! You're using BlockLog v" + currentVersion);
+			log.warning("Update BlockLog at http://dev.bukkit.org/server-mods/block-log/");
+		}
     	
     	new PushBlocks(this);
     	

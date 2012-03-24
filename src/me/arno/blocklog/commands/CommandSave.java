@@ -40,12 +40,12 @@ public class CommandSave implements CommandExecutor {
 				blockCount = Integer.parseInt(args[0]);
 			
 			player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Saving " + blockCount + " block edits!");
-			plugin.saveBlocks(blockCount);
+			plugin.saveLogs(blockCount);
 			player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Successfully saved " + blockCount + " block edits!");
 			return true;
 		} else if(cmd.getName().equalsIgnoreCase("blfullsave")) {
 			player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Saving all the block edits!");
-			plugin.saveBlocks(0);
+			plugin.saveLogs(0);
 			player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Successfully saved all the block edits!");
 			return true;
 		}

@@ -4,7 +4,7 @@ public enum Log {
 	BREAK(0),
 	PLACE(1),
 	FIRE(2),
-	CREEPER(3);
+	EXPLOSION(3);
 	
 	int id;
 	Log(int id) {

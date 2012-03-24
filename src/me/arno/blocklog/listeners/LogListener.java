@@ -52,10 +52,10 @@ public class LogListener implements Listener {
 		if(BlockSize >= plugin.autoSave && BlockSize != 0) {
 			if(plugin.autoSaveMsg) {
 				sendAdminMessage(ChatColor.DARK_RED + "[BlockLog][AutoSave] " + ChatColor.GOLD + "Saving " + plugin.blocks.size() + " blocks!");
-				plugin.saveBlocks(0);
+				plugin.saveLogs(0);
 				sendAdminMessage(ChatColor.DARK_RED + "[BlockLog][AutoSave] " + ChatColor.GOLD + "Succesfully saved all the blocks!");
 			} else
-				plugin.saveBlocks(0);
+				plugin.saveLogs(0);
 		} else if(plugin.autoSave == 0 && (BlockSize ==  WarningBlockSize || (BlockSize > WarningBlockSize && BlockSize % WarningRepeat == 0))) {
 			if(time < System.currentTimeMillis()) {
 				time = System.currentTimeMillis() +  WarningDelay;
@@ -95,6 +95,15 @@ public class LogListener implements Listener {
 	}
 	
 	@EventHandler
+	public void onEntityExplode(EntityExplodeEvent event) {
+		List<Block> blockList = event.blockList();
+		for(Block block : blockList) {
+			ExplodedBlock explBlock = new ExplodedBlock(plugin, block);
+			explBlock.push();
+		}
+	}
+	
+	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		int BLWand = plugin.getConfig().getInt("blocklog.wand");
 		boolean WandEnabled = plugin.users.contains(event.getPlayer().getName());
@@ -121,15 +130,6 @@ public class LogListener implements Listener {
 					block.push();
 				}
 			}
-		}
-	}
-	
-	@EventHandler
-	public void onEntityExplode(EntityExplodeEvent event) {
-		List<Block> blockList = event.blockList();
-		for(Block block : blockList) {
-			ExplodedBlock explBlock = new ExplodedBlock(plugin, block);
-			explBlock.push();
 		}
 	}
 }

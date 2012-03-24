@@ -30,6 +30,7 @@ import me.arno.blocklog.listeners.LogListener;
 import me.arno.blocklog.listeners.LoginListener;
 import me.arno.blocklog.listeners.WandListener;
 import me.arno.blocklog.log.LoggedBlock;
+import me.arno.blocklog.log.LoggedInteraction;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -45,6 +46,7 @@ public class BlockLog extends JavaPlugin {
 	
 	public ArrayList<String> users = new ArrayList<String>();
 	public ArrayList<LoggedBlock> blocks = new ArrayList<LoggedBlock>();
+	public ArrayList<LoggedInteraction> interactions = new ArrayList<LoggedInteraction>();
 	
 	public String NewVersion = null;
 	
@@ -189,23 +191,39 @@ public class BlockLog extends JavaPlugin {
     	getServer().getPluginManager().registerEvents(new LoginListener(this), this);
     }
 	
-	public void saveBlocks(final int blockCount) {
+	public void saveLogs(final int count) {
 		getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
 			public void run() {
 		    	if(blocks.size() > 0) {
-		    		if(blockCount == 0) {
+		    		if(count == 0) {
 		    			while(blocks.size() > 0) {
 			    			LoggedBlock block = blocks.get(0);
 					    	block.save();
 					    	blocks.remove(0);
 		    			}
 		    		} else {
-		    			for(int i=blockCount; i!=0; i--) {
+		    			for(int i=count; i!=0; i--) {
 			    			LoggedBlock block = blocks.get(0);
 					    	block.save();
 					    	blocks.remove(0);
 		    			}
 		    		}
+		    	}
+		    	if(interactions.size() > 0) {
+		    		if(count == 0) {
+		    			while(interactions.size() > 0) {
+		    				LoggedInteraction interaction = interactions.get(0);
+				    		interaction.save();
+				    		interactions.remove(0);
+		    			}
+		    		} else {
+		    			for(int i=count; i!=0; i--) {
+		    				LoggedInteraction interaction = interactions.get(0);
+				    		interaction.save();
+					    	interactions.remove(0);
+		    			}
+		    		}
+		    		
 		    	}
 		    }
 		});
@@ -221,7 +239,7 @@ public class BlockLog extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		getServer().getScheduler().cancelAllTasks();
-		saveBlocks(0);
+		saveLogs(0);
 		PluginDescriptionFile PluginDesc = this.getDescription();
 		log.info("v" + PluginDesc.getVersion() + " is disabled!");
 	}

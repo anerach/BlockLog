@@ -58,7 +58,7 @@ public class LoggedBlock {
 		this.location = block.getLocation();
 		this.world = block.getWorld();
 		this.date = block.getDate();
-		this.logType = Log.CREEPER;
+		this.logType = Log.EXPLOSION;
 	}
 	
 	public LoggedBlock(BrokenBlock block) {

@@ -90,6 +90,7 @@ public class BlockLog extends JavaPlugin {
 	    getConfig().addDefault("mysql.port", 3306);
 	   	getConfig().addDefault("blocklog.wand", 369);
 	    getConfig().addDefault("blocklog.results", 5);
+	    getConfig().addDefault("blocklog.leaves", false);
 	    getConfig().addDefault("blocklog.warning.blocks", 500);
 	    getConfig().addDefault("blocklog.warning.repeat", 100);
 	    getConfig().addDefault("blocklog.warning.delay", 30);
@@ -249,7 +250,6 @@ public class BlockLog extends JavaPlugin {
 	
 	@Override
 	public void onDisable() {
-		getServer().getScheduler().cancelAllTasks();
 		saveLogs(0);
 		PluginDescriptionFile PluginDesc = this.getDescription();
 		log.info("v" + PluginDesc.getVersion() + " is disabled!");

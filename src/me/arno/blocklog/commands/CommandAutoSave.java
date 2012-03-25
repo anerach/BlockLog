@@ -53,7 +53,7 @@ Player player = null;
 			sendAdminMessage(String.format(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "Autosave disabled by %s", player.getName()));
 			return true;
 		} else if(args.length > 0) {
-			plugin.autoSave = Integer.parseInt(args[0]);
+			plugin.autoSave = Integer.valueOf(args[0]);
 			if(args.length == 2) {
 				if(args[1].equalsIgnoreCase("1") || args[1].equalsIgnoreCase("true"))
 					plugin.autoSaveMsg = true;

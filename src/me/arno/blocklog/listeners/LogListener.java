@@ -5,14 +5,15 @@ import java.util.logging.Logger;
 
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.Interaction;
+import me.arno.blocklog.Log;
 import me.arno.blocklog.log.BrokenBlock;
-import me.arno.blocklog.log.BurntBlock;
-import me.arno.blocklog.log.ExplodedBlock;
+import me.arno.blocklog.log.EnvironmentBlock;
 import me.arno.blocklog.log.InteractedBlock;
 import me.arno.blocklog.log.PlacedBlock;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -23,6 +24,9 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.block.LeavesDecayEvent;
+import org.bukkit.event.player.PlayerBucketEmptyEvent;
+import org.bukkit.event.player.PlayerBucketFillEvent;
 
 public class LogListener implements Listener {
 	BlockLog plugin;
@@ -49,7 +53,7 @@ public class LogListener implements Listener {
 		int WarningDelay = plugin.getConfig().getInt("blocklog.warning.delay") * 1000;
 		int WarningRepeat = plugin.getConfig().getInt("blocklog.warning.repeat");
 		
-		if(BlockSize >= plugin.autoSave && BlockSize != 0) {
+		if(BlockSize >= plugin.autoSave && BlockSize != 0 && plugin.autoSave != 0) {
 			if(plugin.autoSaveMsg) {
 				sendAdminMessage(ChatColor.DARK_RED + "[BlockLog][AutoSave] " + ChatColor.GOLD + "Saving " + plugin.blocks.size() + " blocks!");
 				plugin.saveLogs(0);
@@ -87,10 +91,40 @@ public class LogListener implements Listener {
 	}
 	
 	@EventHandler
+	public void onPlayerBucketEmpty(PlayerBucketEmptyEvent event) {
+		if(!event.isCancelled()) {
+			Location loc = event.getBlockClicked().getLocation();
+			loc.setY(loc.getY() + 1);
+			PlacedBlock block = new PlacedBlock(plugin, event.getPlayer(), loc.getBlock());
+			block.push();
+		}
+	}
+	
+	@EventHandler
+	public void onPlayerBucketFill(PlayerBucketFillEvent event) {
+		if(!event.isCancelled()) {
+			Location loc = event.getBlockClicked().getLocation();
+			loc.setY(loc.getY() + 1);
+			BrokenBlock block = new BrokenBlock(plugin, event.getPlayer(), loc.getBlock());
+			block.push();
+		}
+	}
+	
+	@EventHandler
 	public void onBlockBurn(BlockBurnEvent event) {
 		if(!event.isCancelled()) {
-			BurntBlock block = new BurntBlock(plugin, event.getBlock());
+			EnvironmentBlock block = new EnvironmentBlock(plugin, event.getBlock(), Log.FIRE);
 			block.push();
+		}
+	}
+	
+	@EventHandler
+	public void onLeavesDecay(LeavesDecayEvent event) {
+		if(!event.isCancelled()) {
+			if(plugin.getConfig().getBoolean("blocklog.leaves")) {
+				EnvironmentBlock block = new EnvironmentBlock(plugin, event.getBlock(), Log.LEAVES);
+				block.push();
+			}
 		}
 	}
 	
@@ -98,7 +132,7 @@ public class LogListener implements Listener {
 	public void onEntityExplode(EntityExplodeEvent event) {
 		List<Block> blockList = event.blockList();
 		for(Block block : blockList) {
-			ExplodedBlock explBlock = new ExplodedBlock(plugin, block);
+			EnvironmentBlock explBlock = new EnvironmentBlock(plugin, block, Log.EXPLOSION);
 			explBlock.push();
 		}
 	}

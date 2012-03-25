@@ -2,19 +2,22 @@ package me.arno.blocklog.log;
 
 
 import me.arno.blocklog.BlockLog;
+import me.arno.blocklog.Log;
 
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 
-public class ExplodedBlock {
+public class EnvironmentBlock {
 	public BlockLog plugin;
 	public Block block;
 	public long date;
+	public Log type;
 	
-	public ExplodedBlock(BlockLog plugin, Block block) {
+	public EnvironmentBlock(BlockLog plugin, Block block, Log type) {
 		this.plugin = plugin;
 		this.block = block;
+		this.type = type;
 		this.date = System.currentTimeMillis()/1000;
 	}
 	
@@ -44,5 +47,13 @@ public class ExplodedBlock {
 
 	public int getData() {
 		return block.getData();
+	}
+	
+	public Log getType() {
+		return type;
+	}
+	
+	public int getTypeId() {
+		return type.getId();
 	}
 }

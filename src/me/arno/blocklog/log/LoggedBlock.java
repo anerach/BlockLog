@@ -39,7 +39,7 @@ public class LoggedBlock {
 		this.logType = Log.values()[type];
 	}
 	
-	public LoggedBlock(BurntBlock block) {
+	public LoggedBlock(EnvironmentBlock block) {
 		this.plugin = block.plugin;
 		this.block = block.getBlock();
 		this.block_id = block.getBlock().getTypeId();
@@ -47,18 +47,7 @@ public class LoggedBlock {
 		this.location = block.getLocation();
 		this.world = block.getWorld();
 		this.date = block.getDate();
-		this.logType = Log.FIRE;
-	}
-	
-	public LoggedBlock(ExplodedBlock block) {
-		this.plugin = block.plugin;
-		this.block = block.getBlock();
-		this.block_id = block.getBlock().getTypeId();
-		this.datavalue = block.getData();
-		this.location = block.getLocation();
-		this.world = block.getWorld();
-		this.date = block.getDate();
-		this.logType = Log.EXPLOSION;
+		this.logType = block.getType();
 	}
 	
 	public LoggedBlock(BrokenBlock block) {

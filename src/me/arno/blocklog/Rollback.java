@@ -78,7 +78,7 @@ public class Rollback {
 			
 			while(BlockSize > BlockCount)
 			{
-				if(plugin.blocks.size() >= BlockCount) {
+				if(LBlocks.size() >= BlockCount) {
 					LoggedBlock LBlock = LBlocks.get(0);
 					
 					if(LBlock.getRollback() == id) {

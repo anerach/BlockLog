@@ -32,7 +32,7 @@ public class CommandAutoSave implements CommandExecutor {
 	
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-Player player = null;
+		Player player = null;
 		
 		if (sender instanceof Player)
 			player = (Player) sender;
@@ -52,16 +52,8 @@ Player player = null;
 			plugin.autoSave = 0;
 			sendAdminMessage(String.format(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "Autosave disabled by %s", player.getName()));
 			return true;
-		} else if(args.length > 0) {
+		} else if(args.length == 1) {
 			plugin.autoSave = Integer.valueOf(args[0]);
-			if(args.length == 2) {
-				if(args[1].equalsIgnoreCase("1") || args[1].equalsIgnoreCase("true"))
-					plugin.autoSaveMsg = true;
-				else if(args[1].equalsIgnoreCase("0") || args[1].equalsIgnoreCase("false"))
-					plugin.autoSaveMsg = false;
-				else
-					return false;
-			}
 			sendAdminMessage(String.format(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "Autosave enabled at %s blocks by %s", plugin.autoSave, player.getName()));
 			return true;
 		}

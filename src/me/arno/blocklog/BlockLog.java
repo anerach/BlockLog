@@ -21,6 +21,7 @@ import me.arno.blocklog.commands.CommandRadiusRollback;
 import me.arno.blocklog.commands.CommandReload;
 import me.arno.blocklog.commands.CommandRollback;
 import me.arno.blocklog.commands.CommandSave;
+import me.arno.blocklog.commands.CommandStorage;
 import me.arno.blocklog.commands.CommandUndo;
 import me.arno.blocklog.commands.CommandWand;
 import me.arno.blocklog.database.DatabaseSettings;
@@ -55,7 +56,6 @@ public class BlockLog extends JavaPlugin {
 	public String currentVersion;
 	
 	public int autoSave = 0;
-	public boolean autoSaveMsg = false;
 	
 	public String getResourceContent(String file) {
 		try {
@@ -191,6 +191,7 @@ public class BlockLog extends JavaPlugin {
     	getCommand("blconfig").setExecutor(new CommandConfig(this));
     	getCommand("blcfg").setExecutor(new CommandConfig(this));
     	getCommand("blwand").setExecutor(new CommandWand(this));
+    	getCommand("blstorage").setExecutor(new CommandStorage(this));
     	getCommand("blsave").setExecutor(new CommandSave(this));
     	getCommand("blfullsave").setExecutor(new CommandSave(this));
     	getCommand("blreload").setExecutor(new CommandReload(this));
@@ -204,39 +205,54 @@ public class BlockLog extends JavaPlugin {
     }
 	
 	public void saveLogs(final int count) {
+		saveLogs(count, null);
+	}
+	
+	public void saveLogs(final int count, final Player player) {
 		getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
 			public void run() {
-		    	if(blocks.size() > 0) {
-		    		if(count == 0) {
+				if(player == null)
+					log.info("Saving all the blocks");
+				else
+					player.sendMessage(ChatColor.DARK_RED +"[BlockLog][Autosave] " + ChatColor.GOLD + "Saving " + ((count == 0) ? " all the " : count) + " block edits!");
+				
+				if(count == 0) {
+					if(blocks.size() > 0) {
 		    			while(blocks.size() > 0) {
 			    			LoggedBlock block = blocks.get(0);
 					    	block.save();
 					    	blocks.remove(0);
 		    			}
-		    		} else {
+					}
+		    		if(interactions.size() > 0) {
+		    			while(interactions.size() > 0) {
+		    				LoggedInteraction interaction = interactions.get(0);
+				    		interaction.save();
+				    		interactions.remove(0);
+		    			}
+		    		}
+		    	} else {
+		    		if(blocks.size() > 0) {
 		    			for(int i=count; i!=0; i--) {
 			    			LoggedBlock block = blocks.get(0);
 					    	block.save();
 					    	blocks.remove(0);
 		    			}
 		    		}
-		    	}
-		    	if(interactions.size() > 0) {
-		    		if(count == 0) {
-		    			while(interactions.size() > 0) {
-		    				LoggedInteraction interaction = interactions.get(0);
-				    		interaction.save();
-				    		interactions.remove(0);
-		    			}
-		    		} else {
+		    		if(interactions.size() > 0) {
 		    			for(int i=count; i!=0; i--) {
 		    				LoggedInteraction interaction = interactions.get(0);
 				    		interaction.save();
 					    	interactions.remove(0);
 		    			}
 		    		}
-		    		
 		    	}
+				
+				if(player == null)
+					log.info("Successfully saved all the blocks");
+				else
+					player.sendMessage(ChatColor.DARK_RED +"[BlockLog][Autosave] " + ChatColor.GOLD + "Successfully saved " + ((count == 0) ? " all the " : count) + " block edits!");
+				
 		    }
 		});
 	}

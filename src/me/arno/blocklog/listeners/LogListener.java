@@ -27,6 +27,7 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.block.LeavesDecayEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
+import org.bukkit.event.block.BlockIgniteEvent;
 
 public class LogListener implements Listener {
 	BlockLog plugin;
@@ -54,12 +55,7 @@ public class LogListener implements Listener {
 		int WarningRepeat = plugin.getConfig().getInt("blocklog.warning.repeat");
 		
 		if(BlockSize >= plugin.autoSave && BlockSize != 0 && plugin.autoSave != 0) {
-			if(plugin.autoSaveMsg) {
-				sendAdminMessage(ChatColor.DARK_RED + "[BlockLog][AutoSave] " + ChatColor.GOLD + "Saving " + plugin.blocks.size() + " blocks!");
-				plugin.saveLogs(0);
-				sendAdminMessage(ChatColor.DARK_RED + "[BlockLog][AutoSave] " + ChatColor.GOLD + "Succesfully saved all the blocks!");
-			} else
-				plugin.saveLogs(0);
+			plugin.saveLogs(0);
 		} else if(plugin.autoSave == 0 && (BlockSize ==  WarningBlockSize || (BlockSize > WarningBlockSize && BlockSize % WarningRepeat == 0))) {
 			if(time < System.currentTimeMillis()) {
 				time = System.currentTimeMillis() +  WarningDelay;
@@ -115,6 +111,16 @@ public class LogListener implements Listener {
 		if(!event.isCancelled()) {
 			EnvironmentBlock block = new EnvironmentBlock(plugin, event.getBlock(), Log.FIRE);
 			block.push();
+		}
+	}
+	
+	@EventHandler
+	public void onBlockIgnite(BlockIgniteEvent event) {
+		if(!event.isCancelled()) {
+			if(event.getBlock().getType() == Material.TNT) {
+				BrokenBlock block = new BrokenBlock(plugin, event.getPlayer(), event.getBlock());
+				block.push();
+			}
 		}
 	}
 	

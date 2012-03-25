@@ -22,6 +22,10 @@ commands:
         description: Enables blocklog's wand
         usage: /<command>
         permission: blocklog.wand
+    blstorage:
+        description: Says the amount of internal stored blocks
+        usage: /<command>
+        permission: blocklog.storage
     blsave:
         description: Saves the specified amount of blocks
         usage: /<command> [blocks]
@@ -32,7 +36,7 @@ commands:
         permission: blocklog.fullsave
     blautosave:
         description: Saves the all the blocks when the internal storage reaches a preset amount of blocks
-        usage: /<command> <blocks> <message>
+        usage: /<command> <blocks>
         permission: blocklog.autosave
     blrollback:
         description: Rollback command for blocklog
@@ -67,6 +71,7 @@ permissions:
             blocklog.clear: true
             blocklog.reload: true
             blocklog.wand: true
+            blocklog.storage: true
             blocklog.rollback: true
             blocklog.undo: true
             blocklog.save: true
@@ -78,6 +83,7 @@ permissions:
             blocklog.help: true
             blocklog.notices: true
             blocklog.wand: true
+            blocklog.storage: true
             blocklog.rollback: true
             blocklog.undo: true
             blocklog.save: true
@@ -94,6 +100,8 @@ permissions:
         description: Gives access to the reload command
     blocklog.wand:
         description: Gives access to the wand command
+    blocklog.wand:
+        description: Gives access to the storage command
     blocklog.rollback:
         description: Gives access to both the rollback commands
     blocklog.save:

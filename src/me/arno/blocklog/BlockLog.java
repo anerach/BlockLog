@@ -214,7 +214,7 @@ public class BlockLog extends JavaPlugin {
 				if(player == null)
 					log.info("Saving all the blocks");
 				else
-					player.sendMessage(ChatColor.DARK_RED +"[BlockLog][Autosave] " + ChatColor.GOLD + "Saving " + ((count == 0) ? " all the " : count) + " block edits!");
+					player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Saving " + ((count == 0) ? "all the" : count) + " block edits!");
 				
 				if(count == 0) {
 					if(blocks.size() > 0) {
@@ -251,7 +251,7 @@ public class BlockLog extends JavaPlugin {
 				if(player == null)
 					log.info("Successfully saved all the blocks");
 				else
-					player.sendMessage(ChatColor.DARK_RED +"[BlockLog][Autosave] " + ChatColor.GOLD + "Successfully saved " + ((count == 0) ? " all the " : count) + " block edits!");
+					player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Successfully saved " + ((count == 0) ? "all the" : count) + " block edits!");
 				
 		    }
 		});

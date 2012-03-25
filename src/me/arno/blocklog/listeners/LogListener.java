@@ -74,6 +74,7 @@ public class LogListener implements Listener {
 			if(event.getPlayer().getItemInHand().getTypeId() != BLWand || !WandEnabled) {
 				PlacedBlock block = new PlacedBlock(plugin, event.getPlayer(), event.getBlockPlaced());
 				block.push();
+				BlocksLimitReached();
 			}
 		}
 	}
@@ -83,6 +84,7 @@ public class LogListener implements Listener {
 		if(!event.isCancelled()) {
 			BrokenBlock block = new BrokenBlock(plugin, event.getPlayer(), event.getBlock());
 			block.push();
+			BlocksLimitReached();
 		}
 	}
 	
@@ -93,6 +95,7 @@ public class LogListener implements Listener {
 			loc.setY(loc.getY() + 1);
 			PlacedBlock block = new PlacedBlock(plugin, event.getPlayer(), loc.getBlock());
 			block.push();
+			BlocksLimitReached();
 		}
 	}
 	
@@ -103,6 +106,7 @@ public class LogListener implements Listener {
 			loc.setY(loc.getY() + 1);
 			BrokenBlock block = new BrokenBlock(plugin, event.getPlayer(), loc.getBlock());
 			block.push();
+			BlocksLimitReached();
 		}
 	}
 	
@@ -111,6 +115,7 @@ public class LogListener implements Listener {
 		if(!event.isCancelled()) {
 			EnvironmentBlock block = new EnvironmentBlock(plugin, event.getBlock(), Log.FIRE);
 			block.push();
+			BlocksLimitReached();
 		}
 	}
 	
@@ -120,6 +125,7 @@ public class LogListener implements Listener {
 			if(event.getBlock().getType() == Material.TNT) {
 				BrokenBlock block = new BrokenBlock(plugin, event.getPlayer(), event.getBlock());
 				block.push();
+				BlocksLimitReached();
 			}
 		}
 	}
@@ -130,6 +136,7 @@ public class LogListener implements Listener {
 			if(plugin.getConfig().getBoolean("blocklog.leaves")) {
 				EnvironmentBlock block = new EnvironmentBlock(plugin, event.getBlock(), Log.LEAVES);
 				block.push();
+				BlocksLimitReached();
 			}
 		}
 	}
@@ -140,6 +147,7 @@ public class LogListener implements Listener {
 		for(Block block : blockList) {
 			EnvironmentBlock explBlock = new EnvironmentBlock(plugin, block, Log.EXPLOSION);
 			explBlock.push();
+			BlocksLimitReached();
 		}
 	}
 	
@@ -153,21 +161,27 @@ public class LogListener implements Listener {
 				if(event.getClickedBlock().getType() == Material.WOODEN_DOOR) {
 					InteractedBlock block = new InteractedBlock(plugin, event.getPlayer(), event.getClickedBlock().getLocation(), Interaction.DOOR);
 					block.push();
+					BlocksLimitReached();
 				} else if(event.getClickedBlock().getType() == Material.TRAP_DOOR) {
 					InteractedBlock block = new InteractedBlock(plugin, event.getPlayer(), event.getClickedBlock().getLocation(), Interaction.TRAP_DOOR);
 					block.push();
+					BlocksLimitReached();
 				} else if(event.getClickedBlock().getType() == Material.CHEST) {
 					InteractedBlock block = new InteractedBlock(plugin, event.getPlayer(), event.getClickedBlock().getLocation(), Interaction.CHEST);
 					block.push();
+					BlocksLimitReached();
 				} else if(event.getClickedBlock().getType() == Material.DISPENSER) {
 					InteractedBlock block = new InteractedBlock(plugin, event.getPlayer(), event.getClickedBlock().getLocation(), Interaction.DISPENSER);
 					block.push();
+					BlocksLimitReached();
 				} else if(event.getClickedBlock().getType() == Material.STONE_BUTTON) {
 					InteractedBlock block = new InteractedBlock(plugin, event.getPlayer(), event.getClickedBlock().getLocation(), Interaction.BUTTON);
 					block.push();
+					BlocksLimitReached();
 				} else if(event.getClickedBlock().getType() == Material.LEVER) {
 					InteractedBlock block = new InteractedBlock(plugin, event.getPlayer(), event.getClickedBlock().getLocation(), Interaction.LEVER);
 					block.push();
+					BlocksLimitReached();
 				}
 			}
 		}

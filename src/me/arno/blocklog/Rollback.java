@@ -124,10 +124,7 @@ public class Rollback {
 		plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Runnable() {
 		    public void run() {
 		    	try {
-			    	int BlockCount = 0;
-					int BlockSize = plugin.blocks.size();
-					
-					int xMin = sender.getLocation().getBlockX() - radius;
+			    	int xMin = sender.getLocation().getBlockX() - radius;
 					int xMax = sender.getLocation().getBlockX() + radius;
 					int yMin = sender.getLocation().getBlockY() - radius;
 					int yMax = sender.getLocation().getBlockY() + radius;
@@ -139,10 +136,46 @@ public class Rollback {
 					if(0 > yMin)
 						yMin = 0;
 					
+					/* Database Blocks */
+					String Query;
+					
+					if(radius == 0) {
+						Query =  String.format("SELECT * FROM blocklog_blocks WHERE date > '%s' AND rollback_id = 0 AND world = '%s' GROUP BY x, y, z ORDER BY date DESC", time, world.getName());
+						
+						if(player != null)
+							Query = String.format("SELECT * FROM blocklog_blocks WHERE date > '%s' AND rollback_id = 0 AND world = '%s' AND player = '%s' GROUP BY x, y, z ORDER BY date DESC", time, world.getName(), player.getName());
+					} else {
+						Query = String.format("SELECT * FROM blocklog_blocks WHERE date > '%s' AND rollback_id = 0 AND world = '%s' AND x >= %s AND x <= %s AND y >= %s AND y <= %s AND z >= %s AND z <= %s GROUP BY x, y, z ORDER BY date DESC", time, world.getName(), xMin,xMax,yMin,yMax,zMin,zMax);
+						
+						if(player != null)
+							Query = String.format("SELECT * FROM blocklog_blocks WHERE date > '%s' AND rollback_id = 0 AND world = '%s' AND x >= %s AND x <= %s AND y >= %s AND y <= %s AND z >= %s AND z <= %s AND player = '%s' GROUP BY x, y, z ORDER BY date DESC", time, world.getName(), xMin,xMax,yMin,yMax,zMin,zMax, player.getName());
+					}
+					
+					ResultSet rs = conn.createStatement().executeQuery(Query);
+					int i = 0;
+					while(rs.next()) {
+						Material m = Material.getMaterial(rs.getInt("block_id"));
+						int datavalue = rs.getInt("datavalue");
+						Log type = Log.values()[rs.getInt("type")];
+						if(type == Log.BREAK || type == Log.FIRE || type == Log.EXPLOSION)
+							world.getBlockAt(rs.getInt("x"),rs.getInt("y"),rs.getInt("z")).setTypeIdAndData(m.getId(), (byte) datavalue, false);
+						else
+							world.getBlockAt(rs.getInt("x"),rs.getInt("y"),rs.getInt("z")).setType(Material.AIR);
+						
+						conn.createStatement().executeUpdate(String.format("UPDATE blocklog_blocks SET rollback_id = %s WHERE id = %s", id, rs.getInt("id")));
+						
+						i++;
+					}
+					
 					/* Internal Stored Blocks */
+					
+					int BlockCount = 0;
+					ArrayList<LoggedBlock> LBlocks = plugin.blocks;
+					int BlockSize = LBlocks.size();
+					
 					while(BlockSize > BlockCount)
 					{
-						LoggedBlock LBlock = plugin.blocks.get(BlockCount); 
+						LoggedBlock LBlock = LBlocks.get(BlockCount); 
 						if(LBlock.getDate() > time) {
 							Material m = Material.getMaterial(LBlock.getBlockId());
 							if(radius == 0) {
@@ -188,36 +221,6 @@ public class Rollback {
 							}
 						}
 						
-					}
-					
-					String Query;
-					
-					if(radius == 0) {
-						Query =  String.format("SELECT * FROM blocklog_blocks WHERE date > '%s' AND rollback_id = 0 AND world = '%s' GROUP BY x, y, z ORDER BY date DESC", time, world.getName());
-						
-						if(player != null)
-							Query = String.format("SELECT * FROM blocklog_blocks WHERE date > '%s' AND rollback_id = 0 AND world = '%s' AND player = '%s' GROUP BY x, y, z ORDER BY date DESC", time, world.getName(), player.getName());
-					} else {
-						Query = String.format("SELECT * FROM blocklog_blocks WHERE date > '%s' AND rollback_id = 0 AND world = '%s' AND x >= %s AND x <= %s AND y >= %s AND y <= %s AND z >= %s AND z <= %s GROUP BY x, y, z ORDER BY date DESC", time, world.getName(), xMin,xMax,yMin,yMax,zMin,zMax);
-						
-						if(player != null)
-							Query = String.format("SELECT * FROM blocklog_blocks WHERE date > '%s' AND rollback_id = 0 AND world = '%s' AND x >= %s AND x <= %s AND y >= %s AND y <= %s AND z >= %s AND z <= %s AND player = '%s' GROUP BY x, y, z ORDER BY date DESC", time, world.getName(), xMin,xMax,yMin,yMax,zMin,zMax, player.getName());
-					}
-					
-					ResultSet rs = conn.createStatement().executeQuery(Query);
-					int i = 0;
-					while(rs.next()) {
-						Material m = Material.getMaterial(rs.getInt("block_id"));
-						int datavalue = rs.getInt("datavalue");
-						Log type = Log.values()[rs.getInt("type")];
-						if(type == Log.BREAK || type == Log.FIRE || type == Log.EXPLOSION)
-							world.getBlockAt(rs.getInt("x"),rs.getInt("y"),rs.getInt("z")).setTypeIdAndData(m.getId(), (byte) datavalue, false);
-						else
-							world.getBlockAt(rs.getInt("x"),rs.getInt("y"),rs.getInt("z")).setType(Material.AIR);
-						
-						conn.createStatement().executeUpdate(String.format("UPDATE blocklog_blocks SET rollback_id = %s WHERE id = %s", id, rs.getInt("id")));
-						
-						i++;
 					}
 					sender.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GREEN + (i + BlockCount) + ChatColor.GOLD + " blocks changed!");
 					sender.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "use the command " + ChatColor.GREEN + "/blundo" + ChatColor.GOLD + " to undo this rollback!");

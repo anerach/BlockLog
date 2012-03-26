@@ -94,8 +94,14 @@ public class BlockLog extends JavaPlugin {
 	    getConfig().addDefault("blocklog.warning.blocks", 500);
 	    getConfig().addDefault("blocklog.warning.repeat", 100);
 	    getConfig().addDefault("blocklog.warning.delay", 30);
+	    getConfig().addDefault("blocklog.autosave.enabled", true);
+	    getConfig().addDefault("blocklog.autosave.blocks", 1000);
 		getConfig().options().copyDefaults(true);
 		saveConfig();
+		
+		if(getConfig().getBoolean("blocklog.autosave.enabled")) {
+			autoSave = getConfig().getInt("blocklog.autosave.blocks");
+		}
 	}
 	
 	public void loadDatabase() {

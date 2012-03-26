@@ -42,7 +42,7 @@ public class LoggedInteraction {
 	public void save() {
 		try {
 			Statement stmt = plugin.conn.createStatement();
-			stmt.executeUpdate("INSERT INTO blocklog_interactions (player, world, date, x, y, z, type) VALUES ('" + getPlayerName() + "', '" + getWorld().getName() + "', " + getDate() + ", " + getX() + ", " + getY() + ", " + getZ() + ", " + getType() + ")");
+			stmt.executeUpdate("INSERT INTO blocklog_interactions (player, world, date, x, y, z, type) VALUES ('" + getPlayerName() + "', '" + getWorld().getName() + "', " + getDate() + ", " + getX() + ", " + getY() + ", " + getZ() + ", " + getTypeId() + ")");
     	} catch (SQLException e) {
     		e.printStackTrace();
     	}

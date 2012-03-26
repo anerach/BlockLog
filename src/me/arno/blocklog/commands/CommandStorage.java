@@ -32,6 +32,7 @@ public class CommandStorage implements CommandExecutor {
 		}
 		
 		player.sendMessage(String.format(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "The internal storage contains %s block(s)!", plugin.blocks.size()));
+		player.sendMessage(String.format(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "The internal storage contains %s interaction(s)!", plugin.interactions.size()));
 		return true;
 	}
 }

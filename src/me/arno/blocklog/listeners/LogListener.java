@@ -147,8 +147,8 @@ public class LogListener implements Listener {
 		for(Block block : blockList) {
 			EnvironmentBlock explBlock = new EnvironmentBlock(plugin, block, Log.EXPLOSION);
 			explBlock.push();
-			BlocksLimitReached();
 		}
+		BlocksLimitReached();
 	}
 	
 	@EventHandler

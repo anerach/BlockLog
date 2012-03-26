@@ -4,13 +4,16 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.logging.Logger;
 
 import me.arno.blocklog.BlockLog;
+import me.arno.blocklog.Interaction;
 import me.arno.blocklog.database.DatabaseSettings;
 import me.arno.blocklog.log.LoggedBlock;
+import me.arno.blocklog.log.LoggedInteraction;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -32,6 +35,72 @@ public class WandListener implements Listener {
 		this.plugin = plugin;
 		
 		this.log = plugin.log;
+	}
+	
+	public void getBlockInteractions(Player player, Block block, Interaction interaction) {
+		try {
+			player.sendMessage(ChatColor.DARK_RED + "BlockLog History (" + plugin.getConfig().getString("blocklog.results") + " Last Edits)");
+			
+			ArrayList<LoggedInteraction> Interactions = plugin.interactions;
+			int BlockNumber = 0;
+			int BlockCount = 0;
+			int BlockSize = Interactions.size();
+			Location BlockLocation = block.getLocation();
+			
+			while(BlockSize > BlockNumber)
+			{
+				LoggedInteraction LInteraction = Interactions.get(BlockNumber); 
+				if(LInteraction.getX() == BlockLocation.getX() && LInteraction.getY() == BlockLocation.getY() && LInteraction.getZ() == BlockLocation.getZ()) {
+					if(BlockCount == plugin.getConfig().getInt("blocklog.results"))
+						break;
+					
+					String str = "";
+					if(interaction == Interaction.CHEST || interaction == Interaction.DISPENSER)
+						str = "opened this";
+					else
+						str = "used this";
+					
+					String name = interaction.getMaterial().name();
+					
+					Calendar calendar = GregorianCalendar.getInstance();
+					calendar.setTimeInMillis(LInteraction.getDate() * 1000);
+					
+					String date =  calendar.get(Calendar.DAY_OF_MONTH) + "-" + (calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.YEAR) + " " + calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE) + ":" + calendar.get(Calendar.SECOND);
+					
+					player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LInteraction.getPlayerName() + " " + ChatColor.DARK_GREEN + str + " " + ChatColor.GOLD + name);
+					BlockCount++;
+				}
+				BlockNumber++;
+			}
+			if(BlockCount < plugin.getConfig().getInt("blocklog.results")) {
+				Connection conn = plugin.conn;
+				Statement stmt = conn.createStatement();
+				
+				double x = BlockLocation.getX();
+				double y = BlockLocation.getY();
+				double z = BlockLocation.getZ();
+				
+				ResultSet rs;
+				if(DatabaseSettings.DBType(plugin).equalsIgnoreCase("mysql"))
+					rs = stmt.executeQuery("SELECT player, FROM_UNIXTIME(date, '%d-%m-%Y %H:%i:%s') AS date FROM blocklog_interactions WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' ORDER BY date DESC LIMIT " + (plugin.getConfig().getInt("blocklog.results") - BlockCount));
+				else
+					rs = stmt.executeQuery("SELECT player, datetime(date, 'unixepoch', 'localtime') AS date FROM blocklog_interactions WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' ORDER BY date DESC LIMIT " + (plugin.getConfig().getInt("blocklog.results") - BlockCount));
+				
+				while(rs.next()) {
+					String str = "";
+					if(interaction == Interaction.CHEST || interaction == Interaction.DISPENSER || interaction == Interaction.DOOR || interaction == Interaction.TRAP_DOOR)
+						str = "opened a";
+					else
+						str = "used a";
+					
+					String name = interaction.getMaterial().name();
+					
+					player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + rs.getString("player") + " " + ChatColor.DARK_GREEN + str + " " + ChatColor.GOLD + name);
+				}
+			}
+		} catch(SQLException e) {
+			e.getStackTrace();
+		}
 	}
 	
 	public void getBlockEdits(Player player, Block block) {
@@ -84,8 +153,6 @@ public class WandListener implements Listener {
 			}
 		} catch(SQLException e) {
 			e.getStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 	
@@ -96,7 +163,14 @@ public class WandListener implements Listener {
 		if(!event.isCancelled()) {
 			if(event.getPlayer().getItemInHand().getTypeId() == BLWand  && WandEnabled) {
 				if((event.getAction() == Action.RIGHT_CLICK_BLOCK && (!event.getPlayer().getItemInHand().getType().isBlock()) || event.getAction() == Action.LEFT_CLICK_BLOCK)) {
-					getBlockEdits(event.getPlayer(), event.getClickedBlock());
+					Material type = event.getClickedBlock().getType();
+					log.info(type.name());
+					log.info(Interaction.getByMaterial(type).getTypeId() + "");
+					if(type == Material.WOODEN_DOOR || type == Material.TRAP_DOOR || type == Material.CHEST || type == Material.DISPENSER || type == Material.STONE_BUTTON || type == Material.LEVER)
+						getBlockInteractions(event.getPlayer(), event.getClickedBlock(), Interaction.getByMaterial(type));
+					else
+						getBlockEdits(event.getPlayer(), event.getClickedBlock());
+					
 					event.setCancelled(true);
 				}
 			}

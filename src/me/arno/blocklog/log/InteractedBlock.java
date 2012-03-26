@@ -25,7 +25,7 @@ public BlockLog plugin;
 	}
 	
 	public void push() {
-		//LoggedInteraction(this);
+		plugin.interactions.add(new LoggedInteraction(this));
 	}
 	
 	public Interaction getType() {

@@ -36,7 +36,7 @@ commands:
         permission: blocklog.fullsave
     blautosave:
         description: Saves the all the blocks when the internal storage reaches a preset amount of blocks
-        usage: /<command> <blocks>
+        usage: /<command> <blocks|info>
         permission: blocklog.autosave
     blrollback:
         description: Rollback command for blocklog

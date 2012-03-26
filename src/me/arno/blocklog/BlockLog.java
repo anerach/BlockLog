@@ -54,6 +54,8 @@ public class BlockLog extends JavaPlugin {
 	
 	public String newVersion;
 	public String currentVersion;
+	public double doubleNewVersion;
+	public double doubleCurrentVersion;
 	
 	public int autoSave = 0;
 	
@@ -166,8 +168,6 @@ public class BlockLog extends JavaPlugin {
     }
 	
 	public void loadPlugin() {
-		double tmpCurrentVersion;
-		double tmpNewVersion;
 		currentVersion = getDescription().getVersion();
 		log = getLogger();
 		
@@ -180,10 +180,10 @@ public class BlockLog extends JavaPlugin {
 		log.info("Checking for updates");
 		newVersion = loadLatestVersion(currentVersion);
 		
-		tmpCurrentVersion = Double.valueOf(currentVersion.replaceFirst("\\.", ""));
-		tmpNewVersion = Double.valueOf(newVersion.replaceFirst("\\.", ""));
+		doubleCurrentVersion = Double.valueOf(currentVersion.replaceFirst("\\.", ""));
+		doubleNewVersion = Double.valueOf(newVersion.replaceFirst("\\.", ""));
 		
-		if(tmpNewVersion > tmpCurrentVersion) {
+		if(doubleNewVersion > doubleCurrentVersion) {
 			log.warning("BlockLog v" + newVersion + " is released! You're using BlockLog v" + currentVersion);
 			log.warning("Update BlockLog at http://dev.bukkit.org/server-mods/block-log/");
 		}

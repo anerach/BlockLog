@@ -53,8 +53,15 @@ public class CommandAutoSave implements CommandExecutor {
 			sendAdminMessage(String.format(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "Autosave disabled by %s", player.getName()));
 			return true;
 		} else if(args.length == 1) {
-			plugin.autoSave = Integer.valueOf(args[0]);
-			sendAdminMessage(String.format(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "Autosave enabled at %s blocks by %s", plugin.autoSave, player.getName()));
+			if(args[0].equalsIgnoreCase("info")) {
+				if(plugin.autoSave != 0)
+					player.sendMessage(String.format(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "Autosave configured at %s blocks", plugin.autoSave, player.getName()));
+				else
+					player.sendMessage(String.format(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "There is no autosave configured"));
+			} else {
+				plugin.autoSave = Integer.valueOf(args[0]);
+				sendAdminMessage(String.format(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "Autosave enabled at %s blocks by %s", plugin.autoSave, player.getName()));
+			}
 			return true;
 		}
 		return false;

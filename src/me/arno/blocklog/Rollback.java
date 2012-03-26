@@ -171,6 +171,7 @@ public class Rollback {
 					
 					int BlockCount = 0;
 					ArrayList<LoggedBlock> LBlocks = plugin.blocks;
+					
 					int BlockSize = LBlocks.size();
 					
 					while(BlockSize > BlockCount)
@@ -226,6 +227,8 @@ public class Rollback {
 					sender.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "use the command " + ChatColor.GREEN + "/blundo" + ChatColor.GOLD + " to undo this rollback!");
 		    	} catch (SQLException e) {
 					e.printStackTrace();
+		    	} catch (Exception e) {
+		    		// Nothing
 				}
 		    }
 		});
@@ -256,7 +259,7 @@ public class Rollback {
 				} catch (SQLException e) {
 					e.printStackTrace();
 				} catch (Exception e) {
-					e.printStackTrace();
+		    		// Nothing
 				}
 		    }
 		});

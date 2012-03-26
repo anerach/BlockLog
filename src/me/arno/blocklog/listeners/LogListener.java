@@ -13,9 +13,9 @@ import me.arno.blocklog.log.PlacedBlock;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -26,7 +26,6 @@ import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.block.LeavesDecayEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
-import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
 
 public class LogListener implements Listener {
@@ -91,20 +90,13 @@ public class LogListener implements Listener {
 	@EventHandler
 	public void onPlayerBucketEmpty(PlayerBucketEmptyEvent event) {
 		if(!event.isCancelled()) {
-			Location loc = event.getBlockClicked().getLocation();
-			loc.setY(loc.getY() + 1);
-			PlacedBlock block = new PlacedBlock(plugin, event.getPlayer(), loc.getBlock());
-			block.push();
-			BlocksLimitReached();
-		}
-	}
-	
-	@EventHandler
-	public void onPlayerBucketFill(PlayerBucketFillEvent event) {
-		if(!event.isCancelled()) {
-			Location loc = event.getBlockClicked().getLocation();
-			loc.setY(loc.getY() + 1);
-			BrokenBlock block = new BrokenBlock(plugin, event.getPlayer(), loc.getBlock());
+			Block placedBlock = event.getBlockClicked().getRelative(BlockFace.UP);
+			if(event.getBucket() == Material.WATER_BUCKET)
+				placedBlock.setType(Material.WATER);
+			else if(event.getBucket() == Material.LAVA_BUCKET)
+				placedBlock.setType(Material.LAVA);
+			
+			PlacedBlock block = new PlacedBlock(plugin, event.getPlayer(), placedBlock);
 			block.push();
 			BlocksLimitReached();
 		}

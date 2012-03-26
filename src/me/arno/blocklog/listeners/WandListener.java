@@ -164,8 +164,6 @@ public class WandListener implements Listener {
 			if(event.getPlayer().getItemInHand().getTypeId() == BLWand  && WandEnabled) {
 				if((event.getAction() == Action.RIGHT_CLICK_BLOCK && (!event.getPlayer().getItemInHand().getType().isBlock()) || event.getAction() == Action.LEFT_CLICK_BLOCK)) {
 					Material type = event.getClickedBlock().getType();
-					log.info(type.name());
-					log.info(Interaction.getByMaterial(type).getTypeId() + "");
 					if(type == Material.WOODEN_DOOR || type == Material.TRAP_DOOR || type == Material.CHEST || type == Material.DISPENSER || type == Material.STONE_BUTTON || type == Material.LEVER)
 						getBlockInteractions(event.getPlayer(), event.getClickedBlock(), Interaction.getByMaterial(type));
 					else

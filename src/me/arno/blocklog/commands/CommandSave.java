@@ -28,11 +28,6 @@ public class CommandSave implements CommandExecutor {
 		if(!(cmd.getName().equalsIgnoreCase("blsave") || cmd.getName().equalsIgnoreCase("blfullsave")))
 			return false;
 		
-		if (player == null) {
-			sender.sendMessage("This command can only be run by a player");
-			return true;
-		}
-		
 		if(cmd.getName().equalsIgnoreCase("blsave")) {
 			int blockCount = 100;
 			if(args.length == 1)

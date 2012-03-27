@@ -58,8 +58,10 @@ public class BlockLog extends JavaPlugin {
 	public double doubleCurrentVersion;
 	
 	public int autoSave = 0;
+	public boolean saving = false;
 	
 	public String getResourceContent(String file) {
+		
 		try {
 			InputStream ResourceFile = getResource("resources/" + file);
 			 
@@ -83,7 +85,7 @@ public class BlockLog extends JavaPlugin {
 	}
 	
 	public void loadConfiguration() {
-	    getConfig().addDefault("database.type", "SQLite");
+		getConfig().addDefault("database.type", "SQLite");
 	    getConfig().addDefault("database.delay", 1);
 		getConfig().addDefault("mysql.host", "localhost");
 	    getConfig().addDefault("mysql.username", "root");
@@ -177,7 +179,7 @@ public class BlockLog extends JavaPlugin {
 		log.info("Loading the database");
 	    loadDatabase();
 	    
-		log.info("Checking for updates");
+	    log.info("Checking for updates");
 		newVersion = loadLatestVersion(currentVersion);
 		
 		doubleCurrentVersion = Double.valueOf(currentVersion.replaceFirst("\\.", ""));
@@ -217,48 +219,54 @@ public class BlockLog extends JavaPlugin {
 	public void saveLogs(final int count, final Player player) {
 		getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
 			public void run() {
-				if(player == null)
-					log.info("Saving all the blocks");
-				else
-					player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Saving " + ((count == 0) ? "all the" : count) + " block edits!");
-				
-				if(count == 0) {
-					if(blocks.size() > 0) {
-		    			while(blocks.size() > 0) {
-			    			LoggedBlock block = blocks.get(0);
-					    	block.save();
-					    	blocks.remove(0);
-		    			}
-					}
-		    		if(interactions.size() > 0) {
-		    			while(interactions.size() > 0) {
-		    				LoggedInteraction interaction = interactions.get(0);
-				    		interaction.save();
-				    		interactions.remove(0);
-		    			}
-		    		}
-		    	} else {
-		    		if(blocks.size() > 0) {
-		    			for(int i=count; i!=0; i--) {
-			    			LoggedBlock block = blocks.get(0);
-					    	block.save();
-					    	blocks.remove(0);
-		    			}
-		    		}
-		    		if(interactions.size() > 0) {
-		    			for(int i=count; i!=0; i--) {
-		    				LoggedInteraction interaction = interactions.get(0);
-				    		interaction.save();
-					    	interactions.remove(0);
-		    			}
-		    		}
-		    	}
-				
-				if(player == null)
-					log.info("Successfully saved all the blocks");
-				else
-					player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Successfully saved " + ((count == 0) ? "all the" : count) + " block edits!");
-				
+				if(saving == true && player != null) {
+					player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "We're already saving some of the blocks.");
+				} else if(saving == true) {
+					saving = true;
+					if(player == null)
+						log.info("Saving " + ((count == 0) ? "all the" : count) + " block edits!");
+					else
+						player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Saving " + ((count == 0) ? "all the" : count) + " block edits!");
+					
+					if(count == 0) {
+						if(blocks.size() > 0) {
+			    			while(blocks.size() > 0) {
+				    			LoggedBlock block = blocks.get(0);
+						    	block.save();
+						    	blocks.remove(0);
+			    			}
+						}
+			    		if(interactions.size() > 0) {
+			    			while(interactions.size() > 0) {
+			    				LoggedInteraction interaction = interactions.get(0);
+					    		interaction.save();
+					    		interactions.remove(0);
+			    			}
+			    		}
+			    	} else {
+			    		if(blocks.size() > 0) {
+			    			for(int i=count; i!=0; i--) {
+				    			LoggedBlock block = blocks.get(0);
+						    	block.save();
+						    	blocks.remove(0);
+			    			}
+			    		}
+			    		if(interactions.size() > 0) {
+			    			for(int i=count; i!=0; i--) {
+			    				LoggedInteraction interaction = interactions.get(0);
+					    		interaction.save();
+						    	interactions.remove(0);
+			    			}
+			    		}
+			    	}
+					
+					if(player == null)
+						log.info("Successfully saved " + ((count == 0) ? "all the" : count) + " block edits!");
+					else
+						player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Successfully saved " + ((count == 0) ? "all the" : count) + " block edits!");
+					
+					saving = false;
+				}
 		    }
 		});
 	}

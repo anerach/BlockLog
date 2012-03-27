@@ -108,7 +108,7 @@ public class LoggedBlock {
 	}
 	
 	public String getPlayerName() {
-		return (player != null) ? player.getName() : "Environment";
+		return (player == null) ? "Environment" : player.getName();
 	}
 	
 	public int getRollback() {

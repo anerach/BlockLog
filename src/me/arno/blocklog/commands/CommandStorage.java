@@ -1,5 +1,7 @@
 package me.arno.blocklog.commands;
 
+import java.util.logging.Logger;
+
 import me.arno.blocklog.BlockLog;
 
 import org.bukkit.ChatColor;
@@ -11,9 +13,11 @@ import org.bukkit.entity.Player;
 public class CommandStorage implements CommandExecutor {
 	
 	BlockLog plugin;
+	Logger log;
 	
 	public CommandStorage(BlockLog plugin) {
 		this.plugin = plugin;
+		this.log = plugin.log;
 	}
 
 	@Override
@@ -26,13 +30,13 @@ public class CommandStorage implements CommandExecutor {
 		if(!cmd.getName().equalsIgnoreCase("blstorage"))
 			return false;
 		
-		if (player == null) {
-			sender.sendMessage("This command can only be run by a player");
-			return true;
+		if(player == null) {
+			log.info(String.format("The internal storage contains %s block(s)!", plugin.blocks.size()));
+			log.info(String.format("The internal storage contains %s interaction(s)!", plugin.interactions.size()));
+		} else {
+			player.sendMessage(String.format(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "The internal storage contains %s block(s)!", plugin.blocks.size()));
+			player.sendMessage(String.format(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "The internal storage contains %s interaction(s)!", plugin.interactions.size()));
 		}
-		
-		player.sendMessage(String.format(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "The internal storage contains %s block(s)!", plugin.blocks.size()));
-		player.sendMessage(String.format(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "The internal storage contains %s interaction(s)!", plugin.interactions.size()));
 		return true;
 	}
 }

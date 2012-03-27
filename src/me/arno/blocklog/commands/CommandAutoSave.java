@@ -40,27 +40,32 @@ public class CommandAutoSave implements CommandExecutor {
 		if(!cmd.getName().equalsIgnoreCase("blautosave"))
 			return false;
 		
-		if (player == null) {
-			sender.sendMessage("This command can only be run by a player");
-			return true;
-		}
-		
 		if(args.length > 2)
 			return false;
 		
 		if(args.length == 0) {
 			plugin.autoSave = 0;
 			sendAdminMessage(String.format(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "Autosave disabled by %s", player.getName()));
+			log.info(String.format("Autosave disabled by %s", player.getName()));
 			return true;
 		} else if(args.length == 1) {
 			if(args[0].equalsIgnoreCase("info")) {
-				if(plugin.autoSave != 0)
-					player.sendMessage(String.format(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "Autosave configured at %s blocks", plugin.autoSave, player.getName()));
-				else
-					player.sendMessage(String.format(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "There is no autosave configured"));
+				if(plugin.autoSave != 0) {
+					if(player == null)
+						log.info(String.format("Autosave configured at %s blocks", plugin.autoSave));
+					else
+						player.sendMessage(String.format(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "Autosave configured at %s blocks", plugin.autoSave));
+					
+				} else {
+					if(player == null)
+						log.info("There is no autosave configured");
+					else
+						player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "There is no autosave configured");
+				}
 			} else {
 				plugin.autoSave = Integer.valueOf(args[0]);
 				sendAdminMessage(String.format(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "Autosave enabled at %s blocks by %s", plugin.autoSave, player.getName()));
+				log.info(String.format("Autosave enabled at %s blocks by %s", plugin.autoSave, player.getName()));
 			}
 			return true;
 		}

@@ -13,3 +13,6 @@ Features
 * Manual save and auto save
 * Configurable wand
 * In game config manipulation command
+* Liquid logging
+* Interaction logging (doors, chests, ...)
+* And a lot more!

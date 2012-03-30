@@ -42,42 +42,42 @@ public class CommandRollback implements CommandExecutor {
 		if(args.length < 2 || args.length > 3)
 			return false;
 		
-		int time;
-		
-		Set<String> Second = new HashSet<String>(Arrays.asList("s", "sec","secs","second","seconds"));
-		Set<String> Minute = new HashSet<String>(Arrays.asList("m", "min","mins","minute","minutes"));
-		Set<String> Hour = new HashSet<String>(Arrays.asList("h", "hour","hours"));
-		Set<String> Day = new HashSet<String>(Arrays.asList("d", "day","days"));
-		Set<String> Week = new HashSet<String>(Arrays.asList("w", "week","weeks"));
-
-		String strPlayer = null;
-		Integer timeInt = 0;
-		String timeVal = null;
-		if(args.length == 2) {
-			timeInt = Integer.valueOf(args[0]);
-			timeVal = args[1].toLowerCase();
-		} else if(args.length == 3) {
-			strPlayer = args[0];
-			timeInt = Integer.valueOf(args[1]);
-			timeVal = args[2].toLowerCase();
-		}
-		
-		if(Second.contains(timeVal))
-			time = (int) (System.currentTimeMillis()/1000 - timeInt);
-		else if(Minute.contains(timeVal))
-			time = (int) (System.currentTimeMillis()/1000 - timeInt * 60);
-		else if(Hour.contains(timeVal))
-			time = (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60);
-		else if(Day.contains(timeVal))
-			time = (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60 * 24);
-		else if(Week.contains(timeVal))
-			time = (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60 * 24 * 7);
-		else {
-			player.sendMessage(ChatColor.DARK_GREEN + "Invalid time");
-			return false;
-		}
-		
 		try {
+			int time;
+			
+			Set<String> Second = new HashSet<String>(Arrays.asList("s", "sec","secs","second","seconds"));
+			Set<String> Minute = new HashSet<String>(Arrays.asList("m", "min","mins","minute","minutes"));
+			Set<String> Hour = new HashSet<String>(Arrays.asList("h", "hour","hours"));
+			Set<String> Day = new HashSet<String>(Arrays.asList("d", "day","days"));
+			Set<String> Week = new HashSet<String>(Arrays.asList("w", "week","weeks"));
+	
+			String strPlayer = null;
+			Integer timeInt = 0;
+			String timeVal = null;
+			if(args.length == 2) {
+				timeInt = Integer.valueOf(args[0]);
+				timeVal = args[1].toLowerCase();
+			} else if(args.length == 3) {
+				strPlayer = args[0];
+				timeInt = Integer.valueOf(args[1]);
+				timeVal = args[2].toLowerCase();
+			}
+			
+			if(Second.contains(timeVal))
+				time = (int) (System.currentTimeMillis()/1000 - timeInt);
+			else if(Minute.contains(timeVal))
+				time = (int) (System.currentTimeMillis()/1000 - timeInt * 60);
+			else if(Hour.contains(timeVal))
+				time = (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60);
+			else if(Day.contains(timeVal))
+				time = (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60 * 24);
+			else if(Week.contains(timeVal))
+				time = (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60 * 24 * 7);
+			else {
+				player.sendMessage(ChatColor.DARK_GREEN + "Invalid time");
+				return false;
+			}
+		
 			Rollback rb = new Rollback(plugin, player, 0);
 			if(args.length == 3)
 				rb.doRollback(plugin.getServer().getPlayer(strPlayer), time);
@@ -85,6 +85,8 @@ public class CommandRollback implements CommandExecutor {
 				rb.doRollback(time);
 			
 			return true;
+		} catch(NumberFormatException e) {
+			return false;
 		} catch(SQLException e) {
 			e.printStackTrace();
 		} catch(Exception e) {

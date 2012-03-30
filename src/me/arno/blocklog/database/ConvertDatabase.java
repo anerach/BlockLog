@@ -11,8 +11,8 @@ public class ConvertDatabase {
 	BlockLog plugin;
 	
 	public ConvertDatabase(BlockLog plugin) {
-		this.DBType = plugin.getConfig().getString("database.type");
 		this.plugin = plugin;
+		this.DBType = plugin.cfg.getConfig().getString("database.type");
 		if(DBType == "MySQL" || DBType == "SQLite") {
 			if(DBType == "MySQL")
 				MySQLToSQLite();
@@ -25,7 +25,7 @@ public class ConvertDatabase {
 	public void MySQLToSQLite() {
 		try {
 			Connection MySQLConn = plugin.conn;
-			Connection SQLiteConn = DatabaseSettings.getConnection(plugin, "sqlite");
+			Connection SQLiteConn = DatabaseSettings.getConnection("sqlite");
 
 			Statement MySQLStmt = MySQLConn.createStatement();
 			Statement SQLiteStmt = SQLiteConn.createStatement();
@@ -52,7 +52,7 @@ public class ConvertDatabase {
 	public void SQLiteToMySQL() {
 		try {
 			Connection SQLiteConn = plugin.conn;
-			Connection MySQLConn = DatabaseSettings.getConnection(plugin, "mysql");
+			Connection MySQLConn = DatabaseSettings.getConnection("mysql");
 			
 			Statement SQLiteStmt = SQLiteConn.createStatement();
 			Statement MySQLStmt = MySQLConn.createStatement();

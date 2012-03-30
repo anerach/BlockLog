@@ -1,6 +1,7 @@
 package me.arno.blocklog.commands;
 
 import me.arno.blocklog.BlockLog;
+import me.arno.blocklog.Config;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -9,11 +10,12 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class CommandConfig implements CommandExecutor {
-
 	BlockLog plugin;
+	Config cfg;
 	
 	public CommandConfig(BlockLog plugin) {
 		this.plugin = plugin;
+		this.cfg = plugin.cfg;
 	}
 	
 	@Override
@@ -53,18 +55,18 @@ Player player = null;
 				ConfigKey = args[1];
 				ConfigValue = args[2];
 				
-				if(plugin.getConfig().isString(ConfigKey))
-					plugin.getConfig().set(ConfigKey, ConfigValue);
-				else if(plugin.getConfig().isInt(ConfigKey))
-					plugin.getConfig().set(ConfigKey, Integer.parseInt(ConfigValue));
-				else if(plugin.getConfig().isBoolean(ConfigKey))
-					plugin.getConfig().set(ConfigKey, Boolean.parseBoolean(ConfigValue));
+				if(cfg.getConfig().isString(ConfigKey))
+					cfg.getConfig().set(ConfigKey, ConfigValue);
+				else if(cfg.getConfig().isInt(ConfigKey))
+					cfg.getConfig().set(ConfigKey, Integer.parseInt(ConfigValue));
+				else if(cfg.getConfig().isBoolean(ConfigKey))
+					cfg.getConfig().set(ConfigKey, Boolean.parseBoolean(ConfigValue));
 				else
 					return false;
 				
 				player.sendMessage(ChatColor.DARK_RED +"[BlockLog][Config] " + ChatColor.GOLD + "Changed value of " + ConfigKey + " to " + ConfigValue);
-				plugin.saveConfig();
-				plugin.reloadConfig();
+				cfg.saveConfig();
+				cfg.reloadConfig();
 			} else if(Action.equalsIgnoreCase("get")) {
 				if(args.length != 2)
 					return false;
@@ -72,12 +74,12 @@ Player player = null;
 				ConfigKey = args[1].toString();
 				
 				String Result;
-				if(plugin.getConfig().isString(ConfigKey))
-					Result = plugin.getConfig().getString(ConfigKey);
-				else if(plugin.getConfig().isInt(ConfigKey))
-					Result = Integer.toString(plugin.getConfig().getInt(ConfigKey));
-				else if(plugin.getConfig().isBoolean(ConfigKey))
-					Result = Boolean.toString(plugin.getConfig().getBoolean(ConfigKey));
+				if(cfg.getConfig().isString(ConfigKey))
+					Result = cfg.getConfig().getString(ConfigKey);
+				else if(cfg.getConfig().isInt(ConfigKey))
+					Result = Integer.toString(cfg.getConfig().getInt(ConfigKey));
+				else if(cfg.getConfig().isBoolean(ConfigKey))
+					Result = Boolean.toString(cfg.getConfig().getBoolean(ConfigKey));
 				else 
 					return false;
 				

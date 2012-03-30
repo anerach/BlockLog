@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import me.arno.blocklog.BlockLog;
-import me.arno.blocklog.database.DatabaseSettings;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -20,10 +19,12 @@ import org.bukkit.entity.Player;
 public class CommandClear implements CommandExecutor {
 	BlockLog plugin;
 	Logger log;
+	Connection conn;
 	
 	public CommandClear(BlockLog plugin) {
 		this.plugin = plugin;
 		this.log = plugin.log;
+		this.conn = plugin.conn;
 	}
 	
 	@Override
@@ -45,7 +46,6 @@ public class CommandClear implements CommandExecutor {
 			return false;
 		
 		try {
-			Connection conn = DatabaseSettings.getConnection(plugin);
 			Statement stmt = conn.createStatement();
 			
 			int time;
@@ -74,8 +74,7 @@ public class CommandClear implements CommandExecutor {
 			
 			player.sendMessage(ChatColor.DARK_RED +"[BlockLog] removed block history older than " + timeInt + " " + timeType);
 	    } catch (SQLException e) {
-    		log.info("[BlockLog][BlockToDatabase][SQL] Exception!");
-			log.info("[BlockLog][BlockToDatabase][SQL] " + e.getMessage());
+    		e.printStackTrace();
     	}
 		
 		return true;

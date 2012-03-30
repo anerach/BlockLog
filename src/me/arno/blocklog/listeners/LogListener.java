@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import me.arno.blocklog.BlockLog;
+import me.arno.blocklog.Config;
 import me.arno.blocklog.Interaction;
 import me.arno.blocklog.Log;
 import me.arno.blocklog.log.BrokenBlock;
@@ -30,13 +31,14 @@ import org.bukkit.event.block.BlockIgniteEvent;
 
 public class LogListener implements Listener {
 	BlockLog plugin;
-	
 	Logger log;
+	Config cfg;
 	float time;
 	
 	public LogListener(BlockLog plugin) {
 		this.plugin = plugin;
 		this.log = plugin.log;
+		this.cfg = plugin.cfg;
 	}
 	
 	public void sendAdminMessage(String msg) {
@@ -49,9 +51,9 @@ public class LogListener implements Listener {
 	
 	public void BlocksLimitReached() {
 		int BlockSize = plugin.blocks.size();
-		int WarningBlockSize = plugin.getConfig().getInt("blocklog.warning.blocks");
-		int WarningDelay = plugin.getConfig().getInt("blocklog.warning.delay") * 1000;
-		int WarningRepeat = plugin.getConfig().getInt("blocklog.warning.repeat");
+		int WarningBlockSize = cfg.getConfig().getInt("blocklog.warning.blocks");
+		int WarningDelay = cfg.getConfig().getInt("blocklog.warning.delay") * 1000;
+		int WarningRepeat = cfg.getConfig().getInt("blocklog.warning.repeat");
 		
 		if(BlockSize >= plugin.autoSave && BlockSize != 0 && plugin.autoSave != 0) {
 			plugin.saveLogs(0);
@@ -66,7 +68,7 @@ public class LogListener implements Listener {
 	
 	@EventHandler
 	public void onBlockPlace(BlockPlaceEvent event) {
-		int BLWand = plugin.getConfig().getInt("blocklog.wand");
+		int BLWand = cfg.getConfig().getInt("blocklog.wand");
 		boolean WandEnabled = plugin.users.contains(event.getPlayer().getName());
 		
 		if(!event.isCancelled()) {
@@ -125,7 +127,7 @@ public class LogListener implements Listener {
 	@EventHandler
 	public void onLeavesDecay(LeavesDecayEvent event) {
 		if(!event.isCancelled()) {
-			if(plugin.getConfig().getBoolean("blocklog.leaves")) {
+			if(cfg.getConfig().getBoolean("blocklog.leaves")) {
 				EnvironmentBlock block = new EnvironmentBlock(plugin, event.getBlock(), Log.LEAVES);
 				block.push();
 				BlocksLimitReached();
@@ -145,7 +147,7 @@ public class LogListener implements Listener {
 	
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event) {
-		int BLWand = plugin.getConfig().getInt("blocklog.wand");
+		int BLWand = cfg.getConfig().getInt("blocklog.wand");
 		boolean WandEnabled = plugin.users.contains(event.getPlayer().getName());
 		
 		if(!event.isCancelled()) {

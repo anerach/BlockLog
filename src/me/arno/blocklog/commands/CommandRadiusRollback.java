@@ -42,47 +42,46 @@ public class CommandRadiusRollback implements CommandExecutor {
 		if(args.length < 3 || args.length > 4)
 			return false;
 		
-		String strPlayer = null;
-		int radius = 0;
-		int timeInt = 0;
-		String timeVal = null;
-		
-		
-		if(args.length == 3) {
-			radius = Integer.valueOf(args[0]);
-			timeInt = Integer.valueOf(args[1]);
-			timeVal = args[2];
-		} else if(args.length == 4) {
-			strPlayer = args[0];
-			radius = Integer.valueOf(args[1]);
-			timeInt = Integer.valueOf(args[2]);
-			timeVal = args[3];
-		}
-		
-		int time;
-		
-		Set<String> Second = new HashSet<String>(Arrays.asList("s", "sec","secs","second","seconds"));
-		Set<String> Minute = new HashSet<String>(Arrays.asList("m", "min","mins","minute","minutes"));
-		Set<String> Hour = new HashSet<String>(Arrays.asList("h", "hour","hours"));
-		Set<String> Day = new HashSet<String>(Arrays.asList("d", "day","days"));
-		Set<String> Week = new HashSet<String>(Arrays.asList("w", "week","weeks"));
-		
-		if(Second.contains(timeVal))
-			time = (int) (System.currentTimeMillis()/1000 - timeInt);
-		else if(Minute.contains(timeVal))
-			time = (int) (System.currentTimeMillis()/1000 - timeInt * 60);
-		else if(Hour.contains(timeVal))
-			time = (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60);
-		else if(Day.contains(timeVal))
-			time = (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60 * 24);
-		else if(Week.contains(timeVal))
-			time = (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60 * 24 * 7);
-		else {
-			player.sendMessage(ChatColor.DARK_GREEN + "Invalid time");
-			return false;
-		}
-		
 		try {
+			String strPlayer = null;
+			int radius = 0;
+			int timeInt = 0;
+			String timeVal = null;
+			
+			if(args.length == 3) {
+				radius = Integer.valueOf(args[0]);
+				timeInt = Integer.valueOf(args[1]);
+				timeVal = args[2];
+			} else if(args.length == 4) {
+				strPlayer = args[0];
+				radius = Integer.valueOf(args[1]);
+				timeInt = Integer.valueOf(args[2]);
+				timeVal = args[3];
+			}
+			
+			int time;
+			
+			Set<String> Second = new HashSet<String>(Arrays.asList("s", "sec","secs","second","seconds"));
+			Set<String> Minute = new HashSet<String>(Arrays.asList("m", "min","mins","minute","minutes"));
+			Set<String> Hour = new HashSet<String>(Arrays.asList("h", "hour","hours"));
+			Set<String> Day = new HashSet<String>(Arrays.asList("d", "day","days"));
+			Set<String> Week = new HashSet<String>(Arrays.asList("w", "week","weeks"));
+			
+			if(Second.contains(timeVal))
+				time = (int) (System.currentTimeMillis()/1000 - timeInt);
+			else if(Minute.contains(timeVal))
+				time = (int) (System.currentTimeMillis()/1000 - timeInt * 60);
+			else if(Hour.contains(timeVal))
+				time = (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60);
+			else if(Day.contains(timeVal))
+				time = (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60 * 24);
+			else if(Week.contains(timeVal))
+				time = (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60 * 24 * 7);
+			else {
+				player.sendMessage(ChatColor.DARK_GREEN + "Invalid time");
+				return false;
+			}
+			
 			Rollback rb = new Rollback(plugin, player, 1);
 			if(strPlayer != null)
 				rb.doRollback(player.getServer().getPlayer(strPlayer), time, radius);
@@ -90,6 +89,8 @@ public class CommandRadiusRollback implements CommandExecutor {
 				rb.doRollback(time, radius);
 			
 			return true;
+		} catch(NumberFormatException e) {
+			return false;
 		} catch(SQLException e) {
 			e.printStackTrace();
 		} catch(Exception e) {

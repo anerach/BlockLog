@@ -1,8 +1,13 @@
 package me.arno.blocklog;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Reader;
 import java.net.URL;
 import java.sql.Connection;
@@ -60,8 +65,9 @@ public class BlockLog extends JavaPlugin {
 	public int autoSave = 0;
 	public boolean saving = false;
 	
+	public Config cfg;
+	
 	public String getResourceContent(String file) {
-		
 		try {
 			InputStream ResourceFile = getResource("resources/" + file);
 			 
@@ -85,42 +91,28 @@ public class BlockLog extends JavaPlugin {
 	}
 	
 	public void loadConfiguration() {
-		getConfig().addDefault("database.type", "SQLite");
-	    getConfig().addDefault("database.delay", 1);
-		getConfig().addDefault("mysql.host", "localhost");
-	    getConfig().addDefault("mysql.username", "root");
-	    getConfig().addDefault("mysql.password", "");
-	    getConfig().addDefault("mysql.database", "");
-	    getConfig().addDefault("mysql.port", 3306);
-	   	getConfig().addDefault("blocklog.wand", 369);
-	    getConfig().addDefault("blocklog.results", 5);
-	    getConfig().addDefault("blocklog.leaves", false);
-	    getConfig().addDefault("blocklog.warning.blocks", 500);
-	    getConfig().addDefault("blocklog.warning.repeat", 100);
-	    getConfig().addDefault("blocklog.warning.delay", 30);
-	    getConfig().addDefault("blocklog.autosave.enabled", true);
-	    getConfig().addDefault("blocklog.autosave.blocks", 1000);
-		getConfig().options().copyDefaults(true);
-		saveConfig();
+		cfg = new Config();
+		cfg.createDefaults();
+		cfg.saveConfig();
 		
-		if(getConfig().getBoolean("blocklog.autosave.enabled")) {
-			autoSave = getConfig().getInt("blocklog.autosave.blocks");
+		if(cfg.getConfig().getBoolean("blocklog.autosave.enabled")) {
+			autoSave = cfg.getConfig().getInt("blocklog.autosave.blocks");
 		}
 	}
 	
 	public void loadDatabase() {
-		String DBType = getConfig().getString("database.type");
+		String DBType = cfg.getConfig().getString("database.type");
 		Statement stmt;
 		try {
 			if(DBType.equalsIgnoreCase("mysql")) {
-		    	conn = DatabaseSettings.getConnection(this);
+		    	conn = DatabaseSettings.getConnection();
 		    	stmt = conn.createStatement();
 				
 				stmt.executeUpdate(getResourceContent("MySQL/blocklog_blocks.sql"));
 				stmt.executeUpdate(getResourceContent("MySQL/blocklog_rollbacks.sql"));
 				stmt.executeUpdate(getResourceContent("MySQL/blocklog_interactions.sql"));
 			} else if(DBType.equalsIgnoreCase("sqlite")) {
-			    conn = DatabaseSettings.getConnection(this);
+			    conn = DatabaseSettings.getConnection();
 			    stmt = conn.createStatement();
 				
 				stmt.executeUpdate(getResourceContent("SQLite/blocklog_blocks.sql"));
@@ -133,11 +125,11 @@ public class BlockLog extends JavaPlugin {
 		
 		try { // Update database
 			if(DBType.equalsIgnoreCase("mysql")) {
-		    	conn = DatabaseSettings.getConnection(this);
+		    	conn = DatabaseSettings.getConnection();
 		    	stmt = conn.createStatement();
 		    	stmt.executeUpdate("ALTER TABLE `blocklog_blocks` ADD `datavalue` INT(11) NOT NULL AFTER `block_id`");
 			} else if(DBType.equalsIgnoreCase("sqlite")) {
-			    conn = DatabaseSettings.getConnection(this);
+			    conn = DatabaseSettings.getConnection();
 			    stmt = conn.createStatement();
 			    stmt.executeUpdate("ALTER TABLE 'blocklog_blocks' ADD COLUMN 'datavalue' INTEGER NOT NULL DEFAULT '0'");
 		    }
@@ -156,7 +148,7 @@ public class BlockLog extends JavaPlugin {
             NodeList nodes = doc.getElementsByTagName("item");
             Node firstNode = nodes.item(0);
             if (firstNode.getNodeType() == 1) {
-                Element firstElement = (Element)firstNode;
+                Element firstElement = (Element) firstNode;
                 NodeList firstElementTagName = firstElement.getElementsByTagName("title");
                 Element firstNameElement = (Element) firstElementTagName.item(0);
                 NodeList firstNodes = firstNameElement.getChildNodes();
@@ -169,6 +161,56 @@ public class BlockLog extends JavaPlugin {
         return currentVersion;
     }
 	
+	public void saveEmergencyLogs() {
+		File blockFile = new File(getDataFolder() + "/blocks.dat");
+		File interactionFile = new File(getDataFolder() + "/interactions.dat");
+		if(blocks.size() > 0){
+			try {
+				ObjectOutputStream ObjSaveStream = new ObjectOutputStream(new FileOutputStream(blockFile));
+				ObjSaveStream.writeObject(blocks);
+				ObjSaveStream.flush();
+				ObjSaveStream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		if(interactions.size() > 0) {
+			try {
+				ObjectOutputStream ObjSaveStream = new ObjectOutputStream(new FileOutputStream(interactionFile));
+				ObjSaveStream.writeObject(interactions);
+				ObjSaveStream.flush();
+				ObjSaveStream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void loadEmergencyLogs() {
+		try {
+			File blockFile = new File(getDataFolder() + "/blocks.dat");
+			File interactionFile = new File(getDataFolder() + "/interactions.dat");
+			if(blockFile.exists()) {
+	    		ObjectInputStream ObjLoadStream = new ObjectInputStream(new FileInputStream(blockFile));
+	    		Object Result = ObjLoadStream.readObject();
+	
+	    		blocks = (ArrayList<LoggedBlock>) Result;
+			}
+			
+			if(blockFile.exists()) {
+	    		ObjectInputStream ObjLoadStream = new ObjectInputStream(new FileInputStream(interactionFile));
+	    		Object Result = ObjLoadStream.readObject();
+	
+	    		interactions = (ArrayList<LoggedInteraction>) Result;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public void loadPlugin() {
 		currentVersion = getDescription().getVersion();
 		log = getLogger();
@@ -178,6 +220,9 @@ public class BlockLog extends JavaPlugin {
 	    
 		log.info("Loading the database");
 	    loadDatabase();
+	    
+	    log.info("Loading emergency saves");
+	    loadEmergencyLogs();
 	    
 	    log.info("Checking for updates");
 		newVersion = loadLatestVersion(currentVersion);
@@ -190,6 +235,7 @@ public class BlockLog extends JavaPlugin {
 			log.warning("Update BlockLog at http://dev.bukkit.org/server-mods/block-log/");
 		}
     	
+		log.info("Starting BlockLog");
     	new PushBlocks(this);
     	
     	getCommand("blhelp").setExecutor(new CommandHelp(this));
@@ -213,15 +259,25 @@ public class BlockLog extends JavaPlugin {
     }
 	
 	public void saveLogs(final int count) {
-		saveLogs(count, null);
+		saveLogs(count, null, false);
 	}
 	
 	public void saveLogs(final int count, final Player player) {
+		saveLogs(count, player, false);
+	}
+	
+	public void saveLogs(final int count, final boolean force) {
+		saveLogs(count, null, force);
+	}
+	
+	public void saveLogs(final int count, final Player player, final boolean force) {
 		getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
 			public void run() {
-				if(saving == true && player != null) {
+				if((force == true || saving == true) && player != null) {
 					player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "We're already saving some of the blocks.");
-				} else if(saving == true) {
+				} if((force == true || saving == true) && player == null) {
+					log.info("We're already saving some of the blocks.");
+				} else {
 					saving = true;
 					if(player == null)
 						log.info("Saving " + ((count == 0) ? "all the" : count) + " block edits!");
@@ -280,15 +336,14 @@ public class BlockLog extends JavaPlugin {
 	
 	@Override
 	public void onDisable() {
-		saveLogs(0);
+		saveLogs(0, true);
+		saveEmergencyLogs();
 		PluginDescriptionFile PluginDesc = this.getDescription();
 		log.info("v" + PluginDesc.getVersion() + " is disabled!");
 	}
 	
-	
-	/* Blocklog command */
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		Player player = null;
+Player player = null;
 		
 		if (sender instanceof Player)
 			player = (Player) sender;

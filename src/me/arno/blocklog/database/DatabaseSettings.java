@@ -4,26 +4,24 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-import me.arno.blocklog.BlockLog;
+import me.arno.blocklog.Config;
 
 public class DatabaseSettings {
-	public static Connection getConnection(BlockLog plugin) {
-		try {
-			return getConnection(plugin, "");
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return null;
+	
+	public static Connection getConnection() {
+		return getConnection(new Config().getConfig().getString("database.type"));
 	}
-	public static Connection getConnection(BlockLog plugin, String type) throws SQLException
+	
+	public static Connection getConnection(String type)
 	{
 		try {
-			String DBType = plugin.getConfig().getString("database.type");
-			String MySQLHost = plugin.getConfig().getString("mysql.host");
-			String MySQLUser = plugin.getConfig().getString("mysql.username");
-			String MySQLPass = plugin.getConfig().getString("mysql.password");
-			String MySQLDatabase = plugin.getConfig().getString("mysql.database");
-			int MySQLPort = plugin.getConfig().getInt("mysql.port");
+			Config cfg = new Config();
+			String DBType = cfg.getConfig().getString("database.type");
+			String MySQLHost = cfg.getConfig().getString("mysql.host");
+			String MySQLUser = cfg.getConfig().getString("mysql.username");
+			String MySQLPass = cfg.getConfig().getString("mysql.password");
+			String MySQLDatabase = cfg.getConfig().getString("mysql.database");
+			int MySQLPort = cfg.getConfig().getInt("mysql.port");
 			
 			String MySQLUrl = "jdbc:mysql://" + MySQLHost + ":" + MySQLPort + "/" + MySQLDatabase;
 			String SQLiteUrl = "jdbc:sqlite:plugins/BlockLog/blocklog.db";
@@ -37,13 +35,15 @@ public class DatabaseSettings {
 				return conn;
 			} else
 				return null;
+		} catch (SQLException e) {
+			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
 	
-	public static String DBType(BlockLog plugin) {
-		return plugin.getConfig().getString("database.type");
+	public static String DBType() {
+		return new Config().getConfig().getString("database.type");
 	}
 }

@@ -10,6 +10,7 @@ import java.util.GregorianCalendar;
 import java.util.logging.Logger;
 
 import me.arno.blocklog.BlockLog;
+import me.arno.blocklog.Config;
 import me.arno.blocklog.Interaction;
 import me.arno.blocklog.database.DatabaseSettings;
 import me.arno.blocklog.log.LoggedBlock;
@@ -28,18 +29,18 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 public class WandListener implements Listener {
 	BlockLog plugin;
-	
 	Logger log;
+	Config cfg;
 	
 	public WandListener(BlockLog plugin) {
 		this.plugin = plugin;
-		
 		this.log = plugin.log;
+		this.cfg = plugin.cfg;
 	}
 	
 	public void getBlockInteractions(Player player, Block block, Interaction interaction) {
 		try {
-			player.sendMessage(ChatColor.DARK_RED + "BlockLog History (" + plugin.getConfig().getString("blocklog.results") + " Last Edits)");
+			player.sendMessage(ChatColor.DARK_RED + "BlockLog History (" + cfg.getConfig().getString("blocklog.results") + " Last Edits)");
 			
 			ArrayList<LoggedInteraction> Interactions = plugin.interactions;
 			int BlockNumber = 0;
@@ -51,7 +52,7 @@ public class WandListener implements Listener {
 			{
 				LoggedInteraction LInteraction = Interactions.get(BlockNumber); 
 				if(LInteraction.getX() == BlockLocation.getX() && LInteraction.getY() == BlockLocation.getY() && LInteraction.getZ() == BlockLocation.getZ()) {
-					if(BlockCount == plugin.getConfig().getInt("blocklog.results"))
+					if(BlockCount == cfg.getConfig().getInt("blocklog.results"))
 						break;
 					
 					String str = "";
@@ -72,7 +73,7 @@ public class WandListener implements Listener {
 				}
 				BlockNumber++;
 			}
-			if(BlockCount < plugin.getConfig().getInt("blocklog.results")) {
+			if(BlockCount < cfg.getConfig().getInt("blocklog.results")) {
 				Connection conn = plugin.conn;
 				Statement stmt = conn.createStatement();
 				
@@ -81,10 +82,10 @@ public class WandListener implements Listener {
 				double z = BlockLocation.getZ();
 				
 				ResultSet rs;
-				if(DatabaseSettings.DBType(plugin).equalsIgnoreCase("mysql"))
-					rs = stmt.executeQuery("SELECT player, FROM_UNIXTIME(date, '%d-%m-%Y %H:%i:%s') AS date FROM blocklog_interactions WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' ORDER BY date DESC LIMIT " + (plugin.getConfig().getInt("blocklog.results") - BlockCount));
+				if(DatabaseSettings.DBType().equalsIgnoreCase("mysql"))
+					rs = stmt.executeQuery("SELECT player, FROM_UNIXTIME(date, '%d-%m-%Y %H:%i:%s') AS date FROM blocklog_interactions WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' ORDER BY date DESC LIMIT " + (cfg.getConfig().getInt("blocklog.results") - BlockCount));
 				else
-					rs = stmt.executeQuery("SELECT player, datetime(date, 'unixepoch', 'localtime') AS date FROM blocklog_interactions WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' ORDER BY date DESC LIMIT " + (plugin.getConfig().getInt("blocklog.results") - BlockCount));
+					rs = stmt.executeQuery("SELECT player, datetime(date, 'unixepoch', 'localtime') AS date FROM blocklog_interactions WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' ORDER BY date DESC LIMIT " + (cfg.getConfig().getInt("blocklog.results") - BlockCount));
 				
 				while(rs.next()) {
 					String str = "";
@@ -105,7 +106,7 @@ public class WandListener implements Listener {
 	
 	public void getBlockEdits(Player player, Block block) {
 		try {
-			player.sendMessage(ChatColor.DARK_RED + "BlockLog History (" + plugin.getConfig().getString("blocklog.results") + " Last Edits)");
+			player.sendMessage(ChatColor.DARK_RED + "BlockLog History (" + cfg.getConfig().getString("blocklog.results") + " Last Edits)");
 			int BlockNumber = 0;
 			int BlockCount = 0;
 			int BlockSize = plugin.blocks.size();
@@ -114,7 +115,7 @@ public class WandListener implements Listener {
 			{
 				LoggedBlock LBlock = plugin.blocks.get(BlockNumber); 
 				if(LBlock.getX() == BlockLocation.getX() && LBlock.getY() == BlockLocation.getY() && LBlock.getZ() == BlockLocation.getZ()) {
-					if(BlockCount == plugin.getConfig().getInt("blocklog.results"))
+					if(BlockCount == cfg.getConfig().getInt("blocklog.results"))
 						break;
 					
 					String str = (LBlock.getTypeId() == 1) ? "placed a" : "broke a";
@@ -130,7 +131,7 @@ public class WandListener implements Listener {
 				}
 				BlockNumber++;
 			}
-			if(BlockCount < plugin.getConfig().getInt("blocklog.results")) {
+			if(BlockCount < cfg.getConfig().getInt("blocklog.results")) {
 				Connection conn = plugin.conn;
 				Statement stmt = conn.createStatement();
 				
@@ -139,10 +140,10 @@ public class WandListener implements Listener {
 				double z = block.getZ();
 				
 				ResultSet rs;
-				if(DatabaseSettings.DBType(plugin).equalsIgnoreCase("mysql"))
-					rs = stmt.executeQuery("SELECT player, block_id, type, FROM_UNIXTIME(date, '%d-%m-%Y %H:%i:%s') AS date FROM blocklog_blocks WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' ORDER BY date DESC LIMIT " + (plugin.getConfig().getInt("blocklog.results") - BlockCount));
+				if(DatabaseSettings.DBType().equalsIgnoreCase("mysql"))
+					rs = stmt.executeQuery("SELECT player, block_id, type, FROM_UNIXTIME(date, '%d-%m-%Y %H:%i:%s') AS date FROM blocklog_blocks WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' ORDER BY date DESC LIMIT " + (cfg.getConfig().getInt("blocklog.results") - BlockCount));
 				else
-					rs = stmt.executeQuery("SELECT player, block_id, type, datetime(date, 'unixepoch', 'localtime') AS date FROM blocklog_blocks WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' ORDER BY date DESC LIMIT " + (plugin.getConfig().getInt("blocklog.results") - BlockCount));
+					rs = stmt.executeQuery("SELECT player, block_id, type, datetime(date, 'unixepoch', 'localtime') AS date FROM blocklog_blocks WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' ORDER BY date DESC LIMIT " + (cfg.getConfig().getInt("blocklog.results") - BlockCount));
 				
 				while(rs.next()) {
 					String str = (rs.getInt("type") == 1) ? "placed a" : "broke a";
@@ -158,7 +159,7 @@ public class WandListener implements Listener {
 	
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event) {
-		int BLWand = plugin.getConfig().getInt("blocklog.wand");
+		int BLWand = cfg.getConfig().getInt("blocklog.wand");
 		boolean WandEnabled = plugin.users.contains(event.getPlayer().getName());
 		if(!event.isCancelled()) {
 			if(event.getPlayer().getItemInHand().getTypeId() == BLWand  && WandEnabled) {
@@ -177,7 +178,7 @@ public class WandListener implements Listener {
 	
 	@EventHandler
 	public void onBlockPlace(BlockPlaceEvent event) {
-		int BLWand = plugin.getConfig().getInt("blocklog.wand");
+		int BLWand = cfg.getConfig().getInt("blocklog.wand");
 		boolean WandEnabled = plugin.users.contains(event.getPlayer().getName());
 		if(!event.isCancelled()) {
 			if(event.getPlayer().getItemInHand().getTypeId() == BLWand && WandEnabled) {

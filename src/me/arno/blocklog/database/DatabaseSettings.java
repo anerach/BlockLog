@@ -16,7 +16,6 @@ public class DatabaseSettings {
 	{
 		try {
 			Config cfg = new Config();
-			String DBType = cfg.getConfig().getString("database.type");
 			String MySQLHost = cfg.getConfig().getString("mysql.host");
 			String MySQLUser = cfg.getConfig().getString("mysql.username");
 			String MySQLPass = cfg.getConfig().getString("mysql.password");
@@ -26,10 +25,10 @@ public class DatabaseSettings {
 			String MySQLUrl = "jdbc:mysql://" + MySQLHost + ":" + MySQLPort + "/" + MySQLDatabase;
 			String SQLiteUrl = "jdbc:sqlite:plugins/BlockLog/blocklog.db";
 			
-			if(DBType.equalsIgnoreCase("mysql") || type.equalsIgnoreCase("mysql")) {
+			if(type.equalsIgnoreCase("mysql")) {
 				Connection conn = DriverManager.getConnection(MySQLUrl, MySQLUser, MySQLPass);
 				return conn;
-			} else if(DBType.equalsIgnoreCase("sqlite") || type.equalsIgnoreCase("sqlite")) {
+			} else if(type.equalsIgnoreCase("sqlite")) {
 				Class.forName("org.sqlite.JDBC");
 				Connection conn =  DriverManager.getConnection(SQLiteUrl);
 				return conn;

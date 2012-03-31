@@ -55,7 +55,7 @@ public class LogListener implements Listener {
 		int WarningDelay = cfg.getConfig().getInt("blocklog.warning.delay") * 1000;
 		int WarningRepeat = cfg.getConfig().getInt("blocklog.warning.repeat");
 		
-		if(BlockSize >= plugin.autoSave && BlockSize != 0 && plugin.autoSave != 0) {
+		if(BlockSize == plugin.autoSave && BlockSize != 0 && plugin.autoSave != 0) {
 			plugin.saveLogs(0);
 		} else if(plugin.autoSave == 0 && (BlockSize ==  WarningBlockSize || (BlockSize > WarningBlockSize && (BlockSize % WarningRepeat == 0)))) {
 			if(time < System.currentTimeMillis()) {

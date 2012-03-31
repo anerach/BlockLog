@@ -1,13 +1,8 @@
 package me.arno.blocklog;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Reader;
 import java.net.URL;
 import java.sql.Connection;
@@ -21,6 +16,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import me.arno.blocklog.commands.CommandAutoSave;
 import me.arno.blocklog.commands.CommandClear;
 import me.arno.blocklog.commands.CommandConfig;
+import me.arno.blocklog.commands.CommandConvert;
 import me.arno.blocklog.commands.CommandHelp;
 import me.arno.blocklog.commands.CommandRadiusRollback;
 import me.arno.blocklog.commands.CommandReload;
@@ -161,54 +157,6 @@ public class BlockLog extends JavaPlugin {
         return currentVersion;
     }
 	
-	public void saveEmergencyLogs() {
-		try {
-			File blockFile = new File(getDataFolder(), "blocks.dat");
-			File interactionFile = new File(getDataFolder(), "interactions.dat");
-			
-			if(blocks.size() > 0){
-				ObjectOutputStream ObjSaveStream = new ObjectOutputStream(new FileOutputStream(blockFile));
-				ObjSaveStream.writeObject(blocks);
-				ObjSaveStream.flush();
-				ObjSaveStream.close();
-			}
-			if(interactions.size() > 0) {
-				ObjectOutputStream ObjSaveStream = new ObjectOutputStream(new FileOutputStream(interactionFile));
-				ObjSaveStream.writeObject(interactions);
-				ObjSaveStream.flush();
-				ObjSaveStream.close();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	@SuppressWarnings("unchecked")
-	public void loadEmergencyLogs() {
-		try {
-			File blockFile = new File(getDataFolder(), "blocks.dat");
-			File interactionFile = new File(getDataFolder(), "interactions.dat");
-			
-			if(blockFile.exists()) {
-	    		ObjectInputStream ObjLoadStream = new ObjectInputStream(new FileInputStream(blockFile));
-	    		Object Result = ObjLoadStream.readObject();
-	
-	    		blocks = (ArrayList<LoggedBlock>) Result;
-			}
-			
-			if(blockFile.exists()) {
-	    		ObjectInputStream ObjLoadStream = new ObjectInputStream(new FileInputStream(interactionFile));
-	    		Object Result = ObjLoadStream.readObject();
-	
-	    		interactions = (ArrayList<LoggedInteraction>) Result;
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-	}
-	
 	public void loadPlugin() {
 		currentVersion = getDescription().getVersion();
 		log = getLogger();
@@ -218,9 +166,6 @@ public class BlockLog extends JavaPlugin {
 	    
 		log.info("Loading the database");
 	    loadDatabase();
-	    
-	    log.info("Loading emergency saves");
-	    loadEmergencyLogs();
 	    
 	    log.info("Checking for updates");
 		newVersion = loadLatestVersion(currentVersion);
@@ -250,6 +195,7 @@ public class BlockLog extends JavaPlugin {
     	getCommand("blclear").setExecutor(new CommandClear(this));
     	getCommand("blundo").setExecutor(new CommandUndo(this));
     	getCommand("blautosave").setExecutor(new CommandAutoSave(this));
+    	getCommand("blconvert").setExecutor(new CommandConvert(this));
     	
     	getServer().getPluginManager().registerEvents(new LogListener(this), this);
     	getServer().getPluginManager().registerEvents(new WandListener(this), this);
@@ -317,8 +263,6 @@ public class BlockLog extends JavaPlugin {
 					
 					saving = false;
 				}
-				if(force == true)
-					saveEmergencyLogs();
 		    }
 		});
 	}

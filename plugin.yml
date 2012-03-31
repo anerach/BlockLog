@@ -1,6 +1,6 @@
 name: BlockLog
 main: me.arno.blocklog.BlockLog
-version: 1.1.3
+version: 1.1.4
 author: Anerach
 description: >
             A simple and effective Anti-Grief plugin.
@@ -61,10 +61,15 @@ commands:
         aliases: blcfg
         usage: /<command> <get|set> <key> [value]
         permission: blocklog.config
+    blconvert:
+        description: Convert from one database type to another
+        usage: /<command>
+        permission: blocklog.convert
 permissions:
     blocklog.admin:
         description: Gives access to all the blocklog commands
         children:
+            blocklog.convert: true
             blocklog.help: true
             blocklog.notices: true
             blocklog.config: true
@@ -92,6 +97,8 @@ permissions:
         description: Gives access to the help command
     blocklog.notices:
         description: Everyone with this command will receive messages from blocklog
+    blocklog.convert:
+        description: Gives access to the convert command
     blocklog.config:
         description: Gives access to the config command
     blocklog.clear:
@@ -100,7 +107,7 @@ permissions:
         description: Gives access to the reload command
     blocklog.wand:
         description: Gives access to the wand command
-    blocklog.wand:
+    blocklog.storage:
         description: Gives access to the storage command
     blocklog.rollback:
         description: Gives access to both the rollback commands

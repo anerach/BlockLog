@@ -57,7 +57,7 @@ public class LogListener implements Listener {
 		
 		if(BlockSize >= plugin.autoSave && BlockSize != 0 && plugin.autoSave != 0) {
 			plugin.saveLogs(0);
-		} else if(plugin.autoSave == 0 && (BlockSize ==  WarningBlockSize || (BlockSize > WarningBlockSize && BlockSize % WarningRepeat == 0))) {
+		} else if(plugin.autoSave == 0 && (BlockSize ==  WarningBlockSize || (BlockSize > WarningBlockSize && (BlockSize % WarningRepeat == 0)))) {
 			if(time < System.currentTimeMillis()) {
 				time = System.currentTimeMillis() +  WarningDelay;
 				sendAdminMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "BlockLog reached an internal storage of " + BlockSize + "!");
@@ -141,8 +141,8 @@ public class LogListener implements Listener {
 		for(Block block : blockList) {
 			EnvironmentBlock explBlock = new EnvironmentBlock(plugin, block, Log.EXPLOSION);
 			explBlock.push();
+			BlocksLimitReached();
 		}
-		BlocksLimitReached();
 	}
 	
 	@EventHandler

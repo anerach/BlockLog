@@ -51,7 +51,7 @@ public class WandListener implements Listener {
 			while(BlockSize > BlockNumber)
 			{
 				LoggedInteraction LInteraction = Interactions.get(BlockNumber); 
-				if(LInteraction.getX() == BlockLocation.getX() && LInteraction.getY() == BlockLocation.getY() && LInteraction.getZ() == BlockLocation.getZ()) {
+				if(LInteraction.getX() == BlockLocation.getX() && LInteraction.getY() == BlockLocation.getY() && LInteraction.getZ() == BlockLocation.getZ() && LInteraction.getWorld() == BlockLocation.getWorld()) {
 					if(BlockCount == cfg.getConfig().getInt("blocklog.results"))
 						break;
 					
@@ -83,9 +83,9 @@ public class WandListener implements Listener {
 				
 				ResultSet rs;
 				if(DatabaseSettings.DBType().equalsIgnoreCase("mysql"))
-					rs = stmt.executeQuery("SELECT player, FROM_UNIXTIME(date, '%d-%m-%Y %H:%i:%s') AS date FROM blocklog_interactions WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' ORDER BY date DESC LIMIT " + (cfg.getConfig().getInt("blocklog.results") - BlockCount));
+					rs = stmt.executeQuery("SELECT player, FROM_UNIXTIME(date, '%d-%m-%Y %H:%i:%s') AS date FROM blocklog_interactions WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' AND world = '" + BlockLocation.getWorld() + "' ORDER BY date DESC LIMIT " + (cfg.getConfig().getInt("blocklog.results") - BlockCount));
 				else
-					rs = stmt.executeQuery("SELECT player, datetime(date, 'unixepoch', 'localtime') AS date FROM blocklog_interactions WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' ORDER BY date DESC LIMIT " + (cfg.getConfig().getInt("blocklog.results") - BlockCount));
+					rs = stmt.executeQuery("SELECT player, datetime(date, 'unixepoch', 'localtime') AS date FROM blocklog_interactions WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' AND world = '" + BlockLocation.getWorld() + "' ORDER BY date DESC LIMIT " + (cfg.getConfig().getInt("blocklog.results") - BlockCount));
 				
 				while(rs.next()) {
 					String str = "";
@@ -114,7 +114,7 @@ public class WandListener implements Listener {
 			while(BlockSize > BlockNumber)
 			{
 				LoggedBlock LBlock = plugin.blocks.get(BlockNumber); 
-				if(LBlock.getX() == BlockLocation.getX() && LBlock.getY() == BlockLocation.getY() && LBlock.getZ() == BlockLocation.getZ()) {
+				if(LBlock.getX() == BlockLocation.getX() && LBlock.getY() == BlockLocation.getY() && LBlock.getZ() == BlockLocation.getZ() && LBlock.getWorld() == BlockLocation.getWorld()) {
 					if(BlockCount == cfg.getConfig().getInt("blocklog.results"))
 						break;
 					
@@ -141,9 +141,9 @@ public class WandListener implements Listener {
 				
 				ResultSet rs;
 				if(DatabaseSettings.DBType().equalsIgnoreCase("mysql"))
-					rs = stmt.executeQuery("SELECT player, block_id, type, FROM_UNIXTIME(date, '%d-%m-%Y %H:%i:%s') AS date FROM blocklog_blocks WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' ORDER BY date DESC LIMIT " + (cfg.getConfig().getInt("blocklog.results") - BlockCount));
+					rs = stmt.executeQuery("SELECT player, block_id, type, FROM_UNIXTIME(date, '%d-%m-%Y %H:%i:%s') AS date FROM blocklog_blocks WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' world = '" + block.getWorld() + "' ORDER BY date DESC LIMIT " + (cfg.getConfig().getInt("blocklog.results") - BlockCount));
 				else
-					rs = stmt.executeQuery("SELECT player, block_id, type, datetime(date, 'unixepoch', 'localtime') AS date FROM blocklog_blocks WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' ORDER BY date DESC LIMIT " + (cfg.getConfig().getInt("blocklog.results") - BlockCount));
+					rs = stmt.executeQuery("SELECT player, block_id, type, datetime(date, 'unixepoch', 'localtime') AS date FROM blocklog_blocks WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' world = '" + block.getWorld() + "' ORDER BY date DESC LIMIT " + (cfg.getConfig().getInt("blocklog.results") - BlockCount));
 				
 				while(rs.next()) {
 					String str = (rs.getInt("type") == 1) ? "placed a" : "broke a";

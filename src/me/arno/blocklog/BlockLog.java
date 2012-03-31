@@ -162,35 +162,33 @@ public class BlockLog extends JavaPlugin {
     }
 	
 	public void saveEmergencyLogs() {
-		File blockFile = new File(getDataFolder() + "/blocks.dat");
-		File interactionFile = new File(getDataFolder() + "/interactions.dat");
-		if(blocks.size() > 0){
-			try {
+		try {
+			File blockFile = new File(getDataFolder(), "blocks.dat");
+			File interactionFile = new File(getDataFolder(), "interactions.dat");
+			
+			if(blocks.size() > 0){
 				ObjectOutputStream ObjSaveStream = new ObjectOutputStream(new FileOutputStream(blockFile));
 				ObjSaveStream.writeObject(blocks);
 				ObjSaveStream.flush();
 				ObjSaveStream.close();
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
-		}
-		if(interactions.size() > 0) {
-			try {
+			if(interactions.size() > 0) {
 				ObjectOutputStream ObjSaveStream = new ObjectOutputStream(new FileOutputStream(interactionFile));
 				ObjSaveStream.writeObject(interactions);
 				ObjSaveStream.flush();
 				ObjSaveStream.close();
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 	
 	@SuppressWarnings("unchecked")
 	public void loadEmergencyLogs() {
 		try {
-			File blockFile = new File(getDataFolder() + "/blocks.dat");
-			File interactionFile = new File(getDataFolder() + "/interactions.dat");
+			File blockFile = new File(getDataFolder(), "blocks.dat");
+			File interactionFile = new File(getDataFolder(), "interactions.dat");
+			
 			if(blockFile.exists()) {
 	    		ObjectInputStream ObjLoadStream = new ObjectInputStream(new FileInputStream(blockFile));
 	    		Object Result = ObjLoadStream.readObject();
@@ -285,33 +283,29 @@ public class BlockLog extends JavaPlugin {
 						player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Saving " + ((count == 0) ? "all the" : count) + " block edits!");
 					
 					if(count == 0) {
-						if(blocks.size() > 0) {
-			    			while(blocks.size() > 0) {
-				    			LoggedBlock block = blocks.get(0);
-						    	block.save();
-						    	blocks.remove(0);
-			    			}
-						}
-			    		if(interactions.size() > 0) {
-			    			while(interactions.size() > 0) {
-			    				LoggedInteraction interaction = interactions.get(0);
-					    		interaction.save();
-					    		interactions.remove(0);
-			    			}
+			    		while(interactions.size() > 0) {
+			    			LoggedInteraction interaction = interactions.get(0);
+					    	interaction.save();
+					    	interactions.remove(0);
+			    		}
+						while(blocks.size() > 0) {
+				    		LoggedBlock block = blocks.get(0);
+						    block.save();
+						    blocks.remove(0);
 			    		}
 			    	} else {
-			    		if(blocks.size() > 0) {
-			    			for(int i=count; i!=0; i--) {
-				    			LoggedBlock block = blocks.get(0);
-						    	block.save();
-						    	blocks.remove(0);
-			    			}
-			    		}
 			    		if(interactions.size() > 0) {
 			    			for(int i=count; i!=0; i--) {
 			    				LoggedInteraction interaction = interactions.get(0);
 					    		interaction.save();
 						    	interactions.remove(0);
+			    			}
+			    		}
+			    		if(blocks.size() > 0) {
+			    			for(int i=count; i!=0; i--) {
+				    			LoggedBlock block = blocks.get(0);
+						    	block.save();
+						    	blocks.remove(0);
 			    			}
 			    		}
 			    	}
@@ -323,6 +317,8 @@ public class BlockLog extends JavaPlugin {
 					
 					saving = false;
 				}
+				if(force == true)
+					saveEmergencyLogs();
 		    }
 		});
 	}
@@ -337,13 +333,12 @@ public class BlockLog extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		saveLogs(0, true);
-		saveEmergencyLogs();
 		PluginDescriptionFile PluginDesc = this.getDescription();
 		log.info("v" + PluginDesc.getVersion() + " is disabled!");
 	}
 	
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-Player player = null;
+		Player player = null;
 		
 		if (sender instanceof Player)
 			player = (Player) sender;

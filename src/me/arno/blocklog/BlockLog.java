@@ -273,11 +273,11 @@ public class BlockLog extends JavaPlugin {
 	public void saveLogs(final int count, final Player player, final boolean force) {
 		getServer().getScheduler().scheduleAsyncDelayedTask(this, new Runnable() {
 			public void run() {
-				if((force == true || saving == true) && player != null) {
+				if((force == false && saving == true) && player != null) {
 					player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "We're already saving some of the blocks.");
-				} if((force == true || saving == true) && player == null) {
+				} else if((force == false && saving == true) && player == null) {
 					log.info("We're already saving some of the blocks.");
-				} else {
+				} else if(force == true || saving == false) {
 					saving = true;
 					if(player == null)
 						log.info("Saving " + ((count == 0) ? "all the" : count) + " block edits!");

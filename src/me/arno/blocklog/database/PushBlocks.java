@@ -18,16 +18,20 @@ public class PushBlocks {
 	public void startPush() {
 		plugin.getServer().getScheduler().scheduleAsyncRepeatingTask(plugin, new Runnable() {
 			public void run() {
-				if(plugin.interactions.size() > 0) {
-		    		LoggedInteraction interaction = plugin.interactions.get(0);
-		    		interaction.save();
-			    	plugin.interactions.remove(0);
-		    	}
-				if(plugin.blocks.size() > 0) {
-					LoggedBlock block = plugin.blocks.get(0);
-			    	block.save();
-			    	plugin.blocks.remove(0);
-		    	}
+				try {
+					if(plugin.interactions.size() > 0) {
+			    		LoggedInteraction interaction = plugin.interactions.get(0);
+			    		interaction.save();
+				    	plugin.interactions.remove(0);
+			    	}
+				} catch(Exception e) {}
+				try {
+					if(plugin.blocks.size() > 0) {
+						LoggedBlock block = plugin.blocks.get(0);
+				    	block.save();
+				    	plugin.blocks.remove(0);
+			    	}
+				} catch(Exception e) {}
 		    }
 		}, 100L, cfg.getConfig().getInt("database.delay") * 20L);
 	}

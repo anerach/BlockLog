@@ -73,6 +73,7 @@ public class WandListener implements Listener {
 				}
 				BlockNumber++;
 			}
+			
 			if(BlockCount < cfg.getConfig().getInt("blocklog.results")) {
 				Connection conn = plugin.conn;
 				Statement stmt = conn.createStatement();
@@ -83,9 +84,9 @@ public class WandListener implements Listener {
 				
 				ResultSet rs;
 				if(DatabaseSettings.DBType().equalsIgnoreCase("mysql"))
-					rs = stmt.executeQuery("SELECT player, FROM_UNIXTIME(date, '%d-%m-%Y %H:%i:%s') AS date FROM blocklog_interactions WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' AND world = '" + BlockLocation.getWorld() + "' ORDER BY date DESC LIMIT " + (cfg.getConfig().getInt("blocklog.results") - BlockCount));
+					rs = stmt.executeQuery("SELECT player, FROM_UNIXTIME(date, '%d-%m-%Y %H:%i:%s') AS date FROM blocklog_interactions WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' AND world = '" + BlockLocation.getWorld().getName() + "' ORDER BY date DESC LIMIT " + (cfg.getConfig().getInt("blocklog.results") - BlockCount));
 				else
-					rs = stmt.executeQuery("SELECT player, datetime(date, 'unixepoch', 'localtime') AS date FROM blocklog_interactions WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' AND world = '" + BlockLocation.getWorld() + "' ORDER BY date DESC LIMIT " + (cfg.getConfig().getInt("blocklog.results") - BlockCount));
+					rs = stmt.executeQuery("SELECT player, datetime(date, 'unixepoch', 'localtime') AS date FROM blocklog_interactions WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' AND world = '" + BlockLocation.getWorld().getName() + "' ORDER BY date DESC LIMIT " + (cfg.getConfig().getInt("blocklog.results") - BlockCount));
 				
 				while(rs.next()) {
 					String str = "";
@@ -118,19 +119,29 @@ public class WandListener implements Listener {
 					if(BlockCount == cfg.getConfig().getInt("blocklog.results"))
 						break;
 					
-					String str = (LBlock.getTypeId() == 1) ? "placed a" : "broke a";
-					String name = Material.getMaterial(LBlock.getBlockId()).toString();
-					
 					Calendar calendar = GregorianCalendar.getInstance();
 					calendar.setTimeInMillis(LBlock.getDate() * 1000);
 					
 					String date =  calendar.get(Calendar.DAY_OF_MONTH) + "-" + (calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.YEAR) + " " + calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE) + ":" + calendar.get(Calendar.SECOND);
 					
-					player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + " " + ChatColor.DARK_GREEN + str + " " + ChatColor.GOLD + name);
+					String name = Material.getMaterial(LBlock.getBlockId()).toString();
+					int type = LBlock.getTypeId();
+					
+					if(type == 0)
+						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + ChatColor.DARK_GREEN + " broke a " + ChatColor.GOLD + name);
+					else if(type == 1)
+						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + ChatColor.DARK_GREEN + " placed a " + ChatColor.GOLD + name);
+					else if(type == 2)
+						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + "Environment" + ChatColor.DARK_GREEN + " burned a " + ChatColor.GOLD + name);
+					else if(type == 3)
+						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + "Environment" + ChatColor.DARK_GREEN + " blew a " + ChatColor.GOLD + name + ChatColor.DARK_GREEN + " up");
+					else if(type == 4)
+						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.DARK_GREEN + "A " + ChatColor.GOLD + name + ChatColor.DARK_GREEN + " decayed");
 					BlockCount++;
 				}
 				BlockNumber++;
 			}
+			
 			if(BlockCount < cfg.getConfig().getInt("blocklog.results")) {
 				Connection conn = plugin.conn;
 				Statement stmt = conn.createStatement();
@@ -140,16 +151,26 @@ public class WandListener implements Listener {
 				double z = block.getZ();
 				
 				ResultSet rs;
-				if(DatabaseSettings.DBType().equalsIgnoreCase("mysql"))
-					rs = stmt.executeQuery("SELECT player, block_id, type, FROM_UNIXTIME(date, '%d-%m-%Y %H:%i:%s') AS date FROM blocklog_blocks WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' world = '" + block.getWorld() + "' ORDER BY date DESC LIMIT " + (cfg.getConfig().getInt("blocklog.results") - BlockCount));
-				else
-					rs = stmt.executeQuery("SELECT player, block_id, type, datetime(date, 'unixepoch', 'localtime') AS date FROM blocklog_blocks WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' world = '" + block.getWorld() + "' ORDER BY date DESC LIMIT " + (cfg.getConfig().getInt("blocklog.results") - BlockCount));
+				if(DatabaseSettings.DBType().equalsIgnoreCase("mysql")) {
+					rs = stmt.executeQuery("SELECT player, block_id, type, FROM_UNIXTIME(date, '%d-%m-%Y %H:%i:%s') AS date FROM blocklog_blocks WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' AND world = '" + block.getWorld().getName() + "' ORDER BY date DESC LIMIT " + (cfg.getConfig().getInt("blocklog.results") - BlockCount));
+				} else {
+					rs = stmt.executeQuery("SELECT player, block_id, type, datetime(date, 'unixepoch', 'localtime') AS date FROM blocklog_blocks WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' AND world = '" + block.getWorld().getName() + "' ORDER BY date DESC LIMIT " + (cfg.getConfig().getInt("blocklog.results") - BlockCount));
+				}
 				
 				while(rs.next()) {
-					String str = (rs.getInt("type") == 1) ? "placed a" : "broke a";
 					String name = Material.getMaterial(rs.getInt("block_id")).toString();
+					int type = rs.getInt("type");
 					
-					player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + rs.getString("player") + " " + ChatColor.DARK_GREEN + str + " " + ChatColor.GOLD + name);
+					if(type == 0)
+						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + rs.getString("player") + ChatColor.DARK_GREEN + " broke a " + ChatColor.GOLD + name);
+					else if(type == 1)
+						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + rs.getString("player") + ChatColor.DARK_GREEN + " placed a " + ChatColor.GOLD + name);
+					else if(type == 2)
+						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + "Environment" + ChatColor.DARK_GREEN + " burned a " + ChatColor.GOLD + name);
+					else if(type == 3)
+						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + "Environment" + ChatColor.DARK_GREEN + " blew a " + ChatColor.GOLD + name + ChatColor.DARK_GREEN + " up");
+					else if(type == 4)
+						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.DARK_GREEN + "A " + ChatColor.GOLD + name + ChatColor.DARK_GREEN + " decayed");
 				}
 			}
 		} catch(SQLException e) {

@@ -16,7 +16,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -91,8 +90,10 @@ public class LogListener implements Listener {
 	
 	@EventHandler
 	public void onPlayerBucketEmpty(PlayerBucketEmptyEvent event) {
+		
 		if(!event.isCancelled()) {
-			Block placedBlock = event.getBlockClicked().getRelative(BlockFace.UP);
+			Block placedBlock = event.getBlockClicked().getRelative(event.getBlockFace());
+
 			if(event.getBucket() == Material.WATER_BUCKET)
 				placedBlock.setType(Material.WATER);
 			else if(event.getBucket() == Material.LAVA_BUCKET)

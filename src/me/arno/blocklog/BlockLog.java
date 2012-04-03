@@ -270,14 +270,14 @@ public class BlockLog extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		loadPlugin();
-		PluginDescriptionFile PluginDesc = this.getDescription();
+		PluginDescriptionFile PluginDesc = getDescription();
 		log.info("v" + PluginDesc.getVersion() + " is enabled!");
 	}
 	
 	@Override
 	public void onDisable() {
 		saveLogs(0, true);
-		PluginDescriptionFile PluginDesc = this.getDescription();
+		PluginDescriptionFile PluginDesc = getDescription();
 		log.info("v" + PluginDesc.getVersion() + " is disabled!");
 	}
 	

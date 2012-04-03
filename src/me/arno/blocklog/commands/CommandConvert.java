@@ -54,7 +54,7 @@ public class CommandConvert implements CommandExecutor {
 			ResultSet RollbacksRS = SQLiteStmt.executeQuery("SELECT * FROM blocklog_rollbacks");
 			
 			while(RollbacksRS.next()) {
-				MySQLStmt.executeUpdate(String.format("INSERT INTO blocklog_rollbacks (player,world,date,type) VALUES ('%s', '%s', %s, %s)", RollbacksRS.getString("player"), RollbacksRS.getString("world"), RollbacksRS.getInt("type"), RollbacksRS.getInt("date")));
+				MySQLStmt.executeUpdate(String.format("INSERT INTO blocklog_rollbacks (player,world,date,type) VALUES ('%s', '%s', %s, %s)", RollbacksRS.getString("player"), RollbacksRS.getString("world"), RollbacksRS.getInt("date"), RollbacksRS.getInt("type")));
 			}
 			
 			MySQLStmt.executeUpdate("TRUNCATE blocklog_blocks");
@@ -99,7 +99,7 @@ public class CommandConvert implements CommandExecutor {
 			ResultSet RollbacksRS = SQLiteStmt.executeQuery("SELECT * FROM blocklog_rollbacks;");
 			
 			while(RollbacksRS.next()) {
-				MySQLStmt.executeUpdate(String.format("INSERT INTO blocklog_rollbacks (player,world,date,type) VALUES ('%s', '%s', %s, %s)", RollbacksRS.getString("player"), RollbacksRS.getString("world"), RollbacksRS.getInt("type"), RollbacksRS.getInt("date")));
+				MySQLStmt.executeUpdate(String.format("INSERT INTO blocklog_rollbacks (player,world,date,type) VALUES ('%s', '%s', %s, %s)", RollbacksRS.getString("player"), RollbacksRS.getString("world"), RollbacksRS.getInt("date"), RollbacksRS.getInt("type")));
 			}
 			
 			SQLiteStmt.executeUpdate("DROP TABLE IF EXISTS blocklog_blocks");

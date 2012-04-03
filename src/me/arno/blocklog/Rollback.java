@@ -58,6 +58,19 @@ public class Rollback {
 		this.sender = plugin.getServer().getPlayer(rs.getString("player"));
 	}
 	
+	public boolean isInRadius(int radius, Location center, Location block) {
+		int xMin = center.getBlockX() - radius;
+		int xMax = center.getBlockX() + radius;
+		int yMin = center.getBlockY() - radius;
+		int yMax = center.getBlockY() + radius;
+		int zMin = center.getBlockZ() - radius;
+		int zMax = center.getBlockZ() + radius;
+		if(block.getBlockX() < xMax && block.getBlockX() > xMin && block.getBlockY() < yMax && block.getBlockY() > yMin && block.getBlockZ() < zMax && block.getBlockZ() > zMin)
+			return true;
+			
+		return false;
+	}
+	
 	public ArrayList<LoggedBlock> getBlocks() {
 		ArrayList<LoggedBlock> blocks = new ArrayList<LoggedBlock>();
 		try {
@@ -199,7 +212,7 @@ public class Rollback {
 								}
 								BlockCount++;
 							} else {
-								if((LBlock.getX() >= xMin && LBlock.getX() <= xMax ) && (LBlock.getY() >= yMin && LBlock.getY() <= yMax ) && (LBlock.getZ() >= zMin && LBlock.getZ() <= zMax )) {
+								if(isInRadius(radius, sender.getLocation(), LBlock.getLocation())) { //(LBlock.getX() >= xMin && LBlock.getX() <= xMax ) && (LBlock.getY() >= yMin && LBlock.getY() <= yMax ) && (LBlock.getZ() >= zMin && LBlock.getZ() <= zMax )
 									if(player != null) {
 										if(player.getName().equalsIgnoreCase(LBlock.getPlayerName())) {
 											if(LBlock.getType() == Log.BREAK || LBlock.getType() == Log.FIRE || LBlock.getType() == Log.EXPLOSION)

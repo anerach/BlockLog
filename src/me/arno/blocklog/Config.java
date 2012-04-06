@@ -54,9 +54,13 @@ public class Config {
 	    getConfig().addDefault("mysql.password", "");
 	    getConfig().addDefault("mysql.database", "");
 	    getConfig().addDefault("mysql.port", 3306);
+	    getConfig().addDefault("logs.grow", true);
+	    getConfig().addDefault("logs.leaves", false);
+	    getConfig().addDefault("logs.portal", false);
+	    getConfig().addDefault("logs.form", false);
+	    getConfig().addDefault("logs.spread", false);
 	   	getConfig().addDefault("blocklog.wand", 369);
 	    getConfig().addDefault("blocklog.results", 5);
-	    getConfig().addDefault("blocklog.leaves", false);
 	    getConfig().addDefault("blocklog.warning.blocks", 500);
 	    getConfig().addDefault("blocklog.warning.repeat", 100);
 	    getConfig().addDefault("blocklog.warning.delay", 30);

@@ -31,12 +31,16 @@ public class CommandReload implements CommandExecutor {
 		
 		if (player == null) {
 			log.info("[BlockLog] Reloading!");
-			plugin.loadPlugin();
-			log.info("[BlockLog] Reloaded Succesfully!");
+			if(plugin.reloadPlugin())
+				log.info("[BlockLog] Reloaded Succesfully!");
+			else
+				log.info("[BlockLog] An error occured while reloading BlockLog!");
 		} else {
 			player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "Reloading!");
-			plugin.loadPlugin();
-			player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "Reloaded Succesfully!");
+			if(plugin.reloadPlugin())
+				player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "Reloaded Succesfully!");
+			else
+				player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "An error occured while reloading BlockLog!");
 		}
 		return true;
 	}

@@ -1,23 +1,25 @@
 package me.arno.blocklog.log;
 
-
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.Log;
 
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
+import org.bukkit.entity.Player;
 import org.bukkit.material.MaterialData;
 
-public class EnvironmentBlock {
+public class GrownBlock {
 	public BlockLog plugin;
-	public BlockState block;
-	public long date;
-	public Log type;
+	private BlockState block;
+	private Player player;
+	private long date;
+	private Log type;
 	
-	public EnvironmentBlock(BlockLog plugin, BlockState block, Log type) {
+	public GrownBlock(BlockLog plugin, Player player, BlockState block, Log type) {
 		this.plugin = plugin;
 		this.block = block;
+		this.player = player;
 		this.type = type;
 		this.date = System.currentTimeMillis()/1000;
 	}
@@ -32,6 +34,10 @@ public class EnvironmentBlock {
 	
 	public BlockState getBlock() {
 		return block;
+	}
+	
+	public Player getPlayer() {
+		return player;
 	}
 	
 	public World getWorld() {

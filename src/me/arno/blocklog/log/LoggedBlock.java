@@ -8,8 +8,9 @@ import me.arno.blocklog.Log;
 
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
+import org.bukkit.material.MaterialData;
 
 
 public class LoggedBlock {
@@ -17,10 +18,10 @@ public class LoggedBlock {
 	private Log logType;
 	
 	private int block_id;
-	private int datavalue;
+	private MaterialData datavalue;
 	
 	private Player player;
-	private Block block;
+	private BlockState block;
 	private Location location;
 	private World world;
 	
@@ -28,13 +29,13 @@ public class LoggedBlock {
 	
 	private int rollback = 0;
 	
-	public LoggedBlock(BlockLog plugin, Player player, int block, int datavalue, Location location, int type) {
+	public LoggedBlock(BlockLog plugin, Player player, int block, MaterialData datavalue, Location location, int type) {
 		this.plugin = plugin;
 		this.player = player;
 		this.location = location;
 		this.world = location.getWorld();
 		this.block_id = block;
-		this.datavalue = datavalue;
+		this.datavalue = datavalue; // Material Data
 		this.date = System.currentTimeMillis()/1000;
 		this.logType = Log.values()[type];
 	}
@@ -74,6 +75,30 @@ public class LoggedBlock {
 		this.logType = Log.PLACE;
 	}
 	
+	public LoggedBlock(GrownBlock block) {
+		this.plugin = block.plugin;
+		this.player = block.getPlayer();
+		this.block = block.getBlock();
+		this.block_id = block.getId();
+		this.datavalue = block.getData();
+		this.location = block.getLocation();
+		this.world = block.getWorld();
+		this.date = block.getDate();
+		this.logType = Log.GROW;
+	}
+
+	public LoggedBlock(PortalBlock block) {
+		this.plugin = block.plugin;
+		this.player = block.getPlayer();
+		this.block = block.getBlock();
+		this.block_id = block.getId();
+		this.datavalue = block.getData();
+		this.location = block.getLocation();
+		this.world = block.getWorld();
+		this.date = block.getDate();
+		this.logType = Log.PORTAL;
+	}
+
 	public void save() {
 		try {
 			Statement stmt = plugin.conn.createStatement();
@@ -88,10 +113,10 @@ public class LoggedBlock {
 	}
 	
 	public int getDataValue() {
-		return datavalue;
+		return datavalue.getData();
 	}
 	
-	public Block getBlock() {
+	public BlockState getBlock() {
 		return block;
 	}
 	

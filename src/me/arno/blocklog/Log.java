@@ -5,7 +5,11 @@ public enum Log {
 	PLACE(1),
 	FIRE(2),
 	EXPLOSION(3),
-	LEAVES(4);
+	LEAVES(4),
+	GROW(5),
+	PORTAL(6),
+	FORM(7),
+	SPREAD(8);
 	
 	int id;
 	Log(int id) {

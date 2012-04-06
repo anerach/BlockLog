@@ -14,6 +14,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.material.MaterialData;
 
 public class Rollback {
 	private BlockLog plugin;
@@ -80,7 +81,7 @@ public class Rollback {
 				Player player = plugin.getServer().getPlayer(rs.getString("player"));
 				this.world = plugin.getServer().getWorld(rs.getString("world"));
 				Location loc = new Location(world, rs.getDouble("x"), rs.getDouble("y"), rs.getDouble("z"));
-				LoggedBlock lb = new LoggedBlock(plugin, player, rs.getInt("block_id"), rs.getInt("datavalue"), loc, rs.getInt("type"));
+				LoggedBlock lb = new LoggedBlock(plugin, player, rs.getInt("block_id"), new MaterialData(Material.getMaterial(rs.getInt("block_id")), rs.getByte("datavalue")), loc, rs.getInt("type"));
 				blocks.add(lb);
 			}
 			

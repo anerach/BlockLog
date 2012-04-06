@@ -132,11 +132,15 @@ public class WandListener implements Listener {
 					else if(type == 1)
 						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + ChatColor.DARK_GREEN + " placed a " + ChatColor.GOLD + name);
 					else if(type == 2)
-						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + "Environment" + ChatColor.DARK_GREEN + " burned a " + ChatColor.GOLD + name);
+						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + ChatColor.DARK_GREEN + " burned a " + ChatColor.GOLD + name);
 					else if(type == 3)
-						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + "Environment" + ChatColor.DARK_GREEN + " blew a " + ChatColor.GOLD + name + ChatColor.DARK_GREEN + " up");
+						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + ChatColor.DARK_GREEN + " blew a " + ChatColor.GOLD + name + ChatColor.DARK_GREEN + " up");
 					else if(type == 4)
 						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.DARK_GREEN + "A " + ChatColor.GOLD + name + ChatColor.DARK_GREEN + " decayed");
+					else if(type == 5)
+						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + ChatColor.DARK_GREEN + " grew a " + ChatColor.GOLD + name);
+					else if(type == 6 || type == 7 || type == 8)
+						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + ChatColor.DARK_GREEN + " created a " + ChatColor.GOLD + name);
 					BlockCount++;
 				}
 				BlockNumber++;
@@ -171,6 +175,10 @@ public class WandListener implements Listener {
 						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + "Environment" + ChatColor.DARK_GREEN + " blew a " + ChatColor.GOLD + name + ChatColor.DARK_GREEN + " up");
 					else if(type == 4)
 						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.DARK_GREEN + "A " + ChatColor.GOLD + name + ChatColor.DARK_GREEN + " decayed");
+					else if(type == 5)
+						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + ((rs.getString("player") == null) ? "Environment" : rs.getString("player")) + ChatColor.DARK_GREEN + " grew a " + ChatColor.GOLD + name);
+					else if(type == 6 || type == 7 || type == 8)
+						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + ((rs.getString("player") == null) ? "Environment" : rs.getString("player")) + ChatColor.DARK_GREEN + " created a " + ChatColor.GOLD + name);
 				}
 			}
 		} catch(SQLException e) {

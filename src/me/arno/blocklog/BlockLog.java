@@ -157,6 +157,20 @@ public class BlockLog extends JavaPlugin {
         return currentVersion;
     }
 	
+	public boolean reloadPlugin() {
+		if(saving)
+			return false;
+		try {
+			conn.close();
+			getServer().getScheduler().cancelTasks(this);
+			loadPlugin();
+			return true;
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
 	public void loadPlugin() {
 		currentVersion = getDescription().getVersion();
 		log = getLogger();

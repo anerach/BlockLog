@@ -1,6 +1,5 @@
 package me.arno.blocklog.listeners;
 
-import java.util.List;
 import java.util.logging.Logger;
 
 import me.arno.blocklog.BlockLog;
@@ -9,6 +8,7 @@ import me.arno.blocklog.Interaction;
 import me.arno.blocklog.Log;
 import me.arno.blocklog.log.BrokenBlock;
 import me.arno.blocklog.log.EnvironmentBlock;
+import me.arno.blocklog.log.GrownBlock;
 import me.arno.blocklog.log.InteractedBlock;
 import me.arno.blocklog.log.PlacedBlock;
 
@@ -16,8 +16,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -27,6 +30,10 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.block.LeavesDecayEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
+import org.bukkit.event.world.StructureGrowEvent;
+import org.bukkit.event.entity.EntityCreatePortalEvent;
+import org.bukkit.event.block.BlockFormEvent;
+import org.bukkit.event.block.BlockSpreadEvent;
 
 public class LogListener implements Listener {
 	BlockLog plugin;
@@ -65,30 +72,30 @@ public class LogListener implements Listener {
 		}
 	}
 	
-	@EventHandler
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockPlace(BlockPlaceEvent event) {
 		int BLWand = cfg.getConfig().getInt("blocklog.wand");
 		boolean WandEnabled = plugin.users.contains(event.getPlayer().getName());
 		
 		if(!event.isCancelled()) {
 			if(event.getPlayer().getItemInHand().getTypeId() != BLWand || !WandEnabled) {
-				PlacedBlock block = new PlacedBlock(plugin, event.getPlayer(), event.getBlockPlaced());
+				PlacedBlock block = new PlacedBlock(plugin, event.getPlayer(), event.getBlockPlaced().getState());
 				block.push();
 				BlocksLimitReached();
 			}
 		}
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockBreak(BlockBreakEvent event) {
 		if(!event.isCancelled()) {
-			BrokenBlock block = new BrokenBlock(plugin, event.getPlayer(), event.getBlock());
+			BrokenBlock block = new BrokenBlock(plugin, event.getPlayer(), event.getBlock().getState());
 			block.push();
 			BlocksLimitReached();
 		}
 	}
 	
-	@EventHandler
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerBucketEmpty(PlayerBucketEmptyEvent event) {
 		
 		if(!event.isCancelled()) {
@@ -99,61 +106,125 @@ public class LogListener implements Listener {
 			else if(event.getBucket() == Material.LAVA_BUCKET)
 				placedBlock.setType(Material.LAVA);
 			
-			PlacedBlock block = new PlacedBlock(plugin, event.getPlayer(), placedBlock);
+			PlacedBlock block = new PlacedBlock(plugin, event.getPlayer(), placedBlock.getState());
 			block.push();
 			BlocksLimitReached();
 		}
 	}
 	
-	@EventHandler
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockBurn(BlockBurnEvent event) {
 		if(!event.isCancelled()) {
-			EnvironmentBlock block = new EnvironmentBlock(plugin, event.getBlock(), Log.FIRE);
+			EnvironmentBlock block = new EnvironmentBlock(plugin, event.getBlock().getState(), Log.FIRE);
 			block.push();
 			BlocksLimitReached();
 		}
 	}
 	
-	@EventHandler
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockIgnite(BlockIgniteEvent event) {
 		if(!event.isCancelled()) {
 			if(event.getBlock().getType() == Material.TNT) {
-				BrokenBlock block = new BrokenBlock(plugin, event.getPlayer(), event.getBlock());
+				BrokenBlock block = new BrokenBlock(plugin, event.getPlayer(), event.getBlock().getState());
 				block.push();
 				BlocksLimitReached();
 			}
 		}
 	}
 	
-	@EventHandler
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onLeavesDecay(LeavesDecayEvent event) {
 		if(!event.isCancelled()) {
-			if(cfg.getConfig().getBoolean("blocklog.leaves")) {
-				EnvironmentBlock block = new EnvironmentBlock(plugin, event.getBlock(), Log.LEAVES);
+			if(cfg.getConfig().getBoolean("log.leaves")) {
+				EnvironmentBlock block = new EnvironmentBlock(plugin, event.getBlock().getState(), Log.LEAVES);
 				block.push();
 				BlocksLimitReached();
 			}
 		}
 	}
 	
-	@EventHandler
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onEntityExplode(EntityExplodeEvent event) {
-		List<Block> blockList = event.blockList();
-		for(Block block : blockList) {
-			EnvironmentBlock explBlock = new EnvironmentBlock(plugin, block, Log.EXPLOSION);
+		for(Block block : event.blockList()) {
+			EnvironmentBlock explBlock = new EnvironmentBlock(plugin, block.getState(), Log.EXPLOSION);
 			explBlock.push();
 			BlocksLimitReached();
 		}
 	}
 	
-	@EventHandler
-	public void onPlayerInteract(PlayerInteractEvent event) {
-		int BLWand = cfg.getConfig().getInt("blocklog.wand");
-		boolean WandEnabled = plugin.users.contains(event.getPlayer().getName());
-		
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onStructureGrow(StructureGrowEvent event) {
 		if(!event.isCancelled()) {
+			if(cfg.getConfig().getBoolean("log.grow")) {
+				Player player = event.getPlayer();
+				for(BlockState block : event.getBlocks()) {
+					GrownBlock envBlock = new GrownBlock(plugin, player, block, Log.GROW);
+					envBlock.push();
+					BlocksLimitReached();
+				}
+			}
+		}
+	}
+	
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onEntityCreatePortal(EntityCreatePortalEvent event) {
+		if(!event.isCancelled()) {
+			if(cfg.getConfig().getBoolean("log.portal")) {
+				Player player = (Player) event.getEntity();
+				for(BlockState block : event.getBlocks()) {
+					PlacedBlock pBlock = new PlacedBlock(plugin, player, block);
+					pBlock.push();
+					BlocksLimitReached();
+				}
+			}
+		}
+	}
+	
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onBlockForm(BlockFormEvent event) {
+		if(!event.isCancelled()) {
+			if(cfg.getConfig().getBoolean("log.form")) {
+				EnvironmentBlock block = new EnvironmentBlock(plugin, event.getNewState(), Log.FORM);
+				block.push();
+			}
+		}
+	}
+	
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onBlockSpread(BlockSpreadEvent event) {
+		if(!event.isCancelled()) {
+			if(cfg.getConfig().getBoolean("log.spread")) {
+				EnvironmentBlock block = new EnvironmentBlock(plugin, event.getNewState(), Log.SPREAD);
+				block.push();
+			}
+		}
+	}
+	
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onPlayerInteract(PlayerInteractEvent event) {
+		if(!event.isCancelled()) {
+			int BLWand = cfg.getConfig().getInt("blocklog.wand");
+			boolean WandEnabled = plugin.users.contains(event.getPlayer().getName());
+			
 			if(event.getPlayer().getItemInHand().getTypeId() != BLWand || !WandEnabled) {
-				if(event.getClickedBlock().getType() == Material.WOODEN_DOOR) {
+				if(event.getClickedBlock().getType().isBlock()) {
+					Block block;
+					block = event.getClickedBlock().getRelative(BlockFace.UP);
+					if(block.getType() != Material.FIRE)
+						block = event.getClickedBlock().getRelative(BlockFace.NORTH);
+					if(block.getType() != Material.FIRE)
+						block = event.getClickedBlock().getRelative(BlockFace.EAST);
+					if(block.getType() != Material.FIRE)
+						block = event.getClickedBlock().getRelative(BlockFace.SOUTH);
+					if(block.getType() != Material.FIRE)
+						block = event.getClickedBlock().getRelative(BlockFace.WEST);
+					
+					if(block.getType() == Material.FIRE) {
+						BrokenBlock bBlock = new BrokenBlock(plugin, event.getPlayer(), block.getState());
+						bBlock.push();
+						BlocksLimitReached();
+					}
+				} else if(event.getClickedBlock().getType() == Material.WOODEN_DOOR) {
 					InteractedBlock block = new InteractedBlock(plugin, event.getPlayer(), event.getClickedBlock().getLocation(), Interaction.DOOR);
 					block.push();
 					BlocksLimitReached();

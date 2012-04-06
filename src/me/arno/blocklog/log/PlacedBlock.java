@@ -4,18 +4,19 @@ import me.arno.blocklog.BlockLog;
 
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
+import org.bukkit.material.MaterialData;
 
 public class PlacedBlock {
 	public BlockLog plugin;
 	
 	private Player player;
-	private Block block;
+	private BlockState block;
 	
 	private long date;
 	
-	public PlacedBlock(BlockLog plugin, Player player, Block block) {
+	public PlacedBlock(BlockLog plugin, Player player, BlockState block) {
 		this.plugin = plugin;
 		this.player = player;
 		this.block = block;
@@ -30,7 +31,7 @@ public class PlacedBlock {
 		return block.getTypeId();
 	}
 	
-	public Block getBlock() {
+	public BlockState getBlock() {
 		return block;
 	}
 	
@@ -54,7 +55,7 @@ public class PlacedBlock {
 		return date;
 	}
 
-	public int getData() {
+	public MaterialData getData() {
 		return block.getData();
 	}
 }

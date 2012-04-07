@@ -196,7 +196,7 @@ public class Rollback {
 							if(radius == 0) {
 								if(player != null) {
 									if(player.getName().equalsIgnoreCase(LBlock.getPlayerName())) {
-										if(LBlock.getType() == Log.BREAK || LBlock.getType() == Log.FIRE || LBlock.getType() == Log.EXPLOSION)
+										if(LBlock.getType() == Log.BREAK || LBlock.getType() == Log.FIRE || LBlock.getType() == Log.EXPLOSION || LBlock.getType() == Log.LEAVES)
 											world.getBlockAt(LBlock.getLocation()).setTypeIdAndData(m.getId(), (byte) LBlock.getDataValue(), false);
 										else
 											world.getBlockAt(LBlock.getLocation()).setType(Material.AIR);
@@ -204,7 +204,7 @@ public class Rollback {
 										LBlock.setRollback(id);
 									}
 								} else {
-									if(LBlock.getType() == Log.BREAK || LBlock.getType() == Log.FIRE || LBlock.getType() == Log.EXPLOSION)
+									if(LBlock.getType() == Log.BREAK || LBlock.getType() == Log.FIRE || LBlock.getType() == Log.EXPLOSION || LBlock.getType() == Log.LEAVES)
 										world.getBlockAt(LBlock.getLocation()).setTypeIdAndData(m.getId(), (byte) LBlock.getDataValue(), false);
 									else
 										world.getBlockAt(LBlock.getLocation()).setType(Material.AIR);
@@ -216,7 +216,7 @@ public class Rollback {
 								if(isInRadius(radius, sender.getLocation(), LBlock.getLocation())) { //(LBlock.getX() >= xMin && LBlock.getX() <= xMax ) && (LBlock.getY() >= yMin && LBlock.getY() <= yMax ) && (LBlock.getZ() >= zMin && LBlock.getZ() <= zMax )
 									if(player != null) {
 										if(player.getName().equalsIgnoreCase(LBlock.getPlayerName())) {
-											if(LBlock.getType() == Log.BREAK || LBlock.getType() == Log.FIRE || LBlock.getType() == Log.EXPLOSION)
+											if(LBlock.getType() == Log.BREAK || LBlock.getType() == Log.FIRE || LBlock.getType() == Log.EXPLOSION || LBlock.getType() == Log.LEAVES)
 												world.getBlockAt(LBlock.getLocation()).setTypeIdAndData(m.getId(), (byte) LBlock.getDataValue(), false);
 											else
 												world.getBlockAt(LBlock.getLocation()).setType(Material.AIR);
@@ -224,7 +224,7 @@ public class Rollback {
 											LBlock.setRollback(id);
 										}
 									} else {
-										if(LBlock.getType() == Log.BREAK || LBlock.getType() == Log.FIRE || LBlock.getType() == Log.EXPLOSION)
+										if(LBlock.getType() == Log.BREAK || LBlock.getType() == Log.FIRE || LBlock.getType() == Log.EXPLOSION || LBlock.getType() == Log.LEAVES)
 											world.getBlockAt(LBlock.getLocation()).setTypeIdAndData(m.getId(), (byte) LBlock.getDataValue(), false);
 										else
 											world.getBlockAt(LBlock.getLocation()).setType(Material.AIR);
@@ -238,7 +238,7 @@ public class Rollback {
 						
 					}
 					sender.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GREEN + (i + BlockCount) + ChatColor.GOLD + " blocks changed!");
-					sender.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "use the command " + ChatColor.GREEN + "/blundo" + ChatColor.GOLD + " to undo this rollback!");
+					sender.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "use the command " + ChatColor.GREEN + "/blundo " + id + ChatColor.GOLD + " to undo this rollback!");
 		    	} catch (SQLException e) {
 					e.printStackTrace();
 		    	} catch (Exception e) {
@@ -260,7 +260,7 @@ public class Rollback {
 					{
 						LoggedBlock LBlock = blocks.get(BlockCount); 
 						Material m = Material.getMaterial(LBlock.getBlockId());
-						if(LBlock.getType() == Log.BREAK || LBlock.getType() == Log.FIRE || LBlock.getType() == Log.EXPLOSION)
+						if(LBlock.getType() == Log.BREAK || LBlock.getType() == Log.FIRE || LBlock.getType() == Log.EXPLOSION || LBlock.getType() == Log.LEAVES)
 							world.getBlockAt(LBlock.getLocation()).setType(Material.AIR);
 						else
 							world.getBlockAt(LBlock.getLocation()).setTypeIdAndData(m.getId(), (byte) LBlock.getDataValue(), false);

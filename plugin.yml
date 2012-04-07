@@ -1,6 +1,6 @@
 name: BlockLog
 main: me.arno.blocklog.BlockLog
-version: 1.2.0
+version: 1.2.1
 author: Anerach
 description: >
             A simple and effective Anti-Grief plugin.
@@ -65,6 +65,14 @@ commands:
         description: Convert from one database type to another
         usage: /<command>
         permission: blocklog.convert
+    blreport:
+        description: Create a new grief report
+        usage: /<command> <message>
+        permission: blocklog.report.write
+    blread:
+        description: Read players their reports
+        usage: /<command> [id]
+        permission: blocklog.report.read
 permissions:
     blocklog.admin:
         description: Gives access to all the blocklog commands
@@ -86,6 +94,8 @@ permissions:
         description: Gives access to most of the blocklog commands
         children:
             blocklog.help: true
+            blocklog.report.write: true
+            blocklog.report.read: true
             blocklog.notices: true
             blocklog.wand: true
             blocklog.storage: true
@@ -117,3 +127,7 @@ permissions:
         description: Gives access to the fullsave command
     blocklog.autosave:
         description: Gives access to the autosave command
+    blocklog.report.write:
+        description: Gives the ability to report griefs
+    blocklog.report.read:
+        description: Gives the ability to read grief reports

@@ -13,18 +13,7 @@ import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import me.arno.blocklog.commands.CommandAutoSave;
-import me.arno.blocklog.commands.CommandClear;
-import me.arno.blocklog.commands.CommandConfig;
-import me.arno.blocklog.commands.CommandConvert;
-import me.arno.blocklog.commands.CommandHelp;
-import me.arno.blocklog.commands.CommandRadiusRollback;
-import me.arno.blocklog.commands.CommandReload;
-import me.arno.blocklog.commands.CommandRollback;
-import me.arno.blocklog.commands.CommandSave;
-import me.arno.blocklog.commands.CommandStorage;
-import me.arno.blocklog.commands.CommandUndo;
-import me.arno.blocklog.commands.CommandWand;
+import me.arno.blocklog.commands.*;
 import me.arno.blocklog.database.DatabaseSettings;
 import me.arno.blocklog.database.PushBlocks;
 import me.arno.blocklog.listeners.LogListener;
@@ -107,6 +96,7 @@ public class BlockLog extends JavaPlugin {
 				stmt.executeUpdate(getResourceContent("MySQL/blocklog_blocks.sql"));
 				stmt.executeUpdate(getResourceContent("MySQL/blocklog_rollbacks.sql"));
 				stmt.executeUpdate(getResourceContent("MySQL/blocklog_interactions.sql"));
+				stmt.executeUpdate(getResourceContent("MySQL/blocklog_reports.sql"));
 			} else if(DBType.equalsIgnoreCase("sqlite")) {
 			    conn = DatabaseSettings.getConnection();
 			    stmt = conn.createStatement();
@@ -114,6 +104,7 @@ public class BlockLog extends JavaPlugin {
 				stmt.executeUpdate(getResourceContent("SQLite/blocklog_blocks.sql"));
 				stmt.executeUpdate(getResourceContent("SQLite/blocklog_rollbacks.sql"));
 				stmt.executeUpdate(getResourceContent("SQLite/blocklog_interactions.sql"));
+				stmt.executeUpdate(getResourceContent("SQLite/blocklog_reports.sql"));
 		    }
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -163,7 +154,13 @@ public class BlockLog extends JavaPlugin {
 		try {
 			conn.close();
 			getServer().getScheduler().cancelTasks(this);
-			loadPlugin();
+
+			log.info("Reloading the configurations");
+		    loadConfiguration();
+		    
+			log.info("Reloading the database");
+		    loadDatabase();
+			
 			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -210,6 +207,8 @@ public class BlockLog extends JavaPlugin {
     	getCommand("blundo").setExecutor(new CommandUndo(this));
     	getCommand("blautosave").setExecutor(new CommandAutoSave(this));
     	getCommand("blconvert").setExecutor(new CommandConvert(this));
+    	getCommand("blreport").setExecutor(new CommandReport(this));
+    	getCommand("blread").setExecutor(new CommandRead(this));
     	
     	getServer().getPluginManager().registerEvents(new LogListener(this), this);
     	getServer().getPluginManager().registerEvents(new WandListener(this), this);

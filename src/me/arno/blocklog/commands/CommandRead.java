@@ -22,6 +22,7 @@ public class CommandRead implements CommandExecutor {
 		this.conn = plugin.conn;
 		
 	}
+	
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
 		Player player = null;
@@ -40,6 +41,11 @@ public class CommandRead implements CommandExecutor {
 		if(args.length > 1)
 			return false;
 		
+		if(!plugin.getConfig().getBoolean("blocklog.reports")) {
+			player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "The report system is disabled");
+			return true;
+		}
+		
 		try {
 			Statement stmt = conn.createStatement();
 			if(args.length == 0) {
@@ -50,10 +56,12 @@ public class CommandRead implements CommandExecutor {
 				}
 			} else {
 				ResultSet reports = stmt.executeQuery("SELECT * FROM blocklog_reports WHERE id = " + args[0]);
-				while(reports.next()) {
-					player.sendMessage(ChatColor.DARK_RED + "[#" + reports.getString("id") + "] " + ChatColor.GOLD + reports.getString("player"));
-					player.sendMessage(ChatColor.BLUE + reports.getString("message"));
-				}
+				
+				reports.next();
+				player.sendMessage(ChatColor.DARK_RED + "[#" + reports.getString("id") + "] " + ChatColor.GOLD + reports.getString("player"));
+				player.sendMessage(ChatColor.BLUE + reports.getString("message"));
+				stmt.executeUpdate("UPDATE blocklog_reports SET seen = 1 WHERE id = " + args[0]);
+			
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

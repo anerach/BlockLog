@@ -39,6 +39,12 @@ public class CommandReport implements CommandExecutor {
 		if(args.length < 1)
 			return false;
 		
+		if(!plugin.getConfig().getBoolean("blocklog.reports")) {
+			player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "The report system is disabled");
+			return true;
+		}
+			
+		
 		String msg = "";
 		
 		for(int i = 0; i < args.length;i++)

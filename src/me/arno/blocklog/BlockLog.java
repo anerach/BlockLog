@@ -14,17 +14,15 @@ import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import me.arno.blocklog.commands.*;
-import me.arno.blocklog.database.DatabaseSettings;
-import me.arno.blocklog.database.PushBlocks;
-import me.arno.blocklog.listeners.LogListener;
-import me.arno.blocklog.listeners.LoginListener;
-import me.arno.blocklog.listeners.WandListener;
+import me.arno.blocklog.database.*;
+import me.arno.blocklog.listeners.*;
 import me.arno.blocklog.log.LoggedBlock;
 import me.arno.blocklog.log.LoggedInteraction;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -52,6 +50,21 @@ public class BlockLog extends JavaPlugin {
 	
 	public Config cfg;
 	
+	@Override
+	public FileConfiguration getConfig() {
+		return cfg.getConfig();
+	}
+	
+	@Override
+	public void saveConfig() {
+		cfg.saveConfig();
+	}
+	
+	@Override
+	public void reloadConfig() {
+		cfg.reloadConfig();
+	}
+	
 	public String getResourceContent(String file) {
 		try {
 			InputStream ResourceFile = getResource("resources/" + file);
@@ -75,7 +88,7 @@ public class BlockLog extends JavaPlugin {
 		return null;
 	}
 	
-	public void loadConfiguration() {
+	private void loadConfiguration() {
 		cfg = new Config();
 		cfg.createDefaults();
 		cfg.saveConfig();
@@ -85,7 +98,7 @@ public class BlockLog extends JavaPlugin {
 		}
 	}
 	
-	public void loadDatabase() {
+	private void loadDatabase() {
 		String DBType = cfg.getConfig().getString("database.type");
 		Statement stmt;
 		try {
@@ -126,7 +139,7 @@ public class BlockLog extends JavaPlugin {
 		}
 	}
 	
-	public String loadLatestVersion(String currentVersion) {
+	private String loadLatestVersion(String currentVersion) {
         String pluginUrlString = "http://dev.bukkit.org/server-mods/block-log/files.rss";
         try {
             URL url = new URL(pluginUrlString);
@@ -168,7 +181,7 @@ public class BlockLog extends JavaPlugin {
 		return false;
 	}
 	
-	public void loadPlugin() {
+	private void loadPlugin() {
 		currentVersion = getDescription().getVersion();
 		log = getLogger();
 		

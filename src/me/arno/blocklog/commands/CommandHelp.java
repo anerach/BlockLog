@@ -35,28 +35,47 @@ public class CommandHelp implements CommandExecutor {
 			return false;
 		
 		player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Commands");
-		player.sendMessage(ChatColor.DARK_RED +"/blhelp" + ChatColor.GOLD + " - Shows this message");
-		if(player.isOp() || player.hasPermission("blocklog.reload"))
-			player.sendMessage(ChatColor.DARK_RED +"/blreload" + ChatColor.GOLD + " - Reloads blocklog config file");
-		if(player.isOp() || player.hasPermission("blocklog.wand"))
-			player.sendMessage(ChatColor.DARK_RED +"/blwand" + ChatColor.GOLD + " - Enables blocklog's wand");
-		if(player.isOp() || player.hasPermission("blocklog.save"))
-			player.sendMessage(ChatColor.DARK_RED +"/blsave [amount]" + ChatColor.GOLD + " - Saves 25 or the specified amount of blocks");
-		if(player.isOp() || player.hasPermission("blocklog.fullsave"))
-			player.sendMessage(ChatColor.DARK_RED +"/blfullsave" + ChatColor.GOLD + " - Saves all the blocks");
-		if(player.isOp() || player.hasPermission("blocklog.autosave"))
-			player.sendMessage(ChatColor.DARK_RED +"/blautosave <blocks> <message>" + ChatColor.GOLD + " - Enables autosave feature");
-		if(player.isOp() || player.hasPermission("blocklog.rollback")) {
-			player.sendMessage(ChatColor.DARK_RED +"/blrollback [player] <time> <sec|min|hour|day|week>" + ChatColor.GOLD + " - Blocklog's rollback command");
-			player.sendMessage(ChatColor.DARK_RED +"/blrollbackradius [player] <time> <sec|min|hour|day|week>" + ChatColor.GOLD + " - Blocklog's radius rollback command");
-		}
-		if(player.isOp() || player.hasPermission("blocklog.clear"))
-			player.sendMessage(ChatColor.DARK_RED +"/blclear <amount> <day|week>" + ChatColor.GOLD + " - Clears blocklog's history");
-		if(player.isOp() || player.hasPermission("blocklog.undo"))
-			player.sendMessage(ChatColor.DARK_RED +"/blundo [rollback]" + ChatColor.GOLD + " - Undo's the latest or specified rollback");
-		if(player.isOp() || player.hasPermission("blocklog.config"))
-			player.sendMessage(ChatColor.DARK_RED +"/blconfig <get/set> <key> [value]" + ChatColor.GOLD + " - Change blocklog's command values ingame");
+		if(player.hasPermission("blocklog.convert"))
+			player.sendMessage(ChatColor.DARK_RED +"/blconvert" + ChatColor.GOLD + " - Converts your database (SQLite <-> MySQL)");
 		
+		if(player.hasPermission("blocklog.clear"))
+			player.sendMessage(ChatColor.DARK_RED +"/blclear" + ChatColor.GOLD + " - Clears blocklog's history");
+		
+		if(player.hasPermission("blocklog.config"))
+			player.sendMessage(ChatColor.DARK_RED +"/blconfig" + ChatColor.GOLD + " - Change blocklog's command values ingame");
+		
+		if(player.hasPermission("blocklog.report.write") && plugin.getConfig().getBoolean("blocklog.reports"))
+			player.sendMessage(ChatColor.DARK_RED +"/blreport" + ChatColor.GOLD + " - Create a grief report");
+		
+		if(player.hasPermission("blocklog.report.read") && plugin.getConfig().getBoolean("blocklog.reports"))
+			player.sendMessage(ChatColor.DARK_RED +"/blread" + ChatColor.GOLD + " - Read a grief report");
+		
+		if(player.hasPermission("blocklog.undo"))
+			player.sendMessage(ChatColor.DARK_RED +"/blundo" + ChatColor.GOLD + " - Undo's the latest or specified rollback");
+		
+		if(player.hasPermission("blocklog.rollback"))
+			player.sendMessage(ChatColor.DARK_RED +"/blrollbackradius" + ChatColor.GOLD + " - Blocklog's radius rollback command");
+			
+		if(player.hasPermission("blocklog.rollback"))
+			player.sendMessage(ChatColor.DARK_RED +"/blrollback" + ChatColor.GOLD + " - Blocklog's rollback command");
+		
+		if(player.hasPermission("blocklog.autosave"))
+			player.sendMessage(ChatColor.DARK_RED +"/blautosave" + ChatColor.GOLD + " - Enables autosave feature");
+		
+		if(player.hasPermission("blocklog.fullsave"))
+			player.sendMessage(ChatColor.DARK_RED +"/blfullsave" + ChatColor.GOLD + " - Saves all the blocks");
+		
+		if(player.hasPermission("blocklog.save"))
+			player.sendMessage(ChatColor.DARK_RED +"/blsave" + ChatColor.GOLD + " - Saves 100 or the specified amount of blocks");
+		
+		if(player.hasPermission("blocklog.reload"))
+			player.sendMessage(ChatColor.DARK_RED +"/blreload" + ChatColor.GOLD + " - Reloads blocklog config file");
+		
+		if(player.hasPermission("blocklog.wand"))
+			player.sendMessage(ChatColor.DARK_RED +"/blwand" + ChatColor.GOLD + " - Enables blocklog's wand");
+		
+		player.sendMessage(ChatColor.DARK_RED +"/blhelp" + ChatColor.GOLD + " - Shows this message");
+		player.sendMessage(ChatColor.DARK_RED +"/blocklog" + ChatColor.GOLD + " - Basic Information");
 		return true;
 	}
 }

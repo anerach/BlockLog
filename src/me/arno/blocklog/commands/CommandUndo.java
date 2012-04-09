@@ -30,8 +30,6 @@ public class CommandUndo implements CommandExecutor {
 		if(sender instanceof Player)
 			player = (Player) sender;
 		
-		
-		
 		if(!cmd.getName().equalsIgnoreCase("blundo"))
 			return false;
 		
@@ -59,9 +57,9 @@ public class CommandUndo implements CommandExecutor {
 				return false;
 			
 			Rollback rb = new Rollback(plugin, RollbackId);
-			if(rb.exists()) {
+			if(rb.exists())
 				rb.undo();
-			}
+			
 			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();

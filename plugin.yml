@@ -1,6 +1,6 @@
 name: BlockLog
 main: me.arno.blocklog.BlockLog
-version: 1.2.1
+version: 1.3.0
 author: Anerach
 description: >
             A simple and effective Anti-Grief plugin.
@@ -33,7 +33,7 @@ commands:
     blfullsave:
         description: Saves all the blocks
         usage: /<command>
-        permission: blocklog.fullsave
+        permission: blocklog.save
     blautosave:
         description: Saves the all the blocks when the internal storage reaches a preset amount of blocks
         usage: /<command> <blocks|info>
@@ -77,56 +77,52 @@ permissions:
     blocklog.admin:
         description: Gives access to all the blocklog commands
         children:
-            blocklog.convert: true
-            blocklog.help: true
-            blocklog.notices: true
+            blocklog.moderator: true
+            blocklog.reload: true
             blocklog.config: true
             blocklog.clear: true
-            blocklog.reload: true
-            blocklog.wand: true
-            blocklog.storage: true
-            blocklog.rollback: true
-            blocklog.undo: true
-            blocklog.save: true
-            blocklog.fullsave: true
+            blocklog.convert: true
             blocklog.autosave: true
     blocklog.moderator:
         description: Gives access to most of the blocklog commands
         children:
-            blocklog.help: true
-            blocklog.report.write: true
-            blocklog.report.read: true
-            blocklog.notices: true
+            blocklog.user: true
             blocklog.wand: true
-            blocklog.storage: true
+            blocklog.notices: true
+            blocklog.save: true
             blocklog.rollback: true
             blocklog.undo: true
-            blocklog.save: true
-            blocklog.fullsave: true
+            blocklog.storage: true
+            blocklog.report.read: true
+    blocklog.user:
+        description: Gives access to some blocklog commands
+        children:
+            blocklog.help: true
+            blocklog.report.write: true
     blocklog.help:
         description: Gives access to the help command
-    blocklog.notices:
-        description: Everyone with this command will receive messages from blocklog
-    blocklog.convert:
-        description: Gives access to the convert command
-    blocklog.config:
-        description: Gives access to the config command
-    blocklog.clear:
-        description: Gives access to the clear command
-    blocklog.reload:
-        description: Gives access to the reload command
     blocklog.wand:
         description: Gives access to the wand command
-    blocklog.storage:
-        description: Gives access to the storage command
-    blocklog.rollback:
-        description: Gives access to both the rollback commands
+    blocklog.notices:
+        description: Everyone with this command will receive messages from blocklog
     blocklog.save:
-        description: Gives access to the save command
-    blocklog.fullsave:
-        description: Gives access to the fullsave command
+        description: Gives access to the save commands
     blocklog.autosave:
         description: Gives access to the autosave command
+    blocklog.rollback:
+        description: Gives access to both the rollback commands
+    blocklog.undo:
+        description: Gives access to the undo command
+    blocklog.config:
+        description: Gives access to the config command
+    blocklog.reload:
+        description: Gives access to the reload command
+    blocklog.storage:
+        description: Gives access to the storage command
+    blocklog.clear:
+        description: Gives access to the clear command
+    blocklog.convert:
+        description: Gives access to the convert command
     blocklog.report.write:
         description: Gives the ability to report griefs
     blocklog.report.read:

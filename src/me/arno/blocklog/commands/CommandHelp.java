@@ -62,7 +62,7 @@ public class CommandHelp implements CommandExecutor {
 		if(player.hasPermission("blocklog.autosave"))
 			player.sendMessage(ChatColor.DARK_RED +"/blautosave" + ChatColor.GOLD + " - Enables autosave feature");
 		
-		if(player.hasPermission("blocklog.fullsave"))
+		if(player.hasPermission("blocklog.save"))
 			player.sendMessage(ChatColor.DARK_RED +"/blfullsave" + ChatColor.GOLD + " - Saves all the blocks");
 		
 		if(player.hasPermission("blocklog.save"))

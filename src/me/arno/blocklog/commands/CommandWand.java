@@ -38,34 +38,48 @@ public class CommandWand implements CommandExecutor {
 		
 		Material wand = Material.getMaterial(plugin.getConfig().getInt("blocklog.wand"));
 		
-		if(plugin.users.isEmpty()) {
-			playerItemStack.put(player.getName(), player.getItemInHand());
-			playerItemSlot.put(player.getName(), player.getInventory().getHeldItemSlot());
-			
-			player.setItemInHand(new ItemStack(wand, 1));
-			
-			plugin.users.add(player.getName());
-			player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Wand enabled!");
-		} else if(plugin.users.contains(player.getName())) {
-			if(player.getInventory().getHeldItemSlot() == playerItemSlot.get(player.getName())) {
-				player.setItemInHand(playerItemStack.get(player.getName()));
-			} else if(player.getItemInHand().getType() == wand && player.getInventory().getHeldItemSlot() != playerItemSlot.get(player.getName())) {
-				player.setItemInHand(new ItemStack(Material.AIR, 0));
-				player.getInventory().setItem(playerItemSlot.get(player.getName()), playerItemStack.get(player.getName()));
+		if(player.getInventory().contains(wand) && !playerItemStack.containsKey(player.getName())) {
+			if(plugin.users.isEmpty()) {
+				plugin.users.add(player.getName());
+				player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Wand enabled!");
+			} else if(plugin.users.contains(player.getName())) {
+				plugin.users.remove(player.getName());
+				player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Wand disabled!");
 			} else {
-				player.getInventory().setItem(playerItemSlot.get(player.getName()), playerItemStack.get(player.getName()));
+				plugin.users.add(player.getName());
+				player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Wand enabled!");
 			}
-			
-			plugin.users.remove(player.getName());
-			player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Wand disabled!");
 		} else {
-			playerItemStack.put(player.getName(), player.getItemInHand());
-			playerItemSlot.put(player.getName(), player.getInventory().getHeldItemSlot());
-			
-			player.setItemInHand(new ItemStack(wand, 1));
-			
-			plugin.users.add(player.getName());
-			player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Wand enabled!");
+			if(plugin.users.isEmpty()) {
+				playerItemStack.put(player.getName(), player.getItemInHand());
+				playerItemSlot.put(player.getName(), player.getInventory().getHeldItemSlot());
+				
+				player.setItemInHand(new ItemStack(wand, 1));
+				
+				plugin.users.add(player.getName());
+				player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Wand enabled!");
+			} else if(plugin.users.contains(player.getName())) {
+				ItemStack itemStack = playerItemStack.get(player.getName());
+				Material itemInHand = player.getItemInHand().getType();
+				int invSlot = playerItemSlot.get(player.getName());
+				int itemInHandSlot = player.getInventory().getHeldItemSlot();
+				
+				if(itemInHandSlot == invSlot || (itemInHand == wand && itemInHandSlot != invSlot))
+					player.setItemInHand(itemStack);
+				else
+					player.getInventory().setItem(invSlot, itemStack);
+				
+				plugin.users.remove(player.getName());
+				player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Wand disabled!");
+			} else {
+				playerItemStack.put(player.getName(), player.getItemInHand());
+				playerItemSlot.put(player.getName(), player.getInventory().getHeldItemSlot());
+				
+				player.setItemInHand(new ItemStack(wand, 1));
+				
+				plugin.users.add(player.getName());
+				player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Wand enabled!");
+			}
 		}
 		return true;
 	}

@@ -245,7 +245,7 @@ public class BlockLog extends JavaPlugin {
 			public void run() {
 				if((force == false && saving == true) && player != null) {
 					player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "We're already saving some of the blocks.");
-				} else if((force == false && saving == true) && player == null) {
+				} else if(force == false && saving == true && player == null) {
 					log.info("We're already saving some of the blocks.");
 				} else if(force == true || saving == false) {
 					saving = true;

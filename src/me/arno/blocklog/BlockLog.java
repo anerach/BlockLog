@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -24,6 +25,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.w3c.dom.Document;
@@ -39,6 +41,8 @@ public class BlockLog extends JavaPlugin {
 	public ArrayList<String> users = new ArrayList<String>();
 	public ArrayList<LoggedBlock> blocks = new ArrayList<LoggedBlock>();
 	public ArrayList<LoggedInteraction> interactions = new ArrayList<LoggedInteraction>();
+	
+	public HashMap<String, Plugin> softDepends = new HashMap<String, Plugin>();
 	
 	public String newVersion;
 	public String currentVersion;
@@ -161,19 +165,34 @@ public class BlockLog extends JavaPlugin {
         return currentVersion;
     }
 	
+	private void loadDependencies() {
+		ArrayList<String> plugins = new ArrayList<String>();
+    	plugins.add("GriefPrevention");
+    	
+    	for(String plugin : plugins) {
+    		if(getServer().getPluginManager().isPluginEnabled(plugin)) {
+    			softDepends.put("GriefPrevention", getServer().getPluginManager().getPlugin("GriefPrevention"));
+    		}
+    	}
+	}
+	
 	public boolean reloadPlugin() {
 		if(saving)
 			return false;
 		try {
-			conn.close();
 			getServer().getScheduler().cancelTasks(this);
-
+			conn.close();
+			softDepends.clear();
+			
 			log.info("Reloading the configurations");
 		    loadConfiguration();
 		    
 			log.info("Reloading the database");
 		    loadDatabase();
-			
+		    
+		    log.info("Reloading the dependencies");
+		    loadDependencies();
+		    
 			return true;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -190,6 +209,9 @@ public class BlockLog extends JavaPlugin {
 	    
 		log.info("Loading the database");
 	    loadDatabase();
+	    
+	    log.info("Loading the dependencies");
+	    loadDependencies();
 	    
 	    log.info("Checking for updates");
 		newVersion = loadLatestVersion(currentVersion);

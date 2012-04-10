@@ -38,28 +38,36 @@ public class CommandConvert implements CommandExecutor {
 			SQLiteStmt.executeUpdate(plugin.getResourceContent("SQLite/blocklog_blocks.sql"));
 			SQLiteStmt.executeUpdate(plugin.getResourceContent("SQLite/blocklog_interactions.sql"));
 			SQLiteStmt.executeUpdate(plugin.getResourceContent("SQLite/blocklog_rollbacks.sql"));
+			SQLiteStmt.executeUpdate(plugin.getResourceContent("SQLite/blocklog_reports.sql"));
 			
-			ResultSet BlocksRS = SQLiteStmt.executeQuery("SELECT * FROM blocklog_blocks");
+			ResultSet BlocksRS = MySQLStmt.executeQuery("SELECT * FROM blocklog_blocks");
 			
 			while(BlocksRS.next()) {
-				MySQLStmt.executeUpdate(String.format("INSERT INTO blocklog_blocks (player,world,block_id,datavalue,type,rollback_id,x,y,z,date) VALUES ('%s', '%s', %s, %s, %s, %s, %s, %s, %s, %s)", BlocksRS.getString("player"), BlocksRS.getString("world"), BlocksRS.getInt("block_id"), BlocksRS.getInt("datavalue"), BlocksRS.getInt("type"), BlocksRS.getInt("rollback_id"), BlocksRS.getInt("x"), BlocksRS.getInt("y"), BlocksRS.getInt("z"), BlocksRS.getInt("date")));
+				SQLiteStmt.executeUpdate(String.format("INSERT INTO blocklog_blocks (player,world,block_id,datavalue,type,rollback_id,x,y,z,date) VALUES ('%s', '%s', %s, %s, %s, %s, %s, %s, %s, %s)", BlocksRS.getString("player"), BlocksRS.getString("world"), BlocksRS.getInt("block_id"), BlocksRS.getInt("datavalue"), BlocksRS.getInt("type"), BlocksRS.getInt("rollback_id"), BlocksRS.getInt("x"), BlocksRS.getInt("y"), BlocksRS.getInt("z"), BlocksRS.getInt("date")));
 			}
 			
-			ResultSet InteractionsRS = SQLiteStmt.executeQuery("SELECT * FROM blocklog_interactions");
+			ResultSet InteractionsRS = MySQLStmt.executeQuery("SELECT * FROM blocklog_interactions");
 			
 			while(InteractionsRS.next()) {
-				MySQLStmt.executeUpdate(String.format("INSERT INTO blocklog_interactions (player, world, date, x, y, z, type) VALUES ('%s', '%s', %s, %s, %s, %s, %s)", InteractionsRS.getString("player"), InteractionsRS.getString("world"), InteractionsRS.getInt("date"), InteractionsRS.getInt("x"), InteractionsRS.getInt("y"), InteractionsRS.getInt("z"), InteractionsRS.getInt("type")));
+				SQLiteStmt.executeUpdate(String.format("INSERT INTO blocklog_interactions (player, world, date, x, y, z, type) VALUES ('%s', '%s', %s, %s, %s, %s, %s)", InteractionsRS.getString("player"), InteractionsRS.getString("world"), InteractionsRS.getInt("date"), InteractionsRS.getInt("x"), InteractionsRS.getInt("y"), InteractionsRS.getInt("z"), InteractionsRS.getInt("type")));
 			}
 
-			ResultSet RollbacksRS = SQLiteStmt.executeQuery("SELECT * FROM blocklog_rollbacks");
+			ResultSet RollbacksRS = MySQLStmt.executeQuery("SELECT * FROM blocklog_rollbacks");
 			
 			while(RollbacksRS.next()) {
-				MySQLStmt.executeUpdate(String.format("INSERT INTO blocklog_rollbacks (player,world,date,type) VALUES ('%s', '%s', %s, %s)", RollbacksRS.getString("player"), RollbacksRS.getString("world"), RollbacksRS.getInt("date"), RollbacksRS.getInt("type")));
+				SQLiteStmt.executeUpdate(String.format("INSERT INTO blocklog_rollbacks (player,world,date,type) VALUES ('%s', '%s', %s, %s)", RollbacksRS.getString("player"), RollbacksRS.getString("world"), RollbacksRS.getInt("date"), RollbacksRS.getInt("type")));
+			}
+			
+			ResultSet ReportsRS = MySQLStmt.executeQuery("SELECT * FROM blocklog_reports;");
+			
+			while(ReportsRS.next()) {
+				SQLiteStmt.executeUpdate(String.format("INSERT INTO blocklog_reports (player,message,seen) VALUES ('%s', '%s', %s)", ReportsRS.getString("player"), ReportsRS.getString("message"), ReportsRS.getInt("seen")));
 			}
 			
 			MySQLStmt.executeUpdate("TRUNCATE blocklog_blocks");
 			MySQLStmt.executeUpdate("TRUNCATE blocklog_interactions");
 			MySQLStmt.executeUpdate("TRUNCATE blocklog_rollbacks");
+			MySQLStmt.executeUpdate("TRUNCATE blocklog_reports");
 			
 			SQLiteConn.close();
 			return true;
@@ -83,6 +91,7 @@ public class CommandConvert implements CommandExecutor {
 			MySQLStmt.executeUpdate(plugin.getResourceContent("MySQL/blocklog_blocks.sql"));
 			MySQLStmt.executeUpdate(plugin.getResourceContent("MySQL/blocklog_interactions.sql"));
 			MySQLStmt.executeUpdate(plugin.getResourceContent("MySQL/blocklog_rollbacks.sql"));
+			MySQLStmt.executeUpdate(plugin.getResourceContent("MySQL/blocklog_reports.sql"));
 			
 			ResultSet BlocksRS = SQLiteStmt.executeQuery("SELECT * FROM blocklog_blocks;");
 			
@@ -102,13 +111,21 @@ public class CommandConvert implements CommandExecutor {
 				MySQLStmt.executeUpdate(String.format("INSERT INTO blocklog_rollbacks (player,world,date,type) VALUES ('%s', '%s', %s, %s)", RollbacksRS.getString("player"), RollbacksRS.getString("world"), RollbacksRS.getInt("date"), RollbacksRS.getInt("type")));
 			}
 			
+			ResultSet ReportsRS = SQLiteStmt.executeQuery("SELECT * FROM blocklog_reports;");
+			
+			while(ReportsRS.next()) {
+				MySQLStmt.executeUpdate(String.format("INSERT INTO blocklog_reports (player,message,seen) VALUES ('%s', '%s', %s)", ReportsRS.getString("player"), ReportsRS.getString("message"), ReportsRS.getInt("seen")));
+			}
+			
 			SQLiteStmt.executeUpdate("DROP TABLE IF EXISTS blocklog_blocks");
 			SQLiteStmt.executeUpdate("DROP TABLE IF EXISTS blocklog_interactions");
 			SQLiteStmt.executeUpdate("DROP TABLE IF EXISTS blocklog_rollbacks");
+			SQLiteStmt.executeUpdate("DROP TABLE IF EXISTS blocklog_reports");
 			
 			SQLiteStmt.executeUpdate(plugin.getResourceContent("SQLite/blocklog_blocks.sql"));
 			SQLiteStmt.executeUpdate(plugin.getResourceContent("SQLite/blocklog_interactions.sql"));
 			SQLiteStmt.executeUpdate(plugin.getResourceContent("SQLite/blocklog_rollbacks.sql"));
+			SQLiteStmt.executeUpdate(plugin.getResourceContent("SQLite/blocklog_reports.sql"));
 			
 			MySQLConn.close();
 			return true;

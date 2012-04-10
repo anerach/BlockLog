@@ -11,6 +11,8 @@ import me.arno.blocklog.log.EnvironmentBlock;
 import me.arno.blocklog.log.GrownBlock;
 import me.arno.blocklog.log.InteractedBlock;
 import me.arno.blocklog.log.PlacedBlock;
+import me.ryanhamshire.GriefPrevention.Claim;
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -74,12 +76,24 @@ public class LogListener implements Listener {
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockPlace(BlockPlaceEvent event) {
-		int BLWand = cfg.getConfig().getInt("blocklog.wand");
-		boolean WandEnabled = plugin.users.contains(event.getPlayer().getName());
+		BlockState placedblock = event.getBlock().getState();
+		Player player = event.getPlayer();
+		
+		if(plugin.softDepends.containsKey("GriefPrevention")) {
+			plugin.softDepends.get("GriefPrevention");
+			GriefPrevention gp = (GriefPrevention) plugin.softDepends.get("GriefPrevention");
+			Claim claim = gp.dataStore.getClaimAt(placedblock.getLocation(), false, null);
+			
+			if(claim != null)
+				event.setCancelled(claim.allowBuild(player) != null);
+		}
 		
 		if(!event.isCancelled()) {
+			int BLWand = cfg.getConfig().getInt("blocklog.wand");
+			boolean WandEnabled = plugin.users.contains(event.getPlayer().getName());
+			
 			if(event.getPlayer().getItemInHand().getTypeId() != BLWand || !WandEnabled) {
-				PlacedBlock block = new PlacedBlock(plugin, event.getPlayer(), event.getBlockPlaced().getState());
+				PlacedBlock block = new PlacedBlock(plugin, player, placedblock);
 				block.push();
 				BlocksLimitReached();
 			}
@@ -88,8 +102,20 @@ public class LogListener implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockBreak(BlockBreakEvent event) {
+		BlockState brokenblock = event.getBlock().getState();
+		Player player = event.getPlayer();
+		
+		if(plugin.softDepends.containsKey("GriefPrevention")) {
+			plugin.softDepends.get("GriefPrevention");
+			GriefPrevention gp = (GriefPrevention) plugin.softDepends.get("GriefPrevention");
+			Claim claim = gp.dataStore.getClaimAt(brokenblock.getLocation(), false, null);
+			
+			if(claim != null)
+				event.setCancelled(claim.allowBreak(player, brokenblock.getType()) != null);
+		}
+		
 		if(!event.isCancelled()) {
-			BrokenBlock block = new BrokenBlock(plugin, event.getPlayer(), event.getBlock().getState());
+			BrokenBlock block = new BrokenBlock(plugin, player, brokenblock);
 			block.push();
 			BlocksLimitReached();
 		}
@@ -97,16 +123,25 @@ public class LogListener implements Listener {
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerBucketEmpty(PlayerBucketEmptyEvent event) {
+		Block placedBlock = event.getBlockClicked().getRelative(event.getBlockFace());
+		Player player = event.getPlayer();
+		
+		if(plugin.softDepends.containsKey("GriefPrevention")) {
+			plugin.softDepends.get("GriefPrevention");
+			GriefPrevention gp = (GriefPrevention) plugin.softDepends.get("GriefPrevention");
+			Claim claim = gp.dataStore.getClaimAt(placedBlock.getLocation(), false, null);
+			
+			if(claim != null)
+				event.setCancelled(claim.allowBuild(player) != null);
+		}
 		
 		if(!event.isCancelled()) {
-			Block placedBlock = event.getBlockClicked().getRelative(event.getBlockFace());
-
 			if(event.getBucket() == Material.WATER_BUCKET)
 				placedBlock.setType(Material.WATER);
 			else if(event.getBucket() == Material.LAVA_BUCKET)
 				placedBlock.setType(Material.LAVA);
 			
-			PlacedBlock block = new PlacedBlock(plugin, event.getPlayer(), placedBlock.getState());
+			PlacedBlock block = new PlacedBlock(plugin, player, placedBlock.getState());
 			block.push();
 			BlocksLimitReached();
 		}

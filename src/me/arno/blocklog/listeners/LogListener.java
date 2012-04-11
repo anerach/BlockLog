@@ -6,11 +6,11 @@ import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.Config;
 import me.arno.blocklog.Interaction;
 import me.arno.blocklog.Log;
-import me.arno.blocklog.log.BrokenBlock;
-import me.arno.blocklog.log.EnvironmentBlock;
-import me.arno.blocklog.log.GrownBlock;
-import me.arno.blocklog.log.InteractedBlock;
-import me.arno.blocklog.log.PlacedBlock;
+import me.arno.blocklog.logs.BrokenBlock;
+import me.arno.blocklog.logs.EnvironmentBlock;
+import me.arno.blocklog.logs.GrownBlock;
+import me.arno.blocklog.logs.InteractedBlock;
+import me.arno.blocklog.logs.PlacedBlock;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 

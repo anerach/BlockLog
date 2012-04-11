@@ -1,27 +1,33 @@
 package me.arno.blocklog.commands;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import me.arno.blocklog.BlockLog;
-import me.arno.blocklog.Rollback;
+import me.arno.blocklog.schedules.Rollback;
 
 public class CommandRadiusRollback implements CommandExecutor {
 	BlockLog plugin;
 	Logger log;
+	Connection conn;
 	
 	public CommandRadiusRollback(BlockLog plugin) {
 		this.plugin = plugin;
 		this.log = plugin.log;
+		this.conn = plugin.conn;
 	}
 	
 	@Override
@@ -43,7 +49,7 @@ public class CommandRadiusRollback implements CommandExecutor {
 			return false;
 		
 		try {
-			String strPlayer = null;
+			String target = null;
 			int radius = 0;
 			int timeInt = 0;
 			String timeVal = null;
@@ -53,7 +59,7 @@ public class CommandRadiusRollback implements CommandExecutor {
 				timeInt = Integer.valueOf(args[1]);
 				timeVal = args[2];
 			} else if(args.length == 4) {
-				strPlayer = args[0];
+				target = args[0];
 				radius = Integer.valueOf(args[1]);
 				timeInt = Integer.valueOf(args[2]);
 				timeVal = args[3];
@@ -82,11 +88,32 @@ public class CommandRadiusRollback implements CommandExecutor {
 				return false;
 			}
 			
-			Rollback rb = new Rollback(plugin, player, 1);
-			if(strPlayer != null)
-				rb.doRollback(player.getServer().getPlayer(strPlayer), time, radius);
+			Statement rollbackStmt = conn.createStatement();
+			Statement blocksStmt = conn.createStatement();
+			
+			rollbackStmt.executeUpdate("INSERT INTO blocklog_rollbacks (player, world, date, type) VALUES ('" + player.getName() + "', '" + player.getWorld().getName() + "', " + System.currentTimeMillis()/1000 + ", 1)");
+			
+			ResultSet rs = rollbackStmt.executeQuery("SELECT id FROM blocklog_rollbacks ORDER BY id DESC");
+			rs.next();
+			
+			Integer rollbackID = rs.getInt("id");
+			
+			Integer xMin = player.getLocation().getBlockX() - radius;
+			Integer xMax = player.getLocation().getBlockX() + radius;
+			Integer yMin = player.getLocation().getBlockY() - radius;
+			Integer yMax = player.getLocation().getBlockY() + radius;
+			Integer zMin = player.getLocation().getBlockZ() - radius;
+			Integer zMax = player.getLocation().getBlockZ() + radius;
+			
+			World world = player.getWorld();
+			ResultSet blocks;
+			
+			if(target == null)
+				blocks = blocksStmt.executeQuery(String.format("SELECT * FROM blocklog_blocks WHERE date > %s AND rollback_id = 0 AND world = '%s' AND x >= %s AND x <= %s AND y >= %s AND y <= %s AND z >= %s AND z <= %s GROUP BY x, y, z ORDER BY date DESC", time, world.getName(), xMin,xMax,yMin,yMax,zMin,zMax));
 			else
-				rb.doRollback(time, radius);
+				blocks = blocksStmt.executeQuery(String.format("SELECT * FROM blocklog_blocks WHERE date > %s AND rollback_id = 0 AND world = '%s' AND x >= %s AND x <= %s AND y >= %s AND y <= %s AND z >= %s AND z <= %s AND player = '%s' GROUP BY x, y, z ORDER BY date DESC", time, world.getName(), xMin,xMax,yMin,yMax,zMin,zMax, player.getName()));
+			
+			plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Rollback(plugin, player, target, rollbackID, blocks));
 			
 			return true;
 		} catch(NumberFormatException e) {

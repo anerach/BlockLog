@@ -1,27 +1,33 @@
 package me.arno.blocklog.commands;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import me.arno.blocklog.BlockLog;
-import me.arno.blocklog.Rollback;
+import me.arno.blocklog.schedules.Rollback;
 
 public class CommandRollback implements CommandExecutor {
 	BlockLog plugin;
 	Logger log;
+	Connection conn;
 	
 	public CommandRollback(BlockLog plugin) {
 		this.plugin = plugin;
 		this.log = plugin.log;
+		this.conn = plugin.conn;
 	}
 	
 	@Override
@@ -43,22 +49,22 @@ public class CommandRollback implements CommandExecutor {
 			return false;
 		
 		try {
-			int time;
-			
 			Set<String> Second = new HashSet<String>(Arrays.asList("s", "sec","secs","second","seconds"));
 			Set<String> Minute = new HashSet<String>(Arrays.asList("m", "min","mins","minute","minutes"));
 			Set<String> Hour = new HashSet<String>(Arrays.asList("h", "hour","hours"));
 			Set<String> Day = new HashSet<String>(Arrays.asList("d", "day","days"));
 			Set<String> Week = new HashSet<String>(Arrays.asList("w", "week","weeks"));
 	
-			String strPlayer = null;
-			Integer timeInt = 0;
+			String target = null;
 			String timeVal = null;
+			Integer timeInt = 0;
+			Integer time;
+			
 			if(args.length == 2) {
 				timeInt = Integer.valueOf(args[0]);
 				timeVal = args[1].toLowerCase();
 			} else if(args.length == 3) {
-				strPlayer = args[0];
+				target = args[0];
 				timeInt = Integer.valueOf(args[1]);
 				timeVal = args[2].toLowerCase();
 			}
@@ -77,12 +83,27 @@ public class CommandRollback implements CommandExecutor {
 				player.sendMessage(ChatColor.DARK_GREEN + "Invalid time");
 				return false;
 			}
-		
-			Rollback rb = new Rollback(plugin, player, 0);
-			if(args.length == 3)
-				rb.doRollback(plugin.getServer().getPlayer(strPlayer), time);
+			
+			Statement rollbackStmt = conn.createStatement();
+			Statement blocksStmt = conn.createStatement();
+			
+			rollbackStmt.executeUpdate("INSERT INTO blocklog_rollbacks (player, world, date, type) VALUES ('" + player.getName() + "', '" + player.getWorld().getName() + "', " + System.currentTimeMillis()/1000 + ", 0)");
+			
+			ResultSet rollback = rollbackStmt.executeQuery("SELECT id FROM blocklog_rollbacks ORDER BY id DESC");
+			rollback.next();
+			
+			Integer rollbackID = rollback.getInt("id");
+			
+			World world = player.getWorld();
+			
+			ResultSet blocks;
+			if(target == null)
+				blocks = blocksStmt.executeQuery(String.format("SELECT * FROM blocklog_blocks WHERE date > '%s' AND rollback_id = 0 AND world = '%s' ORDER BY date DESC", time, world.getName()));
 			else
-				rb.doRollback(time);
+				blocks = blocksStmt.executeQuery(String.format("SELECT * FROM blocklog_blocks WHERE date > '%s' AND rollback_id = 0 AND world = '%s' AND player = '%s' ORDER BY date DESC", time, world.getName(), target));
+			
+			
+			plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Rollback(plugin, player, target, rollbackID, blocks));
 			
 			return true;
 		} catch(NumberFormatException e) {

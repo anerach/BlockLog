@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS `blocklog_blocks` (
 	`block_id` int(11) NOT NULL,
 	`datavalue` int(11) NOT NULL,
 	`type` tinyint(1) NOT NULL,
-	`rollback_id` tinyint(1) NOT NULL DEFAULT '0',
+	`rollback_id` int(11) NOT NULL DEFAULT '0',
 	`x` int(11) NOT NULL,
 	`y` int(11) NOT NULL,
 	`z` int(11) NOT NULL,

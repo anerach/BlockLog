@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import me.arno.blocklog.BlockLog;
-import me.arno.blocklog.Rollback;
+import me.arno.blocklog.schedules.UndoRollback;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -41,24 +41,26 @@ public class CommandUndo implements CommandExecutor {
 		if(args.length > 1)
 			return false;
 		
-		int RollbackId = 0;
+		int rollbackID = 0;
 		
 		try {
+			Statement rollbackStmt = conn.createStatement();
+			Statement blocksStmt = conn.createStatement();
+			
 			if(args.length == 1) {
-				RollbackId = Integer.parseInt(args[0]);
+				rollbackID = Integer.parseInt(args[0]);
 			} else {
-				Statement stmt = conn.createStatement();
-				ResultSet rs = stmt.executeQuery("SELECT id FROM blocklog_rollbacks ORDER BY id DESC");
+				ResultSet rs = rollbackStmt.executeQuery("SELECT id FROM blocklog_rollbacks ORDER BY id DESC");
 				rs.next();
-				RollbackId = rs.getInt("id");
+				rollbackID = rs.getInt("id");
 			}
 			
-			if(RollbackId == 0)
+			if(rollbackID == 0)
 				return false;
 			
-			Rollback rb = new Rollback(plugin, RollbackId);
-			if(rb.exists())
-				rb.undo();
+			ResultSet blocks = blocksStmt.executeQuery(String.format("SELECT * FROM blocklog_blocks WHERE rollback_id = '%s'", rollbackID));
+			
+			plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new UndoRollback(plugin, player, rollbackID, blocks));
 			
 			return true;
 		} catch (SQLException e) {

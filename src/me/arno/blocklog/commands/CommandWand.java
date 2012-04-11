@@ -49,6 +49,9 @@ public class CommandWand implements CommandExecutor {
 				plugin.users.add(player.getName());
 				player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Wand enabled!");
 			}
+		} else if(!player.getInventory().contains(wand) && plugin.users.contains(player.getName())) {
+			plugin.users.remove(player.getName());
+			player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Wand disabled!");
 		} else {
 			if(plugin.users.isEmpty()) {
 				playerItemStack.put(player.getName(), player.getItemInHand());

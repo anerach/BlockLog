@@ -17,8 +17,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import me.arno.blocklog.commands.*;
 import me.arno.blocklog.database.*;
 import me.arno.blocklog.listeners.*;
-import me.arno.blocklog.log.LoggedBlock;
-import me.arno.blocklog.log.LoggedInteraction;
+import me.arno.blocklog.logs.LoggedBlock;
+import me.arno.blocklog.logs.LoggedInteraction;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -127,19 +127,18 @@ public class BlockLog extends JavaPlugin {
 			e.printStackTrace();
 		}
 		
-		try { // Update database
+		try {
+	    	conn = DatabaseSettings.getConnection();
+	    	stmt = conn.createStatement();
 			if(DBType.equalsIgnoreCase("mysql")) {
-		    	conn = DatabaseSettings.getConnection();
-		    	stmt = conn.createStatement();
+		    	stmt.executeUpdate("ALTER TABLE `blocklog_blocks` CHANGE `rollback_id` `rollback_id` INT( 11 ) NOT NULL DEFAULT '0'");
 		    	stmt.executeUpdate("ALTER TABLE `blocklog_blocks` ADD `datavalue` INT(11) NOT NULL AFTER `block_id`");
 			} else if(DBType.equalsIgnoreCase("sqlite")) {
-			    conn = DatabaseSettings.getConnection();
-			    stmt = conn.createStatement();
 			    stmt.executeUpdate("ALTER TABLE 'blocklog_blocks' ADD COLUMN 'datavalue' INTEGER NOT NULL DEFAULT '0'");
 		    }
 			
 		} catch (SQLException e) {
-			//Prints error if table already exists
+			// Nothing
 		}
 	}
 	
@@ -244,6 +243,7 @@ public class BlockLog extends JavaPlugin {
     	getCommand("blconvert").setExecutor(new CommandConvert(this));
     	getCommand("blreport").setExecutor(new CommandReport(this));
     	getCommand("blread").setExecutor(new CommandRead(this));
+    	getCommand("blsearch").setExecutor(new CommandSearch(this));
     	
     	getServer().getPluginManager().registerEvents(new LogListener(this), this);
     	getServer().getPluginManager().registerEvents(new WandListener(this), this);

@@ -104,22 +104,19 @@ public class BlockLog extends JavaPlugin {
 	
 	private void loadDatabase() {
 		String DBType = cfg.getConfig().getString("database.type");
-		Statement stmt;
 		try {
+	    	conn = DatabaseSettings.getConnection();
+	    	Statement stmt = conn.createStatement();
 			if(DBType.equalsIgnoreCase("mysql")) {
-		    	conn = DatabaseSettings.getConnection();
-		    	stmt = conn.createStatement();
-				
-				stmt.executeUpdate(getResourceContent("MySQL/blocklog_blocks.sql"));
+		    	stmt.executeUpdate(getResourceContent("MySQL/blocklog_blocks.sql"));
 				stmt.executeUpdate(getResourceContent("MySQL/blocklog_rollbacks.sql"));
+				stmt.executeUpdate(getResourceContent("MySQL/blocklog_undos.sql"));
 				stmt.executeUpdate(getResourceContent("MySQL/blocklog_interactions.sql"));
 				stmt.executeUpdate(getResourceContent("MySQL/blocklog_reports.sql"));
 			} else if(DBType.equalsIgnoreCase("sqlite")) {
-			    conn = DatabaseSettings.getConnection();
-			    stmt = conn.createStatement();
-				
-				stmt.executeUpdate(getResourceContent("SQLite/blocklog_blocks.sql"));
+			    stmt.executeUpdate(getResourceContent("SQLite/blocklog_blocks.sql"));
 				stmt.executeUpdate(getResourceContent("SQLite/blocklog_rollbacks.sql"));
+				stmt.executeUpdate(getResourceContent("SQLite/blocklog_undos.sql"));
 				stmt.executeUpdate(getResourceContent("SQLite/blocklog_interactions.sql"));
 				stmt.executeUpdate(getResourceContent("SQLite/blocklog_reports.sql"));
 		    }
@@ -184,25 +181,20 @@ public class BlockLog extends JavaPlugin {
 	public boolean reloadPlugin() {
 		if(saving)
 			return false;
-		try {
-			getServer().getScheduler().cancelTasks(this);
-			conn.close();
-			softDepends.clear();
+		
 			
-			log.info("Reloading the configurations");
-		    loadConfiguration();
+		getServer().getScheduler().cancelTasks(this);
+		softDepends.clear();
+		
+		log.info("Reloading the configurations");
+		loadConfiguration();
 		    
-			log.info("Reloading the database");
-		    loadDatabase();
-		    
-		    log.info("Reloading the dependencies");
-		    loadDependencies();
-		    
-			return true;
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return false;
+		log.info("Reloading the database");
+		loadDatabase();
+		   
+		log.info("Reloading the dependencies");
+		loadDependencies();
+		return true;
 	}
 	
 	private void loadPlugin() {
@@ -257,6 +249,7 @@ public class BlockLog extends JavaPlugin {
     	getCommand("blreport").setExecutor(new CommandReport(this));
     	getCommand("blread").setExecutor(new CommandRead(this));
     	getCommand("blsearch").setExecutor(new CommandSearch(this));
+    	getCommand("blrollbacklist").setExecutor(new CommandRollbackList(this));
     	
     	getServer().getPluginManager().registerEvents(new LogListener(this), this);
     	getServer().getPluginManager().registerEvents(new WandListener(this), this);

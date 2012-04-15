@@ -44,6 +44,7 @@ public class CommandUndo implements CommandExecutor {
 		int rollbackID = 0;
 		
 		try {
+			Statement undoStmt = conn.createStatement();
 			Statement rollbackStmt = conn.createStatement();
 			Statement blocksStmt = conn.createStatement();
 			
@@ -57,6 +58,8 @@ public class CommandUndo implements CommandExecutor {
 			
 			if(rollbackID == 0)
 				return false;
+			
+			undoStmt.executeUpdate("INSERT INTO blocklog_undos (rollback_id, player, date) VALUES (" + rollbackID + ", '" + player.getName() + "', " + System.currentTimeMillis()/1000 + ")");
 			
 			ResultSet blocks = blocksStmt.executeQuery(String.format("SELECT * FROM blocklog_blocks WHERE rollback_id = '%s'", rollbackID));
 			

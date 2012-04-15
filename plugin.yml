@@ -1,7 +1,8 @@
 name: BlockLog
 main: me.arno.blocklog.BlockLog
-version: 1.3.1
+version: 1.4.1
 author: Anerach
+dev-url: http://dev.bukkit.org/server-mods/block-log
 description: >
             A simple and effective Anti-Grief plugin.
 softdepend: [GriefPrevention]

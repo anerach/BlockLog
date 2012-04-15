@@ -7,17 +7,14 @@ import java.sql.Statement;
 
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.Log;
-import me.arno.blocklog.logs.LoggedBlock;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.material.MaterialData;
 
 public class UndoRollback implements Runnable {
-	final private BlockLog plugin;
 	final private Connection conn;
 	
 	final private Player player;
@@ -25,7 +22,6 @@ public class UndoRollback implements Runnable {
 	final private ResultSet blocks;
 	
 	public UndoRollback(BlockLog plugin, Player player, Integer rollbackID, ResultSet blocks) {
-		this.plugin = plugin;
 		this.conn = plugin.conn;
 		
 		this.player = player;
@@ -41,16 +37,13 @@ public class UndoRollback implements Runnable {
 			World world = player.getWorld();
 			
 			while(blocks.next()) {
-				Player logAuthor = plugin.getServer().getPlayer(blocks.getString("player"));
-				Location loc = new Location(world, blocks.getDouble("x"), blocks.getDouble("y"), blocks.getDouble("z"));
+				Location location = new Location(world, blocks.getDouble("x"), blocks.getDouble("y"), blocks.getDouble("z"));
+				Log type = Log.values()[blocks.getInt("type")];
 				
-				LoggedBlock LBlock = new LoggedBlock(plugin, logAuthor, new MaterialData(blocks.getInt("block_id"), blocks.getByte("datavalue")), loc, blocks.getInt("type"));
-				Material m = Material.getMaterial(LBlock.getBlockId());
-				
-				if(LBlock.getType() == Log.BREAK || LBlock.getType() == Log.FIRE || LBlock.getType() == Log.EXPLOSION || LBlock.getType() == Log.LEAVES)
-					world.getBlockAt(LBlock.getLocation()).setType(Material.AIR);
+				if(type == Log.BREAK || type == Log.FIRE || type == Log.EXPLOSION || type == Log.LEAVES)
+					world.getBlockAt(location).setType(Material.AIR);
 				else
-					world.getBlockAt(LBlock.getLocation()).setTypeIdAndData(m.getId(), LBlock.getDataValue(), false);
+					world.getBlockAt(location).setTypeIdAndData(blocks.getInt("block_id"), blocks.getByte("datavalue"), false);
 				
 				BlockCount++;
 			}

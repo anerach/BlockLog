@@ -10,98 +10,35 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
-import org.bukkit.material.MaterialData;
 
 
 public class LoggedBlock {
 	private BlockLog plugin;
 	private Log logType;
 	
-	private Integer block_id;
-	private Byte datavalue;
-	
 	private Player player;
 	private BlockState block;
-	private Location location;
-	private World world;
 	
 	private long date;
 	
 	private Integer rollback = 0;
 	
-	public LoggedBlock(BlockLog plugin, Player player, MaterialData block, Location location, int type) {
+	public LoggedBlock(BlockLog plugin, BlockState block, Log type) {
+		this(plugin, null, block, type);
+	}
+	
+	public LoggedBlock(BlockLog plugin, Player player, BlockState block, Log type) {
 		this.plugin = plugin;
 		this.player = player;
-		this.location = location;
-		this.world = location.getWorld();
-		this.block_id = block.getItemTypeId();
-		this.datavalue = block.getData(); // Material Data
-		this.date = System.currentTimeMillis()/1000;
-		this.logType = Log.values()[type];
-	}
-	
-	public LoggedBlock(EnvironmentBlock block) {
-		this.plugin = block.plugin;
-		this.block = block.getBlock();
-		this.block_id = block.getBlock().getTypeId();
-		this.datavalue = block.getData().getData();
-		this.location = block.getLocation();
-		this.world = block.getWorld();
-		this.date = block.getDate();
-		this.logType = block.getType();
-	}
-	
-	public LoggedBlock(BrokenBlock block) {
-		this.plugin = block.plugin;
-		this.player = block.getPlayer();
-		this.block = block.getBlock();
-		this.block_id = block.getId();
-		this.datavalue = block.getData().getData();
-		this.location = block.getLocation();
-		this.world = block.getWorld();
-		this.date = block.getDate();
-		this.logType = Log.BREAK;
-	}
-	
-	public LoggedBlock(PlacedBlock block) {
-		this.plugin = block.plugin;
-		this.player = block.getPlayer();
-		this.block = block.getBlock();
-		this.block_id = block.getId();
-		this.datavalue = block.getData().getData();
-		this.location = block.getLocation();
-		this.world = block.getWorld();
-		this.date = block.getDate();
-		this.logType = Log.PLACE;
-	}
-	
-	public LoggedBlock(GrownBlock block) {
-		this.plugin = block.plugin;
-		this.player = block.getPlayer();
-		this.block = block.getBlock();
-		this.block_id = block.getId();
-		this.datavalue = block.getData().getData();
-		this.location = block.getLocation();
-		this.world = block.getWorld();
-		this.date = block.getDate();
-		this.logType = Log.GROW;
-	}
-
-	public LoggedBlock(PortalBlock block) {
-		this.plugin = block.plugin;
-		this.player = block.getPlayer();
-		this.block = block.getBlock();
-		this.block_id = block.getId();
-		this.datavalue = block.getData().getData();
-		this.location = block.getLocation();
-		this.world = block.getWorld();
-		this.date = block.getDate();
-		this.logType = Log.PORTAL;
+		this.block = block;
+		this.logType = type;
+		this.date = (System.currentTimeMillis()/1000);
 	}
 
 	public void save() {
 		try {
 			Statement stmt = plugin.conn.createStatement();
+			block.getData();
 			stmt.executeUpdate("INSERT INTO blocklog_blocks (player, block_id, datavalue, world, date, x, y, z, type, rollback_id) VALUES ('" + getPlayerName() + "', " + getBlockId() + ", " + getDataValue() + ", '" + getWorld().getName() + "', " + getDate() + ", " + getX() + ", " + getY() + ", " + getZ() + ", " + getTypeId() + ", " + getRollback() + ")");
     	} catch (SQLException e) {
     		e.printStackTrace();
@@ -109,11 +46,11 @@ public class LoggedBlock {
 	}
 	
 	public int getBlockId() {
-		return block_id;
+		return block.getTypeId();
 	}
 	
 	public byte getDataValue() {
-		return datavalue;
+		return block.getData().getData();
 	}
 	
 	public BlockState getBlock() {
@@ -121,11 +58,11 @@ public class LoggedBlock {
 	}
 	
 	public World getWorld() {
-		return world;
+		return block.getWorld();
 	}
 	
 	public Location getLocation() {
-		return location;
+		return block.getLocation();
 	}
 	
 	public Player getPlayer() {
@@ -158,16 +95,16 @@ public class LoggedBlock {
 	
 	public int getX()
 	{
-		return location.getBlockX();
+		return block.getLocation().getBlockX();
 	}
 	
 	public int getY()
 	{
-		return location.getBlockY();
+		return block.getLocation().getBlockY();
 	}
 	
 	public int getZ()
 	{
-		return location.getBlockZ();
+		return block.getLocation().getBlockZ();
 	}
 }

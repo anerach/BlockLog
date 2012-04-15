@@ -126,23 +126,30 @@ public class BlockLog extends JavaPlugin {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
-		try {
-	    	conn = DatabaseSettings.getConnection();
-	    	stmt = conn.createStatement();
-			if(DBType.equalsIgnoreCase("mysql")) {
-		    	stmt.executeUpdate("ALTER TABLE `blocklog_blocks` CHANGE `rollback_id` `rollback_id` INT( 11 ) NOT NULL DEFAULT '0'");
-		    	stmt.executeUpdate("ALTER TABLE `blocklog_blocks` ADD `datavalue` INT(11) NOT NULL AFTER `block_id`");
-			} else if(DBType.equalsIgnoreCase("sqlite")) {
-			    stmt.executeUpdate("ALTER TABLE 'blocklog_blocks' ADD COLUMN 'datavalue' INTEGER NOT NULL DEFAULT '0'");
-		    }
-			
-		} catch (SQLException e) {
-			// Nothing
-		}
 	}
 	
-	private String loadLatestVersion(String currentVersion) {
+	private void updateDatabase() {
+		try {
+			Statement stmt = conn.createStatement();
+			
+			Config versions = new Config("VERSIONS");
+			versions.getConfig().addDefault("database", 2);
+			versions.getConfig().options().copyDefaults(true);
+			if(versions.getConfig().getInt("database") > 2) {
+				log.info("Updating the database to version 2");
+				if(DatabaseSettings.DBType().equalsIgnoreCase("mysql")) 
+					stmt.executeUpdate("ALTER TABLE `blocklog_blocks` CHANGE `rollback_id` `rollback_id` INT(11) NOT NULL DEFAULT '0'");
+				
+				versions.getConfig().set("database", 2);
+			}
+			versions.saveConfig();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	private String loadLatestVersion() {
         String pluginUrlString = "http://dev.bukkit.org/server-mods/block-log/files.rss";
         try {
             URL url = new URL(pluginUrlString);
@@ -157,9 +164,8 @@ public class BlockLog extends JavaPlugin {
                 NodeList firstNodes = firstNameElement.getChildNodes();
                 return firstNodes.item(0).getNodeValue().replace("BlockLog", "").trim();
             }
-        }
-        catch (Exception e) {
-        	e.printStackTrace();
+        } catch (Exception e) {
+        	// Nothing
         }
         return currentVersion;
     }
@@ -208,21 +214,28 @@ public class BlockLog extends JavaPlugin {
 	    
 		log.info("Loading the database");
 	    loadDatabase();
+	    updateDatabase();
 	    
 	    log.info("Loading the dependencies");
 	    loadDependencies();
 	    
-	    log.info("Checking for updates");
-		newVersion = loadLatestVersion(currentVersion);
-		
-		doubleCurrentVersion = Double.valueOf(currentVersion.replaceFirst("\\.", ""));
-		doubleNewVersion = Double.valueOf(newVersion.replaceFirst("\\.", ""));
-		
-		if(doubleNewVersion > doubleCurrentVersion) {
-			log.warning("BlockLog v" + newVersion + " is released! You're using BlockLog v" + currentVersion);
-			log.warning("Update BlockLog at http://dev.bukkit.org/server-mods/block-log/");
-		}
-    	
+	    if(getConfig().getBoolean("blocklog.updates")) {
+		    try {
+			    log.info("Checking for updates");
+				newVersion = loadLatestVersion();
+				
+				doubleCurrentVersion = Double.valueOf(currentVersion.replaceFirst("\\.", ""));
+				doubleNewVersion = Double.valueOf(newVersion.replaceFirst("\\.", ""));
+				
+				if(doubleNewVersion > doubleCurrentVersion) {
+					log.warning("BlockLog v" + newVersion + " is released! You're using BlockLog v" + currentVersion);
+					log.warning("Update BlockLog at http://dev.bukkit.org/server-mods/block-log/");
+				}
+		    } catch(Exception e) {
+				// Nothing
+			}
+	    }
+	    
 		log.info("Starting BlockLog");
     	new PushBlocks(this);
     	
@@ -247,7 +260,9 @@ public class BlockLog extends JavaPlugin {
     	
     	getServer().getPluginManager().registerEvents(new LogListener(this), this);
     	getServer().getPluginManager().registerEvents(new WandListener(this), this);
-    	getServer().getPluginManager().registerEvents(new LoginListener(this), this);
+    	
+    	if(getConfig().getBoolean("blocklog.updates"))
+    		getServer().getPluginManager().registerEvents(new LoginListener(this), this);
     }
 	
 	public void saveLogs(final int count) {

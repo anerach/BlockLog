@@ -67,6 +67,7 @@ public class Config {
 	    getConfig().addDefault("blocklog.autosave.enabled", true);
 	    getConfig().addDefault("blocklog.autosave.blocks", 1000);
 	    getConfig().addDefault("blocklog.reports", true);
+	    getConfig().addDefault("blocklog.updates", true);
 	    getConfig().options().copyDefaults(true);
 	}
 }

@@ -6,11 +6,8 @@ import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.Config;
 import me.arno.blocklog.Interaction;
 import me.arno.blocklog.Log;
-import me.arno.blocklog.logs.BrokenBlock;
-import me.arno.blocklog.logs.EnvironmentBlock;
-import me.arno.blocklog.logs.GrownBlock;
 import me.arno.blocklog.logs.InteractedBlock;
-import me.arno.blocklog.logs.PlacedBlock;
+import me.arno.blocklog.logs.LoggedBlock;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 
@@ -76,13 +73,13 @@ public class LogListener implements Listener {
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockPlace(BlockPlaceEvent event) {
-		BlockState placedblock = event.getBlock().getState();
+		BlockState block = event.getBlock().getState();
 		Player player = event.getPlayer();
 		
 		if(plugin.softDepends.containsKey("GriefPrevention")) {
 			plugin.softDepends.get("GriefPrevention");
 			GriefPrevention gp = (GriefPrevention) plugin.softDepends.get("GriefPrevention");
-			Claim claim = gp.dataStore.getClaimAt(placedblock.getLocation(), false, null);
+			Claim claim = gp.dataStore.getClaimAt(block.getLocation(), false, null);
 			
 			if(claim != null)
 				event.setCancelled(claim.allowBuild(player) != null);
@@ -93,8 +90,7 @@ public class LogListener implements Listener {
 			boolean WandEnabled = plugin.users.contains(event.getPlayer().getName());
 			
 			if(event.getPlayer().getItemInHand().getTypeId() != BLWand || !WandEnabled) {
-				PlacedBlock block = new PlacedBlock(plugin, player, placedblock);
-				block.push();
+				plugin.blocks.add(new LoggedBlock(plugin, player, block, Log.PLACE));
 				BlocksLimitReached();
 			}
 		}
@@ -102,34 +98,33 @@ public class LogListener implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockBreak(BlockBreakEvent event) {
-		BlockState brokenblock = event.getBlock().getState();
+		BlockState block = event.getBlock().getState();
 		Player player = event.getPlayer();
 		
 		if(plugin.softDepends.containsKey("GriefPrevention")) {
 			plugin.softDepends.get("GriefPrevention");
 			GriefPrevention gp = (GriefPrevention) plugin.softDepends.get("GriefPrevention");
-			Claim claim = gp.dataStore.getClaimAt(brokenblock.getLocation(), false, null);
+			Claim claim = gp.dataStore.getClaimAt(block.getLocation(), false, null);
 			
 			if(claim != null)
-				event.setCancelled(claim.allowBreak(player, brokenblock.getType()) != null);
+				event.setCancelled(claim.allowBreak(player, block.getType()) != null);
 		}
 		
 		if(!event.isCancelled()) {
-			BrokenBlock block = new BrokenBlock(plugin, player, brokenblock);
-			block.push();
+			plugin.blocks.add(new LoggedBlock(plugin, player, block, Log.BREAK));
 			BlocksLimitReached();
 		}
 	}
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerBucketEmpty(PlayerBucketEmptyEvent event) {
-		Block placedBlock = event.getBlockClicked().getRelative(event.getBlockFace());
+		BlockState block = event.getBlockClicked().getRelative(event.getBlockFace()).getState();
 		Player player = event.getPlayer();
 		
 		if(plugin.softDepends.containsKey("GriefPrevention")) {
 			plugin.softDepends.get("GriefPrevention");
 			GriefPrevention gp = (GriefPrevention) plugin.softDepends.get("GriefPrevention");
-			Claim claim = gp.dataStore.getClaimAt(placedBlock.getLocation(), false, null);
+			Claim claim = gp.dataStore.getClaimAt(block.getLocation(), false, null);
 			
 			if(claim != null)
 				event.setCancelled(claim.allowBuild(player) != null);
@@ -137,12 +132,11 @@ public class LogListener implements Listener {
 		
 		if(!event.isCancelled()) {
 			if(event.getBucket() == Material.WATER_BUCKET)
-				placedBlock.setType(Material.WATER);
+				block.setType(Material.WATER);
 			else if(event.getBucket() == Material.LAVA_BUCKET)
-				placedBlock.setType(Material.LAVA);
+				block.setType(Material.LAVA);
 			
-			PlacedBlock block = new PlacedBlock(plugin, player, placedBlock.getState());
-			block.push();
+			plugin.blocks.add(new LoggedBlock(plugin, player, block, Log.PLACE));
 			BlocksLimitReached();
 		}
 	}
@@ -150,8 +144,7 @@ public class LogListener implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockBurn(BlockBurnEvent event) {
 		if(!event.isCancelled()) {
-			EnvironmentBlock block = new EnvironmentBlock(plugin, event.getBlock().getState(), Log.FIRE);
-			block.push();
+			plugin.blocks.add(new LoggedBlock(plugin, event.getBlock().getState(), Log.FIRE));
 			BlocksLimitReached();
 		}
 	}
@@ -160,8 +153,7 @@ public class LogListener implements Listener {
 	public void onBlockIgnite(BlockIgniteEvent event) {
 		if(!event.isCancelled()) {
 			if(event.getBlock().getType() == Material.TNT) {
-				BrokenBlock block = new BrokenBlock(plugin, event.getPlayer(), event.getBlock().getState());
-				block.push();
+				plugin.blocks.add(new LoggedBlock(plugin, event.getPlayer(), event.getBlock().getState(), Log.BREAK));
 				BlocksLimitReached();
 			}
 		}
@@ -171,8 +163,7 @@ public class LogListener implements Listener {
 	public void onLeavesDecay(LeavesDecayEvent event) {
 		if(!event.isCancelled()) {
 			if(cfg.getConfig().getBoolean("log.leaves")) {
-				EnvironmentBlock block = new EnvironmentBlock(plugin, event.getBlock().getState(), Log.LEAVES);
-				block.push();
+				plugin.blocks.add(new LoggedBlock(plugin, event.getBlock().getState(), Log.LEAVES));
 				BlocksLimitReached();
 			}
 		}
@@ -181,8 +172,7 @@ public class LogListener implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onEntityExplode(EntityExplodeEvent event) {
 		for(Block block : event.blockList()) {
-			EnvironmentBlock explBlock = new EnvironmentBlock(plugin, block.getState(), Log.EXPLOSION);
-			explBlock.push();
+			plugin.blocks.add(new LoggedBlock(plugin, block.getState(), Log.EXPLOSION));
 			BlocksLimitReached();
 		}
 	}
@@ -193,8 +183,7 @@ public class LogListener implements Listener {
 			if(cfg.getConfig().getBoolean("log.grow")) {
 				Player player = event.getPlayer();
 				for(BlockState block : event.getBlocks()) {
-					GrownBlock envBlock = new GrownBlock(plugin, player, block, Log.GROW);
-					envBlock.push();
+					plugin.blocks.add(new LoggedBlock(plugin, player, block, Log.GROW));
 					BlocksLimitReached();
 				}
 			}
@@ -207,8 +196,7 @@ public class LogListener implements Listener {
 			if(cfg.getConfig().getBoolean("log.portal")) {
 				Player player = (Player) event.getEntity();
 				for(BlockState block : event.getBlocks()) {
-					PlacedBlock pBlock = new PlacedBlock(plugin, player, block);
-					pBlock.push();
+					plugin.blocks.add(new LoggedBlock(plugin, player, block, Log.PORTAL));
 					BlocksLimitReached();
 				}
 			}
@@ -219,8 +207,8 @@ public class LogListener implements Listener {
 	public void onBlockForm(BlockFormEvent event) {
 		if(!event.isCancelled()) {
 			if(cfg.getConfig().getBoolean("log.form")) {
-				EnvironmentBlock block = new EnvironmentBlock(plugin, event.getNewState(), Log.FORM);
-				block.push();
+				plugin.blocks.add(new LoggedBlock(plugin, event.getNewState(), Log.FORM));
+				BlocksLimitReached();
 			}
 		}
 	}
@@ -229,8 +217,8 @@ public class LogListener implements Listener {
 	public void onBlockSpread(BlockSpreadEvent event) {
 		if(!event.isCancelled()) {
 			if(cfg.getConfig().getBoolean("log.spread")) {
-				EnvironmentBlock block = new EnvironmentBlock(plugin, event.getNewState(), Log.SPREAD);
-				block.push();
+				plugin.blocks.add(new LoggedBlock(plugin, event.getNewState(), Log.SPREAD));
+				BlocksLimitReached();
 			}
 		}
 	}
@@ -255,8 +243,7 @@ public class LogListener implements Listener {
 						block = event.getClickedBlock().getRelative(BlockFace.WEST);
 					
 					if(block.getType() == Material.FIRE) {
-						BrokenBlock bBlock = new BrokenBlock(plugin, event.getPlayer(), block.getState());
-						bBlock.push();
+						plugin.blocks.add(new LoggedBlock(plugin, event.getPlayer(), block.getState(), Log.BREAK));
 						BlocksLimitReached();
 					}
 				} else if(event.getClickedBlock().getType() == Material.WOODEN_DOOR) {

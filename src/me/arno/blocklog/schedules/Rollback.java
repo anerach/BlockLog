@@ -7,14 +7,12 @@ import java.sql.Statement;
 
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.Log;
-import me.arno.blocklog.logs.LoggedBlock;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.material.MaterialData;
 
 public class Rollback implements Runnable {
 	final private BlockLog plugin;
@@ -55,14 +53,14 @@ public class Rollback implements Runnable {
 				}
 				
 				if(correctPlayer) {
-					Location loc = new Location(world, blocks.getDouble("x"), blocks.getDouble("y"), blocks.getDouble("z"));
-				
-					LoggedBlock LBlock = new LoggedBlock(plugin, logAuthor, new MaterialData(blocks.getInt("block_id"), blocks.getByte("datavalue")), loc, blocks.getInt("type"));
+					Location location = new Location(world, blocks.getDouble("x"), blocks.getDouble("y"), blocks.getDouble("z"));
+					Log type = Log.values()[blocks.getInt("type")];
 					
-					if(LBlock.getType() == Log.BREAK || LBlock.getType() == Log.FIRE || LBlock.getType() == Log.EXPLOSION || LBlock.getType() == Log.LEAVES)
-						world.getBlockAt(LBlock.getLocation()).setTypeIdAndData(LBlock.getBlockId(), LBlock.getDataValue(), false);
+					
+					if(type == Log.BREAK || type == Log.FIRE || type == Log.EXPLOSION || type == Log.LEAVES)
+						world.getBlockAt(location).setTypeIdAndData(blocks.getInt("block_id"), blocks.getByte("datavalue"), false);
 					else
-						world.getBlockAt(LBlock.getLocation()).setType(Material.AIR);
+						world.getBlockAt(location).setType(Material.AIR);
 					
 					rollbackStmt.executeUpdate(String.format("UPDATE blocklog_blocks SET rollback_id = %s WHERE id = %s", rollbackID, blocks.getInt("id")));
 					BlockCount++;

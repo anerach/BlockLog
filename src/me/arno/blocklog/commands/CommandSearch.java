@@ -49,19 +49,23 @@ public class CommandSearch implements CommandExecutor {
 			Statement stmt = conn.createStatement();
 			ResultSet actions;
 			
+			Integer limit = plugin.getConfig().getInt("blocklog.results");
+			
 			if(DatabaseSettings.DBType().equalsIgnoreCase("mysql"))
-				actions = stmt.executeQuery(String.format("SELECT *, FROM_UNIXTIME(date, '%d-%m-%Y %H:%i:%s') AS date FROM blocklog_blocks WHERE player = '%s' ORDER BY date DESC LIMIT %s", args[0], plugin.getConfig().getInt("blocklog.results")));
+				actions = stmt.executeQuery("SELECT *, FROM_UNIXTIME(date, '%d-%m-%Y %H:%i:%s') AS fdate FROM blocklog_blocks WHERE player = '" + args[0] + "' ORDER BY date DESC LIMIT " + limit);
 			else
-				actions = stmt.executeQuery(String.format("SELECT *, datetime(date, 'unixepoch', 'localtime') AS date FROM blocklog_blocks WHERE player = '%s' ORDER BY date DESC LIMIT %s", args[0], plugin.getConfig().getInt("blocklog.results")));
+				actions = stmt.executeQuery("SELECT *, datetime(date, 'unixepoch', 'localtime') AS fdate FROM blocklog_blocks WHERE player = '" + args[0] + "' ORDER BY date DESC LIMIT " + limit);
 			
 			while(actions.next()) {
 				String name = Material.getMaterial(actions.getInt("block_id")).toString();
 				int type = actions.getInt("type");
 				
-				if(type == 0)
-					player.sendMessage(ChatColor.BLUE + "[" + actions.getString("date") + "][World:" + actions.getString("world") + ", X:" + actions.getString("x") + ", Y:" + actions.getString("y") + ", Z:" + actions.getString("z") + "] " + ChatColor.GOLD + actions.getString("player") + ChatColor.DARK_GREEN + " broke a " + ChatColor.GOLD + name);
-				else if(type == 1)
-					player.sendMessage(ChatColor.BLUE + "[" + actions.getString("date") + "][World:" + actions.getString("world") + ", X:" + actions.getString("x") + ", Y:" + actions.getString("y") + ", Z:" + actions.getString("z") + "] " + ChatColor.GOLD + actions.getString("player") + ChatColor.DARK_GREEN + " placed a " + ChatColor.GOLD + name);
+				player.sendMessage(ChatColor.BLUE + "[" + actions.getString("fdate") + "]" + ChatColor.DARK_RED + "[World:" + actions.getString("world") + ", X:" + actions.getString("x") + ", Y:" + actions.getString("y") + ", Z:" + actions.getString("z") + "]");
+				if(type == 0) {
+					player.sendMessage(ChatColor.GOLD + actions.getString("player") + ChatColor.DARK_GREEN + " broke a " + ChatColor.GOLD + name);
+				} else if(type == 1) {
+					player.sendMessage(ChatColor.GOLD + actions.getString("player") + ChatColor.DARK_GREEN + " placed a " + ChatColor.GOLD + name);
+				}
 			}
 		} catch(SQLException e) {
 			

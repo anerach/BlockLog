@@ -230,23 +230,7 @@ public class LogListener implements Listener {
 			boolean WandEnabled = plugin.users.contains(event.getPlayer().getName());
 			
 			if(event.getPlayer().getItemInHand().getTypeId() != BLWand || !WandEnabled) {
-				if(event.getClickedBlock().getType().isBlock()) {
-					Block block;
-					block = event.getClickedBlock().getRelative(BlockFace.UP);
-					if(block.getType() != Material.FIRE)
-						block = event.getClickedBlock().getRelative(BlockFace.NORTH);
-					if(block.getType() != Material.FIRE)
-						block = event.getClickedBlock().getRelative(BlockFace.EAST);
-					if(block.getType() != Material.FIRE)
-						block = event.getClickedBlock().getRelative(BlockFace.SOUTH);
-					if(block.getType() != Material.FIRE)
-						block = event.getClickedBlock().getRelative(BlockFace.WEST);
-					
-					if(block.getType() == Material.FIRE) {
-						plugin.blocks.add(new LoggedBlock(plugin, event.getPlayer(), block.getState(), Log.BREAK));
-						BlocksLimitReached();
-					}
-				} else if(event.getClickedBlock().getType() == Material.WOODEN_DOOR) {
+				if(event.getClickedBlock().getType() == Material.WOODEN_DOOR) {
 					InteractedBlock block = new InteractedBlock(plugin, event.getPlayer(), event.getClickedBlock().getLocation(), Interaction.DOOR);
 					block.push();
 					BlocksLimitReached();
@@ -270,6 +254,21 @@ public class LogListener implements Listener {
 					InteractedBlock block = new InteractedBlock(plugin, event.getPlayer(), event.getClickedBlock().getLocation(), Interaction.LEVER);
 					block.push();
 					BlocksLimitReached();
+				} else {
+					Block block;
+					block = event.getClickedBlock().getRelative(BlockFace.UP);
+					if(block.getType() != Material.FIRE)
+						block = event.getClickedBlock().getRelative(BlockFace.NORTH);
+					if(block.getType() != Material.FIRE)
+						block = event.getClickedBlock().getRelative(BlockFace.EAST);
+					if(block.getType() != Material.FIRE)
+						block = event.getClickedBlock().getRelative(BlockFace.SOUTH);
+					if(block.getType() != Material.FIRE)
+						block = event.getClickedBlock().getRelative(BlockFace.WEST);
+					if(block.getType() == Material.FIRE) {
+						plugin.blocks.add(new LoggedBlock(plugin, event.getPlayer(), block.getState(), Log.BREAK));
+						BlocksLimitReached();
+					}
 				}
 			}
 		}

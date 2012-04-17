@@ -160,16 +160,6 @@ public class LogListener implements Listener {
 	}
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onLeavesDecay(LeavesDecayEvent event) {
-		if(!event.isCancelled()) {
-			if(cfg.getConfig().getBoolean("log.leaves")) {
-				plugin.blocks.add(new LoggedBlock(plugin, event.getBlock().getState(), Log.LEAVES));
-				BlocksLimitReached();
-			}
-		}
-	}
-	
-	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onEntityExplode(EntityExplodeEvent event) {
 		for(Block block : event.blockList()) {
 			plugin.blocks.add(new LoggedBlock(plugin, block.getState(), Log.EXPLOSION));
@@ -178,9 +168,19 @@ public class LogListener implements Listener {
 	}
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onLeavesDecay(LeavesDecayEvent event) {
+		if(!event.isCancelled()) {
+			if(cfg.getConfig().getBoolean("logs.leaves")) {
+				plugin.blocks.add(new LoggedBlock(plugin, event.getBlock().getState(), Log.LEAVES));
+				BlocksLimitReached();
+			}
+		}
+	}
+	
+	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onStructureGrow(StructureGrowEvent event) {
 		if(!event.isCancelled()) {
-			if(cfg.getConfig().getBoolean("log.grow")) {
+			if(cfg.getConfig().getBoolean("logs.grow")) {
 				Player player = event.getPlayer();
 				for(BlockState block : event.getBlocks()) {
 					plugin.blocks.add(new LoggedBlock(plugin, player, block, Log.GROW));
@@ -193,7 +193,7 @@ public class LogListener implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onEntityCreatePortal(EntityCreatePortalEvent event) {
 		if(!event.isCancelled()) {
-			if(cfg.getConfig().getBoolean("log.portal")) {
+			if(cfg.getConfig().getBoolean("logs.portal")) {
 				Player player = (Player) event.getEntity();
 				for(BlockState block : event.getBlocks()) {
 					plugin.blocks.add(new LoggedBlock(plugin, player, block, Log.PORTAL));
@@ -206,7 +206,7 @@ public class LogListener implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockForm(BlockFormEvent event) {
 		if(!event.isCancelled()) {
-			if(cfg.getConfig().getBoolean("log.form")) {
+			if(cfg.getConfig().getBoolean("logs.form")) {
 				plugin.blocks.add(new LoggedBlock(plugin, event.getNewState(), Log.FORM));
 				BlocksLimitReached();
 			}
@@ -216,7 +216,7 @@ public class LogListener implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockSpread(BlockSpreadEvent event) {
 		if(!event.isCancelled()) {
-			if(cfg.getConfig().getBoolean("log.spread")) {
+			if(cfg.getConfig().getBoolean("logs.spread")) {
 				plugin.blocks.add(new LoggedBlock(plugin, event.getNewState(), Log.SPREAD));
 				BlocksLimitReached();
 			}

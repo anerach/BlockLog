@@ -70,6 +70,22 @@ public class BlockLog extends JavaPlugin {
 		cfg.reloadConfig();
 	}
 	
+	public void addBlock(LoggedBlock block) {
+		blocks.add(block);
+	}
+	
+	public void addInteractions(LoggedInteraction interaction) {
+		interactions.add(interaction);
+	}
+	
+	public ArrayList<LoggedBlock> getBlocks() {
+		return blocks;
+	}
+	
+	public ArrayList<LoggedInteraction> getInteractionss() {
+		return interactions;
+	}
+	
 	public String getResourceContent(String file) {
 		try {
 			InputStream ResourceFile = getResource("resources/" + file);
@@ -252,11 +268,12 @@ public class BlockLog extends JavaPlugin {
     	getCommand("blsearch").setExecutor(new CommandSearch(this));
     	getCommand("blrollbacklist").setExecutor(new CommandRollbackList(this));
     	
-    	getServer().getPluginManager().registerEvents(new LogListener(this), this);
     	getServer().getPluginManager().registerEvents(new WandListener(this), this);
+    	getServer().getPluginManager().registerEvents(new BlockListener(this), this);
+    	getServer().getPluginManager().registerEvents(new InteractionListener(this), this);
     	
     	if(getConfig().getBoolean("blocklog.updates"))
-    		getServer().getPluginManager().registerEvents(new LoginListener(this), this);
+    		getServer().getPluginManager().registerEvents(new NoticeListener(this), this);
     }
 	
 	public void saveLogs(final int count) {

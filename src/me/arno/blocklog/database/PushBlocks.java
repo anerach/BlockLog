@@ -24,8 +24,6 @@ public class PushBlocks {
 			    		interaction.save();
 				    	plugin.interactions.remove(0);
 			    	}
-				} catch(Exception e) {}
-				try {
 					if(plugin.blocks.size() > 0) {
 						LoggedBlock block = plugin.blocks.get(0);
 				    	block.save();

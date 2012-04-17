@@ -50,7 +50,7 @@ public class UndoRollback implements Runnable {
 			rollbackStmt.executeUpdate(String.format("UPDATE blocklog_blocks SET rollback_id = 0 WHERE rollback_id = %s", rollbackID));
 			
 			player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GREEN + BlockCount + ChatColor.GOLD + " blocks changed!");
-			player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "use the command " + ChatColor.GREEN + "/blundo " + rollbackID + ChatColor.GOLD + " to undo this rollback!");
+			player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "Successfully undid rollback " + ChatColor.GREEN + "#" + rollbackID);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

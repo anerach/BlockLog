@@ -58,6 +58,7 @@ public class Config {
 	    getConfig().addDefault("logs.leaves", false);
 	    getConfig().addDefault("logs.portal", false);
 	    getConfig().addDefault("logs.form", false);
+	    getConfig().addDefault("logs.fade", false);
 	    getConfig().addDefault("logs.spread", false);
 	   	getConfig().addDefault("blocklog.wand", 369);
 	    getConfig().addDefault("blocklog.results", 5);

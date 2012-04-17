@@ -9,7 +9,8 @@ public enum Log {
 	GROW(5),
 	PORTAL(6),
 	FORM(7),
-	SPREAD(8);
+	SPREAD(8),
+	FADE(9);
 	
 	int id;
 	Log(int id) {

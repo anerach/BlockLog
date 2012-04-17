@@ -141,6 +141,8 @@ public class WandListener implements Listener {
 						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + ChatColor.DARK_GREEN + " grew a " + ChatColor.GOLD + name);
 					else if(type == 6 || type == 7 || type == 8)
 						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + ChatColor.DARK_GREEN + " created a " + ChatColor.GOLD + name);
+					else if(type == 9)
+						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.DARK_GREEN + "A " + ChatColor.GOLD + name + ChatColor.DARK_GREEN + " faded");
 					BlockCount++;
 				}
 				BlockNumber++;
@@ -179,6 +181,8 @@ public class WandListener implements Listener {
 						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + ((rs.getString("player") == null) ? "Environment" : rs.getString("player")) + ChatColor.DARK_GREEN + " grew a " + ChatColor.GOLD + name);
 					else if(type == 6 || type == 7 || type == 8)
 						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + ((rs.getString("player") == null) ? "Environment" : rs.getString("player")) + ChatColor.DARK_GREEN + " created a " + ChatColor.GOLD + name);
+					else if(type == 9)
+						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.DARK_GREEN + "A " + ChatColor.GOLD + name + ChatColor.DARK_GREEN + " faded");
 				}
 			}
 		} catch(SQLException e) {

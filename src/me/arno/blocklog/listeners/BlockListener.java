@@ -25,6 +25,7 @@ import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.event.entity.EntityCreatePortalEvent;
 import org.bukkit.event.block.BlockFormEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
+import org.bukkit.event.block.BlockFadeEvent;
 
 public class BlockListener extends LogListener {
 	public BlockListener(BlockLog plugin) {
@@ -178,6 +179,16 @@ public class BlockListener extends LogListener {
 		if(!event.isCancelled()) {
 			if(cfg.getConfig().getBoolean("logs.spread")) {
 				plugin.blocks.add(new LoggedBlock(plugin, event.getNewState(), Log.SPREAD));
+				BlocksLimitReached();
+			}
+		}
+	}
+	
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onBlockFade(BlockFadeEvent event) {
+		if(!event.isCancelled()) {
+			if(cfg.getConfig().getBoolean("logs.fade")) {
+				plugin.blocks.add(new LoggedBlock(plugin, event.getNewState(), Log.FADE));
 				BlocksLimitReached();
 			}
 		}

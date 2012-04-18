@@ -17,11 +17,10 @@ public class Save implements Runnable {
 	
 	final private Player player;
 	final private Integer count;
-	final private Boolean force;
 	
 	private Boolean saving;
 	
-	public Save(BlockLog plugin, int count, Player player, boolean force) {
+	public Save(BlockLog plugin, int count, Player player) {
 		this.blocks = plugin.blocks;
 		this.interactions = plugin.interactions;
 		this.log = plugin.log;
@@ -29,16 +28,15 @@ public class Save implements Runnable {
 		
 		this.count = count;
 		this.player = player;
-		this.force = force;
 	}
 	
 	@Override
 	public void run() {
-		if((force == false && saving == true) && player != null) {
+		if(saving == true && player != null) {
 			player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "We're already saving some of the blocks.");
-		} else if(force == false && saving == true && player == null) {
+		} else if(saving == true && player == null) {
 			log.info("We're already saving some of the blocks.");
-		} else if(force == true || saving == false) {
+		} else if(saving == false) {
 			saving = true;
 			if(player == null)
 				log.info("Saving " + ((count == 0) ? "all the" : count) + " block edits!");

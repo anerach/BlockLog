@@ -199,7 +199,6 @@ public class BlockLog extends JavaPlugin {
 		if(saving)
 			return false;
 		
-			
 		getServer().getScheduler().cancelTasks(this);
 		softDepends.clear();
 		
@@ -277,19 +276,33 @@ public class BlockLog extends JavaPlugin {
     }
 	
 	public void saveLogs(final int count) {
-		saveLogs(count, null, false);
+		saveLogs(count, null);
 	}
 	
 	public void saveLogs(final int count, final Player player) {
-		saveLogs(count, player, false);
+		getServer().getScheduler().scheduleAsyncDelayedTask(this, new Save(this, count, player));
 	}
 	
-	public void saveLogs(final int count, final boolean force) {
-		saveLogs(count, null, force);
-	}
-	
-	public void saveLogs(final int count, final Player player, final boolean force) {
-		getServer().getScheduler().scheduleAsyncDelayedTask(this, new Save(this, count, player, force));
+	private void stopPlugin() {
+		try {
+			getServer().getScheduler().cancelTasks(this);
+			
+			log.info("Saving all the block edits!");
+			while(interactions.size() > 0) {
+	    		LoggedInteraction interaction = interactions.get(0);
+			    interaction.save();
+			    interactions.remove(0);
+	    	}
+			while(blocks.size() > 0) {
+				LoggedBlock block = blocks.get(0);
+				block.save();
+			  	blocks.remove(0);
+			}
+			log.info("Successfully saved all the block edits!");
+			conn.close();
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@Override
@@ -301,7 +314,7 @@ public class BlockLog extends JavaPlugin {
 	
 	@Override
 	public void onDisable() {
-		saveLogs(0, true);
+		stopPlugin();
 		PluginDescriptionFile PluginDesc = getDescription();
 		log.info("v" + PluginDesc.getVersion() + " is disabled!");
 	}

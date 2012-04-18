@@ -14,7 +14,7 @@ import org.bukkit.entity.Player;
 
 public class LoggedBlock {
 	private BlockLog plugin;
-	private Log logType;
+	private Log type;
 	
 	private Player player;
 	private BlockState block;
@@ -31,7 +31,7 @@ public class LoggedBlock {
 		this.plugin = plugin;
 		this.player = player;
 		this.block = block;
-		this.logType = type;
+		this.type = type;
 		this.date = (System.currentTimeMillis()/1000);
 	}
 
@@ -70,7 +70,18 @@ public class LoggedBlock {
 	}
 	
 	public String getPlayerName() {
-		return (player == null) ? "Environment" : player.getName();
+		String entity = "Environment";
+		
+		if(player != null)
+			entity = player.getName();
+		else if(getType() == Log.EXPLOSION_CREEPER)
+			entity = "Creeper";
+		else if(getType() == Log.EXPLOSION_GHAST)
+			entity = "Ghast";
+		else if(getType() == Log.EXPLOSION_TNT)
+			entity = "TNT";
+		
+		return entity;
 	}
 	
 	public int getRollback() {
@@ -86,11 +97,11 @@ public class LoggedBlock {
 	}
 	
 	public Log getType() {
-		return logType;
+		return type;
 	}
 	
 	public int getTypeId() {
-		return logType.getId();
+		return getType().getId();
 	}
 	
 	public int getX()

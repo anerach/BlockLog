@@ -10,7 +10,10 @@ public enum Log {
 	PORTAL(6),
 	FORM(7),
 	SPREAD(8),
-	FADE(9);
+	FADE(9),
+	EXPLOSION_CREEPER(10),
+	EXPLOSION_GHAST(11),
+	EXPLOSION_TNT(12);
 	
 	int id;
 	Log(int id) {

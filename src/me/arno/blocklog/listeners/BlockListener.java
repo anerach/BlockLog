@@ -10,6 +10,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -122,8 +123,18 @@ public class BlockListener extends BlockLogListener {
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onEntityExplode(EntityExplodeEvent event) {
+		Log log = Log.EXPLOSION;
+		if(event.getEntityType() == EntityType.CREEPER)
+			log = Log.EXPLOSION_CREEPER;
+		if(event.getEntityType() == EntityType.GHAST || event.getEntityType() == EntityType.FIREBALL)
+			log = Log.EXPLOSION_GHAST;
+		if(event.getEntityType() == EntityType.PRIMED_TNT)
+			log = Log.EXPLOSION_TNT;
+		
+			
+		plugin.log.info(log.name());
 		for(Block block : event.blockList()) {
-			plugin.blocks.add(new LoggedBlock(plugin, block.getState(), Log.EXPLOSION));
+			plugin.blocks.add(new LoggedBlock(plugin, block.getState(), log));
 			BlocksLimitReached();
 		}
 	}

@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS 'blocklog_kills' (
+	'id' INTEGER PRIMARY KEY NOT NULL,
+	'victem' VARCHAR(75) NOT NULL,
+	'killer' VARCHAR(75) NOT NULL,
+	'date' INTEGER NOT NULL
+);

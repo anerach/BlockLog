@@ -112,31 +112,28 @@ public class BlockLog extends JavaPlugin {
 	private void loadConfiguration() {
 		cfg = new Config();
 		cfg.createDefaults();
-		cfg.saveConfig();
+		saveConfig();
 		
-		if(cfg.getConfig().getBoolean("blocklog.autosave.enabled")) {
-			autoSave = cfg.getConfig().getInt("blocklog.autosave.blocks");
+		if(getConfig().getBoolean("blocklog.autosave.enabled")) {
+			autoSave = getConfig().getInt("blocklog.autosave.blocks");
 		}
 	}
 	
 	private void loadDatabase() {
-		String DBType = cfg.getConfig().getString("database.type");
+		String DBType = getConfig().getString("database.type");
+		String[] tables = {"blocks", "rollbacks", "undos", "interactions", "reports", "chat", "deaths", "kills"};
+		
 		try {
 	    	conn = DatabaseSettings.getConnection();
 	    	Statement stmt = conn.createStatement();
-			if(DBType.equalsIgnoreCase("mysql")) {
-		    	stmt.executeUpdate(getResourceContent("MySQL/blocklog_blocks.sql"));
-				stmt.executeUpdate(getResourceContent("MySQL/blocklog_rollbacks.sql"));
-				stmt.executeUpdate(getResourceContent("MySQL/blocklog_undos.sql"));
-				stmt.executeUpdate(getResourceContent("MySQL/blocklog_interactions.sql"));
-				stmt.executeUpdate(getResourceContent("MySQL/blocklog_reports.sql"));
-			} else if(DBType.equalsIgnoreCase("sqlite")) {
-			    stmt.executeUpdate(getResourceContent("SQLite/blocklog_blocks.sql"));
-				stmt.executeUpdate(getResourceContent("SQLite/blocklog_rollbacks.sql"));
-				stmt.executeUpdate(getResourceContent("SQLite/blocklog_undos.sql"));
-				stmt.executeUpdate(getResourceContent("SQLite/blocklog_interactions.sql"));
-				stmt.executeUpdate(getResourceContent("SQLite/blocklog_reports.sql"));
-		    }
+	    	
+	    	for(String table : tables) {
+	    		if(DBType.equalsIgnoreCase("mysql")) {
+			    	stmt.executeUpdate(getResourceContent("MySQL/blocklog_" + table + ".sql"));
+				} else if(DBType.equalsIgnoreCase("sqlite")) {
+				    stmt.executeUpdate(getResourceContent("SQLite/blocklog_" + table + ".sql"));
+			    }
+	    	}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -270,6 +267,7 @@ public class BlockLog extends JavaPlugin {
     	getServer().getPluginManager().registerEvents(new WandListener(this), this);
     	getServer().getPluginManager().registerEvents(new BlockListener(this), this);
     	getServer().getPluginManager().registerEvents(new InteractionListener(this), this);
+    	getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
     	
     	if(getConfig().getBoolean("blocklog.updates"))
     		getServer().getPluginManager().registerEvents(new NoticeListener(this), this);

@@ -27,7 +27,7 @@ import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.world.StructureGrowEvent;
 
-public class BlockListener extends LogListener {
+public class BlockListener extends BlockLogListener {
 	public BlockListener(BlockLog plugin) {
 		super(plugin);
 	}

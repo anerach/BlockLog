@@ -9,7 +9,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-public class InteractionListener extends LogListener {
+public class InteractionListener extends BlockLogListener {
 	public InteractionListener(BlockLog plugin) {
 		super(plugin);
 	}

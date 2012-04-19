@@ -72,7 +72,9 @@ public class LoggedBlock {
 	public String getPlayerName() {
 		String entity = "Environment";
 		
-		if(player != null)
+		if(getType() == Log.EXPLOSION_CREEPER && player != null) {
+			entity = "Creeper (" + player.getName() + ")";
+		} else if(player != null)
 			entity = player.getName();
 		else if(getType() == Log.EXPLOSION_CREEPER)
 			entity = "Creeper";

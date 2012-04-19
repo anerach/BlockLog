@@ -45,28 +45,42 @@ public class Save implements Runnable {
 			
 			if(count == 0) {
 	    		while(interactions.size() > 0) {
-	    			LoggedInteraction interaction = interactions.get(0);
-			    	interaction.save();
-			    	interactions.remove(0);
+	    			try {
+		    			LoggedInteraction interaction = interactions.get(0);
+				    	interaction.save();
+				    	interactions.remove(0);
+		    		} catch(Exception e) {}
 	    		}
 				while(blocks.size() > 0) {
-		    		LoggedBlock block = blocks.get(0);
-				    block.save();
-				    blocks.remove(0);
+					try {
+			    		LoggedBlock block = blocks.get(0);
+					    block.save();
+					    blocks.remove(0);
+					} catch(Exception e) {}
 	    		}
 	    	} else {
 	    		if(interactions.size() > 0) {
 	    			for(int i=count; i!=0; i--) {
-	    				LoggedInteraction interaction = interactions.get(0);
-			    		interaction.save();
-				    	interactions.remove(0);
+	    				try {
+	    					if(interactions.size() == 0)
+	    						break;
+	    					
+		    				LoggedInteraction interaction = interactions.get(0);
+				    		interaction.save();
+					    	interactions.remove(0);
+		    			} catch(Exception e) {}
 	    			}
 	    		}
 	    		if(blocks.size() > 0) {
 	    			for(int i=count; i!=0; i--) {
-		    			LoggedBlock block = blocks.get(0);
-				    	block.save();
-				    	blocks.remove(0);
+	    				try {
+	    					if(blocks.size() == 0)
+	    						break;
+	    					
+			    			LoggedBlock block = blocks.get(0);
+					    	block.save();
+					    	blocks.remove(0);
+		    			} catch(Exception e) {}
 	    			}
 	    		}
 	    	}

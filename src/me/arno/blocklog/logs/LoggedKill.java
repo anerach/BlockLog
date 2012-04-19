@@ -5,6 +5,8 @@ import java.sql.Statement;
 
 import me.arno.blocklog.BlockLog;
 
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -13,6 +15,7 @@ public class LoggedKill {
 	private final BlockLog plugin;
 	private final LivingEntity victem;
 	private final Player killer;
+	private final Location location;
 	private final Long time;
 	
 	public LoggedKill(BlockLog plugin, LivingEntity victem, Player killer) {
@@ -20,12 +23,13 @@ public class LoggedKill {
 		this.victem = victem;
 		this.killer = killer;
 		this.time = System.currentTimeMillis()/1000;
+		this.location = victem.getLocation();
 	}
 	
 	public void save() {
 		try {
 			Statement stmt = plugin.conn.createStatement();
-			stmt.executeUpdate("INSERT INTO blocklog_kills (player, killer, date) VALUES ('" + getVictemName() + "', '" + getKillerName() + "', " + time + ")");
+			stmt.executeUpdate("INSERT INTO blocklog_kills (player, killer, world, x, y, z, date) VALUES ('" + getVictemName() + "', '" + getKillerName() + "', '" + getWorldName() + "', " + getX() + ", " + getY() + ", " + getZ() + ", " + time + ")");
 		} catch(SQLException e) {
 			e.printStackTrace();
 		}
@@ -49,5 +53,29 @@ public class LoggedKill {
 	
 	public Player getKiller() {
 		return killer;
+	}
+	
+	public String getWorldName() {
+		return location.getWorld().getName();
+	}
+	
+	public World getWorld() {
+		return location.getWorld();
+	}
+	
+	public Location getLocation() {
+		return location;
+	}
+	
+	public Integer getX() {
+		return location.getBlockX();
+	}
+	
+	public Integer getY() {
+		return location.getBlockX();
+	}
+	
+	public Integer getZ() {
+		return location.getBlockX();
 	}
 }

@@ -57,7 +57,7 @@ public class Rollback implements Runnable {
 					Log type = Log.values()[blocks.getInt("type")];
 					
 					
-					if(type == Log.BREAK || type == Log.FIRE || type == Log.EXPLOSION || type == Log.LEAVES)
+					if(type == Log.BREAK || type == Log.FIRE || type == Log.EXPLOSION || type == Log.LEAVES || type == Log.FADE || type == Log.EXPLOSION_CREEPER || type == Log.EXPLOSION_GHAST || type == Log.EXPLOSION_TNT)
 						world.getBlockAt(location).setTypeIdAndData(blocks.getInt("block_id"), blocks.getByte("datavalue"), false);
 					else
 						world.getBlockAt(location).setType(Material.AIR);

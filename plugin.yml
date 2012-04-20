@@ -1,11 +1,11 @@
 name: BlockLog
 main: me.arno.blocklog.BlockLog
-version: 1.4.1
+version: 1.6.0
 author: Anerach
 dev-url: http://dev.bukkit.org/server-mods/block-log
 description: >
-            A simple and effective Anti-Grief plugin.
-softdepend: [GriefPrevention]
+            A simple and effective log plugin with anti-grief features
+softdepend: [GriefPrevention, WorldGuard]
 commands:
     blocklog:
         description: Shows basic blocklog information
@@ -76,9 +76,14 @@ commands:
         usage: /<command> [id]
         permission: blocklog.report.read
     blsearch:
-        description: Read players their reports
+        description: Searches for a player's last edits
         usage: /<command> <player>
         permission: blocklog.search
+    blrollbacklist:
+        description: Shows a list of the latest rollbacks
+        aliases: blrblist
+        usage: /<command>
+        permission: blocklog.rollback
 permissions:
     blocklog.admin:
         description: Gives access to all the blocklog commands

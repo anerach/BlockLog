@@ -29,6 +29,8 @@ import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.world.StructureGrowEvent;
 
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+
 public class BlockListener extends BlockLogListener {
 	public BlockListener(BlockLog plugin) {
 		super(plugin);
@@ -40,12 +42,15 @@ public class BlockListener extends BlockLogListener {
 		Player player = event.getPlayer();
 		
 		if(plugin.softDepends.containsKey("GriefPrevention")) {
-			plugin.softDepends.get("GriefPrevention");
 			GriefPrevention gp = (GriefPrevention) plugin.softDepends.get("GriefPrevention");
 			Claim claim = gp.dataStore.getClaimAt(block.getLocation(), false, null);
 			
 			if(claim != null)
 				event.setCancelled(claim.allowBuild(player) != null);
+		}
+		if(plugin.softDepends.containsKey("WorldGuard")) {
+			WorldGuardPlugin wg = (WorldGuardPlugin) plugin.softDepends.get("WorldGuard");
+			event.setCancelled(!wg.canBuild(player, block.getLocation()));
 		}
 		
 		if(!event.isCancelled()) {
@@ -72,6 +77,10 @@ public class BlockListener extends BlockLogListener {
 			if(claim != null)
 				event.setCancelled(claim.allowBreak(player, block.getType()) != null);
 		}
+		if(plugin.softDepends.containsKey("WorldGuard")) {
+			WorldGuardPlugin wg = (WorldGuardPlugin) plugin.softDepends.get("WorldGuard");
+			event.setCancelled(!wg.canBuild(player, block.getLocation()));
+		}
 		
 		if(!event.isCancelled()) {
 			plugin.blocks.add(new LoggedBlock(plugin, player, block, Log.BREAK));
@@ -91,6 +100,10 @@ public class BlockListener extends BlockLogListener {
 			
 			if(claim != null)
 				event.setCancelled(claim.allowBuild(player) != null);
+		}
+		if(plugin.softDepends.containsKey("WorldGuard")) {
+			WorldGuardPlugin wg = (WorldGuardPlugin) plugin.softDepends.get("WorldGuard");
+			event.setCancelled(!wg.canBuild(player, block.getLocation()));
 		}
 		
 		if(!event.isCancelled()) {

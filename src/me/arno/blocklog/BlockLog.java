@@ -184,6 +184,7 @@ public class BlockLog extends JavaPlugin {
 	private void loadDependencies() {
 		ArrayList<String> plugins = new ArrayList<String>();
     	plugins.add("GriefPrevention");
+    	plugins.add("WorldGuard");
     	
     	for(String plugin : plugins) {
     		if(getServer().getPluginManager().isPluginEnabled(plugin)) {
@@ -297,6 +298,7 @@ public class BlockLog extends JavaPlugin {
 			  	blocks.remove(0);
 			}
 			log.info("Successfully saved all the block edits!");
+			
 			conn.close();
 		} catch(SQLException e) {
 			e.printStackTrace();

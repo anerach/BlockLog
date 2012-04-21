@@ -1,11 +1,14 @@
 package me.arno.blocklog;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -99,15 +102,6 @@ public class BlockLog extends JavaPlugin {
 	    getConfig().addDefault("mysql.password", "");
 	    getConfig().addDefault("mysql.database", "");
 	    getConfig().addDefault("mysql.port", 3306);
-	    getConfig().addDefault("logs.grow", true);
-	    getConfig().addDefault("logs.leaves", false);
-	    getConfig().addDefault("logs.portal", false);
-	    getConfig().addDefault("logs.form", false);
-	    getConfig().addDefault("logs.fade", false);
-	    getConfig().addDefault("logs.spread", false);
-	    getConfig().addDefault("logs.chat", false);
-	    getConfig().addDefault("logs.kill", false);
-	    getConfig().addDefault("logs.death", false);
 	   	getConfig().addDefault("blocklog.wand", 369);
 	    getConfig().addDefault("blocklog.results", 5);
 	    getConfig().addDefault("blocklog.warning.blocks", 500);
@@ -117,11 +111,63 @@ public class BlockLog extends JavaPlugin {
 	    getConfig().addDefault("blocklog.autosave.blocks", 1000);
 	    getConfig().addDefault("blocklog.reports", true);
 	    getConfig().addDefault("blocklog.updates", true);
+	    getConfig().addDefault("logs.grow", true);
+	    getConfig().addDefault("logs.leaves", false);
+	    getConfig().addDefault("logs.portal", false);
+	    getConfig().addDefault("logs.form", false);
+	    getConfig().addDefault("logs.fade", false);
+	    getConfig().addDefault("logs.spread", false);
+	    getConfig().addDefault("logs.chat", false);
+	    getConfig().addDefault("logs.kill", false);
+	    getConfig().addDefault("logs.death", false);
+	    getConfig().addDefault("cleanup.log", true);
+	    getConfig().addDefault("cleanup.blocks.enabled", false);
+	    getConfig().addDefault("cleanup.blocks.days", 14);
+	    getConfig().addDefault("cleanup.interactions.enabled", false);
+	    getConfig().addDefault("cleanup.interactions.days", 14);
+	    getConfig().addDefault("cleanup.chat.enabled", false);
+	    getConfig().addDefault("cleanup.chat.days", 14);
+	    getConfig().addDefault("cleanup.deaths.enabled", false);
+	    getConfig().addDefault("cleanup.deaths.days", 14);
+	    getConfig().addDefault("cleanup.kills.enabled", false);
+	    getConfig().addDefault("cleanup.kills.days", 14);
 	    getConfig().options().copyDefaults(true);
 		saveConfig();
 		
 		if(getConfig().getBoolean("blocklog.autosave.enabled")) {
 			autoSave = getConfig().getInt("blocklog.autosave.blocks");
+		}
+	}
+	
+	private void CleanUpDatabase() {
+		Long currentTime = System.currentTimeMillis()/1000;
+		String[] tables = new String[] {"blocks", "interactions", "chat", "deaths", "kills"};
+		
+		try {
+			FileWriter fstream = new FileWriter("BlockLog Database Cleanup.log");
+			BufferedWriter out = new BufferedWriter(fstream);
+			
+			Statement stmt = conn.createStatement();
+			Integer time;
+			
+			for(String table : tables) {
+				if(getConfig().getBoolean("cleanup." + table + ".enabled")) {
+					time = getConfig().getInt("cleanup." + table + ".days") * 60 * 60 * 24;
+					
+					ResultSet rs = stmt.executeQuery("SELECT COUNT(id) AS count FROM blocklog_" + table + " WHERE date < " + (currentTime - time));
+					rs.next();
+					if(rs.getString("count") != null) {
+						out.write("[BlockLog] Deleted " + rs.getString("count") + " results from blocklog_" + table + System.getProperty("line.separator"));
+						
+						stmt.executeUpdate("DELETE FROM blocklog_" + table + " WHERE date < " + (currentTime - time));
+					}
+				}
+			}
+			out.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -230,6 +276,9 @@ public class BlockLog extends JavaPlugin {
 		log.info("Loading the database");
 	    loadDatabase();
 	    updateDatabase();
+	    
+	    log.info("Cleaning up the database");
+	    CleanUpDatabase();
 	    
 	    log.info("Loading the dependencies");
 	    loadDependencies();

@@ -141,7 +141,7 @@ public class BlockLog extends JavaPlugin {
 	
 	private void CleanUpDatabase() {
 		Long currentTime = System.currentTimeMillis()/1000;
-		String[] tables = new String[] {"blocks", "interactions", "chat", "deaths", "kills"};
+		String[] tables = new String[] {"blocks", "interactions", "chat", "deaths", "kills", "commands"};
 		
 		try {
 			FileWriter fstream = new FileWriter("BlockLog Database Cleanup.log");
@@ -173,7 +173,7 @@ public class BlockLog extends JavaPlugin {
 	
 	private void loadDatabase() {
 		String DBType = getConfig().getString("database.type");
-		String[] tables = {"blocks", "rollbacks", "undos", "interactions", "reports", "chat", "deaths", "kills"};
+		String[] tables = {"blocks", "rollbacks", "undos", "interactions", "reports", "chat", "deaths", "kills", "commands"};
 		
 		try {
 	    	conn = DatabaseSettings.getConnection();

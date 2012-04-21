@@ -1,24 +1,47 @@
 package me.arno.blocklog.listeners;
 
+import java.util.Map;
+
+import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerChatEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.plugin.Plugin;
 
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.logs.LoggedChat;
+import me.arno.blocklog.logs.LoggedCommand;
 import me.arno.blocklog.logs.LoggedDeath;
 import me.arno.blocklog.logs.LoggedKill;
 
 public class PlayerListener extends BlockLogListener {
+	Map<String, Map<String, Object>> commands;
 	
 	public PlayerListener(BlockLog plugin) {
 		super(plugin);
+		
+		for(Plugin p : Bukkit.getPluginManager().getPlugins())
+			commands.putAll(p.getDescription().getCommands());
 	}
 	
+	@EventHandler
+	public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
+		if(!event.isCancelled()) {
+			Player player = event.getPlayer();
+			String[] args = event.getMessage().replace('/', ' ').trim().split(" ");
+			Command cmd = Bukkit.getPluginCommand(args[0]);
+			if(cmd != null) {
+				LoggedCommand lcmd = new LoggedCommand(plugin, player, event.getMessage());
+				lcmd.save();
+			}
+		}
+	}	
 	@EventHandler
 	public void onPlayerChat(PlayerChatEvent event) {
 		if(!event.isCancelled() && getConfig().getBoolean("logs.chat")) {

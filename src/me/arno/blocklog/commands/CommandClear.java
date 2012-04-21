@@ -51,10 +51,12 @@ public class CommandClear extends BlockLogCommand {
 				tables.add("chat");
 				tables.add("deaths");
 				tables.add("kills");
+				tables.add("commands");
 			} else if(args[i].equalsIgnoreCase("player")) {
 				tables.add("chat");
 				tables.add("deaths");
 				tables.add("kills");
+				tables.add("commands");
 			} else if(args[i].equalsIgnoreCase("blocks")) {
 				tables.add("blocks");
 			} else if(args[i].equalsIgnoreCase("interactions")) {
@@ -65,6 +67,8 @@ public class CommandClear extends BlockLogCommand {
 				tables.add("deaths");
 			} else if(args[i].equalsIgnoreCase("kills")) {
 				tables.add("kills");
+			} else if(args[i].equalsIgnoreCase("commands")) {
+				tables.add("commands");
 			}
 		}
 		

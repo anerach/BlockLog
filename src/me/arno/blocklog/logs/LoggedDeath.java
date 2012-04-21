@@ -62,10 +62,10 @@ public class LoggedDeath {
 	}
 	
 	public Integer getY() {
-		return location.getBlockX();
+		return location.getBlockY();
 	}
 	
 	public Integer getZ() {
-		return location.getBlockX();
+		return location.getBlockZ();
 	}
 }

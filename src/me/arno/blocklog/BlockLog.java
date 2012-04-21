@@ -188,7 +188,7 @@ public class BlockLog extends JavaPlugin {
     	
     	for(String plugin : plugins) {
     		if(getServer().getPluginManager().isPluginEnabled(plugin)) {
-    			softDepends.put("GriefPrevention", getServer().getPluginManager().getPlugin("GriefPrevention"));
+    			softDepends.put(plugin, getServer().getPluginManager().getPlugin(plugin));
     		}
     	}
 	}

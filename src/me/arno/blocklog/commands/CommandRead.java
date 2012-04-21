@@ -1,6 +1,5 @@
 package me.arno.blocklog.commands;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -9,37 +8,18 @@ import me.arno.blocklog.BlockLog;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class CommandRead implements CommandExecutor {
-	BlockLog plugin;
-	Connection conn;
-	
+public class CommandRead extends BlockLogCommand {
 	public CommandRead(BlockLog plugin) {
-		this.plugin = plugin;
-		this.conn = plugin.conn;
-		
+		super(plugin);
 	}
 	
-	@Override
-	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		Player player = null;
-		
-		if (sender instanceof Player)
-			player = (Player) sender;
-		
-		if(!cmd.getName().equalsIgnoreCase("blread"))
-			return true;
-		
-		if (player == null) {
-			sender.sendMessage("This command can only be run by a player");
+	public boolean execute(Player player, Command cmd, String[] args) {
+		if(args.length > 1) {
+			player.sendMessage(ChatColor.WHITE + "/bl read [id]");
 			return true;
 		}
-		
-		if(args.length > 1)
-			return false;
 		
 		if(!plugin.getConfig().getBoolean("blocklog.reports")) {
 			player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "The report system is disabled");

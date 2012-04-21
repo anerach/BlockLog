@@ -1,48 +1,31 @@
 package me.arno.blocklog.commands;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.database.DatabaseSettings;
 
-public class CommandRollbackList implements CommandExecutor {
-	BlockLog plugin;
-	Logger log;
-	Connection conn;
-	
+public class CommandRollbackList extends BlockLogCommand {
 	public CommandRollbackList(BlockLog plugin) {
-		this.plugin = plugin;
-		this.log = plugin.log;
-		this.conn = plugin.conn;
+		super(plugin);
 	}
-	
-	@Override
-	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		Player player = null;
-		
-		if (sender instanceof Player)
-			player = (Player) sender;
-		
-		if(!cmd.getName().equalsIgnoreCase("blrollbacklist"))
-			return false;
-		
-		if (player == null) {
-			sender.sendMessage("This command can only be run by a player");
+
+	public boolean execute(Player player, Command cmd, String[] args) {
+		if(args.length > 0) {
+			player.sendMessage(ChatColor.WHITE + "/bl rollbacklist");
 			return true;
 		}
 		
-		if(args.length > 0)
-			return false;
+		if(!plugin.getConfig().getBoolean("blocklog.reports")) {
+			player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "The report system is disabled");
+			return true;
+		}
 		
 		try {
 			Statement rollbacksStmt = conn.createStatement();

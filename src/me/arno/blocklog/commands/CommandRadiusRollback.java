@@ -1,47 +1,28 @@
 package me.arno.blocklog.commands;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.schedules.Rollback;
 
-public class CommandRadiusRollback implements CommandExecutor {
-	BlockLog plugin;
-	Logger log;
-	Connection conn;
-	
+public class CommandRadiusRollback extends BlockLogCommand {
 	public CommandRadiusRollback(BlockLog plugin) {
-		this.plugin = plugin;
-		this.log = plugin.log;
-		this.conn = plugin.conn;
+		super(plugin);
 	}
 	
-	@Override
-	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		Player player = null;
-		
-		if (sender instanceof Player)
-			player = (Player) sender;
-		
-		if(!cmd.getName().equalsIgnoreCase("blrollbackradius"))
-			return false;
-		
-		if (player == null) {
-			sender.sendMessage("This command can only be run by a player");
+	public boolean execute(Player player, Command cmd, String[] args) {
+		if(args.length > 1) {
+			player.sendMessage(ChatColor.WHITE + "/bl rollbackradius <radius> [player] <time> <secs|mins|hours|days|weeks>");
 			return true;
 		}
 		
@@ -111,7 +92,7 @@ public class CommandRadiusRollback implements CommandExecutor {
 			if(target == null)
 				blocks = blocksStmt.executeQuery(String.format("SELECT * FROM blocklog_blocks WHERE date > %s AND rollback_id = 0 AND world = '%s' AND x >= %s AND x <= %s AND y >= %s AND y <= %s AND z >= %s AND z <= %s GROUP BY x, y, z ORDER BY date DESC", time, world.getName(), xMin,xMax,yMin,yMax,zMin,zMax));
 			else
-				blocks = blocksStmt.executeQuery(String.format("SELECT * FROM blocklog_blocks WHERE date > %s AND rollback_id = 0 AND world = '%s' AND x >= %s AND x <= %s AND y >= %s AND y <= %s AND z >= %s AND z <= %s AND player = '%s' GROUP BY x, y, z ORDER BY date DESC", time, world.getName(), xMin,xMax,yMin,yMax,zMin,zMax, player.getName()));
+				blocks = blocksStmt.executeQuery(String.format("SELECT * FROM blocklog_blocks WHERE date > %s AND rollback_id = 0 AND world = '%s' AND x >= %s AND x <= %s AND y >= %s AND y <= %s AND z >= %s AND z <= %s AND player = '%s' GROUP BY x, y, z ORDER BY date DESC", time, world.getName(), xMin,xMax,yMin,yMax,zMin,zMax, target));
 			
 			plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Rollback(plugin, player, target, rollbackID, blocks));
 			

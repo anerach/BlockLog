@@ -7,32 +7,21 @@ import me.arno.blocklog.BlockLog;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-public class CommandWand implements CommandExecutor {
+public class CommandWand extends BlockLogCommand {
 	BlockLog plugin;
 	HashMap<String, ItemStack> playerItemStack = new HashMap<String, ItemStack>();
 	HashMap<String, Integer> playerItemSlot = new HashMap<String, Integer>();
 	
 	public CommandWand(BlockLog plugin) {
-		this.plugin = plugin;
-		
+		super(plugin);
 	}
-	@Override
-	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		Player player = null;
-		
-		if (sender instanceof Player)
-			player = (Player) sender;
-		
-		if(!cmd.getName().equalsIgnoreCase("blwand"))
-			return true;
-		
-		if (player == null) {
-			sender.sendMessage("This command can only be run by a player");
+
+	public boolean execute(Player player, Command cmd, String[] args) {
+		if(args.length > 0) {
+			player.sendMessage(ChatColor.WHITE + "/bl wand");
 			return true;
 		}
 		

@@ -1,45 +1,32 @@
 package me.arno.blocklog.commands;
 
-import java.util.logging.Logger;
-
 import me.arno.blocklog.BlockLog;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class CommandSave implements CommandExecutor {
-	BlockLog plugin;
-	Logger log;
-	
+public class CommandSave extends BlockLogCommand {
 	public CommandSave(BlockLog plugin) {
-		this.plugin = plugin;
-		this.log = plugin.log;
+		super(plugin);
 	}
-	
-	@Override
-	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		Player player = null;
+
+	public boolean execute(Player player, Command cmd, String[] args) {
+		if(args.length > 1) {
+			player.sendMessage(ChatColor.WHITE + "/bl save [amount|all]");
+			return true;
+		}
 		
-		if (sender instanceof Player)
-			player = (Player) sender;
-		
-		if(!(cmd.getName().equalsIgnoreCase("blsave") || cmd.getName().equalsIgnoreCase("blfullsave")))
-			return false;
-		
-		if(cmd.getName().equalsIgnoreCase("blsave")) {
+		if(args[0].equalsIgnoreCase("all")) {
+			plugin.saveLogs(0, player);
+		} else {
 			int blockCount = 100;
 			if(args.length == 1)
 				blockCount = Integer.parseInt(args[0]);
-			
+				
 			plugin.saveLogs(blockCount, player);
-			return true;
-		} else if(cmd.getName().equalsIgnoreCase("blfullsave")) {
-			plugin.saveLogs(0, player);
-			return true;
 		}
-		return false;
+		return true;
 	}
 
 }

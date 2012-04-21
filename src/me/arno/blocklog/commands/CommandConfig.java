@@ -1,83 +1,64 @@
 package me.arno.blocklog.commands;
 
 import me.arno.blocklog.BlockLog;
-import me.arno.blocklog.Config;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class CommandConfig implements CommandExecutor {
-	BlockLog plugin;
-	Config cfg;
-	
+public class CommandConfig extends BlockLogCommand {
 	public CommandConfig(BlockLog plugin) {
-		this.plugin = plugin;
-		this.cfg = plugin.cfg;
+		super(plugin);
 	}
-	
-	@Override
-	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		Player player = null;
-		
-		if (sender instanceof Player)
-			player = (Player) sender;
-		
-		if(!cmd.getName().equalsIgnoreCase("blconfig"))
-			return false;
-		
-		if (player == null) {
-			sender.sendMessage("This command can only be run by a player");
+
+	public boolean execute(Player player, Command cmd, String[] args) {
+		if(args.length < 1) {
+			player.sendMessage(ChatColor.WHITE + "/bl config <set|get|help> <config> [value]");
 			return true;
 		}
 		
-		if(args.length < 1)
-			return false;
-		
-		String Action = args[0].toString();
+		String action = args[0].toString();
 		String ConfigKey;
 		String ConfigValue;
 		
 		if(player.isOp() || player.hasPermission("blocklog.config")) {
-			if(Action.equalsIgnoreCase("help")) {
+			if(action.equalsIgnoreCase("help")) {
 				player.sendMessage(ChatColor.DARK_RED + "[BlockLog][Config] " + ChatColor.GOLD + "Help");
 				player.sendMessage(ChatColor.DARK_GREEN + "/blconfig help - Shows this message");
 				player.sendMessage(ChatColor.DARK_GREEN + "/blconfig set <key> <value> - Changes a blocklog config value");
 				player.sendMessage(ChatColor.DARK_GREEN + "/blconfig get <key> - Shows a blocklog config value");
-			} else if(Action.equalsIgnoreCase("set")) {
+			} else if(action.equalsIgnoreCase("set")) {
 				if(args.length != 3)
 					return false;
 				
 				ConfigKey = args[1];
 				ConfigValue = args[2];
 				
-				if(cfg.getConfig().isString(ConfigKey))
-					cfg.getConfig().set(ConfigKey, ConfigValue);
-				else if(cfg.getConfig().isInt(ConfigKey))
-					cfg.getConfig().set(ConfigKey, Integer.parseInt(ConfigValue));
-				else if(cfg.getConfig().isBoolean(ConfigKey))
-					cfg.getConfig().set(ConfigKey, Boolean.parseBoolean(ConfigValue));
+				if(getConfig().isString(ConfigKey))
+					getConfig().set(ConfigKey, ConfigValue);
+				else if(getConfig().isInt(ConfigKey))
+					getConfig().set(ConfigKey, Integer.parseInt(ConfigValue));
+				else if(getConfig().isBoolean(ConfigKey))
+					getConfig().set(ConfigKey, Boolean.parseBoolean(ConfigValue));
 				else
 					return false;
 				
 				player.sendMessage(ChatColor.DARK_RED +"[BlockLog][Config] " + ChatColor.GOLD + "Changed value of " + ConfigKey + " to " + ConfigValue);
-				cfg.saveConfig();
-				cfg.reloadConfig();
-			} else if(Action.equalsIgnoreCase("get")) {
+				saveConfig();
+				reloadConfig();
+			} else if(action.equalsIgnoreCase("get")) {
 				if(args.length != 2)
 					return false;
 				
 				ConfigKey = args[1].toString();
 				
 				String Result;
-				if(cfg.getConfig().isString(ConfigKey))
-					Result = cfg.getConfig().getString(ConfigKey);
-				else if(cfg.getConfig().isInt(ConfigKey))
-					Result = Integer.toString(cfg.getConfig().getInt(ConfigKey));
-				else if(cfg.getConfig().isBoolean(ConfigKey))
-					Result = Boolean.toString(cfg.getConfig().getBoolean(ConfigKey));
+				if(getConfig().isString(ConfigKey))
+					Result = getConfig().getString(ConfigKey);
+				else if(getConfig().isInt(ConfigKey))
+					Result = Integer.toString(getConfig().getInt(ConfigKey));
+				else if(getConfig().isBoolean(ConfigKey))
+					Result = Boolean.toString(getConfig().getBoolean(ConfigKey));
 				else 
 					return false;
 				

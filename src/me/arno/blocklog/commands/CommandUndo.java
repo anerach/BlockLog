@@ -1,6 +1,5 @@
 package me.arno.blocklog.commands;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -8,38 +7,20 @@ import java.sql.Statement;
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.schedules.UndoRollback;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class CommandUndo implements CommandExecutor {
-
-	BlockLog plugin;
-	Connection conn;
-	
+public class CommandUndo extends BlockLogCommand {
 	public CommandUndo(BlockLog plugin) {
-		this.plugin = plugin;
-		this.conn = plugin.conn;
+		super(plugin);
 	}
-	
-	@Override
-	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		Player player = null;
-		
-		if(sender instanceof Player)
-			player = (Player) sender;
-		
-		if(!cmd.getName().equalsIgnoreCase("blundo"))
-			return false;
-		
-		if(player == null) {
-			sender.sendMessage("This command can only be run by a player");
+
+	public boolean execute(Player player, Command cmd, String[] args) {
+		if(args.length > 1) {
+			player.sendMessage(ChatColor.WHITE + "/bl undo [id]");
 			return true;
 		}
-		
-		if(args.length > 1)
-			return false;
 		
 		int rollbackID = 0;
 		

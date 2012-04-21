@@ -1,10 +1,8 @@
 package me.arno.blocklog.commands;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.logging.Logger;
 
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.database.DatabaseSettings;
@@ -12,38 +10,18 @@ import me.arno.blocklog.database.DatabaseSettings;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class CommandSearch implements CommandExecutor {
-	BlockLog plugin;
-	Connection conn;
-	Logger log;
-	
+public class CommandSearch extends BlockLogCommand {
 	public CommandSearch(BlockLog plugin) {
-		this.plugin = plugin;
-		this.conn = plugin.conn;
-		this.log = plugin.log;
+		super(plugin);
 	}
-	
-	@Override
-	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		Player player = null;
-		
-		if (sender instanceof Player)
-			player = (Player) sender;
-		
-		if(!cmd.getName().equalsIgnoreCase("blsearch"))
-			return true;
-		
-		if (player == null) {
-			sender.sendMessage("This command can only be run by a player");
+
+	public boolean execute(Player player, Command cmd, String[] args) {
+		if(args.length != 1) {
+			player.sendMessage(ChatColor.WHITE + "/bl search <player>");
 			return true;
 		}
-		
-		if(args.length != 1)
-			return false;
 		
 		try {
 			Statement stmt = conn.createStatement();

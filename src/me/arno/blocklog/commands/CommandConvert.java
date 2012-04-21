@@ -4,26 +4,49 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.logging.Logger;
 
 import me.arno.blocklog.BlockLog;
-import me.arno.blocklog.Config;
 import me.arno.blocklog.database.DatabaseSettings;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
-public class CommandConvert implements CommandExecutor {
-	BlockLog plugin;
-	Logger log;
-	DatabaseSettings dbSettings;
-	
+public class CommandConvert extends BlockLogCommand {
 	public CommandConvert(BlockLog plugin) {
-		this.plugin = plugin;
-		this.log = plugin.log;
+		super(plugin);
 	}
 	
+	public boolean execute(Player player, Command cmd, String[] args) {
+		if(args.length > 0) {
+			player.sendMessage(ChatColor.WHITE + "/bl convert");
+			return true;
+		}
+		
+		if(DatabaseSettings.DBType().equalsIgnoreCase("mysql")) {
+			log.info("Converting from MySQL to SQLite");
+			if(MySQLToSQLite()) {
+				log.info("Succesfully converted the database");
+				getConfig().set("database.type", "SQLite");
+				saveConfig();
+				log.info("Please restart the server");
+			} else
+				log.severe("An error has occured while converting the database.");
+		} else if(DatabaseSettings.DBType().equalsIgnoreCase("sqlite")) {
+			log.info("Converting from SQLite to MySQL");
+			if(SQLiteToMySQL()) {
+				log.info("Succesfully converted the database");
+				getConfig().set("database.type", "MySQL");
+				saveConfig();
+				log.info("Please restart the server");
+			} else
+				log.severe("An error has occured while converting the database.");
+		} else
+			log.info("Incorrect DB Type: " + DatabaseSettings.DBType());
+		
+		return true;
+	}
+
 	public boolean MySQLToSQLite() {
 		try {
 			Connection MySQLConn = plugin.conn;
@@ -149,39 +172,5 @@ public class CommandConvert implements CommandExecutor {
 			e.printStackTrace();
 		}
 		return false;
-	}
-	
-	@Override
-	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		if(!cmd.getName().equalsIgnoreCase("blconvert"))
-			return false;
-		
-		if(args.length > 0)
-			return false;
-		
-		if(DatabaseSettings.DBType().equalsIgnoreCase("mysql")) {
-			log.info("Converting from MySQL to SQLite");
-			if(MySQLToSQLite()) {
-				log.info("Succesfully converted the database");
-				Config cfg = new Config();
-				cfg.getConfig().set("database.type", "SQLite");
-				cfg.saveConfig();
-				log.info("Please restart the server");
-			} else
-				log.severe("An error has occured while converting the database.");
-		} else if(DatabaseSettings.DBType().equalsIgnoreCase("sqlite")) {
-			log.info("Converting from SQLite to MySQL");
-			if(SQLiteToMySQL()) {
-				log.info("Succesfully converted the database");
-				Config cfg = new Config();
-				cfg.getConfig().set("database.type", "MySQL");
-				cfg.saveConfig();
-				log.info("Please restart the server");
-			} else
-				log.severe("An error has occured while converting the database.");
-		} else
-			log.info("Incorrect DB Type: " + DatabaseSettings.DBType());
-		
-		return true;
 	}
 }

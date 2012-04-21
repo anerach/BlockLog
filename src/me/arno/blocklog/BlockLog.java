@@ -245,23 +245,6 @@ public class BlockLog extends JavaPlugin {
 		log.info("Starting BlockLog");
     	new PushBlocks(this);
     	
-    	getCommand("blrollback").setExecutor(new CommandRollback(this));
-    	getCommand("blrollbackradius").setExecutor(new CommandRadiusRollback(this));
-    	getCommand("blrb").setExecutor(new CommandRollback(this));
-    	getCommand("blconfig").setExecutor(new CommandConfig(this));
-    	getCommand("blcfg").setExecutor(new CommandConfig(this));
-    	getCommand("blwand").setExecutor(new CommandWand(this));
-    	getCommand("blstorage").setExecutor(new CommandStorage(this));
-    	getCommand("blsave").setExecutor(new CommandSave(this));
-    	getCommand("blfullsave").setExecutor(new CommandSave(this));
-    	getCommand("blreload").setExecutor(new CommandReload(this));
-    	getCommand("blundo").setExecutor(new CommandUndo(this));
-    	getCommand("blconvert").setExecutor(new CommandConvert(this));
-    	getCommand("blreport").setExecutor(new CommandReport(this));
-    	getCommand("blread").setExecutor(new CommandRead(this));
-    	getCommand("blsearch").setExecutor(new CommandSearch(this));
-    	getCommand("blrollbacklist").setExecutor(new CommandRollbackList(this));
-    	
     	getServer().getPluginManager().registerEvents(new WandListener(this), this);
     	getServer().getPluginManager().registerEvents(new BlockListener(this), this);
     	getServer().getPluginManager().registerEvents(new InteractionListener(this), this);
@@ -341,12 +324,54 @@ public class BlockLog extends JavaPlugin {
 			newArgs[i-1] = args[i];
 		}
 		
-		if(args[0].equalsIgnoreCase("help")) {
-			CommandHelp cmdHelp = new CommandHelp(this);
-			return cmdHelp.execute(player, cmd, newArgs);
+		if(args[0].equalsIgnoreCase("help") || args[0].equalsIgnoreCase("h")) {
+			CommandHelp command = new CommandHelp(this);
+			return command.execute(player, cmd, newArgs);
 		} else if(args[0].equalsIgnoreCase("autosave")) {
-			CommandAutoSave cmdAutoSave = new CommandAutoSave(this);
-			return cmdAutoSave.execute(player, cmd, newArgs);
+			CommandAutoSave command = new CommandAutoSave(this);
+			return command.execute(player, cmd, newArgs);
+		} else if(args[0].equalsIgnoreCase("clear")) {
+			CommandClear command = new CommandClear(this);
+			return command.execute(player, cmd, newArgs);
+		} else if(args[0].equalsIgnoreCase("cfg") || args[0].equalsIgnoreCase("config")) {
+			CommandConfig command = new CommandConfig(this);
+			return command.execute(player, cmd, newArgs);
+		} else if(args[0].equalsIgnoreCase("convert")) {
+			CommandConvert command = new CommandConvert(this);
+			return command.execute(player, cmd, newArgs);
+		} else if(args[0].equalsIgnoreCase("rollbackradius") || args[0].equalsIgnoreCase("rbr")) {
+			CommandConvert command = new CommandConvert(this);
+			return command.execute(player, cmd, newArgs);
+		} else if(args[0].equalsIgnoreCase("read")) {
+			CommandRead command = new CommandRead(this);
+			return command.execute(player, cmd, newArgs);
+		} else if(args[0].equalsIgnoreCase("reload")) {
+			CommandReload command = new CommandReload(this);
+			return command.execute(player, cmd, newArgs);
+		} else if(args[0].equalsIgnoreCase("report")) {
+			CommandReport command = new CommandReport(this);
+			return command.execute(player, cmd, newArgs);
+		} else if(args[0].equalsIgnoreCase("rollback")) {
+			CommandRollback command = new CommandRollback(this);
+			return command.execute(player, cmd, newArgs);
+		} else if(args[0].equalsIgnoreCase("rollbacklist")) {
+			CommandRollbackList command = new CommandRollbackList(this);
+			return command.execute(player, cmd, newArgs);
+		} else if(args[0].equalsIgnoreCase("save")) {
+			CommandSave command = new CommandSave(this);
+			return command.execute(player, cmd, newArgs);
+		} else if(args[0].equalsIgnoreCase("search")) {
+			CommandSearch command = new CommandSearch(this);
+			return command.execute(player, cmd, newArgs);
+		} else if(args[0].equalsIgnoreCase("storage")) {
+			CommandStorage command = new CommandStorage(this);
+			return command.execute(player, cmd, newArgs);
+		} else if(args[0].equalsIgnoreCase("undo")) {
+			CommandUndo command = new CommandUndo(this);
+			return command.execute(player, cmd, newArgs);
+		} else if(args[0].equalsIgnoreCase("wand")) {
+			CommandWand command = new CommandWand(this);
+			return command.execute(player, cmd, newArgs);
 		}
 		return true;
 	}

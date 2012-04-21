@@ -1,52 +1,30 @@
 package me.arno.blocklog.commands;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.schedules.Rollback;
 
-public class CommandRollback implements CommandExecutor {
-	BlockLog plugin;
-	Logger log;
-	Connection conn;
-	
+public class CommandRollback extends BlockLogCommand {
 	public CommandRollback(BlockLog plugin) {
-		this.plugin = plugin;
-		this.log = plugin.log;
-		this.conn = plugin.conn;
+		super(plugin);
 	}
-	
-	@Override
-	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		Player player = null;
-		
-		if (sender instanceof Player)
-			player = (Player) sender;
-		
-		if(!cmd.getName().equalsIgnoreCase("blrollback"))
-			return false;
-		
-		if (player == null) {
-			sender.sendMessage("This command can only be run by a player");
+
+	public boolean execute(Player player, Command cmd, String[] args) {
+		if(args.length < 2 || args.length > 3) {
+			player.sendMessage(ChatColor.WHITE + "/bl rollback [player] <amount> <sec|min|hour|day|week>");
 			return true;
 		}
-		
-		if(args.length < 2 || args.length > 3)
-			return false;
 		
 		try {
 			Set<String> Second = new HashSet<String>(Arrays.asList("s", "sec","secs","second","seconds"));

@@ -1,6 +1,5 @@
 package me.arno.blocklog.commands;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -8,42 +7,23 @@ import me.arno.blocklog.BlockLog;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class CommandReport implements CommandExecutor {
-	BlockLog plugin;
-	Connection conn;
-	
+public class CommandReport extends BlockLogCommand {
 	public CommandReport(BlockLog plugin) {
-		this.plugin = plugin;
-		this.conn = plugin.conn;
-		
+		super(plugin);
 	}
-	@Override
-	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		Player player = null;
-		
-		if (sender instanceof Player)
-			player = (Player) sender;
-		
-		if(!cmd.getName().equalsIgnoreCase("blreport"))
-			return true;
-		
-		if (player == null) {
-			sender.sendMessage("This command can only be run by a player");
+
+	public boolean execute(Player player, Command cmd, String[] args) {
+		if(args.length < 1) {
+			player.sendMessage(ChatColor.WHITE + "/bl report <message>");
 			return true;
 		}
-		
-		if(args.length < 1)
-			return false;
 		
 		if(!plugin.getConfig().getBoolean("blocklog.reports")) {
 			player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "The report system is disabled");
 			return true;
 		}
-			
 		
 		String msg = "";
 		

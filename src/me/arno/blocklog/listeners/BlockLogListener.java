@@ -7,6 +7,7 @@ import me.arno.blocklog.Config;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
@@ -46,5 +47,9 @@ public class BlockLogListener implements Listener {
 				sendAdminMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "If you want to save all these blocks use " + ChatColor.DARK_BLUE + "/blfullsave" + ChatColor.GOLD + " or " + ChatColor.DARK_BLUE + "/blsave <blocks>");
 			}
 		}
+	}
+	
+	public FileConfiguration getConfig() {
+		return plugin.cfg.getConfig();
 	}
 }

@@ -60,6 +60,9 @@ public class Config {
 	    getConfig().addDefault("logs.form", false);
 	    getConfig().addDefault("logs.fade", false);
 	    getConfig().addDefault("logs.spread", false);
+	    getConfig().addDefault("logs.chat", false);
+	    getConfig().addDefault("logs.kill", false);
+	    getConfig().addDefault("logs.death", false);
 	   	getConfig().addDefault("blocklog.wand", 369);
 	    getConfig().addDefault("blocklog.results", 5);
 	    getConfig().addDefault("blocklog.warning.blocks", 500);

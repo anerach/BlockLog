@@ -21,7 +21,7 @@ public class PlayerListener extends BlockLogListener {
 	
 	@EventHandler
 	public void onPlayerChat(PlayerChatEvent event) {
-		if(!event.isCancelled()) {
+		if(!event.isCancelled() && getConfig().getBoolean("logs.chat")) {
 			Player player = event.getPlayer();
 			LoggedChat lchat = new LoggedChat(plugin, player, event.getMessage());
 			lchat.save();
@@ -31,7 +31,7 @@ public class PlayerListener extends BlockLogListener {
 	@EventHandler
 	public void onEntityDeath(EntityDeathEvent event) {
 		if(event.getEntityType() == EntityType.PLAYER) {
-			if(event.getEntity() instanceof Player) {
+			if(event.getEntity() instanceof Player && getConfig().getBoolean("logs.death")) {
 				Player player = (Player) event.getEntity();
 				
 				DamageCause deathCause = event.getEntity().getLastDamageCause().getCause();
@@ -66,7 +66,7 @@ public class PlayerListener extends BlockLogListener {
 			LivingEntity victem = event.getEntity();
 			Player killer = event.getEntity().getKiller();
 			
-			if(killer != null) {
+			if(killer != null && getConfig().getBoolean("logs.kill")) {
 				LoggedKill lkill = new LoggedKill(plugin, victem, killer);
 				lkill.save();
 			}

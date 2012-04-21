@@ -17,17 +17,19 @@ import me.arno.blocklog.schedules.Rollback;
 
 public class CommandRadiusRollback extends BlockLogCommand {
 	public CommandRadiusRollback(BlockLog plugin) {
-		super(plugin);
+		super(plugin, "blocklog.rollback");
 	}
 	
 	public boolean execute(Player player, Command cmd, String[] args) {
-		if(args.length > 1) {
+		if(args.length < 3 || args.length > 4) {
 			player.sendMessage(ChatColor.WHITE + "/bl rollbackradius <radius> [player] <time> <secs|mins|hours|days|weeks>");
 			return true;
 		}
 		
-		if(args.length < 3 || args.length > 4)
-			return false;
+		if(!hasPermission(player)) {
+			player.sendMessage("You don't have permission");
+			return true;
+		}
 		
 		try {
 			String target = null;

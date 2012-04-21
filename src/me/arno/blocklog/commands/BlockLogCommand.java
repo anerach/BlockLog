@@ -13,11 +13,17 @@ public class BlockLogCommand {
 	public final BlockLog plugin;
 	public final Logger log;
 	public final Connection conn;
+	public final String permission;
 	
 	public BlockLogCommand(BlockLog plugin) {
+		this(plugin, null);
+	}
+	
+	public BlockLogCommand(BlockLog plugin, String permission) {
 		this.plugin = plugin;
 		this.log = plugin.log;
 		this.conn = plugin.conn;
+		this.permission = permission;
 	}
 	
 	public void sendAdminMessage(String msg) {
@@ -26,6 +32,14 @@ public class BlockLogCommand {
 	    		player.sendMessage(msg);
 	        }
 	    }
+	}
+	
+	public Boolean hasPermission(Player player) {
+		if(player == null)
+			return false;
+		if(permission != null)
+			return player.hasPermission(permission);
+		return player.isOp();
 	}
 	
 	public FileConfiguration getConfig() {

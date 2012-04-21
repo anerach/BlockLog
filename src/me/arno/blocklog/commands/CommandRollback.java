@@ -3,6 +3,7 @@ package me.arno.blocklog.commands;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -17,12 +18,18 @@ import me.arno.blocklog.schedules.Rollback;
 
 public class CommandRollback extends BlockLogCommand {
 	public CommandRollback(BlockLog plugin) {
-		super(plugin);
+		super(plugin, "blocklog.rollback");
 	}
 
-	public boolean execute(Player player, Command cmd, String[] args) {
+	public boolean execute(Player player, Command cmd, ArrayList<String> listArgs) {
+		String[] args = (String[]) listArgs.toArray();
 		if(args.length < 2 || args.length > 3) {
 			player.sendMessage(ChatColor.WHITE + "/bl rollback [player] <amount> <sec|min|hour|day|week>");
+			return true;
+		}
+		
+		if(!hasPermission(player)) {
+			player.sendMessage("You don't have permission");
 			return true;
 		}
 		

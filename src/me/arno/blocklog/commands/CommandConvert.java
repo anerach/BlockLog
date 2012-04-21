@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.database.DatabaseSettings;
@@ -17,9 +18,15 @@ public class CommandConvert extends BlockLogCommand {
 		super(plugin);
 	}
 	
-	public boolean execute(Player player, Command cmd, String[] args) {
+	public boolean execute(Player player, Command cmd, ArrayList<String> listArgs) {
+		String[] args = (String[]) listArgs.toArray();
 		if(args.length > 0) {
 			player.sendMessage(ChatColor.WHITE + "/bl convert");
+			return true;
+		}
+		
+		if(!hasPermission(player)) {
+			player.sendMessage("You don't have permission");
 			return true;
 		}
 		

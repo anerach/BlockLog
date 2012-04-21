@@ -299,6 +299,15 @@ public class BlockLog extends JavaPlugin {
 		log.info("v" + PluginDesc.getVersion() + " is disabled!");
 	}
 	
+	public boolean hasPermission(BlockLogCommand cmd, Player player) {
+		if(cmd.hasPermission(player)) {
+			return true;
+		} else {
+			player.sendMessage(ChatColor.WHITE + "You don't have permission to do this.");
+			return false;
+		}
+	}
+	
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
 		Player player = null;
 		
@@ -318,10 +327,12 @@ public class BlockLog extends JavaPlugin {
 			return true;
 		}
 		
-		String[] newArgs = args;
+		ArrayList<String> newArgs = new ArrayList<String>();
 		
-		for(int i=1;i<=args.length;i++) {
-			newArgs[i-1] = args[i];
+		if(args.length > 1) {
+			for(int i=1;i<args.length;i++) {
+				newArgs.add(args[i]);
+			}
 		}
 		
 		if(args[0].equalsIgnoreCase("help") || args[0].equalsIgnoreCase("h")) {

@@ -2,6 +2,7 @@ package me.arno.blocklog.commands;
 
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -14,12 +15,18 @@ import org.bukkit.entity.Player;
 
 public class CommandClear extends BlockLogCommand {
 	public CommandClear(BlockLog plugin) {
-		super(plugin);
+		super(plugin, "blocklog.clear");
 	}
 	
-	public boolean execute(Player player, Command cmd, String[] args) {
+	public boolean execute(Player player, Command cmd, ArrayList<String> listArgs) {
+		String[] args = listArgs.toArray(new String[]{});
 		if(args.length != 2) {
 			player.sendMessage(ChatColor.WHITE + "/bl clear [amount] [days|weeks]");
+			return true;
+		}
+		
+		if(!hasPermission(player)) {
+			player.sendMessage("You don't have permission");
 			return true;
 		}
 		

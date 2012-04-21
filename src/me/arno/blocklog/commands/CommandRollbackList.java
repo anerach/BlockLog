@@ -3,6 +3,7 @@ package me.arno.blocklog.commands;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -13,17 +14,18 @@ import me.arno.blocklog.database.DatabaseSettings;
 
 public class CommandRollbackList extends BlockLogCommand {
 	public CommandRollbackList(BlockLog plugin) {
-		super(plugin);
+		super(plugin, "blocklog.rollback");
 	}
 
-	public boolean execute(Player player, Command cmd, String[] args) {
+	public boolean execute(Player player, Command cmd, ArrayList<String> listArgs) {
+		String[] args = (String[]) listArgs.toArray();
 		if(args.length > 0) {
 			player.sendMessage(ChatColor.WHITE + "/bl rollbacklist");
 			return true;
 		}
 		
-		if(!plugin.getConfig().getBoolean("blocklog.reports")) {
-			player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "The report system is disabled");
+		if(!hasPermission(player)) {
+			player.sendMessage("You don't have permission");
 			return true;
 		}
 		

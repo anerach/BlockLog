@@ -1,5 +1,7 @@
 package me.arno.blocklog.commands;
 
+import java.util.ArrayList;
+
 import me.arno.blocklog.BlockLog;
 
 import org.bukkit.ChatColor;
@@ -8,12 +10,18 @@ import org.bukkit.entity.Player;
 
 public class CommandConfig extends BlockLogCommand {
 	public CommandConfig(BlockLog plugin) {
-		super(plugin);
+		super(plugin, "blocklog.config");
 	}
 
-	public boolean execute(Player player, Command cmd, String[] args) {
+	public boolean execute(Player player, Command cmd, ArrayList<String> listArgs) {
+		String[] args = listArgs.toArray(new String[]{});
 		if(args.length < 1) {
 			player.sendMessage(ChatColor.WHITE + "/bl config <set|get|help> <config> [value]");
+			return true;
+		}
+		
+		if(!hasPermission(player)) {
+			player.sendMessage("You don't have permission");
 			return true;
 		}
 		

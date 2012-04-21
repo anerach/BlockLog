@@ -2,6 +2,7 @@ package me.arno.blocklog.commands;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import me.arno.blocklog.BlockLog;
 
@@ -11,10 +12,11 @@ import org.bukkit.entity.Player;
 
 public class CommandReport extends BlockLogCommand {
 	public CommandReport(BlockLog plugin) {
-		super(plugin);
+		super(plugin, "blocklog.report.write");
 	}
 
-	public boolean execute(Player player, Command cmd, String[] args) {
+	public boolean execute(Player player, Command cmd, ArrayList<String> listArgs) {
+		String[] args = (String[]) listArgs.toArray();
 		if(args.length < 1) {
 			player.sendMessage(ChatColor.WHITE + "/bl report <message>");
 			return true;
@@ -22,6 +24,11 @@ public class CommandReport extends BlockLogCommand {
 		
 		if(!plugin.getConfig().getBoolean("blocklog.reports")) {
 			player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "The report system is disabled");
+			return true;
+		}
+		
+		if(!hasPermission(player)) {
+			player.sendMessage("You don't have permission");
 			return true;
 		}
 		

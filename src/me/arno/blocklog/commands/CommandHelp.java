@@ -4,35 +4,18 @@ import me.arno.blocklog.BlockLog;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class CommandHelp implements CommandExecutor {
-
-	BlockLog plugin;
-	
+public class CommandHelp extends BlockLogCommand {
 	public CommandHelp(BlockLog plugin) {
-		this.plugin = plugin;
+		super(plugin);
 	}
 
-	@Override
-	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		Player player = null;
-		
-		if (sender instanceof Player)
-			player = (Player) sender;
-		
-		if(!cmd.getName().equalsIgnoreCase("blhelp"))
-			return false;
-		
-		if (player == null) {
-			sender.sendMessage("This command can only be run by a player");
+	public boolean execute(Player player, Command cmd, String[] args) {
+		if(args.length > 0) {
+			player.sendMessage(ChatColor.WHITE + "/bl help");
 			return true;
 		}
-		
-		if(args.length > 0)
-			return false;
 		
 		player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Commands");
 		if(player.hasPermission("blocklog.convert"))
@@ -74,7 +57,7 @@ public class CommandHelp implements CommandExecutor {
 		if(player.hasPermission("blocklog.wand"))
 			player.sendMessage(ChatColor.DARK_RED +"/blwand" + ChatColor.GOLD + " - Enables blocklog's wand");
 		
-		player.sendMessage(ChatColor.DARK_RED +"/blhelp" + ChatColor.GOLD + " - Shows this message");
+		player.sendMessage(ChatColor.DARK_RED +"/bl help" + ChatColor.GOLD + " - Shows this message");
 		player.sendMessage(ChatColor.DARK_RED +"/blocklog" + ChatColor.GOLD + " - Basic Information");
 		return true;
 	}

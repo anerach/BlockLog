@@ -1,47 +1,21 @@
 package me.arno.blocklog.commands;
 
-import java.util.logging.Logger;
-
 import me.arno.blocklog.BlockLog;
-import me.arno.blocklog.database.DatabaseSettings;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class CommandAutoSave implements CommandExecutor {
-	BlockLog plugin;
-	Logger log;
-	DatabaseSettings dbSettings;
-	
+public class CommandAutoSave extends BlockLogCommand {
 	public CommandAutoSave(BlockLog plugin) {
-		this.plugin = plugin;
-		this.log = plugin.log;
-	}
-
-	public void sendAdminMessage(String msg) {
-		for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-	    	if (player.isOp() || player.hasPermission("blocklog.notices")) {
-	    		player.sendMessage(msg);
-	        }
-	    }
+		super(plugin);
 	}
 	
-	@Override
-	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		Player player = null;
-		
-		if (sender instanceof Player)
-			player = (Player) sender;
-		
-		if(!cmd.getName().equalsIgnoreCase("blautosave"))
-			return false;
-		
-		if(args.length > 2)
-			return false;
+	public boolean execute(Player player, Command cmd, String[] args) {
+		if(args.length > 1) {
+			player.sendMessage(ChatColor.WHITE + "/bl autosave [amount|info]");
+			return true;
+		}
 		
 		if(args.length == 0) {
 			plugin.autoSave = 0;
@@ -55,7 +29,6 @@ public class CommandAutoSave implements CommandExecutor {
 						log.info(String.format("Autosave configured at %s blocks", plugin.autoSave));
 					else
 						player.sendMessage(String.format(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "Autosave configured at %s blocks", plugin.autoSave));
-					
 				} else {
 					if(player == null)
 						log.info("There is no autosave configured");

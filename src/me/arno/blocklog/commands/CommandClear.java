@@ -1,49 +1,27 @@
 package me.arno.blocklog.commands;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import me.arno.blocklog.BlockLog;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class CommandClear implements CommandExecutor {
-	BlockLog plugin;
-	Logger log;
-	Connection conn;
-	
+public class CommandClear extends BlockLogCommand {
 	public CommandClear(BlockLog plugin) {
-		this.plugin = plugin;
-		this.log = plugin.log;
-		this.conn = plugin.conn;
+		super(plugin);
 	}
 	
-	@Override
-	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		Player player = null;
-		
-		if (sender instanceof Player)
-			player = (Player) sender;
-		
-		if(!cmd.getName().equalsIgnoreCase("blclear"))
-			return false;
-		
-		if (player == null) {
-			sender.sendMessage("This command can only be run by a player");
+	public boolean execute(Player player, Command cmd, String[] args) {
+		if(args.length != 2) {
+			player.sendMessage(ChatColor.WHITE + "/bl clear [amount] [days|weeks]");
 			return true;
 		}
-		
-		if(args.length != 2)
-			return false;
 		
 		try {
 			Statement stmt = conn.createStatement();

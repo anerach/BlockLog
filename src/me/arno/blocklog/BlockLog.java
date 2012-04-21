@@ -245,7 +245,6 @@ public class BlockLog extends JavaPlugin {
 		log.info("Starting BlockLog");
     	new PushBlocks(this);
     	
-    	getCommand("blhelp").setExecutor(new CommandHelp(this));
     	getCommand("blrollback").setExecutor(new CommandRollback(this));
     	getCommand("blrollbackradius").setExecutor(new CommandRadiusRollback(this));
     	getCommand("blrb").setExecutor(new CommandRollback(this));
@@ -256,9 +255,7 @@ public class BlockLog extends JavaPlugin {
     	getCommand("blsave").setExecutor(new CommandSave(this));
     	getCommand("blfullsave").setExecutor(new CommandSave(this));
     	getCommand("blreload").setExecutor(new CommandReload(this));
-    	getCommand("blclear").setExecutor(new CommandClear(this));
     	getCommand("blundo").setExecutor(new CommandUndo(this));
-    	getCommand("blautosave").setExecutor(new CommandAutoSave(this));
     	getCommand("blconvert").setExecutor(new CommandConvert(this));
     	getCommand("blreport").setExecutor(new CommandReport(this));
     	getCommand("blread").setExecutor(new CommandRead(this));
@@ -333,7 +330,24 @@ public class BlockLog extends JavaPlugin {
 			return true;
 		}
 		
-		player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "This server is using BlockLog v" + getDescription().getVersion() + " by Anerach");
+		if(args.length < 1) {
+			player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "This server is using BlockLog v" + getDescription().getVersion() + " by Anerach");
+			return true;
+		}
+		
+		String[] newArgs = args;
+		
+		for(int i=1;i<=args.length;i++) {
+			newArgs[i-1] = args[i];
+		}
+		
+		if(args[0].equalsIgnoreCase("help")) {
+			CommandHelp cmdHelp = new CommandHelp(this);
+			return cmdHelp.execute(player, cmd, newArgs);
+		} else if(args[0].equalsIgnoreCase("autosave")) {
+			CommandAutoSave cmdAutoSave = new CommandAutoSave(this);
+			return cmdAutoSave.execute(player, cmd, newArgs);
+		}
 		return true;
 	}
 }

@@ -41,19 +41,22 @@ public class BlockListener extends BlockLogListener {
 		BlockState block = event.getBlock().getState();
 		Player player = event.getPlayer();
 		
+		Boolean cancel = false;
+		
 		if(plugin.softDepends.containsKey("GriefPrevention")) {
 			GriefPrevention gp = (GriefPrevention) plugin.softDepends.get("GriefPrevention");
 			Claim claim = gp.dataStore.getClaimAt(block.getLocation(), false, null);
 			
 			if(claim != null)
-				event.setCancelled(claim.allowBuild(player) != null);
-		}
-		if(plugin.softDepends.containsKey("WorldGuard")) {
-			WorldGuardPlugin wg = (WorldGuardPlugin) plugin.softDepends.get("WorldGuard");
-			event.setCancelled(!wg.canBuild(player, block.getLocation()));
+				cancel = claim.allowBuild(player) != null;
 		}
 		
-		if(!event.isCancelled()) {
+		if(plugin.softDepends.containsKey("WorldGuard")) {
+			WorldGuardPlugin wg = (WorldGuardPlugin) plugin.softDepends.get("WorldGuard");
+			cancel = !wg.canBuild(player, block.getLocation());
+		}
+		
+		if(!event.isCancelled() && !cancel) {
 			int BLWand = cfg.getConfig().getInt("blocklog.wand");
 			boolean WandEnabled = plugin.users.contains(event.getPlayer().getName());
 			
@@ -69,20 +72,22 @@ public class BlockListener extends BlockLogListener {
 		BlockState block = event.getBlock().getState();
 		Player player = event.getPlayer();
 		
+		Boolean cancel = false;
+		
 		if(plugin.softDepends.containsKey("GriefPrevention")) {
-			plugin.softDepends.get("GriefPrevention");
 			GriefPrevention gp = (GriefPrevention) plugin.softDepends.get("GriefPrevention");
 			Claim claim = gp.dataStore.getClaimAt(block.getLocation(), false, null);
 			
 			if(claim != null)
-				event.setCancelled(claim.allowBreak(player, block.getType()) != null);
-		}
-		if(plugin.softDepends.containsKey("WorldGuard")) {
-			WorldGuardPlugin wg = (WorldGuardPlugin) plugin.softDepends.get("WorldGuard");
-			event.setCancelled(!wg.canBuild(player, block.getLocation()));
+				cancel = claim.allowBuild(player) != null;
 		}
 		
-		if(!event.isCancelled()) {
+		if(plugin.softDepends.containsKey("WorldGuard")) {
+			WorldGuardPlugin wg = (WorldGuardPlugin) plugin.softDepends.get("WorldGuard");
+			cancel = !wg.canBuild(player, block.getLocation());
+		}
+		
+		if(!event.isCancelled() && !cancel) {
 			plugin.blocks.add(new LoggedBlock(plugin, player, block, Log.BREAK));
 			BlocksLimitReached();
 		}
@@ -93,20 +98,22 @@ public class BlockListener extends BlockLogListener {
 		BlockState block = event.getBlockClicked().getRelative(event.getBlockFace()).getState();
 		Player player = event.getPlayer();
 		
+		Boolean cancel = false;
+		
 		if(plugin.softDepends.containsKey("GriefPrevention")) {
-			plugin.softDepends.get("GriefPrevention");
 			GriefPrevention gp = (GriefPrevention) plugin.softDepends.get("GriefPrevention");
 			Claim claim = gp.dataStore.getClaimAt(block.getLocation(), false, null);
 			
 			if(claim != null)
-				event.setCancelled(claim.allowBuild(player) != null);
-		}
-		if(plugin.softDepends.containsKey("WorldGuard")) {
-			WorldGuardPlugin wg = (WorldGuardPlugin) plugin.softDepends.get("WorldGuard");
-			event.setCancelled(!wg.canBuild(player, block.getLocation()));
+				cancel = claim.allowBuild(player) != null;
 		}
 		
-		if(!event.isCancelled()) {
+		if(plugin.softDepends.containsKey("WorldGuard")) {
+			WorldGuardPlugin wg = (WorldGuardPlugin) plugin.softDepends.get("WorldGuard");
+			cancel = !wg.canBuild(player, block.getLocation());
+		}
+		
+		if(!event.isCancelled() && !cancel) {
 			if(event.getBucket() == Material.WATER_BUCKET)
 				block.setType(Material.WATER);
 			else if(event.getBucket() == Material.LAVA_BUCKET)

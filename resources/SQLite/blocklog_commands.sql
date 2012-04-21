@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS 'blocklog_chat' (
+CREATE TABLE IF NOT EXISTS 'blocklog_commands' (
 	'id' INTEGER PRIMARY KEY NOT NULL,
 	'player' VARCHAR(75) NOT NULL,
 	'command' VARCHAR(75) NOT NULL,

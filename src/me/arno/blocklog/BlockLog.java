@@ -41,6 +41,8 @@ public class BlockLog extends JavaPlugin {
 	public DatabaseSettings dbSettings;
 	public Connection conn;
 	
+	public final String[] tables = {"blocks", "rollbacks", "undos", "interactions", "reports", "chat", "deaths", "kills", "commands"};
+	
 	public ArrayList<String> users = new ArrayList<String>();
 	public ArrayList<LoggedBlock> blocks = new ArrayList<LoggedBlock>();
 	public ArrayList<LoggedInteraction> interactions = new ArrayList<LoggedInteraction>();
@@ -173,7 +175,6 @@ public class BlockLog extends JavaPlugin {
 	
 	private void loadDatabase() {
 		String DBType = getConfig().getString("database.type");
-		String[] tables = {"blocks", "rollbacks", "undos", "interactions", "reports", "chat", "deaths", "kills", "commands"};
 		
 		try {
 	    	conn = DatabaseSettings.getConnection();

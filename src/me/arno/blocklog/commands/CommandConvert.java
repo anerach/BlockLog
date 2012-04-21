@@ -62,11 +62,8 @@ public class CommandConvert extends BlockLogCommand {
 			Statement MySQLStmt = MySQLConn.createStatement();
 			Statement SQLiteStmt = SQLiteConn.createStatement();
 			
-			SQLiteStmt.executeUpdate(plugin.getResourceContent("SQLite/blocklog_blocks.sql"));
-			SQLiteStmt.executeUpdate(plugin.getResourceContent("SQLite/blocklog_interactions.sql"));
-			SQLiteStmt.executeUpdate(plugin.getResourceContent("SQLite/blocklog_rollbacks.sql"));
-			SQLiteStmt.executeUpdate(plugin.getResourceContent("SQLite/blocklog_undos.sql"));
-			SQLiteStmt.executeUpdate(plugin.getResourceContent("SQLite/blocklog_reports.sql"));
+			for(String table : plugin.tables)
+				SQLiteStmt.executeUpdate(plugin.getResourceContent("SQLite/blocklog_" + table + ".sql"));
 			
 			ResultSet BlocksRS = MySQLStmt.executeQuery("SELECT * FROM blocklog_blocks");
 			
@@ -98,11 +95,33 @@ public class CommandConvert extends BlockLogCommand {
 				SQLiteStmt.executeUpdate(String.format("INSERT INTO blocklog_reports (player,message,seen) VALUES ('%s', '%s', %s)", ReportsRS.getString("player"), ReportsRS.getString("message"), ReportsRS.getInt("seen")));
 			}
 			
-			MySQLStmt.executeUpdate("TRUNCATE blocklog_blocks");
-			MySQLStmt.executeUpdate("TRUNCATE blocklog_interactions");
-			MySQLStmt.executeUpdate("TRUNCATE blocklog_rollbacks");
-			MySQLStmt.executeUpdate("TRUNCATE blocklog_undos");
-			MySQLStmt.executeUpdate("TRUNCATE blocklog_reports");
+			ResultSet ChatRS = MySQLStmt.executeQuery("SELECT * FROM blocklog_chat;");
+			
+			while(ChatRS.next()) {
+				SQLiteStmt.executeUpdate(String.format("INSERT INTO blocklog_reports (player,message,date) VALUES ('%s', '%s', %s)", ChatRS.getString("player"), ChatRS.getString("message"), ChatRS.getInt("date")));
+			}
+			
+			ResultSet DeathsRS = MySQLStmt.executeQuery("SELECT * FROM blocklog_deaths;");
+			
+			while(DeathsRS.next()) {
+				SQLiteStmt.executeUpdate(String.format("INSERT INTO blocklog_deaths (player,type,world,x,y,z,date) VALUES ('%s', '%s', '%s', %s, %s, %s, %s)", DeathsRS.getString("player"), DeathsRS.getString("type"), DeathsRS.getString("world"), DeathsRS.getInt("x"), DeathsRS.getInt("y"), DeathsRS.getInt("z"), DeathsRS.getInt("date")));
+			}
+			
+			ResultSet KillsRS = MySQLStmt.executeQuery("SELECT * FROM blocklog_kills;");
+			
+			while(KillsRS.next()) {
+				SQLiteStmt.executeUpdate(String.format("INSERT INTO blocklog_kills (victem,killer,world,x,y,z,date) VALUES ('%s', '%s', '%s', %s, %s, %s, %s)", KillsRS.getString("victem"), KillsRS.getString("killer"), KillsRS.getString("world"), KillsRS.getInt("x"), KillsRS.getInt("y"), KillsRS.getInt("z"), KillsRS.getInt("date")));
+			}
+			
+			ResultSet CommandsRS = MySQLStmt.executeQuery("SELECT * FROM blocklog_commands;");
+			
+			while(CommandsRS.next()) {
+				SQLiteStmt.executeUpdate(String.format("INSERT INTO blocklog_commands (player,command,date) VALUES ('%s', '%s', %s)", CommandsRS.getString("player"), CommandsRS.getString("command"), CommandsRS.getInt("date")));
+			}
+			
+			
+			for(String table : plugin.tables)
+				MySQLStmt.executeUpdate("TRUNCATE blocklog_" + table);
 			
 			SQLiteConn.close();
 			return true;
@@ -123,11 +142,8 @@ public class CommandConvert extends BlockLogCommand {
 			Statement SQLiteStmt = SQLiteConn.createStatement();
 			Statement MySQLStmt = MySQLConn.createStatement();
 			
-			MySQLStmt.executeUpdate(plugin.getResourceContent("MySQL/blocklog_blocks.sql"));
-			MySQLStmt.executeUpdate(plugin.getResourceContent("MySQL/blocklog_interactions.sql"));
-			MySQLStmt.executeUpdate(plugin.getResourceContent("MySQL/blocklog_rollbacks.sql"));
-			MySQLStmt.executeUpdate(plugin.getResourceContent("MySQL/blocklog_undos.sql"));
-			MySQLStmt.executeUpdate(plugin.getResourceContent("MySQL/blocklog_reports.sql"));
+			for(String table : plugin.tables)
+				MySQLStmt.executeUpdate(plugin.getResourceContent("MySQL/blocklog_" + table + ".sql"));
 			
 			ResultSet BlocksRS = SQLiteStmt.executeQuery("SELECT * FROM blocklog_blocks;");
 			
@@ -159,16 +175,34 @@ public class CommandConvert extends BlockLogCommand {
 				MySQLStmt.executeUpdate(String.format("INSERT INTO blocklog_reports (player,message,seen) VALUES ('%s', '%s', %s)", ReportsRS.getString("player"), ReportsRS.getString("message"), ReportsRS.getInt("seen")));
 			}
 			
-			SQLiteStmt.executeUpdate("DROP TABLE IF EXISTS blocklog_blocks");
-			SQLiteStmt.executeUpdate("DROP TABLE IF EXISTS blocklog_interactions");
-			SQLiteStmt.executeUpdate("DROP TABLE IF EXISTS blocklog_rollbacks");
-			SQLiteStmt.executeUpdate("DROP TABLE IF EXISTS blocklog_undos");
-			SQLiteStmt.executeUpdate("DROP TABLE IF EXISTS blocklog_reports");
+			ResultSet ChatRS = SQLiteStmt.executeQuery("SELECT * FROM blocklog_chat;");
 			
-			SQLiteStmt.executeUpdate(plugin.getResourceContent("SQLite/blocklog_blocks.sql"));
-			SQLiteStmt.executeUpdate(plugin.getResourceContent("SQLite/blocklog_interactions.sql"));
-			SQLiteStmt.executeUpdate(plugin.getResourceContent("SQLite/blocklog_undos.sql"));
-			SQLiteStmt.executeUpdate(plugin.getResourceContent("SQLite/blocklog_reports.sql"));
+			while(ChatRS.next()) {
+				MySQLStmt.executeUpdate(String.format("INSERT INTO blocklog_reports (player,message,date) VALUES ('%s', '%s', %s)", ChatRS.getString("player"), ChatRS.getString("message"), ChatRS.getInt("date")));
+			}
+			
+			ResultSet DeathsRS = SQLiteStmt.executeQuery("SELECT * FROM blocklog_deaths;");
+			
+			while(DeathsRS.next()) {
+				MySQLStmt.executeUpdate(String.format("INSERT INTO blocklog_deaths (player,type,world,x,y,z,date) VALUES ('%s', '%s', '%s', %s, %s, %s, %s)", DeathsRS.getString("player"), DeathsRS.getString("type"), DeathsRS.getString("world"), DeathsRS.getInt("x"), DeathsRS.getInt("y"), DeathsRS.getInt("z"), DeathsRS.getInt("date")));
+			}
+			
+			ResultSet KillsRS = SQLiteStmt.executeQuery("SELECT * FROM blocklog_kills;");
+			
+			while(KillsRS.next()) {
+				MySQLStmt.executeUpdate(String.format("INSERT INTO blocklog_kills (victem,killer,world,x,y,z,date) VALUES ('%s', '%s', '%s', %s, %s, %s, %s)", KillsRS.getString("victem"), KillsRS.getString("killer"), KillsRS.getString("world"), KillsRS.getInt("x"), KillsRS.getInt("y"), KillsRS.getInt("z"), KillsRS.getInt("date")));
+			}
+			
+			ResultSet CommandsRS = SQLiteStmt.executeQuery("SELECT * FROM blocklog_commands;");
+			
+			while(CommandsRS.next()) {
+				MySQLStmt.executeUpdate(String.format("INSERT INTO blocklog_commands (player,command,date) VALUES ('%s', '%s', %s)", CommandsRS.getString("player"), CommandsRS.getString("command"), CommandsRS.getInt("date")));
+			}
+			
+			for(String table : plugin.tables) {
+				SQLiteStmt.executeUpdate("DROP TABLE IF EXISTS blocklog_" + table);
+				SQLiteStmt.executeUpdate(plugin.getResourceContent("SQLite/blocklog_" + table + ".sql"));
+			}
 			
 			MySQLConn.close();
 			return true;

@@ -13,7 +13,7 @@ import org.bukkit.entity.Player;
 
 public class CommandConvert extends BlockLogCommand {
 	public CommandConvert(BlockLog plugin) {
-		super(plugin);
+		super(plugin, true);
 	}
 	
 	public boolean execute(Player player, Command cmd, String[] args) {

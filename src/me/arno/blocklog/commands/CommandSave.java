@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 
 public class CommandSave extends BlockLogCommand {
 	public CommandSave(BlockLog plugin) {
-		super(plugin, "blocklog.save");
+		super(plugin, "blocklog.save", true);
 	}
 
 	public boolean execute(Player player, Command cmd, String[] args) {

@@ -375,12 +375,7 @@ public class BlockLog extends JavaPlugin {
 		if(!cmd.getName().equalsIgnoreCase("blocklog"))
 			return false;
 		
-		if (player == null) {
-			sender.sendMessage("This command can only be run by a player");
-			return true;
-		}
-		
-		if(args.length < 1) {
+		if(args.length < 1 && player != null) {
 			player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "This server is using BlockLog v" + getDescription().getVersion() + " by Anerach");
 			return true;
 		}

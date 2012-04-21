@@ -14,16 +14,26 @@ public class BlockLogCommand {
 	public final Logger log;
 	public final Connection conn;
 	public final String permission;
+	public final Boolean console;
 	
 	public BlockLogCommand(BlockLog plugin) {
-		this(plugin, null);
+		this(plugin, null, false);
+	}
+	
+	public BlockLogCommand(BlockLog plugin, Boolean console) {
+		this(plugin, null, console);
 	}
 	
 	public BlockLogCommand(BlockLog plugin, String permission) {
+		this(plugin, permission, false);
+	}
+	
+	public BlockLogCommand(BlockLog plugin, String permission, Boolean console) {
 		this.plugin = plugin;
 		this.log = plugin.log;
 		this.conn = plugin.conn;
 		this.permission = permission;
+		this.console = console;
 	}
 	
 	public void sendAdminMessage(String msg) {
@@ -35,7 +45,7 @@ public class BlockLogCommand {
 	}
 	
 	public Boolean hasPermission(Player player) {
-		if(player == null)
+		if(player == null && !console)
 			return false;
 		if(permission != null)
 			return player.hasPermission(permission);

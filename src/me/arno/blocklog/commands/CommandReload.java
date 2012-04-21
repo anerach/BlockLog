@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 
 public class CommandReload extends BlockLogCommand {
 	public CommandReload(BlockLog plugin) {
-		super(plugin, "blocklog.reload");
+		super(plugin, "blocklog.reload", true);
 	}
 
 	public boolean execute(Player player, Command cmd, String[] args) {

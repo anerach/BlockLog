@@ -1,8 +1,8 @@
 package me.arno.blocklog.commands;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,8 +18,8 @@ public class CommandClear extends BlockLogCommand {
 	}
 	
 	public boolean execute(Player player, Command cmd, String[] args) {
-		if(args.length != 2) {
-			player.sendMessage(ChatColor.WHITE + "/bl clear [amount] [days|weeks]");
+		if(args.length < 2) {
+			player.sendMessage(ChatColor.WHITE + "/bl clear <table1> [table2] [...] <time>");
 			return true;
 		}
 		
@@ -28,34 +28,58 @@ public class CommandClear extends BlockLogCommand {
 			return true;
 		}
 		
+		Integer time;
+		Long currentTime = System.currentTimeMillis()/1000;
+		
+		String value = args[1];
+		Character c = value.charAt(value.length() - 1);
+		time = Integer.valueOf(value.replace(c, ' ').trim());
+		
+		if(c.toString().equalsIgnoreCase("d"))
+			time = time * 60 * 60 * 24;
+		else if(c.toString().equalsIgnoreCase("w"))
+			time = time * 60 * 60 * 24 * 7;
+		else
+			time = 0;
+		
+		Set<String> tables = new HashSet<String>();
+		
+		for(int i=0;i<args.length-1;i++) {
+			if(args[i].equalsIgnoreCase("all")) {
+				tables.add("blocks");
+				tables.add("interactions");
+				tables.add("chat");
+				tables.add("deaths");
+				tables.add("kills");
+			} else if(args[i].equalsIgnoreCase("player")) {
+				tables.add("chat");
+				tables.add("deaths");
+				tables.add("kills");
+			} else if(args[i].equalsIgnoreCase("blocks")) {
+				tables.add("blocks");
+			} else if(args[i].equalsIgnoreCase("interactions")) {
+				tables.add("interactions");
+			} else if(args[i].equalsIgnoreCase("chat")) {
+				tables.add("chat");
+			} else if(args[i].equalsIgnoreCase("deaths")) {
+				tables.add("deaths");
+			} else if(args[i].equalsIgnoreCase("kills")) {
+				tables.add("kills");
+			}
+		}
+		
 		try {
 			Statement stmt = conn.createStatement();
 			
-			int time;
-			
-			Set<String> Day = new HashSet<String>(Arrays.asList("d", "day","days"));
-			Set<String> Week = new HashSet<String>(Arrays.asList("w", "week","weeks"));
-
-			Integer timeInt = Integer.parseInt(args[0]);
-			String timeVal = args[1].toLowerCase();
-			String timeType;
-			
-			if(Day.contains(timeVal)) {
-				time = (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60 * 24);
-				timeType = "day(s)";
-			} else if(Week.contains(timeVal)) {
-				time = (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60 * 24 * 7);
-				timeType = "week(s)";
-			} else {
-				player.sendMessage(ChatColor.DARK_GREEN + "Invalid time");
-				return false;
+			for(String table : tables) {
+				ResultSet rs = stmt.executeQuery("SELECT COUNT(id) AS count FROM blocklog_" + table + " WHERE date < " + (currentTime - time));
+				rs.next();
+				Integer count = rs.getInt("count");
+				if(count != 0) {
+					stmt.executeUpdate("DELETE FROM blocklog_" + table + " WHERE date < " + (currentTime - time));
+					player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Removed " + ChatColor.GREEN + count + ChatColor.GOLD + " results from blocklog_" + table);
+				}
 			}
-			
-			Long UNIX_TIMESTAMP = System.currentTimeMillis()/1000;
-			
-			stmt.executeUpdate("DELETE FROM blocklog_blocks WHERE date < " + (UNIX_TIMESTAMP - time));
-			
-			player.sendMessage(ChatColor.DARK_RED +"[BlockLog] removed block history older than " + timeInt + " " + timeType);
 	    } catch (SQLException e) {
     		e.printStackTrace();
     	}

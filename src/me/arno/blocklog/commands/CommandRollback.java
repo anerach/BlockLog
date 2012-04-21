@@ -1,19 +1,14 @@
 package me.arno.blocklog.commands;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
 import me.arno.blocklog.BlockLog;
+import me.arno.blocklog.Query;
 import me.arno.blocklog.schedules.Rollback;
 
 public class CommandRollback extends BlockLogCommand {
@@ -21,10 +16,23 @@ public class CommandRollback extends BlockLogCommand {
 		super(plugin, "blocklog.rollback");
 	}
 
-	public boolean execute(Player player, Command cmd, ArrayList<String> listArgs) {
-		String[] args = (String[]) listArgs.toArray();
-		if(args.length < 2 || args.length > 3) {
-			player.sendMessage(ChatColor.WHITE + "/bl rollback [player] <amount> <sec|min|hour|day|week>");
+	public Integer convertToUnixtime(Integer timeInt, String timeVal) {
+		if(timeVal.equalsIgnoreCase("s"))
+			return (int) (System.currentTimeMillis()/1000 - timeInt);
+		else if(timeVal.equalsIgnoreCase("s"))
+			return (int) (System.currentTimeMillis()/1000 - timeInt * 60);
+		else if(timeVal.equalsIgnoreCase("h"))
+			return (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60);
+		else if(timeVal.equalsIgnoreCase("d"))
+			return(int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60 * 24);
+		else if(timeVal.equalsIgnoreCase("w"))
+			return (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60 * 24 * 7);
+		return 0;
+	}
+	
+	public boolean execute(Player player, Command cmd, String[] args) {
+		if(args.length < 3) {
+			player.sendMessage(ChatColor.WHITE + "/bl [radius <radius>] [player <player>] [from <amount> <secs|mins|hours|days|weeks>] <until <amount> <secs|mins|hours|days|weeks>>");
 			return true;
 		}
 		
@@ -32,42 +40,68 @@ public class CommandRollback extends BlockLogCommand {
 			player.sendMessage("You don't have permission");
 			return true;
 		}
-		
 		try {
-			Set<String> Second = new HashSet<String>(Arrays.asList("s", "sec","secs","second","seconds"));
-			Set<String> Minute = new HashSet<String>(Arrays.asList("m", "min","mins","minute","minutes"));
-			Set<String> Hour = new HashSet<String>(Arrays.asList("h", "hour","hours"));
-			Set<String> Day = new HashSet<String>(Arrays.asList("d", "day","days"));
-			Set<String> Week = new HashSet<String>(Arrays.asList("w", "week","weeks"));
-	
 			String target = null;
-			String timeVal = null;
-			Integer timeInt = 0;
-			Integer time;
+			Integer untilTime = 0;
+			Integer fromTime = 0;
+			Integer radius = 0;
 			
-			if(args.length == 2) {
-				timeInt = Integer.valueOf(args[0]);
-				timeVal = args[1].toLowerCase();
-			} else if(args.length == 3) {
-				target = args[0];
-				timeInt = Integer.valueOf(args[1]);
-				timeVal = args[2].toLowerCase();
+			for(int i=0;i<args.length;i+=2) {
+				String type = args[i];
+				String value = args[i+1];
+				if(type.equalsIgnoreCase("area")) {
+					radius = Integer.valueOf(value);
+				} else if(type.equalsIgnoreCase("player")) {
+					target = value;
+				} else if(type.equalsIgnoreCase("from")) {
+					Character c = value.charAt(value.length() - 1);
+					fromTime = convertToUnixtime(Integer.valueOf(value.replace(c, ' ').trim()), c.toString());
+				} else if(type.equalsIgnoreCase("until")) {
+					Character c = value.charAt(value.length() - 1);
+					untilTime = convertToUnixtime(Integer.valueOf(value.replace(c, ' ').trim()), c.toString());
+				}
 			}
 			
-			if(Second.contains(timeVal))
-				time = (int) (System.currentTimeMillis()/1000 - timeInt);
-			else if(Minute.contains(timeVal))
-				time = (int) (System.currentTimeMillis()/1000 - timeInt * 60);
-			else if(Hour.contains(timeVal))
-				time = (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60);
-			else if(Day.contains(timeVal))
-				time = (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60 * 24);
-			else if(Week.contains(timeVal))
-				time = (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60 * 24 * 7);
-			else {
-				player.sendMessage(ChatColor.DARK_GREEN + "Invalid time");
-				return false;
+			if(fromTime != 0 && fromTime < untilTime) {
+				player.sendMessage(ChatColor.WHITE + "from time can't be bigger than until time.");
+				return true;
 			}
+			
+			World world = player.getWorld();
+			
+			Query query = new Query("blocklog_blocks");
+			query.addSelect("*");
+			if(target != null)
+				query.addWhere("player", target);
+			if(fromTime != 0)
+				query.addWhere("date", fromTime.toString(), "<");
+			if(untilTime != 0)
+				query.addWhere("date", untilTime.toString(), ">");
+			if(radius != 0) {
+				Integer xMin = player.getLocation().getBlockX() - radius;
+				Integer xMax = player.getLocation().getBlockX() + radius;
+				Integer yMin = player.getLocation().getBlockY() - radius;
+				Integer yMax = player.getLocation().getBlockY() + radius;
+				Integer zMin = player.getLocation().getBlockZ() - radius;
+				Integer zMax = player.getLocation().getBlockZ() + radius;
+				
+				query.addWhere("x", xMin.toString(), ">=");
+				query.addWhere("x", xMax.toString(), "<=");
+				
+				query.addWhere("y", yMin.toString(), ">=");
+				query.addWhere("y", yMax.toString(), "<=");
+				
+				query.addWhere("z", zMin.toString(), ">=");
+				query.addWhere("z", zMax.toString(), "<=");
+			}
+			query.addWhere("world", world.getName());
+			query.addWhere("rollback_id", new Integer(0).toString());
+			query.addGroupBy("x");
+			query.addGroupBy("y");
+			query.addGroupBy("z");
+			query.AddOrderBy("date", "DESC");
+			
+			log.info(query.getQuery());
 			
 			Statement rollbackStmt = conn.createStatement();
 			Statement blocksStmt = conn.createStatement();
@@ -79,22 +113,13 @@ public class CommandRollback extends BlockLogCommand {
 			
 			Integer rollbackID = rollback.getInt("id");
 			
-			World world = player.getWorld();
-			
-			ResultSet blocks;
-			if(target == null)
-				blocks = blocksStmt.executeQuery(String.format("SELECT * FROM blocklog_blocks WHERE date > '%s' AND rollback_id = 0 AND world = '%s' ORDER BY date DESC", time, world.getName()));
-			else
-				blocks = blocksStmt.executeQuery(String.format("SELECT * FROM blocklog_blocks WHERE date > '%s' AND rollback_id = 0 AND world = '%s' AND player = '%s' ORDER BY date DESC", time, world.getName(), target));
-			
+			ResultSet blocks = blocksStmt.executeQuery(query.getQuery());
 			
 			plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Rollback(plugin, player, target, rollbackID, blocks));
 			
 			return true;
 		} catch(NumberFormatException e) {
 			return false;
-		} catch(SQLException e) {
-			e.printStackTrace();
 		} catch(Exception e) {
 			e.printStackTrace();
 		}

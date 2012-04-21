@@ -29,7 +29,7 @@ public class LoggedKill {
 	public void save() {
 		try {
 			Statement stmt = plugin.conn.createStatement();
-			stmt.executeUpdate("INSERT INTO blocklog_kills (player, killer, world, x, y, z, date) VALUES ('" + getVictemName() + "', '" + getKillerName() + "', '" + getWorldName() + "', " + getX() + ", " + getY() + ", " + getZ() + ", " + time + ")");
+			stmt.executeUpdate("INSERT INTO blocklog_kills (victem, killer, world, x, y, z, date) VALUES ('" + getVictemName() + "', '" + getKillerName() + "', '" + getWorldName() + "', " + getX() + ", " + getY() + ", " + getZ() + ", " + time + ")");
 		} catch(SQLException e) {
 			e.printStackTrace();
 		}

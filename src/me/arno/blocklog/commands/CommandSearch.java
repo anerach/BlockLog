@@ -3,8 +3,6 @@ package me.arno.blocklog.commands;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.database.DatabaseSettings;
 
@@ -18,8 +16,7 @@ public class CommandSearch extends BlockLogCommand {
 		super(plugin, "blocklog.save");
 	}
 
-	public boolean execute(Player player, Command cmd, ArrayList<String> listArgs) {
-		String[] args = (String[]) listArgs.toArray();
+	public boolean execute(Player player, Command cmd, String[] args) {
 		if(args.length != 1) {
 			player.sendMessage(ChatColor.WHITE + "/bl search <player>");
 			return true;

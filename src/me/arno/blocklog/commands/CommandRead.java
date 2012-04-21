@@ -3,8 +3,6 @@ package me.arno.blocklog.commands;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-
 import me.arno.blocklog.BlockLog;
 
 import org.bukkit.ChatColor;
@@ -16,8 +14,7 @@ public class CommandRead extends BlockLogCommand {
 		super(plugin, "blocklog.report.read");
 	}
 	
-	public boolean execute(Player player, Command cmd, ArrayList<String> listArgs) {
-		String[] args = (String[]) listArgs.toArray();
+	public boolean execute(Player player, Command cmd, String[] args) {
 		if(args.length > 1) {
 			player.sendMessage(ChatColor.WHITE + "/bl read [id]");
 			return true;

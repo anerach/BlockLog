@@ -3,8 +3,6 @@ package me.arno.blocklog.commands;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
@@ -17,8 +15,7 @@ public class CommandRollbackList extends BlockLogCommand {
 		super(plugin, "blocklog.rollback");
 	}
 
-	public boolean execute(Player player, Command cmd, ArrayList<String> listArgs) {
-		String[] args = (String[]) listArgs.toArray();
+	public boolean execute(Player player, Command cmd, String[] args) {
 		if(args.length > 0) {
 			player.sendMessage(ChatColor.WHITE + "/bl rollbacklist");
 			return true;

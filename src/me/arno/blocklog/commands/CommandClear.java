@@ -2,7 +2,6 @@ package me.arno.blocklog.commands;
 
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -18,8 +17,7 @@ public class CommandClear extends BlockLogCommand {
 		super(plugin, "blocklog.clear");
 	}
 	
-	public boolean execute(Player player, Command cmd, ArrayList<String> listArgs) {
-		String[] args = listArgs.toArray(new String[]{});
+	public boolean execute(Player player, Command cmd, String[] args) {
 		if(args.length != 2) {
 			player.sendMessage(ChatColor.WHITE + "/bl clear [amount] [days|weeks]");
 			return true;

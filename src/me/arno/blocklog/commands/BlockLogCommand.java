@@ -43,7 +43,7 @@ public class BlockLogCommand {
 	}
 	
 	public FileConfiguration getConfig() {
-		return plugin.cfg.getConfig();
+		return plugin.getConfig();
 	}
 	
 	public void saveConfig() {

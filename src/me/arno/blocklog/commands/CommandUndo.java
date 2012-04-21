@@ -3,8 +3,6 @@ package me.arno.blocklog.commands;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.schedules.UndoRollback;
 
@@ -17,8 +15,7 @@ public class CommandUndo extends BlockLogCommand {
 		super(plugin, "blocklog.undo");
 	}
 
-	public boolean execute(Player player, Command cmd, ArrayList<String> listArgs) {
-		String[] args = (String[]) listArgs.toArray();
+	public boolean execute(Player player, Command cmd, String[] args) {
 		if(args.length > 1) {
 			player.sendMessage(ChatColor.WHITE + "/bl undo [id]");
 			return true;

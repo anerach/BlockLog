@@ -24,7 +24,6 @@ import me.arno.blocklog.schedules.Save;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
@@ -52,23 +51,6 @@ public class BlockLog extends JavaPlugin {
 	
 	public int autoSave = 0;
 	public boolean saving = false;
-	
-	public Config cfg;
-	
-	@Override
-	public FileConfiguration getConfig() {
-		return cfg.getConfig();
-	}
-	
-	@Override
-	public void saveConfig() {
-		cfg.saveConfig();
-	}
-	
-	@Override
-	public void reloadConfig() {
-		cfg.reloadConfig();
-	}
 	
 	public void addBlock(LoggedBlock block) {
 		blocks.add(block);
@@ -110,8 +92,32 @@ public class BlockLog extends JavaPlugin {
 	}
 	
 	private void loadConfiguration() {
-		cfg = new Config();
-		cfg.createDefaults();
+		getConfig().addDefault("database.type", "SQLite");
+	    getConfig().addDefault("database.delay", 1);
+		getConfig().addDefault("mysql.host", "localhost");
+	    getConfig().addDefault("mysql.username", "root");
+	    getConfig().addDefault("mysql.password", "");
+	    getConfig().addDefault("mysql.database", "");
+	    getConfig().addDefault("mysql.port", 3306);
+	    getConfig().addDefault("logs.grow", true);
+	    getConfig().addDefault("logs.leaves", false);
+	    getConfig().addDefault("logs.portal", false);
+	    getConfig().addDefault("logs.form", false);
+	    getConfig().addDefault("logs.fade", false);
+	    getConfig().addDefault("logs.spread", false);
+	    getConfig().addDefault("logs.chat", false);
+	    getConfig().addDefault("logs.kill", false);
+	    getConfig().addDefault("logs.death", false);
+	   	getConfig().addDefault("blocklog.wand", 369);
+	    getConfig().addDefault("blocklog.results", 5);
+	    getConfig().addDefault("blocklog.warning.blocks", 500);
+	    getConfig().addDefault("blocklog.warning.repeat", 100);
+	    getConfig().addDefault("blocklog.warning.delay", 30);
+	    getConfig().addDefault("blocklog.autosave.enabled", true);
+	    getConfig().addDefault("blocklog.autosave.blocks", 1000);
+	    getConfig().addDefault("blocklog.reports", true);
+	    getConfig().addDefault("blocklog.updates", true);
+	    getConfig().options().copyDefaults(true);
 		saveConfig();
 		
 		if(getConfig().getBoolean("blocklog.autosave.enabled")) {
@@ -144,7 +150,7 @@ public class BlockLog extends JavaPlugin {
 			Statement stmt = conn.createStatement();
 			
 			Config versions = new Config("VERSIONS");
-			versions.getConfig().addDefault("database", 2);
+			versions.getConfig().addDefault("database", 3);
 			versions.getConfig().options().copyDefaults(true);
 			if(versions.getConfig().getInt("database") > 2) {
 				log.info("Updating the database to version 2");
@@ -152,12 +158,15 @@ public class BlockLog extends JavaPlugin {
 					stmt.executeUpdate("ALTER TABLE `blocklog_blocks` CHANGE `rollback_id` `rollback_id` INT(11) NOT NULL DEFAULT '0'");
 				
 				versions.getConfig().set("database", 2);
+			} else if(versions.getConfig().getInt("database") > 3) {
+				stmt.executeUpdate("ALTER TABLE `blocklog_kills` CHANGE `player` `victem` varchar(75) NOT NULL");
+				
+				versions.getConfig().set("database", 3);
 			}
 			versions.saveConfig();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
 	}
 	
 	private String loadLatestVersion() {
@@ -327,13 +336,15 @@ public class BlockLog extends JavaPlugin {
 			return true;
 		}
 		
-		ArrayList<String> newArgs = new ArrayList<String>();
+		ArrayList<String> argList = new ArrayList<String>();
 		
 		if(args.length > 1) {
 			for(int i=1;i<args.length;i++) {
-				newArgs.add(args[i]);
+				argList.add(args[i]);
 			}
 		}
+		
+		String[] newArgs = argList.toArray(new String[]{});
 		
 		if(args[0].equalsIgnoreCase("help") || args[0].equalsIgnoreCase("h")) {
 			CommandHelp command = new CommandHelp(this);
@@ -344,13 +355,10 @@ public class BlockLog extends JavaPlugin {
 		} else if(args[0].equalsIgnoreCase("clear")) {
 			CommandClear command = new CommandClear(this);
 			return command.execute(player, cmd, newArgs);
-		} else if(args[0].equalsIgnoreCase("cfg") || args[0].equalsIgnoreCase("config")) {
+		} else if(args[0].equalsIgnoreCase("config") || args[0].equalsIgnoreCase("cfg")) {
 			CommandConfig command = new CommandConfig(this);
 			return command.execute(player, cmd, newArgs);
 		} else if(args[0].equalsIgnoreCase("convert")) {
-			CommandConvert command = new CommandConvert(this);
-			return command.execute(player, cmd, newArgs);
-		} else if(args[0].equalsIgnoreCase("rollbackradius") || args[0].equalsIgnoreCase("rbr")) {
 			CommandConvert command = new CommandConvert(this);
 			return command.execute(player, cmd, newArgs);
 		} else if(args[0].equalsIgnoreCase("read")) {
@@ -362,10 +370,10 @@ public class BlockLog extends JavaPlugin {
 		} else if(args[0].equalsIgnoreCase("report")) {
 			CommandReport command = new CommandReport(this);
 			return command.execute(player, cmd, newArgs);
-		} else if(args[0].equalsIgnoreCase("rollback")) {
+		} else if(args[0].equalsIgnoreCase("rollback") || args[0].equalsIgnoreCase("rb")) {
 			CommandRollback command = new CommandRollback(this);
 			return command.execute(player, cmd, newArgs);
-		} else if(args[0].equalsIgnoreCase("rollbacklist")) {
+		} else if(args[0].equalsIgnoreCase("rollbacklist") || args[0].equalsIgnoreCase("rblist") || args[0].equalsIgnoreCase("rbl")) {
 			CommandRollbackList command = new CommandRollbackList(this);
 			return command.execute(player, cmd, newArgs);
 		} else if(args[0].equalsIgnoreCase("save")) {

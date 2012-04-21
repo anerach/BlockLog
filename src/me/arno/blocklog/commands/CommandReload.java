@@ -1,7 +1,5 @@
 package me.arno.blocklog.commands;
 
-import java.util.ArrayList;
-
 import me.arno.blocklog.BlockLog;
 
 import org.bukkit.ChatColor;
@@ -13,8 +11,7 @@ public class CommandReload extends BlockLogCommand {
 		super(plugin, "blocklog.reload");
 	}
 
-	public boolean execute(Player player, Command cmd, ArrayList<String> listArgs) {
-		String[] args = (String[]) listArgs.toArray();
+	public boolean execute(Player player, Command cmd, String[] args) {
 		if(args.length > 0) {
 			player.sendMessage(ChatColor.WHITE + "/bl reload");
 			return true;

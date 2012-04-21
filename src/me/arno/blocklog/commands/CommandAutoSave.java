@@ -1,7 +1,5 @@
 package me.arno.blocklog.commands;
 
-import java.util.ArrayList;
-
 import me.arno.blocklog.BlockLog;
 
 import org.bukkit.ChatColor;
@@ -13,8 +11,7 @@ public class CommandAutoSave extends BlockLogCommand {
 		super(plugin, "blocklog.autosave");
 	}
 	
-	public boolean execute(Player player, Command cmd, ArrayList<String> listArgs) {
-		String[] args = listArgs.toArray(new String[]{});
+	public boolean execute(Player player, Command cmd, String[] args) {
 		if(args.length > 1) {
 			player.sendMessage(ChatColor.WHITE + "/bl autosave [amount|info]");
 			return true;

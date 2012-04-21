@@ -12,7 +12,7 @@ public class ConvertDatabase {
 	
 	public ConvertDatabase(BlockLog plugin) {
 		this.plugin = plugin;
-		this.DBType = plugin.cfg.getConfig().getString("database.type");
+		this.DBType = plugin.getConfig().getString("database.type");
 		if(DBType == "MySQL" || DBType == "SQLite") {
 			if(DBType == "MySQL")
 				MySQLToSQLite();

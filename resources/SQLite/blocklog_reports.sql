@@ -2,5 +2,6 @@ CREATE TABLE IF NOT EXISTS 'blocklog_reports' (
 	'id' INTEGER PRIMARY KEY NOT NULL,
 	'player' VARCHAR(75) NOT NULL,
 	'message' VARCHAR(75) NOT NULL,
+	'date' INTEGER NOT NULL,
 	'seen' INTEGER NOT NULL
 );

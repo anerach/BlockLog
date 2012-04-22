@@ -197,18 +197,26 @@ public class BlockLog extends JavaPlugin {
 			Statement stmt = conn.createStatement();
 			
 			Config versions = new Config("VERSIONS");
-			versions.getConfig().addDefault("database", 3);
+			versions.getConfig().addDefault("database", 4);
 			versions.getConfig().options().copyDefaults(true);
+			
 			if(versions.getConfig().getInt("database") > 2) {
 				log.info("Updating the database to version 2");
-				if(DatabaseSettings.DBType().equalsIgnoreCase("mysql")) 
+				if(DatabaseSettings.DBType().equalsIgnoreCase("mysql"))
 					stmt.executeUpdate("ALTER TABLE `blocklog_blocks` CHANGE `rollback_id` `rollback_id` INT(11) NOT NULL DEFAULT '0'");
-				
 				versions.getConfig().set("database", 2);
 			} else if(versions.getConfig().getInt("database") > 3) {
-				stmt.executeUpdate("ALTER TABLE `blocklog_kills` CHANGE `player` `victem` varchar(75) NOT NULL");
-				
+				if(DatabaseSettings.DBType().equalsIgnoreCase("mysql"))
+					stmt.executeUpdate("ALTER TABLE `blocklog_kills` CHANGE `player` `victem` varchar(75) NOT NULL");
 				versions.getConfig().set("database", 3);
+			} else if(versions.getConfig().getInt("database") > 4) {
+				if(DatabaseSettings.DBType().equalsIgnoreCase("mysql"))
+					stmt.executeUpdate("ALTER TABLE `blocklog_reports` ADD `date` int(11) NOT NULL");
+				else
+					stmt.executeUpdate("ALTER TABLE 'blocklog_reports' ADD COLUMN 'date' INTEGER NOT NULL");
+				
+				stmt.executeUpdate("UPDATE blocklog_reports SET date = " + System.currentTimeMillis()/1000 + " WHERE date = 0");
+				versions.getConfig().set("database", 4);
 			}
 			versions.saveConfig();
 		} catch (SQLException e) {
@@ -405,6 +413,9 @@ public class BlockLog extends JavaPlugin {
 			return command.execute(player, cmd, newArgs);
 		} else if(args[0].equalsIgnoreCase("convert")) {
 			CommandConvert command = new CommandConvert(this);
+			return command.execute(player, cmd, newArgs);
+		} else if(args[0].equalsIgnoreCase("lookup")) {
+			CommandLookup command = new CommandLookup(this);
 			return command.execute(player, cmd, newArgs);
 		} else if(args[0].equalsIgnoreCase("read")) {
 			CommandRead command = new CommandRead(this);

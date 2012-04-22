@@ -18,7 +18,7 @@ public class CommandRollback extends BlockLogCommand {
 	
 	public boolean execute(Player player, Command cmd, String[] args) {
 		if(args.length < 3) {
-			player.sendMessage(ChatColor.WHITE + "/bl [radius <radius>] [player <player>] [from <amount> <secs|mins|hours|days|weeks>] <until <amount> <secs|mins|hours|days|weeks>>");
+			player.sendMessage(ChatColor.WHITE + "/bl rollback [player <value>] [from <value>] [until <value>] [area <value>]");
 			return true;
 		}
 		

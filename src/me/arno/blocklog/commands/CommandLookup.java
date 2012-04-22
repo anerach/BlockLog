@@ -12,14 +12,14 @@ import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
-public class CommandSearch extends BlockLogCommand {
-	public CommandSearch(BlockLog plugin) {
-		super(plugin, "blocklog.search");
+public class CommandLookup extends BlockLogCommand {
+	public CommandLookup(BlockLog plugin) {
+		super(plugin, "blocklog.lookup");
 	}
 
 	public boolean execute(Player player, Command cmd, String[] args) {
 		if(args.length < 2) {
-			player.sendMessage(ChatColor.WHITE + "/bl search <tables> [player <value>] [from <value>] [until <value>] [area <value>]");
+			player.sendMessage(ChatColor.WHITE + "/bl lookup [player <value>] [from <value>] [until <value>] [area <value>]");
 			return true;
 		}
 		

@@ -1,7 +1,7 @@
 package me.arno.blocklog.logs;
 
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import org.bukkit.entity.Player;
 
@@ -16,14 +16,14 @@ public class LoggedChat {
 	public LoggedChat(BlockLog plugin, Player player, String message) {
 		this.plugin = plugin;
 		this.player = player;
-		this.message = message.replace("\'", "\\'");
+		this.message = message.replace("\\", "\\\\").replace("'", "\\'").trim();
 		this.time = System.currentTimeMillis()/1000;
 	}
 	
 	public void save() {
 		try {
-			PreparedStatement stmt = plugin.conn.prepareStatement("INSERT INTO blocklog_chat (player, message, date) VALUES ('" + getPlayerName() + "', '" + getMessage() + "', " + time + ")");
-			stmt.executeUpdate();
+			Statement stmt = plugin.conn.createStatement();
+			stmt.executeUpdate("INSERT INTO blocklog_chat (player, message, date) VALUES ('" + getPlayerName() + "', '" + getMessage() + "', " + time + ")");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

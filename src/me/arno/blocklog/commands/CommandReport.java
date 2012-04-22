@@ -1,7 +1,8 @@
 package me.arno.blocklog.commands;
 
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
+
 import me.arno.blocklog.BlockLog;
 
 import org.bukkit.ChatColor;
@@ -35,10 +36,8 @@ public class CommandReport extends BlockLogCommand {
 			msg += ((i == 0) ? "" : " ") + args[i];
 		
 		try {
-			PreparedStatement stmt = conn.prepareStatement("INSERT INTO blocklog_reports (player, message, seen) VALUES (?, ?, 0)");
-			stmt.setString(1, player.getName());
-			stmt.setString(2, msg);
-			stmt.executeUpdate();
+			Statement stmt = conn.createStatement();
+			stmt.executeUpdate("INSERT INTO blocklog_reports (player, message, seen) VALUES ('" + player.getName() + "', '" + msg.replace("\\", "\\\\").replace("'", "\\'") + "', 0)");
 			player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "Your report has been created");
 		} catch (SQLException e) {
 			e.printStackTrace();

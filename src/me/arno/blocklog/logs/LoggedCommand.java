@@ -19,8 +19,7 @@ public class LoggedCommand {
 	public LoggedCommand(BlockLog plugin, Player player, String message) {
 		this.plugin = plugin;
 		this.player = player;
-		this.message = message;
-		
+		this.message = message.replace("\\", "\\\\").replace("'", "\\'").trim();
 		String[] args = message.replace('/', ' ').trim().split(" ");
 		this.cmd = Bukkit.getPluginCommand(args[0]);
 		this.time = (int) (System.currentTimeMillis()/1000);

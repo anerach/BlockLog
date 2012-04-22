@@ -61,7 +61,7 @@ public class BlockListener extends BlockLogListener {
 			boolean WandEnabled = plugin.users.contains(event.getPlayer().getName());
 			
 			if(event.getPlayer().getItemInHand().getTypeId() != BLWand || !WandEnabled) {
-				plugin.blocks.add(new LoggedBlock(plugin, player, block, Log.PLACE));
+				plugin.addBlock(new LoggedBlock(plugin, player, block, Log.PLACE));
 				BlocksLimitReached();
 			}
 		}
@@ -88,7 +88,7 @@ public class BlockListener extends BlockLogListener {
 		}
 		
 		if(!event.isCancelled() && !cancel) {
-			plugin.blocks.add(new LoggedBlock(plugin, player, block, Log.BREAK));
+			plugin.addBlock(new LoggedBlock(plugin, player, block, Log.BREAK));
 			BlocksLimitReached();
 		}
 	}
@@ -119,7 +119,7 @@ public class BlockListener extends BlockLogListener {
 			else if(event.getBucket() == Material.LAVA_BUCKET)
 				block.setType(Material.LAVA);
 			
-			plugin.blocks.add(new LoggedBlock(plugin, player, block, Log.PLACE));
+			plugin.addBlock(new LoggedBlock(plugin, player, block, Log.PLACE));
 			BlocksLimitReached();
 		}
 	}
@@ -127,7 +127,7 @@ public class BlockListener extends BlockLogListener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockBurn(BlockBurnEvent event) {
 		if(!event.isCancelled()) {
-			plugin.blocks.add(new LoggedBlock(plugin, event.getBlock().getState(), Log.FIRE));
+			plugin.addBlock(new LoggedBlock(plugin, event.getBlock().getState(), Log.FIRE));
 			BlocksLimitReached();
 		}
 	}
@@ -136,7 +136,7 @@ public class BlockListener extends BlockLogListener {
 	public void onBlockIgnite(BlockIgniteEvent event) {
 		if(!event.isCancelled()) {
 			if(event.getBlock().getType() == Material.TNT) {
-				plugin.blocks.add(new LoggedBlock(plugin, event.getPlayer(), event.getBlock().getState(), Log.BREAK));
+				plugin.addBlock(new LoggedBlock(plugin, event.getPlayer(), event.getBlock().getState(), Log.BREAK));
 				BlocksLimitReached();
 			}
 		}
@@ -159,9 +159,9 @@ public class BlockListener extends BlockLogListener {
 		
 		for(Block block : event.blockList()) {
 			if(target == null)
-				plugin.blocks.add(new LoggedBlock(plugin, block.getState(), log));
+				plugin.addBlock(new LoggedBlock(plugin, block.getState(), log));
 			else
-				plugin.blocks.add(new LoggedBlock(plugin, target, block.getState(), log));
+				plugin.addBlock(new LoggedBlock(plugin, target, block.getState(), log));
 			BlocksLimitReached();
 		}
 	}
@@ -170,7 +170,7 @@ public class BlockListener extends BlockLogListener {
 	public void onLeavesDecay(LeavesDecayEvent event) {
 		if(!event.isCancelled()) {
 			if(getConfig().getBoolean("logs.leaves")) {
-				plugin.blocks.add(new LoggedBlock(plugin, event.getBlock().getState(), Log.LEAVES));
+				plugin.addBlock(new LoggedBlock(plugin, event.getBlock().getState(), Log.LEAVES));
 				BlocksLimitReached();
 			}
 		}
@@ -182,7 +182,7 @@ public class BlockListener extends BlockLogListener {
 			if(getConfig().getBoolean("logs.grow")) {
 				Player player = event.getPlayer();
 				for(BlockState block : event.getBlocks()) {
-					plugin.blocks.add(new LoggedBlock(plugin, player, block, Log.GROW));
+					plugin.addBlock(new LoggedBlock(plugin, player, block, Log.GROW));
 					BlocksLimitReached();
 				}
 			}
@@ -195,7 +195,7 @@ public class BlockListener extends BlockLogListener {
 			if(getConfig().getBoolean("logs.portal")) {
 				Player player = (Player) event.getEntity();
 				for(BlockState block : event.getBlocks()) {
-					plugin.blocks.add(new LoggedBlock(plugin, player, block, Log.PORTAL));
+					plugin.addBlock(new LoggedBlock(plugin, player, block, Log.PORTAL));
 					BlocksLimitReached();
 				}
 			}
@@ -206,7 +206,7 @@ public class BlockListener extends BlockLogListener {
 	public void onBlockForm(BlockFormEvent event) {
 		if(!event.isCancelled()) {
 			if(getConfig().getBoolean("logs.form")) {
-				plugin.blocks.add(new LoggedBlock(plugin, event.getNewState(), Log.FORM));
+				plugin.addBlock(new LoggedBlock(plugin, event.getNewState(), Log.FORM));
 				BlocksLimitReached();
 			}
 		}
@@ -216,7 +216,7 @@ public class BlockListener extends BlockLogListener {
 	public void onBlockSpread(BlockSpreadEvent event) {
 		if(!event.isCancelled()) {
 			if(getConfig().getBoolean("logs.spread")) {
-				plugin.blocks.add(new LoggedBlock(plugin, event.getNewState(), Log.SPREAD));
+				plugin.addBlock(new LoggedBlock(plugin, event.getNewState(), Log.SPREAD));
 				BlocksLimitReached();
 			}
 		}
@@ -226,7 +226,7 @@ public class BlockListener extends BlockLogListener {
 	public void onBlockFade(BlockFadeEvent event) {
 		if(!event.isCancelled()) {
 			if(getConfig().getBoolean("logs.fade")) {
-				plugin.blocks.add(new LoggedBlock(plugin, event.getNewState(), Log.FADE));
+				plugin.addBlock(new LoggedBlock(plugin, event.getNewState(), Log.FADE));
 				BlocksLimitReached();
 			}
 		}
@@ -246,7 +246,7 @@ public class BlockListener extends BlockLogListener {
 			if(block.getType() != Material.FIRE)
 				block = event.getClickedBlock().getRelative(BlockFace.WEST);
 			if(block.getType() == Material.FIRE) {
-				plugin.blocks.add(new LoggedBlock(plugin, event.getPlayer(), block.getState(), Log.BREAK));
+				plugin.addBlock(new LoggedBlock(plugin, event.getPlayer(), block.getState(), Log.BREAK));
 				BlocksLimitReached();
 			}
 		}

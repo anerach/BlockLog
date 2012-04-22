@@ -102,11 +102,11 @@ public class CommandWand extends BlockLogCommand {
 			player.sendMessage(ChatColor.DARK_RED + "BlockLog History (" + getConfig().getString("blocklog.results") + " Last Edits)");
 			int BlockNumber = 0;
 			int BlockCount = 0;
-			int BlockSize = plugin.blocks.size();
+			int BlockSize = plugin.getBlocks().size();
 			Location BlockLocation = block.getLocation();
 			while(BlockSize > BlockNumber)
 			{
-				LoggedBlock LBlock = plugin.blocks.get(BlockNumber); 
+				LoggedBlock LBlock = plugin.getBlocks().get(BlockNumber); 
 				if(LBlock.getX() == BlockLocation.getX() && LBlock.getY() == BlockLocation.getY() && LBlock.getZ() == BlockLocation.getZ() && LBlock.getWorld() == BlockLocation.getWorld()) {
 					if(BlockCount == getConfig().getInt("blocklog.results"))
 						break;

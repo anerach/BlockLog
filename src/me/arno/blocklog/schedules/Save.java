@@ -21,8 +21,8 @@ public class Save implements Runnable {
 	private Boolean saving;
 	
 	public Save(BlockLog plugin, int count, Player player) {
-		this.blocks = plugin.blocks;
-		this.interactions = plugin.interactions;
+		this.blocks = plugin.getBlocks();
+		this.interactions = plugin.getInteractions();
 		this.log = plugin.log;
 		this.saving = plugin.saving;
 		

@@ -29,7 +29,7 @@ public class BlockLogListener implements Listener {
 	}
 	
 	public void BlocksLimitReached() {
-		int BlockSize = plugin.blocks.size();
+		int BlockSize = plugin.getBlocks().size();
 		int WarningBlockSize = getConfig().getInt("blocklog.warning.blocks");
 		int WarningDelay = getConfig().getInt("blocklog.warning.delay") * 1000;
 		int WarningRepeat = getConfig().getInt("blocklog.warning.repeat");

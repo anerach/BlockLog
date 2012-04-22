@@ -41,11 +41,11 @@ public class BlockLog extends JavaPlugin {
 	public DatabaseSettings dbSettings;
 	public Connection conn;
 	
-	public final String[] tables = {"blocks", "rollbacks", "undos", "interactions", "reports", "chat", "deaths", "kills", "commands"};
+	public final String[] SQLTables = {"blocks", "rollbacks", "undos", "interactions", "reports", "chat", "deaths", "kills", "commands"};
 	
 	public ArrayList<String> users = new ArrayList<String>();
-	public ArrayList<LoggedBlock> blocks = new ArrayList<LoggedBlock>();
-	public ArrayList<LoggedInteraction> interactions = new ArrayList<LoggedInteraction>();
+	private ArrayList<LoggedBlock> blocks = new ArrayList<LoggedBlock>();
+	private ArrayList<LoggedInteraction> interactions = new ArrayList<LoggedInteraction>();
 	
 	public HashMap<String, Plugin> softDepends = new HashMap<String, Plugin>();
 	
@@ -61,7 +61,7 @@ public class BlockLog extends JavaPlugin {
 		blocks.add(block);
 	}
 	
-	public void addInteractions(LoggedInteraction interaction) {
+	public void addInteraction(LoggedInteraction interaction) {
 		interactions.add(interaction);
 	}
 	
@@ -69,7 +69,7 @@ public class BlockLog extends JavaPlugin {
 		return blocks;
 	}
 	
-	public ArrayList<LoggedInteraction> getInteractionss() {
+	public ArrayList<LoggedInteraction> getInteractions() {
 		return interactions;
 	}
 	
@@ -180,7 +180,7 @@ public class BlockLog extends JavaPlugin {
 	    	conn = DatabaseSettings.getConnection();
 	    	Statement stmt = conn.createStatement();
 	    	
-	    	for(String table : tables) {
+	    	for(String table : SQLTables) {
 	    		if(DBType.equalsIgnoreCase("mysql")) {
 			    	stmt.executeUpdate(getResourceContent("MySQL/blocklog_" + table + ".sql"));
 				} else if(DBType.equalsIgnoreCase("sqlite")) {

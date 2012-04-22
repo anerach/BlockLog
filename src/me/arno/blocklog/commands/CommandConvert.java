@@ -62,7 +62,7 @@ public class CommandConvert extends BlockLogCommand {
 			Statement MySQLStmt = MySQLConn.createStatement();
 			Statement SQLiteStmt = SQLiteConn.createStatement();
 			
-			for(String table : plugin.tables)
+			for(String table : plugin.SQLTables)
 				SQLiteStmt.executeUpdate(plugin.getResourceContent("SQLite/blocklog_" + table + ".sql"));
 			
 			ResultSet BlocksRS = MySQLStmt.executeQuery("SELECT * FROM blocklog_blocks");
@@ -120,7 +120,7 @@ public class CommandConvert extends BlockLogCommand {
 			}
 			
 			
-			for(String table : plugin.tables)
+			for(String table : plugin.SQLTables)
 				MySQLStmt.executeUpdate("TRUNCATE blocklog_" + table);
 			
 			SQLiteConn.close();
@@ -142,7 +142,7 @@ public class CommandConvert extends BlockLogCommand {
 			Statement SQLiteStmt = SQLiteConn.createStatement();
 			Statement MySQLStmt = MySQLConn.createStatement();
 			
-			for(String table : plugin.tables)
+			for(String table : plugin.SQLTables)
 				MySQLStmt.executeUpdate(plugin.getResourceContent("MySQL/blocklog_" + table + ".sql"));
 			
 			ResultSet BlocksRS = SQLiteStmt.executeQuery("SELECT * FROM blocklog_blocks;");
@@ -199,7 +199,7 @@ public class CommandConvert extends BlockLogCommand {
 				MySQLStmt.executeUpdate(String.format("INSERT INTO blocklog_commands (player,command,date) VALUES ('%s', '%s', %s)", CommandsRS.getString("player"), CommandsRS.getString("command"), CommandsRS.getInt("date")));
 			}
 			
-			for(String table : plugin.tables) {
+			for(String table : plugin.SQLTables) {
 				SQLiteStmt.executeUpdate("DROP TABLE IF EXISTS blocklog_" + table);
 				SQLiteStmt.executeUpdate(plugin.getResourceContent("SQLite/blocklog_" + table + ".sql"));
 			}

@@ -16,15 +16,15 @@ public class PushBlocks {
 		plugin.getServer().getScheduler().scheduleAsyncRepeatingTask(plugin, new Runnable() {
 			public void run() {
 				try {
-					if(plugin.interactions.size() > 0) {
-			    		LoggedInteraction interaction = plugin.interactions.get(0);
+					if(plugin.getInteractions().size() > 0) {
+			    		LoggedInteraction interaction = plugin.getInteractions().get(0);
 			    		interaction.save();
-				    	plugin.interactions.remove(0);
+				    	plugin.getInteractions().remove(0);
 			    	}
-					if(plugin.blocks.size() > 0) {
-						LoggedBlock block = plugin.blocks.get(0);
+					if(plugin.getBlocks().size() > 0) {
+						LoggedBlock block = plugin.getBlocks().get(0);
 				    	block.save();
-				    	plugin.blocks.remove(0);
+				    	plugin.getBlocks().remove(0);
 			    	}
 				} catch(Exception e) {}
 		    }

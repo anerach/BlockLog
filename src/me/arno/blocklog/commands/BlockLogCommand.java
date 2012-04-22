@@ -63,4 +63,18 @@ public class BlockLogCommand {
 	public void reloadConfig() {
 		plugin.reloadConfig();
 	}
+	
+	public Integer convertToUnixtime(Integer timeInt, String timeVal) {
+		if(timeVal.equalsIgnoreCase("s"))
+			return (int) (System.currentTimeMillis()/1000 - timeInt);
+		else if(timeVal.equalsIgnoreCase("s"))
+			return (int) (System.currentTimeMillis()/1000 - timeInt * 60);
+		else if(timeVal.equalsIgnoreCase("h"))
+			return (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60);
+		else if(timeVal.equalsIgnoreCase("d"))
+			return(int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60 * 24);
+		else if(timeVal.equalsIgnoreCase("w"))
+			return (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60 * 24 * 7);
+		return 0;
+	}
 }

@@ -8,26 +8,12 @@ import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
 import me.arno.blocklog.BlockLog;
-import me.arno.blocklog.Query;
+import me.arno.blocklog.database.Query;
 import me.arno.blocklog.schedules.Rollback;
 
 public class CommandRollback extends BlockLogCommand {
 	public CommandRollback(BlockLog plugin) {
 		super(plugin, "blocklog.rollback");
-	}
-
-	public Integer convertToUnixtime(Integer timeInt, String timeVal) {
-		if(timeVal.equalsIgnoreCase("s"))
-			return (int) (System.currentTimeMillis()/1000 - timeInt);
-		else if(timeVal.equalsIgnoreCase("s"))
-			return (int) (System.currentTimeMillis()/1000 - timeInt * 60);
-		else if(timeVal.equalsIgnoreCase("h"))
-			return (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60);
-		else if(timeVal.equalsIgnoreCase("d"))
-			return(int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60 * 24);
-		else if(timeVal.equalsIgnoreCase("w"))
-			return (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60 * 24 * 7);
-		return 0;
 	}
 	
 	public boolean execute(Player player, Command cmd, String[] args) {

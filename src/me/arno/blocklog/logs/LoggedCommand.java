@@ -35,7 +35,7 @@ public class LoggedCommand {
 	}
 	
 	public String getPlayerName() {
-		return getPlayer().getName();
+		return getPlayer().getName().toLowerCase();
 	}
 	
 	public Player getPlayer() {

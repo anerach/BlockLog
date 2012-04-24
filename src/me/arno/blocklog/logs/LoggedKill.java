@@ -38,9 +38,9 @@ public class LoggedKill {
 	public String getVictemName() {
 		EntityType entity = victem.getType();
 		if(entity == EntityType.PLAYER)
-			return ((Player) victem).getName();
+			return ((Player) victem).getName().toLowerCase();
 		else
-			return entity.getName();
+			return entity.getName().toLowerCase();
 	}
 	
 	public LivingEntity getVictem() {
@@ -48,7 +48,7 @@ public class LoggedKill {
 	}
 	
 	public String getKillerName() {
-		return killer.getName();
+		return killer.getName().toLowerCase();
 	}
 	
 	public Player getKiller() {

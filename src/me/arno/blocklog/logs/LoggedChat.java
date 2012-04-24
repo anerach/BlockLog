@@ -30,7 +30,7 @@ public class LoggedChat {
 	}
 	
 	public String getPlayerName() {
-		return getPlayer().getName();
+		return getPlayer().getName().toLowerCase();
 	}
 	
 	public Player getPlayer() {

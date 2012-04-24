@@ -47,12 +47,12 @@ public class LoggedInteraction {
 		return location;
 	}
 	
-	public Player getPlayer() {
-		return player;
+	public String getPlayerName() {
+		return player.getName().toLowerCase();
 	}
 	
-	public String getPlayerName() {
-		return player.getName();
+	public Player getPlayer() {
+		return player;
 	}
 	
 	public long getDate() {

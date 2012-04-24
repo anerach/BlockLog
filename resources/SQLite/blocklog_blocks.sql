@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS 'blocklog_blocks' (
 	'id' INTEGER PRIMARY KEY NOT NULL,
-	'player' VARCHAR(75) NOT NULL,
+	'entity' VARCHAR(75) NOT NULL,
+	'trigered' VARCHAR(75) NOT NULL,
 	'world' VARCHAR(75) NOT NULL,
 	'block_id' INTEGER NOT NULL,
 	'datavalue' INTEGER NOT NULL,

@@ -50,13 +50,13 @@ public class LoggedBlock {
 		try {
 			Statement stmt = plugin.conn.createStatement();
 			stmt.executeUpdate("INSERT INTO blocklog_blocks (entity, trigered, block_id, datavalue, world, date, x, y, z, type, rollback_id) VALUES ('" + getEntityName() + "', '" + getPlayerName() + "', " + getBlockId() + ", " + getDataValue() + ", '" + getWorld().getName() + "', " + getDate() + ", " + getX() + ", " + getY() + ", " + getZ() + ", " + getTypeId() + ", " + getRollback() + ")");
-    	} catch (SQLException e) {
+		} catch (SQLException e) {
     		e.printStackTrace();
     	}
 	}
 	
 	public String getEntityName() {
-		return entity.getName().toLowerCase();
+		return entity.name().toLowerCase();
 	}
 	
 	public EntityType getEntity() {

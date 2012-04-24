@@ -26,7 +26,7 @@ public class PushBlocks {
 				    	block.save();
 				    	plugin.getBlocks().remove(0);
 			    	}
-				} catch(Exception e) {}
+				} catch(Exception e) { e.printStackTrace(); }
 		    }
 		}, 100L, plugin.getConfig().getInt("database.delay") * 20L);
 	}

@@ -18,13 +18,10 @@ public class Save implements Runnable {
 	final private Player player;
 	final private Integer count;
 	
-	private Boolean saving;
-	
 	public Save(BlockLog plugin, int count, Player player) {
 		this.blocks = plugin.getBlocks();
 		this.interactions = plugin.getInteractions();
 		this.log = plugin.log;
-		this.saving = plugin.saving;
 		
 		this.count = count;
 		this.player = player;
@@ -32,65 +29,49 @@ public class Save implements Runnable {
 	
 	@Override
 	public void run() {
-		if(saving == true && player != null) {
-			player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "We're already saving some of the blocks.");
-		} else if(saving == true && player == null) {
-			log.info("We're already saving some of the blocks.");
-		} else if(saving == false) {
-			saving = true;
-			if(player == null)
-				log.info("Saving " + ((count == 0) ? "all the" : count) + " block edits!");
-			else
-				player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Saving " + ((count == 0) ? "all the" : count) + " block edits!");
+		if(player == null)
+			log.info("Saving " + ((count == 0) ? "all the" : count) + " block edits!");
+		else
+			player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Saving " + ((count == 0) ? "all the" : count) + " block edits!");
 			
-			if(count == 0) {
-	    		while(interactions.size() > 0) {
-	    			try {
-		    			LoggedInteraction interaction = interactions.get(0);
-				    	interaction.save();
-				    	interactions.remove(0);
-		    		} catch(Exception e) {}
-	    		}
-				while(blocks.size() > 0) {
-					try {
-			    		LoggedBlock block = blocks.get(0);
-					    block.save();
-					    blocks.remove(0);
-					} catch(Exception e) {}
-	    		}
-	    	} else {
-	    		if(interactions.size() > 0) {
-	    			for(int i=count; i!=0; i--) {
-	    				try {
-	    					if(interactions.size() == 0)
-	    						break;
-	    					
-		    				LoggedInteraction interaction = interactions.get(0);
-				    		interaction.save();
-					    	interactions.remove(0);
-		    			} catch(Exception e) {}
-	    			}
-	    		}
-	    		if(blocks.size() > 0) {
-	    			for(int i=count; i!=0; i--) {
-	    				try {
-	    					if(blocks.size() == 0)
-	    						break;
-	    					
-			    			LoggedBlock block = blocks.get(0);
-					    	block.save();
-					    	blocks.remove(0);
-		    			} catch(Exception e) {}
-	    			}
-	    		}
+		if(count == 0) {
+	    	while(!interactions.isEmpty()) {
+	    		try {
+	    			interactions.get(0).save();
+			    	interactions.remove(0);
+		    	} catch(Exception e) {}
 	    	}
+	    	log.info("Start Blocks");
+			while(!blocks.isEmpty()) {
+				try {
+			   		blocks.get(0).save();
+				    blocks.remove(0);
+				} catch(Exception e) {}
+	    	}
+			log.info("End Blocks");
+	    } else {
+	    	for(int i=count; i!=0; i--) {
+	    		try {
+	    			if(interactions.isEmpty())
+	    				break;
+	    			interactions.get(0).save();
+				    interactions.remove(0);
+		    	} catch(Exception e) {}
+	    	}
+	    	for(int i=count; i!=0; i--) {
+	    		try {
+		    		if(blocks.isEmpty())
+		    			break;
+		    		blocks.get(0).save();
+		    		blocks.remove(0);
+		    	} catch(Exception e) {}
+	    	}
+	    }
 			
-			if(player == null)
-				log.info("Successfully saved " + ((count == 0) ? "all the" : count) + " block edits!");
-			else
-				player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Successfully saved " + ((count == 0) ? "all the" : count) + " block edits!");
+		if(player == null)
+			log.info("Successfully saved " + ((count == 0) ? "all the" : count) + " block edits!");
+		else
+			player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Successfully saved " + ((count == 0) ? "all the" : count) + " block edits!");
 			
-			saving = false;
-		}
 	}
 }

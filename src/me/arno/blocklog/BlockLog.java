@@ -197,45 +197,11 @@ public class BlockLog extends JavaPlugin {
 			Statement stmt = conn.createStatement();
 			
 			Config versions = new Config("VERSIONS");
-			versions.getConfig().addDefault("database", 5);
-			versions.getConfig().options().copyDefaults(true);
-			
+			versions.getConfig().addDefault("database", 10);
 			if(versions.getConfig().getInt("database") < 2) {
-				log.info("Updating the database to version 2");
-				if(DatabaseSettings.DBType().equalsIgnoreCase("mysql"))
-					stmt.executeUpdate("ALTER TABLE `blocklog_blocks` CHANGE `rollback_id` `rollback_id` INT(11) NOT NULL DEFAULT '0'");
-				versions.getConfig().set("database", 2);
+				stmt.executeUpdate("");
 			}
-			if(versions.getConfig().getInt("database") < 3) {
-				if(DatabaseSettings.DBType().equalsIgnoreCase("mysql"))
-					stmt.executeUpdate("ALTER TABLE `blocklog_kills` CHANGE `player` `victem` varchar(75) NOT NULL");
-				versions.getConfig().set("database", 3);
-			}
-			/*
-			if(versions.getConfig().getInt("database") < 4) {
-				if(DatabaseSettings.DBType().equalsIgnoreCase("mysql"))
-					stmt.executeUpdate("ALTER TABLE `blocklog_reports` ADD `date` int(11) NOT NULL");
-				else
-					stmt.executeUpdate("ALTER TABLE 'blocklog_reports' ADD COLUMN 'date' INTEGER NOT NULL");
-				
-				stmt.executeUpdate("UPDATE blocklog_reports SET date = " + System.currentTimeMillis()/1000 + " WHERE date = 0");
-				versions.getConfig().set("database", 4);
-			}
-			if(versions.getConfig().getInt("database") < 5) {
-				if(DatabaseSettings.DBType().equalsIgnoreCase("mysql")) {
-					stmt.executeUpdate("ALTER TABLE `blocklog_rollbacks` ADD `param_player` varchar(75) NULL");
-					stmt.executeUpdate("ALTER TABLE `blocklog_rollbacks` ADD `param_from` varchar(75) NULL");
-					stmt.executeUpdate("ALTER TABLE `blocklog_rollbacks` ADD `param_until` varchar(75) NULL");
-					stmt.executeUpdate("ALTER TABLE `blocklog_rollbacks` ADD `param_area` int(11) NULL");
-				} else {
-					stmt.executeUpdate("ALTER TABLE 'blocklog_rollbacks' ADD COLUMN 'param_player' VARCHAR(75) NULL");
-					stmt.executeUpdate("ALTER TABLE 'blocklog_rollbacks' ADD COLUMN 'param_from' VARCHAR(75) NULL");
-					stmt.executeUpdate("ALTER TABLE 'blocklog_rollbacks' ADD COLUMN 'param_until' VARCHAR(75) NULL");
-					stmt.executeUpdate("ALTER TABLE 'blocklog_rollbacks' ADD COLUMN 'param_area' INTEGER NULL");
-				}
-				versions.getConfig().set("database", 5);
-			}
-			*/
+			versions.getConfig().options().copyDefaults(true);
 			versions.saveConfig();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -243,9 +209,9 @@ public class BlockLog extends JavaPlugin {
 	}
 	
 	private String loadLatestVersion() {
-        String pluginUrlString = "http://dev.bukkit.org/server-mods/block-log/files.rss";
+        String pluginUrl = "http://dev.bukkit.org/server-mods/block-log/files.rss";
         try {
-            URL url = new URL(pluginUrlString);
+            URL url = new URL(pluginUrl);
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(url.openConnection().getInputStream());
             doc.getDocumentElement().normalize();
             NodeList nodes = doc.getElementsByTagName("item");
@@ -352,12 +318,12 @@ public class BlockLog extends JavaPlugin {
 			getServer().getScheduler().cancelTasks(this);
 			
 			log.info("Saving all the block edits!");
-			while(interactions.size() > 0) {
+			while(!interactions.isEmpty()) {
 	    		LoggedInteraction interaction = interactions.get(0);
 			    interaction.save();
 			    interactions.remove(0);
 	    	}
-			while(blocks.size() > 0) {
+			while(!blocks.isEmpty()) {
 				LoggedBlock block = blocks.get(0);
 				block.save();
 			  	blocks.remove(0);

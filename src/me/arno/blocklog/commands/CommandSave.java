@@ -25,10 +25,7 @@ public class CommandSave extends BlockLogCommand {
 		if(args[0].equalsIgnoreCase("all")) {
 			plugin.saveLogs(0, player);
 		} else {
-			int blockCount = 100;
-			if(args.length == 1)
-				blockCount = Integer.parseInt(args[0]);
-				
+			Integer blockCount = (args.length == 1) ? Integer.parseInt(args[0]) : 100;
 			plugin.saveLogs(blockCount, player);
 		}
 		return true;

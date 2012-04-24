@@ -45,11 +45,16 @@ public class BlockLogCommand {
 	}
 	
 	public Boolean hasPermission(Player player) {
-		if(player == null && !console)
+		if(player == null && console)
+			return true;
+		else if(player == null && console == false)
 			return false;
-		if(permission != null)
+		else if(permission != null && player != null)
 			return player.hasPermission(permission);
-		return player.isOp();
+		else if(player != null)
+			return player.isOp();
+		
+		return false;
 	}
 	
 	public FileConfiguration getConfig() {

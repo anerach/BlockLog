@@ -112,7 +112,7 @@ public class CommandRollback extends BlockLogCommand {
 			Statement rollbackStmt = conn.createStatement();
 			Statement blocksStmt = conn.createStatement();
 			
-			rollbackStmt.executeUpdate("INSERT INTO blocklog_rollbacks (player, world, param_player, param_from, param_until, param_area, date, type) VALUES ('" + player.getName() + "', '" + player.getWorld().getName() + "', '" + param_target + "', '" + param_from + "', '" + param_until + "', " + param_area + ", " + System.currentTimeMillis()/1000 + ", 0)");
+			rollbackStmt.executeUpdate("INSERT INTO blocklog_rollbacks (player, world, param_player, param_from, param_until, param_area, date) VALUES ('" + player.getName() + "', '" + player.getWorld().getName() + "', '" + param_target + "', '" + param_from + "', '" + param_until + "', " + param_area + ", " + System.currentTimeMillis()/1000 + ")");
 			
 			ResultSet rollback = rollbackStmt.executeQuery("SELECT id FROM blocklog_rollbacks ORDER BY id DESC");
 			rollback.next();
@@ -121,7 +121,7 @@ public class CommandRollback extends BlockLogCommand {
 			
 			ResultSet blocks = blocksStmt.executeQuery(query.getQuery());
 			
-			plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Rollback(plugin, player, target, rollbackID, blocks));
+			plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Rollback(plugin, player, rollbackID, blocks));
 			
 			return true;
 		} catch(NumberFormatException e) {

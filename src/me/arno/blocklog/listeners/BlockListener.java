@@ -56,14 +56,15 @@ public class BlockListener extends BlockLogListener {
 			cancel = !wg.canBuild(player, block.getLocation());
 		}
 		
+		int BLWand = getConfig().getInt("blocklog.wand");
+		boolean WandEnabled = plugin.users.contains(event.getPlayer().getName());
+		
+		if(event.getPlayer().getItemInHand().getTypeId() == BLWand && WandEnabled)
+			cancel = true;
+		
 		if(!event.isCancelled() && !cancel) {
-			int BLWand = getConfig().getInt("blocklog.wand");
-			boolean WandEnabled = plugin.users.contains(event.getPlayer().getName());
-			
-			if(event.getPlayer().getItemInHand().getTypeId() != BLWand || !WandEnabled) {
-				plugin.addBlock(new LoggedBlock(plugin, player, block, Log.PLACE));
-				BlocksLimitReached();
-			}
+			plugin.addBlock(new LoggedBlock(plugin, player, block, Log.PLACE));
+			BlocksLimitReached();
 		}
 	}
 

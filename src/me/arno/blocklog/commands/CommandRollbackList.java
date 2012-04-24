@@ -17,8 +17,14 @@ public class CommandRollbackList extends BlockLogCommand {
 
 	public boolean execute(Player player, Command cmd, String[] args) {
 		if(args.length > 0) {
-			player.sendMessage(ChatColor.WHITE + "/bl rollbacklist");
+			player.sendMessage(ChatColor.WHITE + "/bl rollbacklist [id <value>] [player <value>] [from <value>] [until <value>] [area <value>]");
 			return true;
+		}
+		
+		Integer clauses = args.length/2;
+		
+		if(!clauses.toString().matches("[0-9]*")) {
+			player.sendMessage("Invalid amount of args");
 		}
 		
 		if(!hasPermission(player)) {
@@ -27,6 +33,30 @@ public class CommandRollbackList extends BlockLogCommand {
 		}
 		
 		try {
+			String target = null;
+			Integer id = 0;
+			Integer untilTime = 0;
+			Integer sinceTime = 0;
+			Integer area = 0;
+			
+			for(int i=0;i<args.length;i+=2) {
+				String type = args[i];
+				String value = args[i+1];
+				if(type.equalsIgnoreCase("player")) {
+					target = value;
+				} else if(type.equalsIgnoreCase("id")) {
+					id = Integer.valueOf(value);
+				} else if(type.equalsIgnoreCase("area")) {
+					area = Integer.valueOf(value);
+				} else if(type.equalsIgnoreCase("since")) {
+					Character c = value.charAt(value.length() - 1);
+					sinceTime = convertToUnixtime(Integer.valueOf(value.replace(c, ' ').trim()), c.toString());
+				} else if(type.equalsIgnoreCase("until")) {
+					Character c = value.charAt(value.length() - 1);
+					untilTime = convertToUnixtime(Integer.valueOf(value.replace(c, ' ').trim()), c.toString());
+				}
+			}
+			
 			Query query = new Query("blocklog_rollbacks");
 			query.addLeftJoin("blocklog_undos", "id", "rollback_id");
 			
@@ -34,6 +64,17 @@ public class CommandRollbackList extends BlockLogCommand {
 			query.addSelectDateAs("blocklog_rollbacks.date", "date");
 			
 			query.addSelectAs("blocklog_undos.player", "uplayer");
+			
+			if(target != null)
+				query.addWhere("player", target);
+			if(id != 0)
+				query.addWhere("id", id.toString());
+			if(area != 0)
+				query.addWhere("area", area.toString());
+			if(sinceTime != 0)
+				query.addWhere("date", sinceTime.toString(), ">");
+			if(untilTime != 0)
+				query.addWhere("date", untilTime.toString(), "<");
 			
 			query.addOrderBy("blocklog_rollbacks.date", "DESC");
 			query.addLimit(getConfig().getInt("blocklog.results"));

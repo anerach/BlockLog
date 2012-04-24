@@ -23,6 +23,12 @@ public class CommandLookup extends BlockLogCommand {
 			return true;
 		}
 		
+		Integer clauses = args.length/2;
+		
+		if(!clauses.toString().matches("[0-9]*")) {
+			player.sendMessage("Invalid amount of args");
+		}
+		
 		if(!hasPermission(player)) {
 			player.sendMessage("You don't have permission");
 			return true;
@@ -33,13 +39,13 @@ public class CommandLookup extends BlockLogCommand {
 			String entity = null;
 			Integer untilTime = 0;
 			Integer sinceTime = 0;
-			Integer radius = 0;
+			Integer area = 0;
 			
 			for(int i=0;i<args.length;i+=2) {
 				String type = args[i];
 				String value = args[i+1];
 				if(type.equalsIgnoreCase("area")) {
-					radius = Integer.valueOf(value);
+					area = Integer.valueOf(value);
 				} else if(type.equalsIgnoreCase("player")) {
 					target = value;
 				} else if(type.equalsIgnoreCase("entity")) {
@@ -73,13 +79,13 @@ public class CommandLookup extends BlockLogCommand {
 				query.addWhere("date", sinceTime.toString(), "<");
 			if(untilTime != 0)
 				query.addWhere("date", untilTime.toString(), ">");
-			if(radius != 0) {
-				Integer xMin = player.getLocation().getBlockX() - radius;
-				Integer xMax = player.getLocation().getBlockX() + radius;
-				Integer yMin = player.getLocation().getBlockY() - radius;
-				Integer yMax = player.getLocation().getBlockY() + radius;
-				Integer zMin = player.getLocation().getBlockZ() - radius;
-				Integer zMax = player.getLocation().getBlockZ() + radius;
+			if(area != 0) {
+				Integer xMin = player.getLocation().getBlockX() - area;
+				Integer xMax = player.getLocation().getBlockX() + area;
+				Integer yMin = player.getLocation().getBlockY() - area;
+				Integer yMax = player.getLocation().getBlockY() + area;
+				Integer zMin = player.getLocation().getBlockZ() - area;
+				Integer zMax = player.getLocation().getBlockZ() + area;
 				
 				query.addWhere("x", xMin.toString(), ">=");
 				query.addWhere("x", xMax.toString(), "<=");

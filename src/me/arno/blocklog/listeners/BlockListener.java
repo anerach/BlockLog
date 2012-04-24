@@ -144,25 +144,29 @@ public class BlockListener extends BlockLogListener {
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onEntityExplode(EntityExplodeEvent event) {
-		Log log = Log.EXPLOSION;
-		Player target = null;
-		if(event.getEntityType() == EntityType.CREEPER) {
-			log = Log.EXPLOSION_CREEPER;
-			Creeper creeper = (Creeper) event.getEntity();
-			if(creeper.getTarget() instanceof Player)
-				target = (Player) creeper.getTarget();
-		} else if(event.getEntityType() == EntityType.GHAST || event.getEntityType() == EntityType.FIREBALL) {
-			log = Log.EXPLOSION_GHAST;
-		} else if(event.getEntityType() == EntityType.PRIMED_TNT){
-			log = Log.EXPLOSION_TNT;
-		}
-		
-		for(Block block : event.blockList()) {
-			if(target == null)
-				plugin.addBlock(new LoggedBlock(plugin, block.getState(), log));
-			else
-				plugin.addBlock(new LoggedBlock(plugin, target, block.getState(), log));
-			BlocksLimitReached();
+		if(!event.isCancelled()) {
+			Log log = Log.EXPLOSION;
+			Player target = null;
+			if(event.getEntityType() != null) {
+				if(event.getEntityType() == EntityType.CREEPER) {
+					log = Log.EXPLOSION_CREEPER;
+					Creeper creeper = (Creeper) event.getEntity();
+					if(creeper.getTarget() instanceof Player)
+						target = (Player) creeper.getTarget();
+				} else if(event.getEntityType() == EntityType.GHAST || event.getEntityType() == EntityType.FIREBALL) {
+					log = Log.EXPLOSION_GHAST;
+				} else if(event.getEntityType() == EntityType.PRIMED_TNT) {
+					log = Log.EXPLOSION_TNT;
+				}
+			}
+			
+			for(Block block : event.blockList()) {
+				if(target == null)
+					plugin.addBlock(new LoggedBlock(plugin, block.getState(), event.getEntityType(), log));
+				else
+					plugin.addBlock(new LoggedBlock(plugin, target, block.getState(), event.getEntityType(), log));
+				BlocksLimitReached();
+			}
 		}
 	}
 	

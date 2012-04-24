@@ -2,8 +2,11 @@ package me.arno.blocklog.database;
 
 
 public class Query {
+	private String table;
+	
 	private String selectClause;
 	private String fromClause;
+	private String joinClause;
 	private String whereClause;
 	private String groupByClause;
 	private String orderByClause;
@@ -11,30 +14,45 @@ public class Query {
 	
 	public Query() {}
 	
-	public Query(String table) {
-		fromClause = "FROM " + table;
+	public Query(String from) {
+		fromClause = "FROM " + from;
+		table = from;
 	}
 	
-	public void addSelect(String select) {
+	public void addSelect(String... selects) {
+		for(String select : selects) {
+			if(selectClause == null) {
+				selectClause = "SELECT " + select;
+			} else {
+				selectClause += ", " + select;
+			}
+		}
+	}
+	
+	public void addSelectAs(String select, String as) {
 		if(selectClause == null) {
-			selectClause = "SELECT " + select;
+			selectClause = "SELECT " + select + " AS " + as;
 		} else {
-			selectClause += ", " + select;
+			selectClause += ", " + select + " AS " + as;
 		}
 	}
 	
 	public void addSelectDate(String select) {
-		addSelectDate(select, null);
+		addSelectDate(select, null, null);
+	}
+	
+	public void addSelectDateAs(String select, String as) {
+		addSelectDate(select, null, as);
 	}
 
-	public void addSelectDate(String select, String format) {
+	public void addSelectDate(String select, String format, String as) {
 		String str;
 		if(DatabaseSettings.DBType().equalsIgnoreCase("mysql")) {
 			format = (format == null) ? "%d-%m-%Y %H:%i:%s" : format;
-			str = "FROM_UNIXTIME(" + select + ", " + format + ")";
+			str = "FROM_UNIXTIME(" + select + ", '" + format + "')" + (as == null ? "" : " AS " + as);
 		} else {
 			format = (format == null) ? "localtime" : format;
-			str = "datetime(" + select + ", 'unixepoch', '" + format + "')";
+			str = "datetime(" + select + ", 'unixepoch', '" + format + "')" + (as == null ? "" : " AS " + as);
 		}
 		
 		if(selectClause == null) {
@@ -46,6 +64,7 @@ public class Query {
 	
 	public void addFrom(String from) {
 		fromClause = "FROM " + from;
+		table = from;
 	}
 	
 	public void addGroupBy(String group) {
@@ -56,7 +75,11 @@ public class Query {
 		}
 	}
 	
-	public void AddOrderBy(String order, String type) {
+	public void addOrderBy(String order) {
+		addOrderBy(order, "ASC");
+	}
+	
+	public void addOrderBy(String order, String type) {
 		orderByClause = "ORDER BY " + order + " " + type;
 	}
 	
@@ -69,6 +92,22 @@ public class Query {
 			limitClause = "LIMIT " + min;
 		else
 			limitClause = "LIMIT " + min + ", " + max;
+	}
+	
+	public void addLeftJoin(String joinedTable, String tableRow, String mTableRow) {
+		addJoin("LEFT", joinedTable, tableRow, mTableRow);
+	}
+	
+	public void addRightJoin(String joinedTable, String tableRow, String mTableRow) {
+		addJoin("RIGHT", joinedTable, tableRow, mTableRow);
+	}
+	
+	private void addJoin(String type, String joinedTable, String tableRow, String mTableRow) {
+		String join = "";
+		if(type != null) {
+			join += type + " ";
+		}
+		joinClause = join + "JOIN " + joinedTable + " ON " + table + "." + tableRow + " = " + joinedTable + "." + mTableRow;
 	}
 	
 	public void addWhere(String column, String value) {
@@ -101,6 +140,8 @@ public class Query {
 			query += selectClause;
 		if(fromClause != null)
 			query += " " + fromClause;
+		if(joinClause != null)
+			query += " " + joinClause;
 		if(whereClause != null)
 			query += " " + whereClause;
 		if(orderByClause != null)

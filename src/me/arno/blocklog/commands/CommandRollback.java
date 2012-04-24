@@ -17,7 +17,7 @@ public class CommandRollback extends BlockLogCommand {
 	}
 	
 	public boolean execute(Player player, Command cmd, String[] args) {
-		if(args.length < 3) {
+		if(args.length < 2) {
 			player.sendMessage(ChatColor.WHITE + "/bl rollback [player <value>] [from <value>] [until <value>] [area <value>]");
 			return true;
 		}
@@ -26,29 +26,45 @@ public class CommandRollback extends BlockLogCommand {
 			player.sendMessage("You don't have permission");
 			return true;
 		}
+		
 		try {
 			String target = null;
+			String entity = null;
 			Integer untilTime = 0;
-			Integer fromTime = 0;
-			Integer radius = 0;
+			Integer sinceTime = 0;
+			Integer area = 0;
+			
+			String param_target = null;
+			String param_until = null;
+			String param_from = null;
+			String param_area = null;
 			
 			for(int i=0;i<args.length;i+=2) {
 				String type = args[i];
 				String value = args[i+1];
+				log.info("type: " + type);
+				log.info("value: " + value);
 				if(type.equalsIgnoreCase("area")) {
-					radius = Integer.valueOf(value);
+					param_area = value;
+					area = Integer.valueOf(value);
 				} else if(type.equalsIgnoreCase("player")) {
+					param_target = value;
 					target = value;
-				} else if(type.equalsIgnoreCase("from")) {
+				} else if(type.equalsIgnoreCase("entity")) {
+					param_target = value;
+					entity = value;
+				} else if(type.equalsIgnoreCase("since")) {
+					param_from = value;
 					Character c = value.charAt(value.length() - 1);
-					fromTime = convertToUnixtime(Integer.valueOf(value.replace(c, ' ').trim()), c.toString());
+					sinceTime = convertToUnixtime(Integer.valueOf(value.replace(c, ' ').trim()), c.toString());
 				} else if(type.equalsIgnoreCase("until")) {
+					param_until = value;
 					Character c = value.charAt(value.length() - 1);
 					untilTime = convertToUnixtime(Integer.valueOf(value.replace(c, ' ').trim()), c.toString());
 				}
 			}
 			
-			if(fromTime != 0 && fromTime < untilTime) {
+			if(sinceTime != 0 && sinceTime < untilTime) {
 				player.sendMessage(ChatColor.WHITE + "from time can't be bigger than until time.");
 				return true;
 			}
@@ -57,19 +73,23 @@ public class CommandRollback extends BlockLogCommand {
 			
 			Query query = new Query("blocklog_blocks");
 			query.addSelect("*");
-			if(target != null)
-				query.addWhere("player", target);
-			if(fromTime != 0)
-				query.addWhere("date", fromTime.toString(), "<");
+			if(target != null) {
+				query.addWhere("entity", "player");
+				query.addWhere("trigered", target);
+			}
+			if(entity != null)
+				query.addWhere("entity", entity);
+			if(sinceTime != 0)
+				query.addWhere("date", sinceTime.toString(), ">");
 			if(untilTime != 0)
-				query.addWhere("date", untilTime.toString(), ">");
-			if(radius != 0) {
-				Integer xMin = player.getLocation().getBlockX() - radius;
-				Integer xMax = player.getLocation().getBlockX() + radius;
-				Integer yMin = player.getLocation().getBlockY() - radius;
-				Integer yMax = player.getLocation().getBlockY() + radius;
-				Integer zMin = player.getLocation().getBlockZ() - radius;
-				Integer zMax = player.getLocation().getBlockZ() + radius;
+				query.addWhere("date", untilTime.toString(), "<");
+			if(area != 0) {
+				Integer xMin = player.getLocation().getBlockX() - area;
+				Integer xMax = player.getLocation().getBlockX() + area;
+				Integer yMin = player.getLocation().getBlockY() - area;
+				Integer yMax = player.getLocation().getBlockY() + area;
+				Integer zMin = player.getLocation().getBlockZ() - area;
+				Integer zMax = player.getLocation().getBlockZ() + area;
 				
 				query.addWhere("x", xMin.toString(), ">=");
 				query.addWhere("x", xMax.toString(), "<=");
@@ -85,14 +105,14 @@ public class CommandRollback extends BlockLogCommand {
 			query.addGroupBy("x");
 			query.addGroupBy("y");
 			query.addGroupBy("z");
-			query.AddOrderBy("date", "DESC");
+			query.addOrderBy("date", "DESC");
 			
 			log.info(query.getQuery());
 			
 			Statement rollbackStmt = conn.createStatement();
 			Statement blocksStmt = conn.createStatement();
 			
-			rollbackStmt.executeUpdate("INSERT INTO blocklog_rollbacks (player, world, date, type) VALUES ('" + player.getName() + "', '" + player.getWorld().getName() + "', " + System.currentTimeMillis()/1000 + ", 0)");
+			rollbackStmt.executeUpdate("INSERT INTO blocklog_rollbacks (player, world, param_player, param_from, param_until, param_area, date, type) VALUES ('" + player.getName() + "', '" + player.getWorld().getName() + "', '" + param_target + "', '" + param_from + "', '" + param_until + "', " + param_area + ", " + System.currentTimeMillis()/1000 + ", 0)");
 			
 			ResultSet rollback = rollbackStmt.executeQuery("SELECT id FROM blocklog_rollbacks ORDER BY id DESC");
 			rollback.next();

@@ -30,8 +30,9 @@ public class CommandLookup extends BlockLogCommand {
 		
 		try {
 			String target = null;
+			String entity = null;
 			Integer untilTime = 0;
-			Integer fromTime = 0;
+			Integer sinceTime = 0;
 			Integer radius = 0;
 			
 			for(int i=0;i<args.length;i+=2) {
@@ -41,16 +42,18 @@ public class CommandLookup extends BlockLogCommand {
 					radius = Integer.valueOf(value);
 				} else if(type.equalsIgnoreCase("player")) {
 					target = value;
-				} else if(type.equalsIgnoreCase("from")) {
+				} else if(type.equalsIgnoreCase("entity")) {
+					entity = value;
+				} else if(type.equalsIgnoreCase("since")) {
 					Character c = value.charAt(value.length() - 1);
-					fromTime = convertToUnixtime(Integer.valueOf(value.replace(c, ' ').trim()), c.toString());
+					sinceTime = convertToUnixtime(Integer.valueOf(value.replace(c, ' ').trim()), c.toString());
 				} else if(type.equalsIgnoreCase("until")) {
 					Character c = value.charAt(value.length() - 1);
 					untilTime = convertToUnixtime(Integer.valueOf(value.replace(c, ' ').trim()), c.toString());
 				}
 			}
 			
-			if(fromTime != 0 && fromTime < untilTime) {
+			if(sinceTime != 0 && sinceTime < untilTime) {
 				player.sendMessage(ChatColor.WHITE + "from time can't be bigger than until time.");
 				return true;
 			}
@@ -60,10 +63,14 @@ public class CommandLookup extends BlockLogCommand {
 			Query query = new Query("blocklog_blocks");
 			query.addSelect("*");
 			query.addSelectDate("date");
-			if(target != null)
-				query.addWhere("player", target);
-			if(fromTime != 0)
-				query.addWhere("date", fromTime.toString(), "<");
+			if(target != null) {
+				query.addWhere("entity", "player");
+				query.addWhere("trigered", target);
+			}
+			if(entity != null)
+				query.addWhere("entity", entity);
+			if(sinceTime != 0)
+				query.addWhere("date", sinceTime.toString(), "<");
 			if(untilTime != 0)
 				query.addWhere("date", untilTime.toString(), ">");
 			if(radius != 0) {
@@ -88,7 +95,7 @@ public class CommandLookup extends BlockLogCommand {
 			query.addGroupBy("x");
 			query.addGroupBy("y");
 			query.addGroupBy("z");
-			query.AddOrderBy("date", "DESC");
+			query.addOrderBy("date", "DESC");
 			query.addLimit(getConfig().getInt("blocklog.results"));
 			
 			Statement stmt = conn.createStatement();

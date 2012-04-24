@@ -9,6 +9,7 @@ import me.arno.blocklog.Log;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
 
@@ -18,19 +19,29 @@ public class LoggedBlock {
 	
 	private Player player;
 	private BlockState block;
+	private EntityType entity;
 	
 	private long date;
 	
 	private Integer rollback = 0;
 	
 	public LoggedBlock(BlockLog plugin, BlockState block, Log type) {
-		this(plugin, null, block, type);
+		this(plugin, null, block, EntityType.PLAYER, type);
+	}
+	
+	public LoggedBlock(BlockLog plugin, BlockState block, EntityType entity, Log type) {
+		this(plugin, null, block, entity, type);
 	}
 	
 	public LoggedBlock(BlockLog plugin, Player player, BlockState block, Log type) {
+		this(plugin, player, block, EntityType.PLAYER, type);
+	}
+	
+	public LoggedBlock(BlockLog plugin, Player player, BlockState block, EntityType entity, Log type) {
 		this.plugin = plugin;
 		this.player = player;
 		this.block = block;
+		this.entity = entity;
 		this.type = type;
 		this.date = (System.currentTimeMillis()/1000);
 	}
@@ -38,11 +49,18 @@ public class LoggedBlock {
 	public void save() {
 		try {
 			Statement stmt = plugin.conn.createStatement();
-			block.getData();
-			stmt.executeUpdate("INSERT INTO blocklog_blocks (player, block_id, datavalue, world, date, x, y, z, type, rollback_id) VALUES ('" + getPlayerName() + "', " + getBlockId() + ", " + getDataValue() + ", '" + getWorld().getName() + "', " + getDate() + ", " + getX() + ", " + getY() + ", " + getZ() + ", " + getTypeId() + ", " + getRollback() + ")");
+			stmt.executeUpdate("INSERT INTO blocklog_blocks (entity, trigered, block_id, datavalue, world, date, x, y, z, type, rollback_id) VALUES ('" + getEntityName() + "', '" + getPlayerName() + "', " + getBlockId() + ", " + getDataValue() + ", '" + getWorld().getName() + "', " + getDate() + ", " + getX() + ", " + getY() + ", " + getZ() + ", " + getTypeId() + ", " + getRollback() + ")");
     	} catch (SQLException e) {
     		e.printStackTrace();
     	}
+	}
+	
+	public String getEntityName() {
+		return entity.getName().toLowerCase();
+	}
+	
+	public EntityType getEntity() {
+		return entity;
 	}
 	
 	public int getBlockId() {
@@ -70,20 +88,7 @@ public class LoggedBlock {
 	}
 	
 	public String getPlayerName() {
-		String entity = "Environment";
-		
-		if(getType() == Log.EXPLOSION_CREEPER && player != null) {
-			entity = "Creeper (" + player.getName() + ")";
-		} else if(player != null)
-			entity = player.getName();
-		else if(getType() == Log.EXPLOSION_CREEPER)
-			entity = "Creeper";
-		else if(getType() == Log.EXPLOSION_GHAST)
-			entity = "Ghast";
-		else if(getType() == Log.EXPLOSION_TNT)
-			entity = "TNT";
-		
-		return entity;
+		return (player == null) ? "environment" : player.getName().toLowerCase();
 	}
 	
 	public int getRollback() {

@@ -8,7 +8,7 @@ import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
 import me.arno.blocklog.BlockLog;
-import me.arno.blocklog.database.DatabaseSettings;
+import me.arno.blocklog.database.Query;
 
 public class CommandRollbackList extends BlockLogCommand {
 	public CommandRollbackList(BlockLog plugin) {
@@ -27,34 +27,26 @@ public class CommandRollbackList extends BlockLogCommand {
 		}
 		
 		try {
-			Statement rollbacksStmt = conn.createStatement();
-			ResultSet rollbacks;
+			Query query = new Query("blocklog_rollbacks");
+			query.addLeftJoin("blocklog_undos", "id", "rollback_id");
 			
-			if(DatabaseSettings.DBType().equalsIgnoreCase("mysql")) {
-				rollbacks = rollbacksStmt.executeQuery(
-						"SELECT blocklog_rollbacks.id, blocklog_rollbacks.player, FROM_UNIXTIME(blocklog_rollbacks.date, '%d-%m-%Y %H:%i:%s') AS rbdate, blocklog_undos.player AS uplayer, FROM_UNIXTIME(blocklog_undos.date, '%d-%m-%Y %H:%i:%s') AS udate " +
-						"FROM blocklog_rollbacks " +
-						"LEFT JOIN blocklog_undos " +
-						"ON blocklog_rollbacks.id = blocklog_undos.rollback_id " +
-						"ORDER BY blocklog_rollbacks.date " +
-						"DESC LIMIT " + plugin.getConfig().getInt("blocklog.results")
-				);
-			} else {
-				rollbacks = rollbacksStmt.executeQuery(
-						"SELECT blocklog_rollbacks.id, blocklog_rollbacks.player, datetime(blocklog_rollbacks.date, 'unixepoch', 'localtime') AS rbdate, blocklog_undos.player AS uplayer, datetime(blocklog_undos.date, 'unixepoch', 'localtime') AS udate " +
-						"FROM blocklog_rollbacks " +
-						"LEFT JOIN blocklog_undos " +
-						"ON blocklog_rollbacks.id = blocklog_undos.rollback_id " +
-						"ORDER BY blocklog_rollbacks.date " +
-						"DESC LIMIT " + plugin.getConfig().getInt("blocklog.results")
-				);
-			}
+			query.addSelect("blocklog_rollbacks.id","blocklog_rollbacks.player");
+			query.addSelectDateAs("blocklog_rollbacks.date", "date");
+			
+			query.addSelectAs("blocklog_undos.player", "uplayer");
+			
+			query.addOrderBy("blocklog_rollbacks.date", "DESC");
+			query.addLimit(getConfig().getInt("blocklog.results"));
+			
+			Statement rollbacksStmt = conn.createStatement();
+			ResultSet rollbacks = rollbacksStmt.executeQuery(query.getQuery());
 			
 			player.sendMessage(ChatColor.DARK_RED + "BlockLog Rollbacks (" + plugin.getConfig().getString("blocklog.results") + " Last Rollbacks)");
 			while(rollbacks.next()) {
-				player.sendMessage(ChatColor.YELLOW + "[#" + rollbacks.getString("id") + "]" + ChatColor.BLUE + "[" + rollbacks.getString("rbdate") + "] " + ChatColor.GOLD + rollbacks.getString("player"));
 				if(rollbacks.getString("uplayer") != null)
-					player.sendMessage(ChatColor.YELLOW + "[#" + rollbacks.getString("id") + "]" + ChatColor.BLUE + "[" + rollbacks.getString("udate") + "] " + ChatColor.GREEN + "Undone by " + ChatColor.GOLD + rollbacks.getString("uplayer"));
+					player.sendMessage(ChatColor.YELLOW + "[#" + rollbacks.getString("id") + "]" + ChatColor.BLUE + "[" + rollbacks.getString("date") + "] " + ChatColor.GOLD + rollbacks.getString("player") + ChatColor.GREEN + " Undone by " + ChatColor.GOLD + rollbacks.getString("uplayer"));
+				else
+					player.sendMessage(ChatColor.YELLOW + "[#" + rollbacks.getString("id") + "]" + ChatColor.BLUE + "[" + rollbacks.getString("date") + "] " + ChatColor.GOLD + rollbacks.getString("player"));
 			}
 			return true;
 		} catch(SQLException e) {

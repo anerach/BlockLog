@@ -100,10 +100,11 @@ public class CommandWand extends BlockLogCommand {
 	public void getBlockEdits(Player player, Block block) {
 		try {
 			player.sendMessage(ChatColor.DARK_RED + "BlockLog History (" + getConfig().getString("blocklog.results") + " Last Edits)");
-			int BlockNumber = 0;
-			int BlockCount = 0;
-			int BlockSize = plugin.getBlocks().size();
+			Integer BlockNumber = 0;
+			Integer BlockCount = 0;
+			Integer BlockSize = plugin.getBlocks().size();
 			Location BlockLocation = block.getLocation();
+			
 			while(BlockSize > BlockNumber)
 			{
 				LoggedBlock LBlock = plugin.getBlocks().get(BlockNumber); 
@@ -120,19 +121,19 @@ public class CommandWand extends BlockLogCommand {
 					int type = LBlock.getTypeId();
 					
 					if(type == 0)
-						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + ChatColor.DARK_GREEN + " broke a " + ChatColor.GOLD + name);
+						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + "(" + LBlock.getEntityName() + ")" + ChatColor.DARK_GREEN + " broke a " + ChatColor.GOLD + name);
 					else if(type == 1)
-						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + ChatColor.DARK_GREEN + " placed a " + ChatColor.GOLD + name);
+						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + "(" + LBlock.getEntityName() + ")" + ChatColor.DARK_GREEN + " placed a " + ChatColor.GOLD + name);
 					else if(type == 2)
-						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + ChatColor.DARK_GREEN + " burned a " + ChatColor.GOLD + name);
+						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + "(" + LBlock.getEntityName() + ")" + ChatColor.DARK_GREEN + " burned a " + ChatColor.GOLD + name);
 					else if(type == 3 || type == 10 || type == 11 || type == 12)
-						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + ChatColor.DARK_GREEN + " blew a " + ChatColor.GOLD + name + ChatColor.DARK_GREEN + " up");
+						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + "(" + LBlock.getEntityName() + ")" + ChatColor.DARK_GREEN + " blew a " + ChatColor.GOLD + name + ChatColor.DARK_GREEN + " up");
 					else if(type == 4)
 						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.DARK_GREEN + "A " + ChatColor.GOLD + name + ChatColor.DARK_GREEN + " decayed");
 					else if(type == 5)
-						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + ChatColor.DARK_GREEN + " grew a " + ChatColor.GOLD + name);
+						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + "(" + LBlock.getEntityName() + ")" + ChatColor.DARK_GREEN + " grew a " + ChatColor.GOLD + name);
 					else if(type == 6 || type == 7 || type == 8)
-						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + ChatColor.DARK_GREEN + " created a " + ChatColor.GOLD + name);
+						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + "(" + LBlock.getEntityName() + ")" + ChatColor.DARK_GREEN + " created a " + ChatColor.GOLD + name);
 					else if(type == 9)
 						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.DARK_GREEN + "A " + ChatColor.GOLD + name + ChatColor.DARK_GREEN + " faded");
 					BlockCount++;
@@ -144,15 +145,15 @@ public class CommandWand extends BlockLogCommand {
 				Connection conn = plugin.conn;
 				Statement stmt = conn.createStatement();
 				
-				double x = block.getX();
-				double y = block.getY();
-				double z = block.getZ();
+				Integer x = block.getX();
+				Integer y = block.getY();
+				Integer z = block.getZ();
 				
 				ResultSet rs;
 				if(DatabaseSettings.DBType().equalsIgnoreCase("mysql")) {
-					rs = stmt.executeQuery("SELECT player, block_id, type, FROM_UNIXTIME(date, '%d-%m-%Y %H:%i:%s') AS date FROM blocklog_blocks WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' AND world = '" + block.getWorld().getName() + "' ORDER BY date DESC LIMIT " + (getConfig().getInt("blocklog.results") - BlockCount));
+					rs = stmt.executeQuery("SELECT entity, trigered, block_id, type, FROM_UNIXTIME(date, '%d-%m-%Y %H:%i:%s') AS date FROM blocklog_blocks WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' AND world = '" + block.getWorld().getName() + "' ORDER BY date DESC LIMIT " + (getConfig().getInt("blocklog.results") - BlockCount));
 				} else {
-					rs = stmt.executeQuery("SELECT player, block_id, type, datetime(date, 'unixepoch', 'localtime') AS date FROM blocklog_blocks WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' AND world = '" + block.getWorld().getName() + "' ORDER BY date DESC LIMIT " + (getConfig().getInt("blocklog.results") - BlockCount));
+					rs = stmt.executeQuery("SELECT entity, trigered, block_id, type, datetime(date, 'unixepoch', 'localtime') AS date FROM blocklog_blocks WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' AND world = '" + block.getWorld().getName() + "' ORDER BY date DESC LIMIT " + (getConfig().getInt("blocklog.results") - BlockCount));
 				}
 				
 				while(rs.next()) {
@@ -160,19 +161,19 @@ public class CommandWand extends BlockLogCommand {
 					int type = rs.getInt("type");
 					
 					if(type == 0)
-						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + rs.getString("player") + ChatColor.DARK_GREEN + " broke a " + ChatColor.GOLD + name);
+						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + rs.getString("trigered") + "(" + rs.getString("entity") + ")" + ChatColor.DARK_GREEN + " broke a " + ChatColor.GOLD + name);
 					else if(type == 1)
-						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + rs.getString("player") + ChatColor.DARK_GREEN + " placed a " + ChatColor.GOLD + name);
+						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + rs.getString("trigered") + "(" + rs.getString("entity") + ")" + ChatColor.DARK_GREEN + " placed a " + ChatColor.GOLD + name);
 					else if(type == 2)
-						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + rs.getString("player") + ChatColor.DARK_GREEN + " burned a " + ChatColor.GOLD + name);
+						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + rs.getString("trigered") + "(" + rs.getString("entity") + ")" + ChatColor.DARK_GREEN + " burned a " + ChatColor.GOLD + name);
 					else if(type == 3 || type == 10 || type == 11 || type == 12)
-						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + rs.getString("player") + ChatColor.DARK_GREEN + " blew a " + ChatColor.GOLD + name + ChatColor.DARK_GREEN + " up");
+						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + rs.getString("trigered") + "(" + rs.getString("entity") + ")" + ChatColor.DARK_GREEN + " blew a " + ChatColor.GOLD + name + ChatColor.DARK_GREEN + " up");
 					else if(type == 4)
 						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.DARK_GREEN + "A " + ChatColor.GOLD + name + ChatColor.DARK_GREEN + " decayed");
 					else if(type == 5)
-						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + rs.getString("player") + ChatColor.DARK_GREEN + " grew a " + ChatColor.GOLD + name);
+						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + rs.getString("trigered") + "(" + rs.getString("entity") + ")" + ChatColor.DARK_GREEN + " grew a " + ChatColor.GOLD + name);
 					else if(type == 6 || type == 7 || type == 8)
-						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + rs.getString("player") + ChatColor.DARK_GREEN + " created a " + ChatColor.GOLD + name);
+						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + rs.getString("trigered") + "(" + rs.getString("entity") + ")" + ChatColor.DARK_GREEN + " created a " + ChatColor.GOLD + name);
 					else if(type == 9)
 						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.DARK_GREEN + "A " + ChatColor.GOLD + name + ChatColor.DARK_GREEN + " faded");
 				}

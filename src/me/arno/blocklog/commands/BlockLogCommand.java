@@ -65,16 +65,20 @@ public class BlockLogCommand {
 	}
 	
 	public Integer convertToUnixtime(Integer timeInt, String timeVal) {
+		Integer time = 0;
 		if(timeVal.equalsIgnoreCase("s"))
-			return (int) (System.currentTimeMillis()/1000 - timeInt);
-		else if(timeVal.equalsIgnoreCase("s"))
-			return (int) (System.currentTimeMillis()/1000 - timeInt * 60);
+			time = (int) (System.currentTimeMillis()/1000 - timeInt);
+		else if(timeVal.equalsIgnoreCase("m"))
+			time = (int) (System.currentTimeMillis()/1000 - timeInt * 60);
 		else if(timeVal.equalsIgnoreCase("h"))
-			return (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60);
+			time = (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60);
 		else if(timeVal.equalsIgnoreCase("d"))
-			return(int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60 * 24);
+			time =(int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60 * 24);
 		else if(timeVal.equalsIgnoreCase("w"))
-			return (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60 * 24 * 7);
-		return 0;
+			time = (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60 * 24 * 7);
+		log.info("timeInt: " + timeInt.toString());
+		log.info("timeVal: " + timeVal.toString());
+		log.info("time: " + time.toString());
+		return time;
 	}
 }

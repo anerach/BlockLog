@@ -16,15 +16,12 @@ public class CommandRollbackList extends BlockLogCommand {
 	}
 
 	public boolean execute(Player player, Command cmd, String[] args) {
-		if(args.length > 0) {
-			player.sendMessage(ChatColor.WHITE + "/bl rollbacklist [id <value>] [player <value>] [since <value>] [until <value>] [area <value>]");
-			return true;
-		}
-		
 		Integer clauses = args.length/2;
 		
 		if(!clauses.toString().matches("[0-9]*")) {
 			player.sendMessage("Invalid amount of args");
+			player.sendMessage(ChatColor.WHITE + "/bl rollbacklist [id <value>] [player <value>] [since <value>] [until <value>] [area <value>]");
+			return true;
 		}
 		
 		if(!hasPermission(player)) {
@@ -66,18 +63,20 @@ public class CommandRollbackList extends BlockLogCommand {
 			query.addSelectAs("blocklog_undos.player", "uplayer");
 			
 			if(target != null)
-				query.addWhere("player", target);
+				query.addWhere("blocklog_rollbacks.player", target);
 			if(id != 0)
-				query.addWhere("id", id.toString());
+				query.addWhere("blocklog_rollbacks.id", id.toString());
 			if(area != 0)
-				query.addWhere("area", area.toString());
+				query.addWhere("blocklog_rollbacks.area", area.toString());
 			if(sinceTime != 0)
-				query.addWhere("date", sinceTime.toString(), ">");
+				query.addWhere("blocklog_rollbacks.date", sinceTime.toString(), ">");
 			if(untilTime != 0)
-				query.addWhere("date", untilTime.toString(), "<");
+				query.addWhere("blocklog_rollbacks.date", untilTime.toString(), "<");
 			
 			query.addOrderBy("blocklog_rollbacks.date", "DESC");
 			query.addLimit(getConfig().getInt("blocklog.results"));
+			
+			log.info(query.getQuery());
 			
 			Statement rollbacksStmt = conn.createStatement();
 			ResultSet rollbacks = rollbacksStmt.executeQuery(query.getQuery());

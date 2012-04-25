@@ -7,8 +7,6 @@ import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.database.Query;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
@@ -18,8 +16,8 @@ public class CommandSearch extends BlockLogCommand {
 	}
 
 	public boolean execute(Player player, Command cmd, String[] args) {
-		if(args.length < 2) {
-			player.sendMessage(ChatColor.WHITE + "/bl search <tables> [player <value>] [since <value>] [until <value>] [area <value>]");
+		if(args.length < 3) {
+			player.sendMessage(ChatColor.WHITE + "/bl search <table> [player <value>] [since <value>] [until <value>] [area <value>]");
 			return true;
 		}
 		
@@ -29,22 +27,29 @@ public class CommandSearch extends BlockLogCommand {
 		}
 		
 		try {
+			String table = args[0];
 			String target = null;
-			String entity = null;
+			String victem = null;
+			String killer = null;
 			Integer untilTime = 0;
 			Integer sinceTime = 0;
-			Integer radius = 0;
 			
-			for(int i=0;i<args.length;i+=2) {
+			for(int i=1;i<args.length;i+=2) {
 				String type = args[i];
 				String value = args[i+1];
-				if(type.equalsIgnoreCase("area")) {
-					radius = Integer.valueOf(value);
-				} else if(type.equalsIgnoreCase("player")) {
-					target = value;
-				} else if(type.equalsIgnoreCase("entity")) {
-					entity = value;
-				} else if(type.equalsIgnoreCase("since")) {
+				if(table.equalsIgnoreCase("kills")) {
+					if(type.equalsIgnoreCase("victem")) {
+						victem = value;
+					} else if(type.equalsIgnoreCase("killer")) {
+						killer = value;
+					}
+				} else {
+					if(type.equalsIgnoreCase("player")) {
+						target = value;
+					}
+				}
+				
+				if(type.equalsIgnoreCase("since")) {
 					Character c = value.charAt(value.length() - 1);
 					sinceTime = convertToUnixtime(Integer.valueOf(value.replace(c, ' ').trim()), c.toString());
 				} else if(type.equalsIgnoreCase("until")) {
@@ -58,43 +63,20 @@ public class CommandSearch extends BlockLogCommand {
 				return true;
 			}
 			
-			World world = player.getWorld();
-			
-			Query query = new Query("blocklog_blocks");
+			Query query = new Query("blocklog_" + table);
 			query.addSelect("*");
-			query.addSelectDate("date");
-			if(target != null) {
-				query.addWhere("entity", "player");
-				query.addWhere("trigered", target);
-			}
-			if(entity != null)
-				query.addWhere("entity", entity);
+			query.addSelectDateAs("date" , "ldate");
+			if(target != null)
+				query.addWhere("player", target);
+			if(victem != null)
+				query.addWhere("victem", victem);
+			if(killer != null)
+				query.addWhere("killer", killer);
 			if(sinceTime != 0)
 				query.addWhere("date", sinceTime.toString(), "<");
 			if(untilTime != 0)
 				query.addWhere("date", untilTime.toString(), ">");
-			if(radius != 0) {
-				Integer xMin = player.getLocation().getBlockX() - radius;
-				Integer xMax = player.getLocation().getBlockX() + radius;
-				Integer yMin = player.getLocation().getBlockY() - radius;
-				Integer yMax = player.getLocation().getBlockY() + radius;
-				Integer zMin = player.getLocation().getBlockZ() - radius;
-				Integer zMax = player.getLocation().getBlockZ() + radius;
-				
-				query.addWhere("x", xMin.toString(), ">=");
-				query.addWhere("x", xMax.toString(), "<=");
-				
-				query.addWhere("y", yMin.toString(), ">=");
-				query.addWhere("y", yMax.toString(), "<=");
-				
-				query.addWhere("z", zMin.toString(), ">=");
-				query.addWhere("z", zMax.toString(), "<=");
-			}
-			query.addWhere("world", world.getName());
-			query.addWhere("rollback_id", new Integer(0).toString());
-			query.addGroupBy("x");
-			query.addGroupBy("y");
-			query.addGroupBy("z");
+			
 			query.addOrderBy("date", "DESC");
 			query.addLimit(getConfig().getInt("blocklog.results"));
 			
@@ -102,15 +84,14 @@ public class CommandSearch extends BlockLogCommand {
 			ResultSet actions = stmt.executeQuery(query.getQuery());
 			
 			while(actions.next()) {
-				String name = Material.getMaterial(actions.getInt("block_id")).toString();
-				int type = actions.getInt("type");
-				
-				player.sendMessage(ChatColor.BLUE + "[" + actions.getString("fdate") + "]" + ChatColor.DARK_RED + "[World:" + actions.getString("world") + ", X:" + actions.getString("x") + ", Y:" + actions.getString("y") + ", Z:" + actions.getString("z") + "]");
-				if(type == 0) {
-					player.sendMessage(ChatColor.GOLD + actions.getString("player") + ChatColor.DARK_GREEN + " broke a " + ChatColor.GOLD + name);
-				} else if(type == 1) {
-					player.sendMessage(ChatColor.GOLD + actions.getString("player") + ChatColor.DARK_GREEN + " placed a " + ChatColor.GOLD + name);
-				}
+				if(table.equalsIgnoreCase("chat"))
+					player.sendMessage(ChatColor.DARK_RED + "[" + table + "]" + ChatColor.BLUE + "[" + actions.getString("ldate") + "] " + ChatColor.GOLD + "Player: " + ChatColor.GREEN + actions.getString("player") + ChatColor.GOLD +  " Message: " + ChatColor.GREEN + actions.getString("message"));
+				else if(table.equalsIgnoreCase("commands"))
+					player.sendMessage(ChatColor.DARK_RED + "[" + table + "]" + ChatColor.BLUE + "[" + actions.getString("ldate") + "] " + ChatColor.GOLD + "Player: " + ChatColor.GREEN + actions.getString("player") + ChatColor.GOLD +  " Executed: " + ChatColor.GREEN + actions.getString("command"));
+				else if(table.equalsIgnoreCase("kills"))
+					player.sendMessage(ChatColor.DARK_RED + "[" + table + "]" + ChatColor.BLUE + "[" + actions.getString("ldate") + "] " + ChatColor.GOLD + "Victem: " + ChatColor.GREEN + actions.getString("victem") + ChatColor.GOLD +  " Killer: " + ChatColor.GREEN + actions.getString("killer"));
+				else if(table.equalsIgnoreCase("deaths"))
+					player.sendMessage(ChatColor.DARK_RED + "[" + table + "]" + ChatColor.BLUE + "[" + actions.getString("ldate") + "] " + ChatColor.GOLD + "Player: " + ChatColor.GREEN + actions.getString("player"));
 			}
 		} catch(SQLException e) {
 			

@@ -9,7 +9,6 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 
 import me.arno.blocklog.BlockLog;
-import me.arno.blocklog.database.DatabaseSettings;
 import me.arno.blocklog.logs.LoggedBlock;
 
 import org.bukkit.ChatColor;
@@ -149,12 +148,7 @@ public class CommandWand extends BlockLogCommand {
 				Integer y = block.getY();
 				Integer z = block.getZ();
 				
-				ResultSet rs;
-				if(DatabaseSettings.DBType().equalsIgnoreCase("mysql")) {
-					rs = stmt.executeQuery("SELECT entity, trigered, block_id, type, FROM_UNIXTIME(date, '%d-%m-%Y %H:%i:%s') AS date FROM blocklog_blocks WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' AND world = '" + block.getWorld().getName() + "' ORDER BY date DESC LIMIT " + (getConfig().getInt("blocklog.results") - BlockCount));
-				} else {
-					rs = stmt.executeQuery("SELECT entity, trigered, block_id, type, datetime(date, 'unixepoch', 'localtime') AS date FROM blocklog_blocks WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' AND world = '" + block.getWorld().getName() + "' ORDER BY date DESC LIMIT " + (getConfig().getInt("blocklog.results") - BlockCount));
-				}
+				ResultSet rs = stmt.executeQuery("SELECT entity, trigered, block_id, type, FROM_UNIXTIME(date, '%d-%m-%Y %H:%i:%s') AS date FROM blocklog_blocks WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' AND world = '" + block.getWorld().getName() + "' ORDER BY date DESC LIMIT " + (getConfig().getInt("blocklog.results") - BlockCount));
 				
 				while(rs.next()) {
 					String name = Material.getMaterial(rs.getInt("block_id")).toString();

@@ -17,23 +17,31 @@ public class Save implements Runnable {
 	
 	final private Player player;
 	final private Integer count;
+	final private Boolean messages;
 	
-	public Save(BlockLog plugin, int count, Player player) {
+	public Save(BlockLog plugin, Integer count, Player player) {
+		this(plugin, count, player, true);
+	}
+	
+	public Save(BlockLog plugin, Integer count, Player player, Boolean messages) {
 		this.blocks = plugin.getBlocks();
 		this.interactions = plugin.getInteractions();
 		this.log = plugin.log;
 		
 		this.count = count;
 		this.player = player;
+		this.messages = messages;
 	}
 	
 	@Override
 	public void run() {
-		if(player == null)
-			log.info("Saving " + ((count == 0) ? "all the" : count) + " block edits!");
-		else
-			player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Saving " + ((count == 0) ? "all the" : count) + " block edits!");
-			
+		if(messages) {
+			if(player == null)
+				log.info("Saving " + ((count == 0) ? "all the" : count) + " block edits!");
+			else
+				player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Saving " + ((count == 0) ? "all the" : count) + " block edits!");
+		}
+		
 		if(count == 0) {
 	    	while(!interactions.isEmpty()) {
 	    		try {
@@ -67,11 +75,12 @@ public class Save implements Runnable {
 		    	} catch(Exception e) {}
 	    	}
 	    }
-			
-		if(player == null)
-			log.info("Successfully saved " + ((count == 0) ? "all the" : count) + " block edits!");
-		else
-			player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Successfully saved " + ((count == 0) ? "all the" : count) + " block edits!");
-			
+		
+		if(messages) {
+			if(player == null)
+				log.info("Successfully saved " + ((count == 0) ? "all the" : count) + " block edits!");
+			else
+				player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Successfully saved " + ((count == 0) ? "all the" : count) + " block edits!");
+		}	
 	}
 }

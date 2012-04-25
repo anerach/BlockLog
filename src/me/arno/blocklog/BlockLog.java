@@ -174,18 +174,12 @@ public class BlockLog extends JavaPlugin {
 	}
 	
 	private void loadDatabase() {
-		String DBType = getConfig().getString("database.type");
-		
 		try {
 	    	conn = DatabaseSettings.getConnection();
 	    	Statement stmt = conn.createStatement();
 	    	
 	    	for(String table : SQLTables) {
-	    		if(DBType.equalsIgnoreCase("mysql")) {
-			    	stmt.executeUpdate(getResourceContent("MySQL/blocklog_" + table + ".sql"));
-				} else if(DBType.equalsIgnoreCase("sqlite")) {
-				    stmt.executeUpdate(getResourceContent("SQLite/blocklog_" + table + ".sql"));
-			    }
+	    		stmt.executeUpdate(getResourceContent("MySQL/blocklog_" + table + ".sql"));
 	    	}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -295,8 +289,7 @@ public class BlockLog extends JavaPlugin {
 	    }
 	    
 		log.info("Starting BlockLog");
-    	//new PushBlocks(this); Check if it works without PushBlocks class
-    	getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Save(this, 1, null), 100L, getConfig().getInt("database.delay") * 20L);
+    	getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Save(this, 1, null, false), 100L, getConfig().getInt("database.delay") * 20L);
     	
     	getServer().getPluginManager().registerEvents(new WandListener(this), this);
     	getServer().getPluginManager().registerEvents(new BlockListener(this), this);
@@ -398,9 +391,6 @@ public class BlockLog extends JavaPlugin {
 			return command.execute(player, cmd, newArgs);
 		} else if(args[0].equalsIgnoreCase("config") || args[0].equalsIgnoreCase("cfg")) {
 			CommandConfig command = new CommandConfig(this);
-			return command.execute(player, cmd, newArgs);
-		} else if(args[0].equalsIgnoreCase("convert")) {
-			CommandConvert command = new CommandConvert(this);
 			return command.execute(player, cmd, newArgs);
 		} else if(args[0].equalsIgnoreCase("lookup")) {
 			CommandLookup command = new CommandLookup(this);

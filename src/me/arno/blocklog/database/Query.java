@@ -46,14 +46,8 @@ public class Query {
 	}
 
 	public void addSelectDate(String select, String format, String as) {
-		String str;
-		if(DatabaseSettings.DBType().equalsIgnoreCase("mysql")) {
-			format = (format == null) ? "%d-%m-%Y %H:%i:%s" : format;
-			str = "FROM_UNIXTIME(" + select + ", '" + format + "')" + (as == null ? "" : " AS " + as);
-		} else {
-			format = (format == null) ? "localtime" : format;
-			str = "datetime(" + select + ", 'unixepoch', '" + format + "')" + (as == null ? "" : " AS " + as);
-		}
+		format = (format == null) ? "%d-%m-%Y %H:%i:%s" : format;
+		String str = "FROM_UNIXTIME(" + select + ", '" + format + "')" + (as == null ? "" : " AS " + as);
 		
 		if(selectClause == null) {
 			selectClause = "SELECT " + str;

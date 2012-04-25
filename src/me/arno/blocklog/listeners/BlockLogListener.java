@@ -48,4 +48,8 @@ public class BlockLogListener implements Listener {
 	public FileConfiguration getConfig() {
 		return plugin.getConfig();
 	}
+	
+	public void saveConfig() {
+		plugin.saveConfig();
+	}
 }

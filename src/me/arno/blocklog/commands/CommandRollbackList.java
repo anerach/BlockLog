@@ -17,7 +17,7 @@ public class CommandRollbackList extends BlockLogCommand {
 
 	public boolean execute(Player player, Command cmd, String[] args) {
 		if(args.length > 0) {
-			player.sendMessage(ChatColor.WHITE + "/bl rollbacklist [id <value>] [player <value>] [from <value>] [until <value>] [area <value>]");
+			player.sendMessage(ChatColor.WHITE + "/bl rollbacklist [id <value>] [player <value>] [since <value>] [until <value>] [area <value>]");
 			return true;
 		}
 		

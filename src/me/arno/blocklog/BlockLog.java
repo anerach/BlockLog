@@ -233,6 +233,7 @@ public class BlockLog extends JavaPlugin {
 		ArrayList<String> plugins = new ArrayList<String>();
     	plugins.add("GriefPrevention");
     	plugins.add("WorldGuard");
+    	plugins.add("mcMMO");
     	
     	for(String plugin : plugins) {
     		if(getServer().getPluginManager().isPluginEnabled(plugin)) {
@@ -294,7 +295,8 @@ public class BlockLog extends JavaPlugin {
 	    }
 	    
 		log.info("Starting BlockLog");
-    	new PushBlocks(this);
+    	//new PushBlocks(this); Check if it works without PushBlocks class
+    	getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Save(this, 1, null), 100L, getConfig().getInt("database.delay") * 20L);
     	
     	getServer().getPluginManager().registerEvents(new WandListener(this), this);
     	getServer().getPluginManager().registerEvents(new BlockListener(this), this);
@@ -303,6 +305,8 @@ public class BlockLog extends JavaPlugin {
     	
     	if(getConfig().getBoolean("blocklog.updates"))
     		getServer().getPluginManager().registerEvents(new NoticeListener(this), this);
+    	if(softDepends.containsKey("mcMMO"))
+    		getServer().getPluginManager().registerEvents(new McMMOListener(this), this);
     }
 	
 	public void saveLogs(final int count) {

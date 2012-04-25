@@ -37,7 +37,7 @@ public class CommandReport extends BlockLogCommand {
 		
 		try {
 			Statement stmt = conn.createStatement();
-			stmt.executeUpdate("INSERT INTO blocklog_reports (player, message, seen) VALUES ('" + player.getName() + "', '" + msg.replace("\\", "\\\\").replace("'", "\\'") + "', 0)");
+			stmt.executeUpdate("INSERT INTO blocklog_reports (player, message, date, seen) VALUES ('" + player.getName() + "', '" + msg.replace("\\", "\\\\").replace("'", "\\'") + "', " + System.currentTimeMillis()/1000 +", 0)");
 			player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "Your report has been created");
 		} catch (SQLException e) {
 			e.printStackTrace();

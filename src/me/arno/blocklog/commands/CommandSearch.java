@@ -92,6 +92,8 @@ public class CommandSearch extends BlockLogCommand {
 					player.sendMessage(ChatColor.DARK_RED + "[" + table + "]" + ChatColor.BLUE + "[" + actions.getString("ldate") + "] " + ChatColor.GOLD + "Victem: " + ChatColor.GREEN + actions.getString("victem") + ChatColor.GOLD +  " Killer: " + ChatColor.GREEN + actions.getString("killer"));
 				else if(table.equalsIgnoreCase("deaths"))
 					player.sendMessage(ChatColor.DARK_RED + "[" + table + "]" + ChatColor.BLUE + "[" + actions.getString("ldate") + "] " + ChatColor.GOLD + "Player: " + ChatColor.GREEN + actions.getString("player"));
+				else
+					player.sendMessage(ChatColor.YELLOW + "Invalid table name");
 			}
 		} catch(SQLException e) {
 			

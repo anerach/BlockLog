@@ -191,19 +191,13 @@ public class BlockLog extends JavaPlugin {
 	}
 	
 	private void updateDatabase() {
-		try {
-			Statement stmt = conn.createStatement();
-			
-			Config versions = new Config("VERSIONS");
-			versions.getConfig().addDefault("database", 10);
-			if(versions.getConfig().getInt("database") < 2) {
-				stmt.executeUpdate("");
-			}
-			versions.getConfig().options().copyDefaults(true);
-			versions.saveConfig();
-		} catch (SQLException e) {
-			e.printStackTrace();
+		Config versions = new Config("VERSIONS");
+		versions.getConfig().addDefault("database", 10);
+		if(versions.getConfig().getInt("database") < 2) {
+			// Update code here
 		}
+		versions.getConfig().options().copyDefaults(true);
+		versions.saveConfig();
 	}
 	
 	private String loadLatestVersion() {

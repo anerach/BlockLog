@@ -28,6 +28,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -44,6 +45,9 @@ public class BlockLog extends JavaPlugin {
 	public final String[] SQLTables = {"blocks", "rollbacks", "undos", "interactions", "reports", "chat", "deaths", "kills", "commands"};
 	
 	public ArrayList<String> users = new ArrayList<String>();
+	public HashMap<String, ItemStack> playerItemStack = new HashMap<String, ItemStack>();
+	public HashMap<String, Integer> playerItemSlot = new HashMap<String, Integer>();
+	
 	private ArrayList<LoggedBlock> blocks = new ArrayList<LoggedBlock>();
 	private ArrayList<LoggedInteraction> interactions = new ArrayList<LoggedInteraction>();
 	

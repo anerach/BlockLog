@@ -6,6 +6,7 @@ import java.sql.Statement;
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.Log;
 
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
@@ -14,12 +15,13 @@ import org.bukkit.entity.Player;
 
 
 public class LoggedBlock {
-	private BlockLog plugin;
-	private Log type;
+	private final BlockLog plugin;
+	private final Log type;
 	
-	private Player player;
-	private BlockState block;
-	private EntityType entity;
+	private final Player player;
+	private final BlockState block;
+	private final EntityType entity;
+	private final GameMode gamemode;
 	
 	private long date;
 	
@@ -44,12 +46,13 @@ public class LoggedBlock {
 		this.entity = entity;
 		this.type = type;
 		this.date = (System.currentTimeMillis()/1000);
+		this.gamemode  = (player != null) ? player.getGameMode() : null;
 	}
 
 	public void save() {
 		try {
 			Statement stmt = plugin.conn.createStatement();
-			stmt.executeUpdate("INSERT INTO blocklog_blocks (entity, trigered, block_id, datavalue, world, date, x, y, z, type, rollback_id) VALUES ('" + getEntityName() + "', '" + getPlayerName() + "', " + getBlockId() + ", " + getDataValue() + ", '" + getWorld().getName() + "', " + getDate() + ", " + getX() + ", " + getY() + ", " + getZ() + ", " + getTypeId() + ", " + getRollback() + ")");
+			stmt.executeUpdate("INSERT INTO blocklog_blocks (entity, trigered, block_id, datavalue, gamemode, world, date, x, y, z, type, rollback_id) VALUES ('" + getEntityName() + "', '" + getPlayerName() + "', " + getBlockId() + ", " + getDataValue() + ", " + getPlayerGameMode() + ", '" + getWorld().getName() + "', " + getDate() + ", " + getX() + ", " + getY() + ", " + getZ() + ", " + getTypeId() + ", " + getRollback() + ")");
 		} catch (SQLException e) {
     		e.printStackTrace();
     	}
@@ -61,6 +64,10 @@ public class LoggedBlock {
 	
 	public EntityType getEntity() {
 		return entity;
+	}
+	
+	public int getPlayerGameMode() {
+		return (gamemode != null) ? gamemode.getValue() : 0;
 	}
 	
 	public int getBlockId() {

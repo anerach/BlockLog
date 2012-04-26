@@ -12,7 +12,7 @@ import org.bukkit.entity.Player;
 
 public class CommandUndo extends BlockLogCommand {
 	public CommandUndo(BlockLog plugin) {
-		super(plugin, "blocklog.undo");
+		super(plugin, "blocklog.rollback");
 	}
 
 	public boolean execute(Player player, Command cmd, String[] args) {

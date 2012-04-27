@@ -41,7 +41,7 @@ public class BlockListener extends BlockLogListener {
 		BlockState block = event.getBlock().getState();
 		Player player = event.getPlayer();
 		
-		Boolean cancel = false;
+		Boolean cancel = !isLoggingEnabled(player.getWorld());
 		
 		if(plugin.softDepends.containsKey("GriefPrevention")) {
 			GriefPrevention gp = (GriefPrevention) plugin.softDepends.get("GriefPrevention");
@@ -73,7 +73,7 @@ public class BlockListener extends BlockLogListener {
 		BlockState block = event.getBlock().getState();
 		Player player = event.getPlayer();
 		
-		Boolean cancel = false;
+		Boolean cancel = !isLoggingEnabled(player.getWorld());
 		
 		if(plugin.softDepends.containsKey("GriefPrevention")) {
 			GriefPrevention gp = (GriefPrevention) plugin.softDepends.get("GriefPrevention");
@@ -99,7 +99,7 @@ public class BlockListener extends BlockLogListener {
 		BlockState block = event.getBlockClicked().getRelative(event.getBlockFace()).getState();
 		Player player = event.getPlayer();
 		
-		Boolean cancel = false;
+		Boolean cancel = !isLoggingEnabled(player.getWorld());
 		
 		if(plugin.softDepends.containsKey("GriefPrevention")) {
 			GriefPrevention gp = (GriefPrevention) plugin.softDepends.get("GriefPrevention");
@@ -127,7 +127,7 @@ public class BlockListener extends BlockLogListener {
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockBurn(BlockBurnEvent event) {
-		if(!event.isCancelled()) {
+		if(!event.isCancelled() && isLoggingEnabled(event.getBlock().getWorld())) {
 			plugin.addBlock(new LoggedBlock(plugin, event.getBlock().getState(), Log.FIRE));
 			BlocksLimitReached();
 		}
@@ -135,7 +135,7 @@ public class BlockListener extends BlockLogListener {
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockIgnite(BlockIgniteEvent event) {
-		if(!event.isCancelled()) {
+		if(!event.isCancelled() && isLoggingEnabled(event.getPlayer().getWorld())) {
 			if(event.getBlock().getType() == Material.TNT) {
 				plugin.addBlock(new LoggedBlock(plugin, event.getPlayer(), event.getBlock().getState(), Log.BREAK));
 				BlocksLimitReached();
@@ -145,7 +145,7 @@ public class BlockListener extends BlockLogListener {
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onEntityExplode(EntityExplodeEvent event) {
-		if(!event.isCancelled()) {
+		if(!event.isCancelled() && isLoggingEnabled(event.getEntity().getWorld())) {
 			Log log = Log.EXPLOSION;
 			Player target = null;
 			if(event.getEntityType() != null) {
@@ -173,7 +173,7 @@ public class BlockListener extends BlockLogListener {
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onLeavesDecay(LeavesDecayEvent event) {
-		if(!event.isCancelled()) {
+		if(!event.isCancelled() && isLoggingEnabled(event.getBlock().getWorld())) {
 			if(getConfig().getBoolean("logs.leaves")) {
 				plugin.addBlock(new LoggedBlock(plugin, event.getBlock().getState(), Log.LEAVES));
 				BlocksLimitReached();
@@ -183,7 +183,7 @@ public class BlockListener extends BlockLogListener {
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onStructureGrow(StructureGrowEvent event) {
-		if(!event.isCancelled()) {
+		if(!event.isCancelled() && isLoggingEnabled(event.getPlayer().getWorld())) {
 			if(getConfig().getBoolean("logs.grow")) {
 				Player player = event.getPlayer();
 				for(BlockState block : event.getBlocks()) {
@@ -196,7 +196,7 @@ public class BlockListener extends BlockLogListener {
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onEntityCreatePortal(EntityCreatePortalEvent event) {
-		if(!event.isCancelled()) {
+		if(!event.isCancelled() && isLoggingEnabled(event.getEntity().getWorld())) {
 			if(getConfig().getBoolean("logs.portal")) {
 				Player player = (Player) event.getEntity();
 				for(BlockState block : event.getBlocks()) {
@@ -209,7 +209,7 @@ public class BlockListener extends BlockLogListener {
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockForm(BlockFormEvent event) {
-		if(!event.isCancelled()) {
+		if(!event.isCancelled() && isLoggingEnabled(event.getBlock().getWorld())) {
 			if(getConfig().getBoolean("logs.form")) {
 				plugin.addBlock(new LoggedBlock(plugin, event.getNewState(), Log.FORM));
 				BlocksLimitReached();
@@ -219,7 +219,7 @@ public class BlockListener extends BlockLogListener {
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockSpread(BlockSpreadEvent event) {
-		if(!event.isCancelled()) {
+		if(!event.isCancelled() && isLoggingEnabled(event.getBlock().getWorld())) {
 			if(getConfig().getBoolean("logs.spread")) {
 				plugin.addBlock(new LoggedBlock(plugin, event.getNewState(), Log.SPREAD));
 				BlocksLimitReached();
@@ -229,7 +229,7 @@ public class BlockListener extends BlockLogListener {
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockFade(BlockFadeEvent event) {
-		if(!event.isCancelled()) {
+		if(!event.isCancelled() && isLoggingEnabled(event.getBlock().getWorld())) {
 			if(getConfig().getBoolean("logs.fade")) {
 				plugin.addBlock(new LoggedBlock(plugin, event.getNewState(), Log.FADE));
 				BlocksLimitReached();
@@ -239,7 +239,7 @@ public class BlockListener extends BlockLogListener {
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerInteract(PlayerInteractEvent event) {
-		if(!event.isCancelled()) {
+		if(!event.isCancelled() && isLoggingEnabled(event.getPlayer().getWorld())) {
 			Block block;
 			block = event.getClickedBlock().getRelative(BlockFace.UP);
 			if(block.getType() != Material.FIRE)

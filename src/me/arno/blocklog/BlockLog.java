@@ -121,6 +121,7 @@ public class BlockLog extends JavaPlugin {
 	    getConfig().addDefault("blocklog.warning.delay", 30);
 	    getConfig().addDefault("blocklog.autosave.enabled", true);
 	    getConfig().addDefault("blocklog.autosave.blocks", 1000);
+	    getConfig().addDefault("blocklog.worlds", getServer().getWorlds());
 	    getConfig().addDefault("blocklog.reports", true);
 	    getConfig().addDefault("blocklog.updates", true);
 	    getConfig().addDefault("logs.grow", true);

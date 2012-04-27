@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 import me.arno.blocklog.BlockLog;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -26,6 +27,10 @@ public class BlockLogListener implements Listener {
 	    		player.sendMessage(msg);
 	        }
 	    }
+	}
+	
+	public Boolean isLoggingEnabled(World world) {
+		return getConfig().getList("blocklog.worlds").contains(world.getName());
 	}
 	
 	public void BlocksLimitReached() {

@@ -15,33 +15,27 @@ public class BlockLogCommand {
 	public final BlockLog plugin;
 	public final Logger log;
 	public final Connection conn;
-	public final String usage;
 	public final String permission;
 	public final Boolean console;
 	
-	public BlockLogCommand(BlockLog plugin, String usage) {
-		this(plugin, usage, null, false);
+	public BlockLogCommand(BlockLog plugin) {
+		this(plugin, null, false);
 	}
 	
-	public BlockLogCommand(BlockLog plugin, String usage, Boolean console) {
-		this(plugin, usage, null, console);
+	public BlockLogCommand(BlockLog plugin, Boolean console) {
+		this(plugin, null, console);
 	}
 	
-	public BlockLogCommand(BlockLog plugin, String usage, String permission) {
-		this(plugin, usage, permission, false);
+	public BlockLogCommand(BlockLog plugin, String permission) {
+		this(plugin, permission, false);
 	}
 	
-	public BlockLogCommand(BlockLog plugin, String usage, String permission, Boolean console) {
+	public BlockLogCommand(BlockLog plugin, String permission, Boolean console) {
 		this.plugin = plugin;
 		this.log = plugin.log;
 		this.conn = plugin.conn;
 		this.permission = permission;
 		this.console = console;
-		this.usage = usage;
-	}
-	
-	public String getUsage() {
-		return usage;
 	}
 	
 	public void sendAdminMessage(String msg) {

@@ -18,7 +18,7 @@ public class CommandRollback extends BlockLogCommand {
 	
 	public boolean execute(Player player, Command cmd, String[] args) {
 		if(args.length < 2) {
-			player.sendMessage(ChatColor.WHITE + "/bl rollback <delay <value>> [limit <amount>] [player <value>] [since <value>] [until <value>] [area <value>]");
+			player.sendMessage(ChatColor.WHITE + "/bl rollback [delay <value>] [limit <amount>] [player <value>] [since <value>] [until <value>] [area <value>]");
 			return true;
 		}
 		
@@ -40,7 +40,7 @@ public class CommandRollback extends BlockLogCommand {
 			Integer sinceTime = 0;
 			Integer area = 0;
 			Integer limit = 200;
-			Integer delay = 0;
+			Integer delay = 3;
 			
 			String param_target = null;
 			String param_until = null;
@@ -80,11 +80,6 @@ public class CommandRollback extends BlockLogCommand {
 			
 			if(sinceTime != 0 && sinceTime < untilTime) {
 				player.sendMessage(ChatColor.WHITE + "From time can't be bigger than until time.");
-				return true;
-			}
-			
-			if(delay == 0) {
-				player.sendMessage(ChatColor.WHITE + "Delay can't be 0.");
 				return true;
 			}
 			

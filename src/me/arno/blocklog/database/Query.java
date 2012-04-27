@@ -104,27 +104,27 @@ public class Query {
 		joinClause = join + "JOIN " + joinedTable + " ON " + table + "." + tableRow + " = " + joinedTable + "." + mTableRow;
 	}
 	
-	public void addWhere(String column, String value) {
+	public void addWhere(String column, Object value) {
 		addWhere(column, value, "=");
 	}
 	
-	public void addWhere(String column, String value, String math) {
+	public void addWhere(String column, Object value, String math) {
 		addWhereClause("AND", column, value, math);
 	}
 	
-	public void addOrWhere(String column, String value) {
+	public void addOrWhere(String column, Object value) {
 		addOrWhere(column, value, "=");
 	}
 	
-	public void addOrWhere(String column, String value, String math) {
+	public void addOrWhere(String column, Object value, String math) {
 		addWhereClause("OR", column, value, math);
 	}
 	
-	private void addWhereClause(String type, String column, String value, String math) {
+	private void addWhereClause(String type, String column, Object value, String math) {
 		if(whereClause == null) {
-			whereClause = "WHERE " + column + math + "'" + value + "'";
+			whereClause = "WHERE " + column + math + "'" + value.toString() + "'";
 		} else {
-			whereClause += " " + type + " " + column + math + "'" + value + "'";
+			whereClause += " " + type + " " + column + math + "'" + value.toString() + "'";
 		}
 	}
 	

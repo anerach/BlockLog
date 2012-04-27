@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import me.arno.blocklog.BlockLog;
+import me.arno.blocklog.database.Query;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -32,20 +33,53 @@ public class CommandRead extends BlockLogCommand {
 		
 		try {
 			Statement stmt = conn.createStatement();
+			
 			if(args.length == 0) {
-				ResultSet reports = stmt.executeQuery("SELECT * FROM blocklog_reports WHERE seen = 0");
+				String target = null;
+				Integer untilTime = 0;
+				Integer sinceTime = 0;
+				
+				for(int i=0;i<args.length;i+=2) {
+					String type = args[i];
+					String value = args[i+1];
+					if(type.equalsIgnoreCase("player")) {
+						target = value;
+					} else if(type.equalsIgnoreCase("since")) {
+						Character c = value.charAt(value.length() - 1);
+						sinceTime = convertToUnixtime(Integer.valueOf(value.replace(c, ' ').trim()), c.toString());
+					} else if(type.equalsIgnoreCase("until")) {
+						Character c = value.charAt(value.length() - 1);
+						untilTime = convertToUnixtime(Integer.valueOf(value.replace(c, ' ').trim()), c.toString());
+					}
+				}
+				
+				if(sinceTime != 0 && sinceTime < untilTime) {
+					player.sendMessage(ChatColor.WHITE + "From time can't be bigger than until time.");
+					return true;
+				}
+				
+				Query query = new Query("blocklog_blocks");
+				query.addSelect("*");
+				if(target != null)
+					query.addWhere("player", target);
+				if(sinceTime != 0)
+					query.addWhere("date", sinceTime.toString(), ">");
+				if(untilTime != 0)
+					query.addWhere("date", untilTime.toString(), "<");
+				query.addWhere("seen", 0);
+				query.addOrderBy("date", "DESC");
+				
+				ResultSet reports = stmt.executeQuery(query.getQuery());
 				player.sendMessage(ChatColor.DARK_RED + "[Reports]");
 				while(reports.next()) {
 					player.sendMessage(String.format("[#%s] %s", reports.getString("id"), reports.getString("player")));
 				}
 			} else {
 				ResultSet reports = stmt.executeQuery("SELECT * FROM blocklog_reports WHERE id = " + args[0]);
-				
 				reports.next();
 				player.sendMessage(ChatColor.DARK_RED + "[#" + reports.getString("id") + "] " + ChatColor.GOLD + reports.getString("player"));
 				player.sendMessage(ChatColor.BLUE + reports.getString("message"));
 				stmt.executeUpdate("UPDATE blocklog_reports SET seen = 1 WHERE id = " + args[0]);
-			
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

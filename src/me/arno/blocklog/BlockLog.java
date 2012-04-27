@@ -51,6 +51,8 @@ public class BlockLog extends JavaPlugin {
 	private ArrayList<LoggedBlock> blocks = new ArrayList<LoggedBlock>();
 	private ArrayList<LoggedInteraction> interactions = new ArrayList<LoggedInteraction>();
 	
+	private HashMap<Integer, Integer> schedules = new HashMap<Integer, Integer>();
+	
 	public HashMap<String, Plugin> softDepends = new HashMap<String, Plugin>();
 	
 	public String newVersion;
@@ -75,6 +77,10 @@ public class BlockLog extends JavaPlugin {
 	
 	public ArrayList<LoggedInteraction> getInteractions() {
 		return interactions;
+	}
+	
+	public HashMap<Integer, Integer> getSchedules() {
+		return schedules;
 	}
 	
 	public String getResourceContent(String file) {
@@ -345,15 +351,6 @@ public class BlockLog extends JavaPlugin {
 		log.info("v" + PluginDesc.getVersion() + " is disabled!");
 	}
 	
-	public boolean hasPermission(BlockLogCommand cmd, Player player) {
-		if(cmd.hasPermission(player)) {
-			return true;
-		} else {
-			player.sendMessage(ChatColor.WHITE + "You don't have permission to do this.");
-			return false;
-		}
-	}
-	
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
 		Player player = null;
 		
@@ -383,6 +380,9 @@ public class BlockLog extends JavaPlugin {
 			return command.execute(player, cmd, newArgs);
 		} else if(args[0].equalsIgnoreCase("autosave")) {
 			CommandAutoSave command = new CommandAutoSave(this);
+			return command.execute(player, cmd, newArgs);
+		} else if(args[0].equalsIgnoreCase("cancel")) {
+			CommandCancel command = new CommandCancel(this);
 			return command.execute(player, cmd, newArgs);
 		} else if(args[0].equalsIgnoreCase("clear")) {
 			CommandClear command = new CommandClear(this);

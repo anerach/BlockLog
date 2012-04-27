@@ -18,7 +18,7 @@ public class CommandRollback extends BlockLogCommand {
 	
 	public boolean execute(Player player, Command cmd, String[] args) {
 		if(args.length < 2) {
-			player.sendMessage(ChatColor.WHITE + "/bl rollback [player <value>] [since <value>] [until <value>] [area <value>]");
+			player.sendMessage(ChatColor.WHITE + "/bl rollback <delay <value>> [limit <amount>] [player <value>] [since <value>] [until <value>] [area <value>]");
 			return true;
 		}
 		
@@ -39,6 +39,8 @@ public class CommandRollback extends BlockLogCommand {
 			Integer untilTime = 0;
 			Integer sinceTime = 0;
 			Integer area = 0;
+			Integer limit = 200;
+			Integer delay = 0;
 			
 			String param_target = null;
 			String param_until = null;
@@ -50,7 +52,10 @@ public class CommandRollback extends BlockLogCommand {
 				String value = args[i+1];
 				log.info("type: " + type);
 				log.info("value: " + value);
-				if(type.equalsIgnoreCase("area")) {
+				if(type.equalsIgnoreCase("limit")) {
+					param_area = value;
+					limit = Integer.valueOf(value);
+				} else if(type.equalsIgnoreCase("area")) {
 					param_area = value;
 					area = Integer.valueOf(value);
 				} else if(type.equalsIgnoreCase("player")) {
@@ -67,11 +72,19 @@ public class CommandRollback extends BlockLogCommand {
 					param_until = value;
 					Character c = value.charAt(value.length() - 1);
 					untilTime = convertToUnixtime(Integer.valueOf(value.replace(c, ' ').trim()), c.toString());
+				} else if(type.equalsIgnoreCase("delay")) {
+					Character c = value.charAt(value.length() - 1);
+					delay = Integer.valueOf(value.replace(c, ' ').trim());
 				}
 			}
 			
 			if(sinceTime != 0 && sinceTime < untilTime) {
-				player.sendMessage(ChatColor.WHITE + "from time can't be bigger than until time.");
+				player.sendMessage(ChatColor.WHITE + "From time can't be bigger than until time.");
+				return true;
+			}
+			
+			if(delay == 0) {
+				player.sendMessage(ChatColor.WHITE + "Delay can't be 0.");
 				return true;
 			}
 			
@@ -113,8 +126,6 @@ public class CommandRollback extends BlockLogCommand {
 			query.addGroupBy("z");
 			query.addOrderBy("date", "DESC");
 			
-			log.info(query.getQuery());
-			
 			Statement rollbackStmt = conn.createStatement();
 			Statement blocksStmt = conn.createStatement();
 			
@@ -126,12 +137,15 @@ public class CommandRollback extends BlockLogCommand {
 			Integer rollbackID = rollback.getInt("id");
 			
 			ResultSet blocks = blocksStmt.executeQuery(query.getQuery());
-			
-			plugin.getServer().getScheduler().scheduleAsyncDelayedTask(plugin, new Rollback(plugin, player, rollbackID, blocks));
-			
+			Rollback rb = new Rollback(plugin, player, rollbackID, blocks, limit);
+			Integer sid = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, rb, 20L, delay * 20L);
+			rb.setId(sid);
+			addSchedule(sid, rollbackID);
+			player.sendMessage(ChatColor.BLUE + "You've started a rollback, to cancel it say /bl cancel " + sid);
 			return true;
 		} catch(NumberFormatException e) {
-			return false;
+			player.sendMessage(ChatColor.WHITE + "/bl rollback <delay <value>> [limit <amount>] [player <value>] [since <value>] [until <value>] [area <value>]");
+			return true;
 		} catch(Exception e) {
 			e.printStackTrace();
 		}

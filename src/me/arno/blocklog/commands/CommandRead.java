@@ -17,11 +17,11 @@ public class CommandRead extends BlockLogCommand {
 	
 	public boolean execute(Player player, Command cmd, String[] args) {
 		if(args.length > 1) {
-			player.sendMessage(ChatColor.WHITE + "/bl read [id]");
+			player.sendMessage(ChatColor.WHITE + "/bl read [id] [player <value>] [since <value>] [until <value]");
 			return true;
 		}
 		
-		if(!plugin.getConfig().getBoolean("blocklog.reports")) {
+		if(!getConfig().getBoolean("blocklog.reports")) {
 			player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "The report system is disabled");
 			return true;
 		}
@@ -33,8 +33,24 @@ public class CommandRead extends BlockLogCommand {
 		
 		try {
 			Statement stmt = conn.createStatement();
+			Query query = new Query("blocklog_blocks");
+			query.addSelect("*");
+			query.addWhere("seen", 0);
+			query.addOrderBy("date", "DESC");
 			
 			if(args.length == 0) {
+				ResultSet reports = stmt.executeQuery(query.getQuery());
+				player.sendMessage(ChatColor.DARK_RED + "[Reports]");
+				while(reports.next()) {
+					player.sendMessage(String.format("[#%s] %s", reports.getString("id"), reports.getString("player")));
+				}
+			} else if(args.length == 1) {
+				ResultSet reports = stmt.executeQuery("SELECT * FROM blocklog_reports WHERE id = " + args[0]);
+				reports.next();
+				player.sendMessage(ChatColor.DARK_RED + "[#" + reports.getString("id") + "] " + ChatColor.GOLD + reports.getString("player"));
+				player.sendMessage(ChatColor.BLUE + reports.getString("message"));
+				stmt.executeUpdate("UPDATE blocklog_reports SET seen = 1 WHERE id = " + args[0]);
+			} else {
 				String target = null;
 				Integer untilTime = 0;
 				Integer sinceTime = 0;
@@ -58,28 +74,12 @@ public class CommandRead extends BlockLogCommand {
 					return true;
 				}
 				
-				Query query = new Query("blocklog_blocks");
-				query.addSelect("*");
 				if(target != null)
 					query.addWhere("player", target);
 				if(sinceTime != 0)
 					query.addWhere("date", sinceTime.toString(), ">");
 				if(untilTime != 0)
 					query.addWhere("date", untilTime.toString(), "<");
-				query.addWhere("seen", 0);
-				query.addOrderBy("date", "DESC");
-				
-				ResultSet reports = stmt.executeQuery(query.getQuery());
-				player.sendMessage(ChatColor.DARK_RED + "[Reports]");
-				while(reports.next()) {
-					player.sendMessage(String.format("[#%s] %s", reports.getString("id"), reports.getString("player")));
-				}
-			} else {
-				ResultSet reports = stmt.executeQuery("SELECT * FROM blocklog_reports WHERE id = " + args[0]);
-				reports.next();
-				player.sendMessage(ChatColor.DARK_RED + "[#" + reports.getString("id") + "] " + ChatColor.GOLD + reports.getString("player"));
-				player.sendMessage(ChatColor.BLUE + reports.getString("message"));
-				stmt.executeUpdate("UPDATE blocklog_reports SET seen = 1 WHERE id = " + args[0]);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

@@ -88,11 +88,15 @@ public class CommandRollback extends BlockLogCommand {
 			Query query = new Query("blocklog_blocks");
 			query.addSelect("*");
 			if(target != null) {
-				query.addWhere("entity", "player");
+				if(entity == null)
+					query.addWhere("entity", "player");
 				query.addWhere("trigered", target);
 			}
-			if(entity != null)
+			if(entity != null) {
+				if(entity.equalsIgnoreCase("tnt"))
+					entity = "primed_tnt";
 				query.addWhere("entity", entity);
+			}
 			if(sinceTime != 0)
 				query.addWhere("date", sinceTime.toString(), ">");
 			if(untilTime != 0)

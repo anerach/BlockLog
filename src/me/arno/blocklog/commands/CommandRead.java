@@ -16,7 +16,7 @@ public class CommandRead extends BlockLogCommand {
 	}
 	
 	public boolean execute(Player player, Command cmd, String[] args) {
-		if(args.length > 1) {
+		if(args.length > 6) {
 			player.sendMessage(ChatColor.WHITE + "/bl read [id] [player <value>] [since <value>] [until <value]");
 			return true;
 		}
@@ -33,7 +33,7 @@ public class CommandRead extends BlockLogCommand {
 		
 		try {
 			Statement stmt = conn.createStatement();
-			Query query = new Query("blocklog_blocks");
+			Query query = new Query("blocklog_reports");
 			query.addSelect("*");
 			query.addWhere("seen", 0);
 			query.addOrderBy("date", "DESC");
@@ -69,8 +69,8 @@ public class CommandRead extends BlockLogCommand {
 					}
 				}
 				
-				if(sinceTime != 0 && sinceTime < untilTime) {
-					player.sendMessage(ChatColor.WHITE + "From time can't be bigger than until time.");
+				if(sinceTime != 0 && sinceTime > untilTime) {
+					player.sendMessage(ChatColor.WHITE + "Until can't be bigger than since.");
 					return true;
 				}
 				
@@ -80,6 +80,12 @@ public class CommandRead extends BlockLogCommand {
 					query.addWhere("date", sinceTime.toString(), ">");
 				if(untilTime != 0)
 					query.addWhere("date", untilTime.toString(), "<");
+				
+				ResultSet reports = stmt.executeQuery(query.getQuery());
+				player.sendMessage(ChatColor.DARK_RED + "[Reports]");
+				while(reports.next()) {
+					player.sendMessage(String.format("[#%s] %s", reports.getString("id"), reports.getString("player")));
+				}
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

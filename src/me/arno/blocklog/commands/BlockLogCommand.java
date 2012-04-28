@@ -95,9 +95,6 @@ public class BlockLogCommand {
 			time =(int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60 * 24);
 		else if(timeVal.equalsIgnoreCase("w"))
 			time = (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60 * 24 * 7);
-		log.info("timeInt: " + timeInt.toString());
-		log.info("timeVal: " + timeVal.toString());
-		log.info("time: " + time.toString());
 		return time;
 	}
 }

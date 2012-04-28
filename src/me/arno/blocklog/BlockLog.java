@@ -25,6 +25,7 @@ import me.arno.blocklog.logs.LoggedInteraction;
 import me.arno.blocklog.schedules.Save;
 
 import org.bukkit.ChatColor;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -107,21 +108,25 @@ public class BlockLog extends JavaPlugin {
 	}
 	
 	private void loadConfiguration() {
-		getConfig().addDefault("database.type", "SQLite");
-	    getConfig().addDefault("database.delay", 1);
-		getConfig().addDefault("mysql.host", "localhost");
+		ArrayList<String> worlds = new ArrayList<String>();
+		for(World world : getServer().getWorlds()) {
+			worlds.add(world.getName());
+		}
+		
+	    getConfig().addDefault("mysql.host", "localhost");
 	    getConfig().addDefault("mysql.username", "root");
 	    getConfig().addDefault("mysql.password", "");
 	    getConfig().addDefault("mysql.database", "");
 	    getConfig().addDefault("mysql.port", 3306);
 	   	getConfig().addDefault("blocklog.wand", 369);
-	    getConfig().addDefault("blocklog.results", 5);
+	   	getConfig().addDefault("blocklog.results", 5);
+	   	getConfig().addDefault("blocklog.delay", 1);
 	    getConfig().addDefault("blocklog.warning.blocks", 500);
 	    getConfig().addDefault("blocklog.warning.repeat", 100);
 	    getConfig().addDefault("blocklog.warning.delay", 30);
 	    getConfig().addDefault("blocklog.autosave.enabled", true);
 	    getConfig().addDefault("blocklog.autosave.blocks", 1000);
-	    getConfig().addDefault("blocklog.worlds", getServer().getWorlds());
+	    getConfig().addDefault("blocklog.worlds", worlds);
 	    getConfig().addDefault("blocklog.reports", true);
 	    getConfig().addDefault("blocklog.updates", true);
 	    getConfig().addDefault("logs.grow", true);
@@ -294,7 +299,7 @@ public class BlockLog extends JavaPlugin {
 	    }
 	    
 		log.info("Starting BlockLog");
-    	getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Save(this, 1, null, false), 100L, getConfig().getInt("database.delay") * 20L);
+    	getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Save(this, 1, null, false), 100L, getConfig().getInt("blocklog.delay") * 20L);
     	
     	getServer().getPluginManager().registerEvents(new WandListener(this), this);
     	getServer().getPluginManager().registerEvents(new BlockListener(this), this);

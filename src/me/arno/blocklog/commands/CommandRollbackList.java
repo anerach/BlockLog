@@ -54,6 +54,11 @@ public class CommandRollbackList extends BlockLogCommand {
 				}
 			}
 			
+			if(sinceTime != 0 && sinceTime > untilTime) {
+				player.sendMessage(ChatColor.WHITE + "Until can't be bigger than since.");
+				return true;
+			}
+			
 			Query query = new Query("blocklog_rollbacks");
 			query.addLeftJoin("blocklog_undos", "id", "rollback_id");
 			
@@ -75,8 +80,6 @@ public class CommandRollbackList extends BlockLogCommand {
 			
 			query.addOrderBy("blocklog_rollbacks.date", "DESC");
 			query.addLimit(getConfig().getInt("blocklog.results"));
-			
-			log.info(query.getQuery());
 			
 			Statement rollbacksStmt = conn.createStatement();
 			ResultSet rollbacks = rollbacksStmt.executeQuery(query.getQuery());

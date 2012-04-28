@@ -50,8 +50,6 @@ public class CommandRollback extends BlockLogCommand {
 			for(int i=0;i<args.length;i+=2) {
 				String type = args[i];
 				String value = args[i+1];
-				log.info("type: " + type);
-				log.info("value: " + value);
 				if(type.equalsIgnoreCase("limit")) {
 					param_area = value;
 					limit = Integer.valueOf(value);
@@ -78,8 +76,8 @@ public class CommandRollback extends BlockLogCommand {
 				}
 			}
 			
-			if(sinceTime != 0 && sinceTime < untilTime) {
-				player.sendMessage(ChatColor.WHITE + "From time can't be bigger than until time.");
+			if(sinceTime != 0 && sinceTime > untilTime) {
+				player.sendMessage(ChatColor.WHITE + "Until can't be bigger than since.");
 				return true;
 			}
 			

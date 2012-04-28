@@ -1,6 +1,0 @@
-CREATE TABLE IF NOT EXISTS 'blocklog_chat' (
-	'id' INTEGER PRIMARY KEY NOT NULL,
-	'player' VARCHAR(75) NOT NULL,
-	'message' VARCHAR(75) NOT NULL,
-	'date' INTEGER NOT NULL
-);

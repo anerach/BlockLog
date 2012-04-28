@@ -1,11 +1,14 @@
 package me.arno.blocklog;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -22,10 +25,11 @@ import me.arno.blocklog.logs.LoggedInteraction;
 import me.arno.blocklog.schedules.Save;
 
 import org.bukkit.ChatColor;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -39,9 +43,16 @@ public class BlockLog extends JavaPlugin {
 	public DatabaseSettings dbSettings;
 	public Connection conn;
 	
+	public final String[] SQLTables = {"blocks", "rollbacks", "undos", "interactions", "reports", "chat", "deaths", "kills", "commands"};
+	
 	public ArrayList<String> users = new ArrayList<String>();
-	public ArrayList<LoggedBlock> blocks = new ArrayList<LoggedBlock>();
-	public ArrayList<LoggedInteraction> interactions = new ArrayList<LoggedInteraction>();
+	public HashMap<String, ItemStack> playerItemStack = new HashMap<String, ItemStack>();
+	public HashMap<String, Integer> playerItemSlot = new HashMap<String, Integer>();
+	
+	private ArrayList<LoggedBlock> blocks = new ArrayList<LoggedBlock>();
+	private ArrayList<LoggedInteraction> interactions = new ArrayList<LoggedInteraction>();
+	
+	private HashMap<Integer, Integer> schedules = new HashMap<Integer, Integer>();
 	
 	public HashMap<String, Plugin> softDepends = new HashMap<String, Plugin>();
 	
@@ -53,28 +64,11 @@ public class BlockLog extends JavaPlugin {
 	public int autoSave = 0;
 	public boolean saving = false;
 	
-	public Config cfg;
-	
-	@Override
-	public FileConfiguration getConfig() {
-		return cfg.getConfig();
-	}
-	
-	@Override
-	public void saveConfig() {
-		cfg.saveConfig();
-	}
-	
-	@Override
-	public void reloadConfig() {
-		cfg.reloadConfig();
-	}
-	
 	public void addBlock(LoggedBlock block) {
 		blocks.add(block);
 	}
 	
-	public void addInteractions(LoggedInteraction interaction) {
+	public void addInteraction(LoggedInteraction interaction) {
 		interactions.add(interaction);
 	}
 	
@@ -82,8 +76,12 @@ public class BlockLog extends JavaPlugin {
 		return blocks;
 	}
 	
-	public ArrayList<LoggedInteraction> getInteractionss() {
+	public ArrayList<LoggedInteraction> getInteractions() {
 		return interactions;
+	}
+	
+	public HashMap<Integer, Integer> getSchedules() {
+		return schedules;
 	}
 	
 	public String getResourceContent(String file) {
@@ -110,8 +108,48 @@ public class BlockLog extends JavaPlugin {
 	}
 	
 	private void loadConfiguration() {
-		cfg = new Config();
-		cfg.createDefaults();
+		ArrayList<String> worlds = new ArrayList<String>();
+		for(World world : getServer().getWorlds()) {
+			worlds.add(world.getName());
+		}
+		
+	    getConfig().addDefault("mysql.host", "localhost");
+	    getConfig().addDefault("mysql.username", "root");
+	    getConfig().addDefault("mysql.password", "");
+	    getConfig().addDefault("mysql.database", "");
+	    getConfig().addDefault("mysql.port", 3306);
+	   	getConfig().addDefault("blocklog.wand", 19);
+	   	getConfig().addDefault("blocklog.results", 5);
+	   	getConfig().addDefault("blocklog.delay", 1);
+	    getConfig().addDefault("blocklog.warning.blocks", 500);
+	    getConfig().addDefault("blocklog.warning.repeat", 100);
+	    getConfig().addDefault("blocklog.warning.delay", 30);
+	    getConfig().addDefault("blocklog.autosave.enabled", true);
+	    getConfig().addDefault("blocklog.autosave.blocks", 1000);
+	    getConfig().addDefault("blocklog.worlds", worlds);
+	    getConfig().addDefault("blocklog.reports", true);
+	    getConfig().addDefault("blocklog.updates", true);
+	    getConfig().addDefault("logs.grow", true);
+	    getConfig().addDefault("logs.leaves", false);
+	    getConfig().addDefault("logs.portal", false);
+	    getConfig().addDefault("logs.form", false);
+	    getConfig().addDefault("logs.fade", false);
+	    getConfig().addDefault("logs.spread", false);
+	    getConfig().addDefault("logs.chat", false);
+	    getConfig().addDefault("logs.kill", false);
+	    getConfig().addDefault("logs.death", false);
+	    getConfig().addDefault("cleanup.log", true);
+	    getConfig().addDefault("cleanup.blocks.enabled", false);
+	    getConfig().addDefault("cleanup.blocks.days", 14);
+	    getConfig().addDefault("cleanup.interactions.enabled", false);
+	    getConfig().addDefault("cleanup.interactions.days", 14);
+	    getConfig().addDefault("cleanup.chat.enabled", false);
+	    getConfig().addDefault("cleanup.chat.days", 14);
+	    getConfig().addDefault("cleanup.deaths.enabled", false);
+	    getConfig().addDefault("cleanup.deaths.days", 14);
+	    getConfig().addDefault("cleanup.kills.enabled", false);
+	    getConfig().addDefault("cleanup.kills.days", 14);
+	    getConfig().options().copyDefaults(true);
 		saveConfig();
 		
 		if(getConfig().getBoolean("blocklog.autosave.enabled")) {
@@ -119,20 +157,45 @@ public class BlockLog extends JavaPlugin {
 		}
 	}
 	
-	private void loadDatabase() {
-		String DBType = getConfig().getString("database.type");
-		String[] tables = {"blocks", "rollbacks", "undos", "interactions", "reports", "chat", "deaths", "kills"};
+	private void CleanUpDatabase() {
+		Long currentTime = System.currentTimeMillis()/1000;
+		String[] tables = new String[] {"blocks", "interactions", "chat", "deaths", "kills", "commands"};
 		
+		try {
+			FileWriter fstream = new FileWriter("BlockLog Database Cleanup.log");
+			BufferedWriter out = new BufferedWriter(fstream);
+			
+			Statement stmt = conn.createStatement();
+			Integer time;
+			
+			for(String table : tables) {
+				if(getConfig().getBoolean("cleanup." + table + ".enabled")) {
+					time = getConfig().getInt("cleanup." + table + ".days") * 60 * 60 * 24;
+					
+					ResultSet rs = stmt.executeQuery("SELECT COUNT(id) AS count FROM blocklog_" + table + " WHERE date < " + (currentTime - time));
+					rs.next();
+					if(rs.getString("count") != null) {
+						out.write("[BlockLog] Deleted " + rs.getString("count") + " results from blocklog_" + table + System.getProperty("line.separator"));
+						
+						stmt.executeUpdate("DELETE FROM blocklog_" + table + " WHERE date < " + (currentTime - time));
+					}
+				}
+			}
+			out.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void loadDatabase() {
 		try {
 	    	conn = DatabaseSettings.getConnection();
 	    	Statement stmt = conn.createStatement();
 	    	
-	    	for(String table : tables) {
-	    		if(DBType.equalsIgnoreCase("mysql")) {
-			    	stmt.executeUpdate(getResourceContent("MySQL/blocklog_" + table + ".sql"));
-				} else if(DBType.equalsIgnoreCase("sqlite")) {
-				    stmt.executeUpdate(getResourceContent("SQLite/blocklog_" + table + ".sql"));
-			    }
+	    	for(String table : SQLTables) {
+	    		stmt.executeUpdate(getResourceContent("MySQL/blocklog_" + table + ".sql"));
 	    	}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -140,30 +203,19 @@ public class BlockLog extends JavaPlugin {
 	}
 	
 	private void updateDatabase() {
-		try {
-			Statement stmt = conn.createStatement();
-			
-			Config versions = new Config("VERSIONS");
-			versions.getConfig().addDefault("database", 2);
-			versions.getConfig().options().copyDefaults(true);
-			if(versions.getConfig().getInt("database") > 2) {
-				log.info("Updating the database to version 2");
-				if(DatabaseSettings.DBType().equalsIgnoreCase("mysql")) 
-					stmt.executeUpdate("ALTER TABLE `blocklog_blocks` CHANGE `rollback_id` `rollback_id` INT(11) NOT NULL DEFAULT '0'");
-				
-				versions.getConfig().set("database", 2);
-			}
-			versions.saveConfig();
-		} catch (SQLException e) {
-			e.printStackTrace();
+		Config versions = new Config("VERSIONS");
+		versions.getConfig().addDefault("database", 10);
+		if(versions.getConfig().getInt("database") < 2) {
+			// Update code here
 		}
-		
+		versions.getConfig().options().copyDefaults(true);
+		versions.saveConfig();
 	}
 	
 	private String loadLatestVersion() {
-        String pluginUrlString = "http://dev.bukkit.org/server-mods/block-log/files.rss";
+        String pluginUrl = "http://dev.bukkit.org/server-mods/block-log/files.rss";
         try {
-            URL url = new URL(pluginUrlString);
+            URL url = new URL(pluginUrl);
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(url.openConnection().getInputStream());
             doc.getDocumentElement().normalize();
             NodeList nodes = doc.getElementsByTagName("item");
@@ -185,6 +237,7 @@ public class BlockLog extends JavaPlugin {
 		ArrayList<String> plugins = new ArrayList<String>();
     	plugins.add("GriefPrevention");
     	plugins.add("WorldGuard");
+    	plugins.add("mcMMO");
     	
     	for(String plugin : plugins) {
     		if(getServer().getPluginManager().isPluginEnabled(plugin)) {
@@ -222,6 +275,9 @@ public class BlockLog extends JavaPlugin {
 	    loadDatabase();
 	    updateDatabase();
 	    
+	    log.info("Cleaning up the database");
+	    CleanUpDatabase();
+	    
 	    log.info("Loading the dependencies");
 	    loadDependencies();
 	    
@@ -243,27 +299,7 @@ public class BlockLog extends JavaPlugin {
 	    }
 	    
 		log.info("Starting BlockLog");
-    	new PushBlocks(this);
-    	
-    	getCommand("blhelp").setExecutor(new CommandHelp(this));
-    	getCommand("blrollback").setExecutor(new CommandRollback(this));
-    	getCommand("blrollbackradius").setExecutor(new CommandRadiusRollback(this));
-    	getCommand("blrb").setExecutor(new CommandRollback(this));
-    	getCommand("blconfig").setExecutor(new CommandConfig(this));
-    	getCommand("blcfg").setExecutor(new CommandConfig(this));
-    	getCommand("blwand").setExecutor(new CommandWand(this));
-    	getCommand("blstorage").setExecutor(new CommandStorage(this));
-    	getCommand("blsave").setExecutor(new CommandSave(this));
-    	getCommand("blfullsave").setExecutor(new CommandSave(this));
-    	getCommand("blreload").setExecutor(new CommandReload(this));
-    	getCommand("blclear").setExecutor(new CommandClear(this));
-    	getCommand("blundo").setExecutor(new CommandUndo(this));
-    	getCommand("blautosave").setExecutor(new CommandAutoSave(this));
-    	getCommand("blconvert").setExecutor(new CommandConvert(this));
-    	getCommand("blreport").setExecutor(new CommandReport(this));
-    	getCommand("blread").setExecutor(new CommandRead(this));
-    	getCommand("blsearch").setExecutor(new CommandSearch(this));
-    	getCommand("blrollbacklist").setExecutor(new CommandRollbackList(this));
+    	getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Save(this, 1, null, false), 100L, getConfig().getInt("blocklog.delay") * 20L);
     	
     	getServer().getPluginManager().registerEvents(new WandListener(this), this);
     	getServer().getPluginManager().registerEvents(new BlockListener(this), this);
@@ -272,6 +308,8 @@ public class BlockLog extends JavaPlugin {
     	
     	if(getConfig().getBoolean("blocklog.updates"))
     		getServer().getPluginManager().registerEvents(new NoticeListener(this), this);
+    	if(softDepends.containsKey("mcMMO"))
+    		getServer().getPluginManager().registerEvents(new McMMOListener(this), this);
     }
 	
 	public void saveLogs(final int count) {
@@ -287,12 +325,12 @@ public class BlockLog extends JavaPlugin {
 			getServer().getScheduler().cancelTasks(this);
 			
 			log.info("Saving all the block edits!");
-			while(interactions.size() > 0) {
+			while(!interactions.isEmpty()) {
 	    		LoggedInteraction interaction = interactions.get(0);
 			    interaction.save();
 			    interactions.remove(0);
 	    	}
-			while(blocks.size() > 0) {
+			while(!blocks.isEmpty()) {
 				LoggedBlock block = blocks.get(0);
 				block.save();
 			  	blocks.remove(0);
@@ -328,12 +366,70 @@ public class BlockLog extends JavaPlugin {
 		if(!cmd.getName().equalsIgnoreCase("blocklog"))
 			return false;
 		
-		if (player == null) {
-			sender.sendMessage("This command can only be run by a player");
+		if(args.length < 1 && player != null) {
+			player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "This server is using BlockLog v" + getDescription().getVersion() + " by Anerach");
 			return true;
 		}
 		
-		player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "This server is using BlockLog v" + getDescription().getVersion() + " by Anerach");
+		ArrayList<String> argList = new ArrayList<String>();
+		
+		if(args.length > 1) {
+			for(int i=1;i<args.length;i++) {
+				argList.add(args[i]);
+			}
+		}
+		
+		String[] newArgs = argList.toArray(new String[]{});
+		
+		if(args[0].equalsIgnoreCase("help") || args[0].equalsIgnoreCase("h")) {
+			CommandHelp command = new CommandHelp(this);
+			return command.execute(player, cmd, newArgs);
+		} else if(args[0].equalsIgnoreCase("autosave")) {
+			CommandAutoSave command = new CommandAutoSave(this);
+			return command.execute(player, cmd, newArgs);
+		} else if(args[0].equalsIgnoreCase("cancel")) {
+			CommandCancel command = new CommandCancel(this);
+			return command.execute(player, cmd, newArgs);
+		} else if(args[0].equalsIgnoreCase("clear")) {
+			CommandClear command = new CommandClear(this);
+			return command.execute(player, cmd, newArgs);
+		} else if(args[0].equalsIgnoreCase("config") || args[0].equalsIgnoreCase("cfg")) {
+			CommandConfig command = new CommandConfig(this);
+			return command.execute(player, cmd, newArgs);
+		} else if(args[0].equalsIgnoreCase("lookup")) {
+			CommandLookup command = new CommandLookup(this);
+			return command.execute(player, cmd, newArgs);
+		} else if(args[0].equalsIgnoreCase("read")) {
+			CommandRead command = new CommandRead(this);
+			return command.execute(player, cmd, newArgs);
+		} else if(args[0].equalsIgnoreCase("reload")) {
+			CommandReload command = new CommandReload(this);
+			return command.execute(player, cmd, newArgs);
+		} else if(args[0].equalsIgnoreCase("report")) {
+			CommandReport command = new CommandReport(this);
+			return command.execute(player, cmd, newArgs);
+		} else if(args[0].equalsIgnoreCase("rollback") || args[0].equalsIgnoreCase("rb")) {
+			CommandRollback command = new CommandRollback(this);
+			return command.execute(player, cmd, newArgs);
+		} else if(args[0].equalsIgnoreCase("rollbacklist") || args[0].equalsIgnoreCase("rblist") || args[0].equalsIgnoreCase("rbl")) {
+			CommandRollbackList command = new CommandRollbackList(this);
+			return command.execute(player, cmd, newArgs);
+		} else if(args[0].equalsIgnoreCase("save")) {
+			CommandSave command = new CommandSave(this);
+			return command.execute(player, cmd, newArgs);
+		} else if(args[0].equalsIgnoreCase("search")) {
+			CommandSearch command = new CommandSearch(this);
+			return command.execute(player, cmd, newArgs);
+		} else if(args[0].equalsIgnoreCase("storage")) {
+			CommandStorage command = new CommandStorage(this);
+			return command.execute(player, cmd, newArgs);
+		} else if(args[0].equalsIgnoreCase("undo")) {
+			CommandUndo command = new CommandUndo(this);
+			return command.execute(player, cmd, newArgs);
+		} else if(args[0].equalsIgnoreCase("wand")) {
+			CommandWand command = new CommandWand(this);
+			return command.execute(player, cmd, newArgs);
+		}
 		return true;
 	}
 }

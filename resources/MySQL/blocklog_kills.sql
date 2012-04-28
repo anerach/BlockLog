@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS `blocklog_kills` (
 	`id` int(11) NOT NULL AUTO_INCREMENT,
-	`player` varchar(75) NOT NULL,
+	`victem` varchar(75) NOT NULL,
 	`killer` varchar(75) NOT NULL,
 	`world` varchar(75) NOT NULL,
 	`x` int(11) NOT NULL,

@@ -1,49 +1,32 @@
 package me.arno.blocklog.commands;
 
-import java.util.logging.Logger;
-
 import me.arno.blocklog.BlockLog;
-import me.arno.blocklog.database.DatabaseSettings;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class CommandAutoSave implements CommandExecutor {
-	BlockLog plugin;
-	Logger log;
-	DatabaseSettings dbSettings;
-	
+public class CommandAutoSave extends BlockLogCommand {
 	public CommandAutoSave(BlockLog plugin) {
-		this.plugin = plugin;
-		this.log = plugin.log;
-	}
-
-	public void sendAdminMessage(String msg) {
-		for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-	    	if (player.isOp() || player.hasPermission("blocklog.notices")) {
-	    		player.sendMessage(msg);
-	        }
-	    }
+		super(plugin, "blocklog.autosave", true);
 	}
 	
-	@Override
-	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		Player player = null;
+	public boolean execute(Player player, Command cmd, String[] args) {
+		if(args.length > 1) {
+			player.sendMessage(ChatColor.WHITE + "/bl autosave [amount|info]");
+			return true;
+		}
 		
-		if (sender instanceof Player)
-			player = (Player) sender;
-		
-		if(!cmd.getName().equalsIgnoreCase("blautosave"))
-			return false;
-		
-		if(args.length > 2)
-			return false;
+		if(!hasPermission(player)) {
+			player.sendMessage("You don't have permission");
+			return true;
+		}
 		
 		if(args.length == 0) {
+			if(plugin.autoSave == 0) {
+				player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "Autosave has already been disabled");
+				return true;
+			}
 			plugin.autoSave = 0;
 			sendAdminMessage(String.format(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "Autosave disabled by %s", player.getName()));
 			log.info(String.format("Autosave disabled by %s", player.getName()));
@@ -55,7 +38,6 @@ public class CommandAutoSave implements CommandExecutor {
 						log.info(String.format("Autosave configured at %s blocks", plugin.autoSave));
 					else
 						player.sendMessage(String.format(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "Autosave configured at %s blocks", plugin.autoSave));
-					
 				} else {
 					if(player == null)
 						log.info("There is no autosave configured");

@@ -1,6 +1,6 @@
 name: BlockLog
 main: me.arno.blocklog.BlockLog
-version: 1.6.1
+version: 2.0.0
 author: Anerach
 dev-url: http://dev.bukkit.org/server-mods/block-log
 description: >
@@ -11,79 +11,6 @@ commands:
         description: Shows basic blocklog information
         aliases: bl
         usage: /<command>
-    blhelp:
-        description: Lists all the blocklog commands
-        aliases: blh
-        usage: /<command>
-        permission: blocklog.help
-    blreload:
-        description: Reloads blocklog's config
-        usage: /<command>
-        permission: blocklog.reload
-    blwand:
-        description: Enables blocklog's wand
-        usage: /<command>
-        permission: blocklog.wand
-    blstorage:
-        description: Says the amount of internal stored blocks
-        usage: /<command>
-        permission: blocklog.storage
-    blsave:
-        description: Saves the specified amount of blocks
-        usage: /<command> [blocks]
-        permission: blocklog.save
-    blfullsave:
-        description: Saves all the blocks
-        usage: /<command>
-        permission: blocklog.save
-    blautosave:
-        description: Saves the all the blocks when the internal storage reaches a preset amount of blocks
-        usage: /<command> <blocks|info>
-        permission: blocklog.autosave
-    blrollback:
-        description: Rollback command for blocklog
-        aliases: blrb
-        usage: /<command> [player] <amount> <sec|min|hour|day|week>
-        permission: blocklog.rollback
-    blrollbackradius:
-        description: Rollback command for blocklog
-        aliases: [blrbradius, blrbr]
-        usage: /<command> [player] <radius> <amount> <sec|min|hour|day|week>
-        permission: blocklog.rollback
-    blclear:
-        description: Clears blocklog's history
-        usage: /<command> <amount> <day|week>
-        permission: blocklog.clear
-    blundo:
-        description: Command to undo rollbacks
-        usage: /<command> [rollback]
-        permission: blocklog.undo
-    blconfig:
-        description: Change blocklog's command values ingame
-        aliases: blcfg
-        usage: /<command> <get|set> <key> [value]
-        permission: blocklog.config
-    blconvert:
-        description: Convert from one database type to another
-        usage: /<command>
-        permission: blocklog.convert
-    blreport:
-        description: Create a new grief report
-        usage: /<command> <message>
-        permission: blocklog.report.write
-    blread:
-        description: Read players their reports
-        usage: /<command> [id]
-        permission: blocklog.report.read
-    blsearch:
-        description: Searches for a player's last edits
-        usage: /<command> <player>
-        permission: blocklog.search
-    blrollbacklist:
-        description: Shows a list of the latest rollbacks
-        aliases: blrblist
-        usage: /<command>
-        permission: blocklog.rollback
 permissions:
     blocklog.admin:
         description: Gives access to all the blocklog commands
@@ -92,7 +19,6 @@ permissions:
             blocklog.reload: true
             blocklog.config: true
             blocklog.clear: true
-            blocklog.convert: true
             blocklog.autosave: true
     blocklog.moderator:
         description: Gives access to most of the blocklog commands
@@ -102,7 +28,6 @@ permissions:
             blocklog.notices: true
             blocklog.save: true
             blocklog.rollback: true
-            blocklog.undo: true
             blocklog.storage: true
             blocklog.report.read: true
             blocklog.search: true
@@ -122,9 +47,7 @@ permissions:
     blocklog.autosave:
         description: Gives access to the autosave command
     blocklog.rollback:
-        description: Gives access to both the rollback commands
-    blocklog.undo:
-        description: Gives access to the undo command
+        description: Gives access to all the rollback releated commands
     blocklog.config:
         description: Gives access to the config command
     blocklog.reload:
@@ -133,8 +56,6 @@ permissions:
         description: Gives access to the storage command
     blocklog.clear:
         description: Gives access to the clear command
-    blocklog.convert:
-        description: Gives access to the convert command
     blocklog.report.write:
         description: Gives the ability to report griefs
     blocklog.report.read:

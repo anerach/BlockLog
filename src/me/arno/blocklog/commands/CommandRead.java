@@ -1,67 +1,91 @@
 package me.arno.blocklog.commands;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
 import me.arno.blocklog.BlockLog;
+import me.arno.blocklog.database.Query;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class CommandRead implements CommandExecutor {
-	BlockLog plugin;
-	Connection conn;
-	
+public class CommandRead extends BlockLogCommand {
 	public CommandRead(BlockLog plugin) {
-		this.plugin = plugin;
-		this.conn = plugin.conn;
-		
+		super(plugin, "blocklog.report.read");
 	}
 	
-	@Override
-	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		Player player = null;
-		
-		if (sender instanceof Player)
-			player = (Player) sender;
-		
-		if(!cmd.getName().equalsIgnoreCase("blread"))
-			return true;
-		
-		if (player == null) {
-			sender.sendMessage("This command can only be run by a player");
+	public boolean execute(Player player, Command cmd, String[] args) {
+		if(args.length > 6) {
+			player.sendMessage(ChatColor.WHITE + "/bl read [id] [player <value>] [since <value>] [until <value]");
 			return true;
 		}
 		
-		if(args.length > 1)
-			return false;
-		
-		if(!plugin.getConfig().getBoolean("blocklog.reports")) {
+		if(!getConfig().getBoolean("blocklog.reports")) {
 			player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "The report system is disabled");
+			return true;
+		}
+		
+		if(!hasPermission(player)) {
+			player.sendMessage("You don't have permission");
 			return true;
 		}
 		
 		try {
 			Statement stmt = conn.createStatement();
+			Query query = new Query("blocklog_reports");
+			query.addSelect("*");
+			query.addWhere("seen", 0);
+			query.addOrderBy("date", "DESC");
+			
 			if(args.length == 0) {
-				ResultSet reports = stmt.executeQuery("SELECT * FROM blocklog_reports WHERE seen = 0");
+				ResultSet reports = stmt.executeQuery(query.getQuery());
 				player.sendMessage(ChatColor.DARK_RED + "[Reports]");
 				while(reports.next()) {
 					player.sendMessage(String.format("[#%s] %s", reports.getString("id"), reports.getString("player")));
 				}
-			} else {
+			} else if(args.length == 1) {
 				ResultSet reports = stmt.executeQuery("SELECT * FROM blocklog_reports WHERE id = " + args[0]);
-				
 				reports.next();
 				player.sendMessage(ChatColor.DARK_RED + "[#" + reports.getString("id") + "] " + ChatColor.GOLD + reports.getString("player"));
 				player.sendMessage(ChatColor.BLUE + reports.getString("message"));
 				stmt.executeUpdate("UPDATE blocklog_reports SET seen = 1 WHERE id = " + args[0]);
-			
+			} else {
+				String target = null;
+				Integer untilTime = 0;
+				Integer sinceTime = 0;
+				
+				for(int i=0;i<args.length;i+=2) {
+					String type = args[i];
+					String value = args[i+1];
+					if(type.equalsIgnoreCase("player")) {
+						target = value;
+					} else if(type.equalsIgnoreCase("since")) {
+						Character c = value.charAt(value.length() - 1);
+						sinceTime = convertToUnixtime(Integer.valueOf(value.replace(c, ' ').trim()), c.toString());
+					} else if(type.equalsIgnoreCase("until")) {
+						Character c = value.charAt(value.length() - 1);
+						untilTime = convertToUnixtime(Integer.valueOf(value.replace(c, ' ').trim()), c.toString());
+					}
+				}
+				
+				if(untilTime != 0 && sinceTime > untilTime) {
+					player.sendMessage(ChatColor.WHITE + "Until can't be bigger than since.");
+					return true;
+				}
+				
+				if(target != null)
+					query.addWhere("player", target);
+				if(sinceTime != 0)
+					query.addWhere("date", sinceTime.toString(), ">");
+				if(untilTime != 0)
+					query.addWhere("date", untilTime.toString(), "<");
+				
+				ResultSet reports = stmt.executeQuery(query.getQuery());
+				player.sendMessage(ChatColor.DARK_RED + "[Reports]");
+				while(reports.next()) {
+					player.sendMessage(String.format("[#%s] %s", reports.getString("id"), reports.getString("player")));
+				}
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

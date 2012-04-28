@@ -29,8 +29,8 @@ public class Rollback implements Runnable {
 		this.plugin = plugin;
 		this.conn = plugin.conn;
 		this.player = player;
-		this.blocks = blocks;
 		this.rollbackID = rollbackID;
+		this.blocks = blocks;
 		this.limit = limit;
 	}
 	

@@ -76,7 +76,7 @@ public class CommandRollback extends BlockLogCommand {
 				}
 			}
 			
-			if(sinceTime != 0 && sinceTime > untilTime) {
+			if(untilTime != 0 && sinceTime > untilTime) {
 				player.sendMessage(ChatColor.WHITE + "Until can't be bigger than since.");
 				return true;
 			}
@@ -117,7 +117,7 @@ public class CommandRollback extends BlockLogCommand {
 				query.addWhere("z", zMax.toString(), "<=");
 			}
 			query.addWhere("world", world.getName());
-			query.addWhere("rollback_id", new Integer(0).toString());
+			query.addWhere("rollback_id", 0);
 			query.addGroupBy("x");
 			query.addGroupBy("y");
 			query.addGroupBy("z");

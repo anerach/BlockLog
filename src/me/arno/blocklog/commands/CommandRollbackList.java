@@ -54,7 +54,7 @@ public class CommandRollbackList extends BlockLogCommand {
 				}
 			}
 			
-			if(sinceTime != 0 && sinceTime > untilTime) {
+			if(untilTime != 0 && sinceTime > untilTime) {
 				player.sendMessage(ChatColor.WHITE + "Until can't be bigger than since.");
 				return true;
 			}

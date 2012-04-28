@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS `blocklog_blocks` (
 	`world` varchar(75) NOT NULL,
 	`block_id` int(11) NOT NULL,
 	`datavalue` int(11) NOT NULL,
+	`gamemode` tinyint(1) NOT NULL,
 	`type` tinyint(1) NOT NULL,
 	`rollback_id` int(11) NOT NULL DEFAULT '0',
 	`x` int(11) NOT NULL,

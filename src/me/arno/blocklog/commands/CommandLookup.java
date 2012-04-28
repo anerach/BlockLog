@@ -1,24 +1,25 @@
 package me.arno.blocklog.commands;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
+import me.arno.blocklog.BlockLog;
+import me.arno.blocklog.database.Query;
+
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
-import me.arno.blocklog.BlockLog;
-import me.arno.blocklog.database.Query;
-import me.arno.blocklog.schedules.Rollback;
-
-public class CommandRollback extends BlockLogCommand {
-	public CommandRollback(BlockLog plugin) {
-		super(plugin, "blocklog.rollback");
+public class CommandLookup extends BlockLogCommand {
+	public CommandLookup(BlockLog plugin) {
+		super(plugin, "blocklog.lookup");
 	}
-	
+
 	public boolean execute(Player player, Command cmd, String[] args) {
 		if(args.length < 2) {
-			player.sendMessage(ChatColor.WHITE + "/bl rollback [delay <value>] [limit <amount>] [player <value>] [since <value>] [until <value>] [area <value>]");
+			player.sendMessage(ChatColor.WHITE + "/bl lookup [player <value>] [since <value>] [until <value>] [area <value>]");
 			return true;
 		}
 		
@@ -39,40 +40,22 @@ public class CommandRollback extends BlockLogCommand {
 			Integer untilTime = 0;
 			Integer sinceTime = 0;
 			Integer area = 0;
-			Integer limit = 200;
-			Integer delay = 3;
-			
-			String param_target = null;
-			String param_until = null;
-			String param_from = null;
-			String param_area = null;
 			
 			for(int i=0;i<args.length;i+=2) {
 				String type = args[i];
 				String value = args[i+1];
-				if(type.equalsIgnoreCase("limit")) {
-					param_area = value;
-					limit = Integer.valueOf(value);
-				} else if(type.equalsIgnoreCase("area")) {
-					param_area = value;
+				if(type.equalsIgnoreCase("area")) {
 					area = Integer.valueOf(value);
 				} else if(type.equalsIgnoreCase("player")) {
-					param_target = value;
 					target = value;
 				} else if(type.equalsIgnoreCase("entity")) {
-					param_target = value;
 					entity = value;
 				} else if(type.equalsIgnoreCase("since")) {
-					param_from = value;
 					Character c = value.charAt(value.length() - 1);
 					sinceTime = convertToUnixtime(Integer.valueOf(value.replace(c, ' ').trim()), c.toString());
 				} else if(type.equalsIgnoreCase("until")) {
-					param_until = value;
 					Character c = value.charAt(value.length() - 1);
 					untilTime = convertToUnixtime(Integer.valueOf(value.replace(c, ' ').trim()), c.toString());
-				} else if(type.equalsIgnoreCase("delay")) {
-					Character c = value.charAt(value.length() - 1);
-					delay = Integer.valueOf(value.replace(c, ' ').trim());
 				}
 			}
 			
@@ -85,20 +68,17 @@ public class CommandRollback extends BlockLogCommand {
 			
 			Query query = new Query("blocklog_blocks");
 			query.addSelect("*");
+			query.addSelectDate("date");
 			if(target != null) {
-				if(entity == null)
-					query.addWhere("entity", "player");
+				query.addWhere("entity", "player");
 				query.addWhere("trigered", target);
 			}
-			if(entity != null) {
-				if(entity.equalsIgnoreCase("tnt"))
-					entity = "primed_tnt";
+			if(entity != null)
 				query.addWhere("entity", entity);
-			}
 			if(sinceTime != 0)
-				query.addWhere("date", sinceTime.toString(), ">");
+				query.addWhere("date", sinceTime.toString(), "<");
 			if(untilTime != 0)
-				query.addWhere("date", untilTime.toString(), "<");
+				query.addWhere("date", untilTime.toString(), ">");
 			if(area != 0) {
 				Integer xMin = player.getLocation().getBlockX() - area;
 				Integer xMax = player.getLocation().getBlockX() + area;
@@ -117,35 +97,31 @@ public class CommandRollback extends BlockLogCommand {
 				query.addWhere("z", zMax.toString(), "<=");
 			}
 			query.addWhere("world", world.getName());
-			query.addWhere("rollback_id", 0);
+			query.addWhere("rollback_id", new Integer(0).toString());
 			query.addGroupBy("x");
 			query.addGroupBy("y");
 			query.addGroupBy("z");
 			query.addOrderBy("date", "DESC");
+			query.addLimit(getConfig().getInt("blocklog.results"));
 			
-			Statement rollbackStmt = conn.createStatement();
-			Statement blocksStmt = conn.createStatement();
+			Statement stmt = conn.createStatement();
+			ResultSet actions = stmt.executeQuery(query.getQuery());
 			
-			rollbackStmt.executeUpdate("INSERT INTO blocklog_rollbacks (player, world, param_player, param_from, param_until, param_area, date) VALUES ('" + player.getName() + "', '" + player.getWorld().getName() + "', '" + param_target + "', '" + param_from + "', '" + param_until + "', " + param_area + ", " + System.currentTimeMillis()/1000 + ")");
+			while(actions.next()) {
+				String name = Material.getMaterial(actions.getInt("block_id")).toString();
+				int type = actions.getInt("type");
+				
+				player.sendMessage(ChatColor.BLUE + "[" + actions.getString("fdate") + "]" + ChatColor.DARK_RED + "[World:" + actions.getString("world") + ", X:" + actions.getString("x") + ", Y:" + actions.getString("y") + ", Z:" + actions.getString("z") + "]");
+				if(type == 0) {
+					player.sendMessage(ChatColor.GOLD + actions.getString("player") + ChatColor.DARK_GREEN + " broke a " + ChatColor.GOLD + name);
+				} else if(type == 1) {
+					player.sendMessage(ChatColor.GOLD + actions.getString("player") + ChatColor.DARK_GREEN + " placed a " + ChatColor.GOLD + name);
+				}
+			}
+		} catch(SQLException e) {
 			
-			ResultSet rollback = rollbackStmt.executeQuery("SELECT id FROM blocklog_rollbacks ORDER BY id DESC");
-			rollback.next();
-			
-			Integer rollbackID = rollback.getInt("id");
-			
-			ResultSet blocks = blocksStmt.executeQuery(query.getQuery());
-			Rollback rb = new Rollback(plugin, player, rollbackID, blocks, limit);
-			Integer sid = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, rb, 20L, delay * 20L);
-			rb.setId(sid);
-			addSchedule(sid, rollbackID);
-			player.sendMessage(ChatColor.BLUE + "You've started a rollback, to cancel it say /bl cancel " + sid);
-			return true;
-		} catch(NumberFormatException e) {
-			player.sendMessage(ChatColor.WHITE + "/bl rollback <delay <value>> [limit <amount>] [player <value>] [since <value>] [until <value>] [area <value>]");
-			return true;
-		} catch(Exception e) {
-			e.printStackTrace();
 		}
-		return false;
+		return true;
 	}
+
 }

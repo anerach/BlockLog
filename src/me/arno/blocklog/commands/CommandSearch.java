@@ -17,7 +17,7 @@ public class CommandSearch extends BlockLogCommand {
 
 	public boolean execute(Player player, Command cmd, String[] args) {
 		if(args.length < 3) {
-			player.sendMessage(ChatColor.WHITE + "/bl search <table> [player <value>] [since <value>] [until <value>] [area <value>]");
+			player.sendMessage(ChatColor.WHITE + "/bl search <table> [player <value>] [since <value>] [until <value>]");
 			return true;
 		}
 		

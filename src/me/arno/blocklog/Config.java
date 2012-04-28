@@ -45,33 +45,4 @@ public class Config {
 		saveConfig();
 		loadConfig();
 	}
-	
-	public void createDefaults() {
-		getConfig().addDefault("database.type", "SQLite");
-	    getConfig().addDefault("database.delay", 1);
-		getConfig().addDefault("mysql.host", "localhost");
-	    getConfig().addDefault("mysql.username", "root");
-	    getConfig().addDefault("mysql.password", "");
-	    getConfig().addDefault("mysql.database", "");
-	    getConfig().addDefault("mysql.port", 3306);
-	    getConfig().addDefault("logs.grow", true);
-	    getConfig().addDefault("logs.leaves", false);
-	    getConfig().addDefault("logs.portal", false);
-	    getConfig().addDefault("logs.form", false);
-	    getConfig().addDefault("logs.fade", false);
-	    getConfig().addDefault("logs.spread", false);
-	    getConfig().addDefault("logs.chat", false);
-	    getConfig().addDefault("logs.kill", false);
-	    getConfig().addDefault("logs.death", false);
-	   	getConfig().addDefault("blocklog.wand", 369);
-	    getConfig().addDefault("blocklog.results", 5);
-	    getConfig().addDefault("blocklog.warning.blocks", 500);
-	    getConfig().addDefault("blocklog.warning.repeat", 100);
-	    getConfig().addDefault("blocklog.warning.delay", 30);
-	    getConfig().addDefault("blocklog.autosave.enabled", true);
-	    getConfig().addDefault("blocklog.autosave.blocks", 1000);
-	    getConfig().addDefault("blocklog.reports", true);
-	    getConfig().addDefault("blocklog.updates", true);
-	    getConfig().options().copyDefaults(true);
-	}
 }

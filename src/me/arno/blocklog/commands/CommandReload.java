@@ -1,33 +1,26 @@
 package me.arno.blocklog.commands;
 
-import java.util.logging.Logger;
-
 import me.arno.blocklog.BlockLog;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-public class CommandReload implements CommandExecutor {
-	BlockLog plugin;
-	Logger log;
-	
+public class CommandReload extends BlockLogCommand {
 	public CommandReload(BlockLog plugin) {
-		this.plugin = plugin;
-		this.log = plugin.log;
+		super(plugin, "blocklog.reload", true);
 	}
-	
-	@Override
-	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		Player player = null;
+
+	public boolean execute(Player player, Command cmd, String[] args) {
+		if(args.length > 0) {
+			player.sendMessage(ChatColor.WHITE + "/bl reload");
+			return true;
+		}
 		
-		if (sender instanceof Player)
-			player = (Player) sender;
-		
-		if(!cmd.getName().equalsIgnoreCase("blreload"))
-			return false;
+		if(!hasPermission(player)) {
+			player.sendMessage("You don't have permission");
+			return true;
+		}
 		
 		if (player == null) {
 			log.info("Reloading!");

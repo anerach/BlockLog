@@ -12,31 +12,22 @@ import org.bukkit.entity.Player;
 
 
 public class LoggedInteraction {
-	private BlockLog plugin;
+	private final BlockLog plugin;
 	
-	private Player player;
-	private Location location;
-	private World world;
+	private final Player player;
+	private final Location location;
+	private final World world;
 	
-	private Interaction type;
-	private long date;
+	private final Interaction type;
+	private final long date;
 	
-	public LoggedInteraction(InteractedBlock block) {
-		this.plugin = block.plugin;
-		this.player = block.getPlayer();
-		this.location = block.getLocation();
-		this.world = block.getWorld();
-		this.date = block.getDate();
-		this.type = block.getType();
-	}
-	
-	public LoggedInteraction(BlockLog plugin, Player player, int block, Location location, Interaction type) {
+	public LoggedInteraction(BlockLog plugin, Player player, Location location, Interaction type) {
 		this.plugin = plugin;
 		this.player = player;
 		this.location = location;
 		this.world = location.getWorld();
-		this.date = System.currentTimeMillis()/1000;
 		this.type = type;
+		this.date = System.currentTimeMillis()/1000;
 	}
 	
 	public void save() {
@@ -56,12 +47,12 @@ public class LoggedInteraction {
 		return location;
 	}
 	
-	public Player getPlayer() {
-		return player;
+	public String getPlayerName() {
+		return player.getName().toLowerCase();
 	}
 	
-	public String getPlayerName() {
-		return player.getName();
+	public Player getPlayer() {
+		return player;
 	}
 	
 	public long getDate() {

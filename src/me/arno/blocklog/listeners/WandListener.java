@@ -7,12 +7,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.logging.Logger;
-
 import me.arno.blocklog.BlockLog;
-import me.arno.blocklog.Config;
 import me.arno.blocklog.Interaction;
-import me.arno.blocklog.database.DatabaseSettings;
 import me.arno.blocklog.logs.LoggedBlock;
 import me.arno.blocklog.logs.LoggedInteraction;
 
@@ -22,27 +18,20 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-public class WandListener implements Listener {
-	BlockLog plugin;
-	Logger log;
-	Config cfg;
-	
+public class WandListener extends BlockLogListener {
 	public WandListener(BlockLog plugin) {
-		this.plugin = plugin;
-		this.log = plugin.log;
-		this.cfg = plugin.cfg;
+		super(plugin);
 	}
 	
 	public void getBlockInteractions(Player player, Block block, Interaction interaction) {
 		try {
-			player.sendMessage(ChatColor.DARK_RED + "BlockLog History (" + cfg.getConfig().getString("blocklog.results") + " Last Edits)");
+			player.sendMessage(ChatColor.DARK_RED + "BlockLog History (" + getConfig().getString("blocklog.results") + " Last Edits)");
 			
-			ArrayList<LoggedInteraction> Interactions = plugin.interactions;
+			ArrayList<LoggedInteraction> Interactions = plugin.getInteractions();
 			int BlockNumber = 0;
 			int BlockCount = 0;
 			int BlockSize = Interactions.size();
@@ -52,7 +41,7 @@ public class WandListener implements Listener {
 			{
 				LoggedInteraction LInteraction = Interactions.get(BlockNumber); 
 				if(LInteraction.getX() == BlockLocation.getX() && LInteraction.getY() == BlockLocation.getY() && LInteraction.getZ() == BlockLocation.getZ() && LInteraction.getWorld() == BlockLocation.getWorld()) {
-					if(BlockCount == cfg.getConfig().getInt("blocklog.results"))
+					if(BlockCount == getConfig().getInt("blocklog.results"))
 						break;
 					
 					String str = "";
@@ -74,7 +63,7 @@ public class WandListener implements Listener {
 				BlockNumber++;
 			}
 			
-			if(BlockCount < cfg.getConfig().getInt("blocklog.results")) {
+			if(BlockCount < getConfig().getInt("blocklog.results")) {
 				Connection conn = plugin.conn;
 				Statement stmt = conn.createStatement();
 				
@@ -82,11 +71,7 @@ public class WandListener implements Listener {
 				double y = BlockLocation.getY();
 				double z = BlockLocation.getZ();
 				
-				ResultSet rs;
-				if(DatabaseSettings.DBType().equalsIgnoreCase("mysql"))
-					rs = stmt.executeQuery("SELECT player, FROM_UNIXTIME(date, '%d-%m-%Y %H:%i:%s') AS date FROM blocklog_interactions WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' AND world = '" + BlockLocation.getWorld().getName() + "' ORDER BY date DESC LIMIT " + (cfg.getConfig().getInt("blocklog.results") - BlockCount));
-				else
-					rs = stmt.executeQuery("SELECT player, datetime(date, 'unixepoch', 'localtime') AS date FROM blocklog_interactions WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' AND world = '" + BlockLocation.getWorld().getName() + "' ORDER BY date DESC LIMIT " + (cfg.getConfig().getInt("blocklog.results") - BlockCount));
+				ResultSet rs = stmt.executeQuery("SELECT player, FROM_UNIXTIME(date, '%d-%m-%Y %H:%i:%s') AS date FROM blocklog_interactions WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' AND world = '" + BlockLocation.getWorld().getName() + "' ORDER BY date DESC LIMIT " + (getConfig().getInt("blocklog.results") - BlockCount));
 				
 				while(rs.next()) {
 					String str = "";
@@ -107,16 +92,17 @@ public class WandListener implements Listener {
 	
 	public void getBlockEdits(Player player, Block block) {
 		try {
-			player.sendMessage(ChatColor.DARK_RED + "BlockLog History (" + cfg.getConfig().getString("blocklog.results") + " Last Edits)");
-			int BlockNumber = 0;
-			int BlockCount = 0;
-			int BlockSize = plugin.blocks.size();
+			player.sendMessage(ChatColor.DARK_RED + "BlockLog History (" + getConfig().getString("blocklog.results") + " Last Edits)");
+			Integer BlockNumber = 0;
+			Integer BlockCount = 0;
+			Integer BlockSize = plugin.getBlocks().size();
 			Location BlockLocation = block.getLocation();
+			
 			while(BlockSize > BlockNumber)
 			{
-				LoggedBlock LBlock = plugin.blocks.get(BlockNumber); 
+				LoggedBlock LBlock = plugin.getBlocks().get(BlockNumber); 
 				if(LBlock.getX() == BlockLocation.getX() && LBlock.getY() == BlockLocation.getY() && LBlock.getZ() == BlockLocation.getZ() && LBlock.getWorld() == BlockLocation.getWorld()) {
-					if(BlockCount == cfg.getConfig().getInt("blocklog.results"))
+					if(BlockCount == getConfig().getInt("blocklog.results"))
 						break;
 					
 					Calendar calendar = GregorianCalendar.getInstance();
@@ -128,19 +114,19 @@ public class WandListener implements Listener {
 					int type = LBlock.getTypeId();
 					
 					if(type == 0)
-						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + ChatColor.DARK_GREEN + " broke a " + ChatColor.GOLD + name);
+						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + " (" + LBlock.getEntityName() + ")" + ChatColor.DARK_GREEN + " broke a " + ChatColor.GOLD + name);
 					else if(type == 1)
-						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + ChatColor.DARK_GREEN + " placed a " + ChatColor.GOLD + name);
+						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + " (" + LBlock.getEntityName() + ")" + ChatColor.DARK_GREEN + " placed a " + ChatColor.GOLD + name);
 					else if(type == 2)
-						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + ChatColor.DARK_GREEN + " burned a " + ChatColor.GOLD + name);
+						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + " (" + LBlock.getEntityName() + ")" + ChatColor.DARK_GREEN + " burned a " + ChatColor.GOLD + name);
 					else if(type == 3 || type == 10 || type == 11 || type == 12)
-						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + ChatColor.DARK_GREEN + " blew a " + ChatColor.GOLD + name + ChatColor.DARK_GREEN + " up");
+						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + " (" + LBlock.getEntityName() + ")" + ChatColor.DARK_GREEN + " blew a " + ChatColor.GOLD + name + ChatColor.DARK_GREEN + " up");
 					else if(type == 4)
 						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.DARK_GREEN + "A " + ChatColor.GOLD + name + ChatColor.DARK_GREEN + " decayed");
 					else if(type == 5)
-						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + ChatColor.DARK_GREEN + " grew a " + ChatColor.GOLD + name);
+						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + " (" + LBlock.getEntityName() + ")" + ChatColor.DARK_GREEN + " grew a " + ChatColor.GOLD + name);
 					else if(type == 6 || type == 7 || type == 8)
-						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + ChatColor.DARK_GREEN + " created a " + ChatColor.GOLD + name);
+						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.GOLD + LBlock.getPlayerName() + " (" + LBlock.getEntityName() + ")" + ChatColor.DARK_GREEN + " created a " + ChatColor.GOLD + name);
 					else if(type == 9)
 						player.sendMessage(ChatColor.BLUE + "[" + date + "] " + ChatColor.DARK_GREEN + "A " + ChatColor.GOLD + name + ChatColor.DARK_GREEN + " faded");
 					BlockCount++;
@@ -148,39 +134,34 @@ public class WandListener implements Listener {
 				BlockNumber++;
 			}
 			
-			if(BlockCount < cfg.getConfig().getInt("blocklog.results")) {
+			if(BlockCount < getConfig().getInt("blocklog.results")) {
 				Connection conn = plugin.conn;
 				Statement stmt = conn.createStatement();
 				
-				double x = block.getX();
-				double y = block.getY();
-				double z = block.getZ();
+				Integer x = block.getX();
+				Integer y = block.getY();
+				Integer z = block.getZ();
 				
-				ResultSet rs;
-				if(DatabaseSettings.DBType().equalsIgnoreCase("mysql")) {
-					rs = stmt.executeQuery("SELECT player, block_id, type, FROM_UNIXTIME(date, '%d-%m-%Y %H:%i:%s') AS date FROM blocklog_blocks WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' AND world = '" + block.getWorld().getName() + "' ORDER BY date DESC LIMIT " + (cfg.getConfig().getInt("blocklog.results") - BlockCount));
-				} else {
-					rs = stmt.executeQuery("SELECT player, block_id, type, datetime(date, 'unixepoch', 'localtime') AS date FROM blocklog_blocks WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' AND world = '" + block.getWorld().getName() + "' ORDER BY date DESC LIMIT " + (cfg.getConfig().getInt("blocklog.results") - BlockCount));
-				}
+				ResultSet rs = stmt.executeQuery("SELECT entity, trigered, block_id, type, FROM_UNIXTIME(date, '%d-%m-%Y %H:%i:%s') AS date FROM blocklog_blocks WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' AND world = '" + block.getWorld().getName() + "' ORDER BY date DESC LIMIT " + (getConfig().getInt("blocklog.results") - BlockCount));
 				
 				while(rs.next()) {
 					String name = Material.getMaterial(rs.getInt("block_id")).toString();
 					int type = rs.getInt("type");
 					
 					if(type == 0)
-						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + rs.getString("player") + ChatColor.DARK_GREEN + " broke a " + ChatColor.GOLD + name);
+						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + rs.getString("trigered") + " (" + rs.getString("entity") + ")" + ChatColor.DARK_GREEN + " broke a " + ChatColor.GOLD + name);
 					else if(type == 1)
-						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + rs.getString("player") + ChatColor.DARK_GREEN + " placed a " + ChatColor.GOLD + name);
+						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + rs.getString("trigered") + " (" + rs.getString("entity") + ")" + ChatColor.DARK_GREEN + " placed a " + ChatColor.GOLD + name);
 					else if(type == 2)
-						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + rs.getString("player") + ChatColor.DARK_GREEN + " burned a " + ChatColor.GOLD + name);
+						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + rs.getString("trigered") + " (" + rs.getString("entity") + ")" + ChatColor.DARK_GREEN + " burned a " + ChatColor.GOLD + name);
 					else if(type == 3 || type == 10 || type == 11 || type == 12)
-						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + rs.getString("player") + ChatColor.DARK_GREEN + " blew a " + ChatColor.GOLD + name + ChatColor.DARK_GREEN + " up");
+						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + rs.getString("trigered") + " (" + rs.getString("entity") + ")" + ChatColor.DARK_GREEN + " blew a " + ChatColor.GOLD + name + ChatColor.DARK_GREEN + " up");
 					else if(type == 4)
 						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.DARK_GREEN + "A " + ChatColor.GOLD + name + ChatColor.DARK_GREEN + " decayed");
 					else if(type == 5)
-						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + rs.getString("player") + ChatColor.DARK_GREEN + " grew a " + ChatColor.GOLD + name);
+						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + rs.getString("trigered") + " (" + rs.getString("entity") + ")" + ChatColor.DARK_GREEN + " grew a " + ChatColor.GOLD + name);
 					else if(type == 6 || type == 7 || type == 8)
-						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + rs.getString("player") + ChatColor.DARK_GREEN + " created a " + ChatColor.GOLD + name);
+						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.GOLD + rs.getString("trigered") + " (" + rs.getString("entity") + ")" + ChatColor.DARK_GREEN + " created a " + ChatColor.GOLD + name);
 					else if(type == 9)
 						player.sendMessage(ChatColor.BLUE + "[" + rs.getString("date") + "] " + ChatColor.DARK_GREEN + "A " + ChatColor.GOLD + name + ChatColor.DARK_GREEN + " faded");
 				}
@@ -192,7 +173,7 @@ public class WandListener implements Listener {
 	
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event) {
-		int BLWand = cfg.getConfig().getInt("blocklog.wand");
+		int BLWand = getConfig().getInt("blocklog.wand");
 		boolean WandEnabled = plugin.users.contains(event.getPlayer().getName());
 		if(!event.isCancelled()) {
 			if(event.getPlayer().getItemInHand().getTypeId() == BLWand  && WandEnabled) {
@@ -211,7 +192,7 @@ public class WandListener implements Listener {
 	
 	@EventHandler
 	public void onBlockPlace(BlockPlaceEvent event) {
-		int BLWand = cfg.getConfig().getInt("blocklog.wand");
+		int BLWand = getConfig().getInt("blocklog.wand");
 		boolean WandEnabled = plugin.users.contains(event.getPlayer().getName());
 		if(!event.isCancelled()) {
 			if(event.getPlayer().getItemInHand().getTypeId() == BLWand && WandEnabled) {

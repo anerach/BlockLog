@@ -29,7 +29,7 @@ public class LoggedKill {
 	public void save() {
 		try {
 			Statement stmt = plugin.conn.createStatement();
-			stmt.executeUpdate("INSERT INTO blocklog_kills (player, killer, world, x, y, z, date) VALUES ('" + getVictemName() + "', '" + getKillerName() + "', '" + getWorldName() + "', " + getX() + ", " + getY() + ", " + getZ() + ", " + time + ")");
+			stmt.executeUpdate("INSERT INTO blocklog_kills (victem, killer, world, x, y, z, date) VALUES ('" + getVictemName() + "', '" + getKillerName() + "', '" + getWorldName() + "', " + getX() + ", " + getY() + ", " + getZ() + ", " + time + ")");
 		} catch(SQLException e) {
 			e.printStackTrace();
 		}
@@ -38,9 +38,9 @@ public class LoggedKill {
 	public String getVictemName() {
 		EntityType entity = victem.getType();
 		if(entity == EntityType.PLAYER)
-			return ((Player) victem).getName();
+			return ((Player) victem).getName().toLowerCase();
 		else
-			return entity.getName();
+			return entity.getName().toLowerCase();
 	}
 	
 	public LivingEntity getVictem() {
@@ -48,7 +48,7 @@ public class LoggedKill {
 	}
 	
 	public String getKillerName() {
-		return killer.getName();
+		return killer.getName().toLowerCase();
 	}
 	
 	public Player getKiller() {

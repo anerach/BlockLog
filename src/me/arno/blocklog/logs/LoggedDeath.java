@@ -34,7 +34,7 @@ public class LoggedDeath {
 	}
 	
 	public String getPlayerName() {
-		return player.getName();
+		return player.getName().toLowerCase();
 	}
 	
 	public Player getPlayer() {

@@ -135,8 +135,8 @@ public class BlockListener extends BlockLogListener {
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockIgnite(BlockIgniteEvent event) {
-		if(!event.isCancelled() && isLoggingEnabled(event.getPlayer().getWorld())) {
-			if(event.getBlock().getType() == Material.TNT) {
+		if(!event.isCancelled() && event.getPlayer() != null) {
+			if(event.getBlock().getType() == Material.TNT && isLoggingEnabled(event.getPlayer().getWorld())) {
 				plugin.addBlock(new LoggedBlock(plugin, event.getPlayer(), event.getBlock().getState(), Log.BREAK));
 				BlocksLimitReached();
 			}

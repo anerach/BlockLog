@@ -113,7 +113,7 @@ public class BlockLog extends JavaPlugin {
 			worlds.add(world.getName());
 		}
 		
-	    getConfig().addDefault("mysql.host", "localhost");
+		getConfig().addDefault("mysql.host", "localhost");
 	    getConfig().addDefault("mysql.username", "root");
 	    getConfig().addDefault("mysql.password", "");
 	    getConfig().addDefault("mysql.database", "");
@@ -271,7 +271,7 @@ public class BlockLog extends JavaPlugin {
 		log.info("Loading the configurations");
 	    loadConfiguration();
 	    
-		log.info("Loading the database");
+	    log.info("Loading the database");
 	    loadDatabase();
 	    updateDatabase();
 	    

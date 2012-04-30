@@ -16,6 +16,9 @@ public class PushBlocks {
 		plugin.getServer().getScheduler().scheduleAsyncRepeatingTask(plugin, new Runnable() {
 			public void run() {
 				try {
+					if(plugin.conn == null)
+						plugin.conn = DatabaseSettings.getConnection();
+					
 					if(plugin.getInteractions().size() > 0) {
 			    		LoggedInteraction interaction = plugin.getInteractions().get(0);
 			    		interaction.save();

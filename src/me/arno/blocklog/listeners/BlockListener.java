@@ -162,11 +162,13 @@ public class BlockListener extends BlockLogListener {
 			}
 			
 			for(Block block : event.blockList()) {
-				if(target == null)
-					plugin.addBlock(new LoggedBlock(plugin, block.getState(), event.getEntityType(), log));
-				else
-					plugin.addBlock(new LoggedBlock(plugin, target, block.getState(), event.getEntityType(), log));
-				BlocksLimitReached();
+				if(block.getType() != Material.TNT) {
+					if(target == null)
+						plugin.addBlock(new LoggedBlock(plugin, block.getState(), event.getEntityType(), log));
+					else
+						plugin.addBlock(new LoggedBlock(plugin, target, block.getState(), event.getEntityType(), log));
+					BlocksLimitReached();
+				}
 			}
 		}
 	}
@@ -183,7 +185,7 @@ public class BlockListener extends BlockLogListener {
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onStructureGrow(StructureGrowEvent event) {
-		if(!event.isCancelled() && isLoggingEnabled(event.getPlayer().getWorld())) {
+		if(!event.isCancelled() && isLoggingEnabled(event.getWorld())) {
 			if(getConfig().getBoolean("logs.grow")) {
 				Player player = event.getPlayer();
 				for(BlockState block : event.getBlocks()) {

@@ -106,7 +106,7 @@ public class CommandWand extends BlockLogCommand {
 			
 			while(BlockSize > BlockNumber)
 			{
-				LoggedBlock LBlock = plugin.getBlocks().get(BlockNumber); 
+				LoggedBlock LBlock = plugin.getBlocks().get(BlockNumber);
 				if(LBlock.getX() == BlockLocation.getX() && LBlock.getY() == BlockLocation.getY() && LBlock.getZ() == BlockLocation.getZ() && LBlock.getWorld() == BlockLocation.getWorld()) {
 					if(BlockCount == getConfig().getInt("blocklog.results"))
 						break;

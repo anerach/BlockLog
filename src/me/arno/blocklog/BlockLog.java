@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -15,14 +14,33 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import me.arno.blocklog.commands.*;
-import me.arno.blocklog.database.*;
-import me.arno.blocklog.listeners.*;
+import me.arno.blocklog.commands.CommandAutoSave;
+import me.arno.blocklog.commands.CommandCancel;
+import me.arno.blocklog.commands.CommandClear;
+import me.arno.blocklog.commands.CommandConfig;
+import me.arno.blocklog.commands.CommandHelp;
+import me.arno.blocklog.commands.CommandLookup;
+import me.arno.blocklog.commands.CommandRead;
+import me.arno.blocklog.commands.CommandReload;
+import me.arno.blocklog.commands.CommandReport;
+import me.arno.blocklog.commands.CommandRollback;
+import me.arno.blocklog.commands.CommandRollbackList;
+import me.arno.blocklog.commands.CommandSave;
+import me.arno.blocklog.commands.CommandSearch;
+import me.arno.blocklog.commands.CommandStorage;
+import me.arno.blocklog.commands.CommandUndo;
+import me.arno.blocklog.commands.CommandWand;
+import me.arno.blocklog.database.DatabaseSettings;
+import me.arno.blocklog.listeners.BlockListener;
+import me.arno.blocklog.listeners.InteractionListener;
+import me.arno.blocklog.listeners.McMMOListener;
+import me.arno.blocklog.listeners.NoticeListener;
+import me.arno.blocklog.listeners.PlayerListener;
+import me.arno.blocklog.listeners.WandListener;
 import me.arno.blocklog.logs.LoggedBlock;
 import me.arno.blocklog.logs.LoggedInteraction;
 import me.arno.blocklog.schedules.Save;
+import me.arno.blocklog.schedules.Updates;
 
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -33,12 +51,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 public class BlockLog extends JavaPlugin {
+	public static BlockLog plugin;
 	public Logger log;
 	public DatabaseSettings dbSettings;
 	public Connection conn;
@@ -212,27 +227,6 @@ public class BlockLog extends JavaPlugin {
 		versions.saveConfig();
 	}
 	
-	private String loadLatestVersion() {
-        String pluginUrl = "http://dev.bukkit.org/server-mods/block-log/files.rss";
-        try {
-            URL url = new URL(pluginUrl);
-            Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(url.openConnection().getInputStream());
-            doc.getDocumentElement().normalize();
-            NodeList nodes = doc.getElementsByTagName("item");
-            Node firstNode = nodes.item(0);
-            if (firstNode.getNodeType() == 1) {
-                Element firstElement = (Element) firstNode;
-                NodeList firstElementTagName = firstElement.getElementsByTagName("title");
-                Element firstNameElement = (Element) firstElementTagName.item(0);
-                NodeList firstNodes = firstNameElement.getChildNodes();
-                return firstNodes.item(0).getNodeValue().replace("BlockLog", "").trim();
-            }
-        } catch (Exception e) {
-        	// Nothing
-        }
-        return currentVersion;
-    }
-	
 	private void loadDependencies() {
 		ArrayList<String> plugins = new ArrayList<String>();
     	plugins.add("GriefPrevention");
@@ -264,11 +258,24 @@ public class BlockLog extends JavaPlugin {
 		return true;
 	}
 	
+	public void loadMetrics() {
+		try {
+		    Metrics metrics = new Metrics(this);
+		    metrics.start();
+		} catch (IOException e) {
+		    // Failed to submit the stats :-(
+		}
+	}
+	
 	private void loadPlugin() {
+		plugin = this;
 		currentVersion = getDescription().getVersion();
 		log = getLogger();
 		
-		log.info("Loading the configurations");
+		log.info("Loading metrics");
+		loadMetrics();
+	    
+	    log.info("Loading the configurations");
 	    loadConfiguration();
 	    
 	    log.info("Loading the database");
@@ -282,24 +289,11 @@ public class BlockLog extends JavaPlugin {
 	    loadDependencies();
 	    
 	    if(getConfig().getBoolean("blocklog.updates")) {
-		    try {
-			    log.info("Checking for updates");
-				newVersion = loadLatestVersion();
-				
-				doubleCurrentVersion = Double.valueOf(currentVersion.replaceFirst("\\.", ""));
-				doubleNewVersion = Double.valueOf(newVersion.replaceFirst("\\.", ""));
-				
-				if(doubleNewVersion > doubleCurrentVersion) {
-					log.warning("BlockLog v" + newVersion + " is released! You're using BlockLog v" + currentVersion);
-					log.warning("Update BlockLog at http://dev.bukkit.org/server-mods/block-log/");
-				}
-		    } catch(Exception e) {
-				// Nothing
-			}
+	    	getServer().getScheduler().scheduleSyncRepeatingTask(this, new Updates(), 1L, 1 * 60 * 60 * 20L); // Check every hour for a new version
 	    }
 	    
 		log.info("Starting BlockLog");
-    	getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Save(this, 1, null, false), 100L, getConfig().getInt("blocklog.delay") * 20L);
+		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Save(this, 1, null, false), 100L, getConfig().getInt("blocklog.delay") * 20L);
     	
     	getServer().getPluginManager().registerEvents(new WandListener(this), this);
     	getServer().getPluginManager().registerEvents(new BlockListener(this), this);

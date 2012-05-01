@@ -48,7 +48,6 @@ public class CommandWand extends BlockLogCommand {
 		Material wand = Material.getMaterial(getConfig().getInt("blocklog.wand"));
 		
 		if(player.getInventory().contains(wand) && !playerItemStack.containsKey(player.getName())) {
-			log.info("First");
 			if(plugin.users.isEmpty()) {
 				plugin.users.add(player.getName());
 				player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Wand enabled!");
@@ -60,13 +59,10 @@ public class CommandWand extends BlockLogCommand {
 				player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Wand enabled!");
 			}
 		} else if(!player.getInventory().contains(wand) && plugin.users.contains(player.getName())) {
-			log.info("Second");
 			plugin.users.remove(player.getName());
 			player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Wand disabled!");
 		} else {
-			log.info("Third");
 			if(plugin.users.isEmpty()) {
-				log.info("First");
 				playerItemStack.put(player.getName(), player.getItemInHand());
 				playerItemSlot.put(player.getName(), player.getInventory().getHeldItemSlot());
 				
@@ -75,7 +71,6 @@ public class CommandWand extends BlockLogCommand {
 				plugin.users.add(player.getName());
 				player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Wand enabled!");
 			} else if(plugin.users.contains(player.getName())) {
-				log.info("Second");
 				ItemStack itemStack = playerItemStack.get(player.getName());
 				Material itemInHand = player.getItemInHand().getType();
 				int invSlot = playerItemSlot.get(player.getName());
@@ -89,7 +84,6 @@ public class CommandWand extends BlockLogCommand {
 				plugin.users.remove(player.getName());
 				player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Wand disabled!");
 			} else {
-				log.info("Third");
 				playerItemStack.put(player.getName(), player.getItemInHand());
 				playerItemSlot.put(player.getName(), player.getInventory().getHeldItemSlot());
 				

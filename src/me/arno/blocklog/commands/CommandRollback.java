@@ -22,10 +22,9 @@ public class CommandRollback extends BlockLogCommand {
 			return true;
 		}
 		
-		Integer clauses = args.length/2;
-		
-		if(!clauses.toString().matches("[0-9]*")) {
+		if(args.length % 2 != 0) {
 			player.sendMessage("Invalid amount of args");
+			return true;
 		}
 		
 		if(!hasPermission(player)) {

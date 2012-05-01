@@ -54,14 +54,12 @@ public class Save implements Runnable {
 				    	interactions.remove(0);
 			    	} catch(Exception e) {}
 		    	}
-		    	log.info("Start Blocks");
 				while(!blocks.isEmpty()) {
 					try {
 				   		blocks.get(0).save();
 					    blocks.remove(0);
 					} catch(Exception e) {}
 		    	}
-				log.info("End Blocks");
 		    } else {
 		    	for(int i=count; i!=0; i--) {
 		    		try {

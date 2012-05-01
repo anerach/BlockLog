@@ -16,11 +16,8 @@ public class CommandRollbackList extends BlockLogCommand {
 	}
 
 	public boolean execute(Player player, Command cmd, String[] args) {
-		Integer clauses = args.length/2;
-		
-		if(!clauses.toString().matches("[0-9]*")) {
+		if(args.length % 2 != 0) {
 			player.sendMessage("Invalid amount of args");
-			player.sendMessage(ChatColor.WHITE + "/bl rollbacklist [id <value>] [player <value>] [since <value>] [until <value>] [area <value>]");
 			return true;
 		}
 		

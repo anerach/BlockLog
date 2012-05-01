@@ -22,11 +22,14 @@ public class CommandSave extends BlockLogCommand {
 			return true;
 		}
 		
-		if(args[0].equalsIgnoreCase("all")) {
-			plugin.saveLogs(0, player);
-		} else {
-			Integer blockCount = (args.length == 1) ? Integer.parseInt(args[0]) : 100;
-			plugin.saveLogs(blockCount, player);
+		if(args.length == 0) {
+			plugin.saveLogs(100, player);
+		} else if(args.length == 1) {
+			if(args[0].equalsIgnoreCase("all")) {
+				plugin.saveLogs(0, player);
+			} else {
+				plugin.saveLogs(Integer.valueOf(args[0]), player);
+			}
 		}
 		return true;
 	}

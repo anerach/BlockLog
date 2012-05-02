@@ -1,14 +1,13 @@
 package me.arno.blocklog.listeners;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.Interaction;
+import me.arno.blocklog.database.Query;
 import me.arno.blocklog.logs.LoggedBlock;
 import me.arno.blocklog.logs.LoggedInteraction;
 
@@ -64,14 +63,17 @@ public class WandListener extends BlockLogListener {
 			}
 			
 			if(BlockCount < getConfig().getInt("blocklog.results")) {
-				Connection conn = plugin.conn;
-				Statement stmt = conn.createStatement();
+				Query query = new Query("blocklog_interactions");
+				query.addSelect("player");
+				query.addSelectDateAs("date", "date");
+				query.addWhere("x", BlockLocation.getX());
+				query.addWhere("y", BlockLocation.getY());
+				query.addWhere("z", BlockLocation.getZ());
+				query.addWhere("world", BlockLocation.getWorld().getName());
+				query.addOrderBy("date", "DESC");
+				query.addLimit(getConfig().getInt("blocklog.results") - BlockCount);
 				
-				double x = BlockLocation.getX();
-				double y = BlockLocation.getY();
-				double z = BlockLocation.getZ();
-				
-				ResultSet rs = stmt.executeQuery("SELECT player, FROM_UNIXTIME(date, '%d-%m-%Y %H:%i:%s') AS date FROM blocklog_interactions WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' AND world = '" + BlockLocation.getWorld().getName() + "' ORDER BY date DESC LIMIT " + (getConfig().getInt("blocklog.results") - BlockCount));
+				ResultSet rs = query.getResult();
 				
 				while(rs.next()) {
 					String str = "";
@@ -135,14 +137,17 @@ public class WandListener extends BlockLogListener {
 			}
 			
 			if(BlockCount < getConfig().getInt("blocklog.results")) {
-				Connection conn = plugin.conn;
-				Statement stmt = conn.createStatement();
+				Query query = new Query("blocklog_blocks");
+				query.addSelect("entity", "trigered", "block_id", "type");
+				query.addSelectDateAs("date", "date");
+				query.addWhere("x", block.getX());
+				query.addWhere("y", block.getY());
+				query.addWhere("z", block.getZ());
+				query.addWhere("world", BlockLocation.getWorld().getName());
+				query.addOrderBy("date", "DESC");
+				query.addLimit(getConfig().getInt("blocklog.results") - BlockCount);
 				
-				Integer x = block.getX();
-				Integer y = block.getY();
-				Integer z = block.getZ();
-				
-				ResultSet rs = stmt.executeQuery("SELECT entity, trigered, block_id, type, FROM_UNIXTIME(date, '%d-%m-%Y %H:%i:%s') AS date FROM blocklog_blocks WHERE x = '" + x + "' AND y = '" + y + "' AND z = '" + z + "' AND world = '" + block.getWorld().getName() + "' ORDER BY date DESC LIMIT " + (getConfig().getInt("blocklog.results") - BlockCount));
+				ResultSet rs = query.getResult();
 				
 				while(rs.next()) {
 					String name = Material.getMaterial(rs.getInt("block_id")).toString();

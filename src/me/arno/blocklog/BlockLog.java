@@ -155,6 +155,7 @@ public class BlockLog extends JavaPlugin {
 	    getConfig().addDefault("blocklog.worlds", worlds);
 	    getConfig().addDefault("blocklog.reports", true);
 	    getConfig().addDefault("blocklog.updates", true);
+	    getConfig().addDefault("blocklog.dateformat", "%d-%m-%Y %H:%i:%s");
 	    getConfig().addDefault("cleanup.log", true);
 	    getConfig().addDefault("cleanup.blocks.enabled", false);
 	    getConfig().addDefault("cleanup.blocks.days", 14);
@@ -166,6 +167,7 @@ public class BlockLog extends JavaPlugin {
 	    getConfig().addDefault("cleanup.deaths.days", 14);
 	    getConfig().addDefault("cleanup.kills.enabled", false);
 	    getConfig().addDefault("cleanup.kills.days", 14);
+	    getConfig().options().copyDefaults(true);
 	    saveConfig();
 		
 	    getLogConfig().addDefault("logs.grow", true);
@@ -178,7 +180,7 @@ public class BlockLog extends JavaPlugin {
 	    getLogConfig().addDefault("logs.kill", false);
 	    getLogConfig().addDefault("logs.death", false);
 	    getLogConfig().options().copyDefaults(true);
-	    getLogConfig();
+	    saveLogConfig();
 		
 		if(getConfig().getBoolean("blocklog.autosave.enabled")) {
 			autoSave = getConfig().getInt("blocklog.autosave.blocks");

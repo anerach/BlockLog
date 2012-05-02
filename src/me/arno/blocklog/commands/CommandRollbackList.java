@@ -2,7 +2,6 @@ package me.arno.blocklog.commands;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
@@ -60,7 +59,7 @@ public class CommandRollbackList extends BlockLogCommand {
 			query.addLeftJoin("blocklog_undos", "id", "rollback_id");
 			
 			query.addSelect("blocklog_rollbacks.id","blocklog_rollbacks.player");
-			query.addSelectDateAs("blocklog_rollbacks.date", "date");
+			query.addSelectDate("blocklog_rollbacks.date", "date");
 			
 			query.addSelectAs("blocklog_undos.player", "uplayer");
 			
@@ -78,8 +77,7 @@ public class CommandRollbackList extends BlockLogCommand {
 			query.addOrderBy("blocklog_rollbacks.date", "DESC");
 			query.addLimit(getConfig().getInt("blocklog.results"));
 			
-			Statement rollbacksStmt = conn.createStatement();
-			ResultSet rollbacks = rollbacksStmt.executeQuery(query.getQuery());
+			ResultSet rollbacks = query.getResult();
 			
 			player.sendMessage(ChatColor.DARK_RED + "BlockLog Rollbacks (" + plugin.getConfig().getString("blocklog.results") + " Last Rollbacks)");
 			while(rollbacks.next()) {

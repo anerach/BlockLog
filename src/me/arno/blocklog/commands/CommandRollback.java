@@ -123,7 +123,6 @@ public class CommandRollback extends BlockLogCommand {
 			query.addOrderBy("date", "DESC");
 			
 			Statement rollbackStmt = conn.createStatement();
-			Statement blocksStmt = conn.createStatement();
 			
 			rollbackStmt.executeUpdate("INSERT INTO blocklog_rollbacks (player, world, param_player, param_from, param_until, param_area, date) VALUES ('" + player.getName() + "', '" + player.getWorld().getName() + "', '" + param_target + "', '" + param_from + "', '" + param_until + "', " + param_area + ", " + System.currentTimeMillis()/1000 + ")");
 			
@@ -132,7 +131,7 @@ public class CommandRollback extends BlockLogCommand {
 			
 			Integer rollbackID = rollback.getInt("id");
 			
-			ResultSet blocks = blocksStmt.executeQuery(query.getQuery());
+			ResultSet blocks = query.getResult();
 			Rollback rb = new Rollback(plugin, player, rollbackID, blocks, limit);
 			Integer sid = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, rb, 20L, delay * 20L);
 			rb.setId(sid);

@@ -2,7 +2,6 @@ package me.arno.blocklog.commands;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.database.Query;
 
@@ -103,8 +102,7 @@ public class CommandLookup extends BlockLogCommand {
 			query.addOrderBy("date", "DESC");
 			query.addLimit(getConfig().getInt("blocklog.results"));
 			
-			Statement stmt = conn.createStatement();
-			ResultSet actions = stmt.executeQuery(query.getQuery());
+			ResultSet actions = query.getResult();
 			
 			while(actions.next()) {
 				String name = Material.getMaterial(actions.getInt("block_id")).toString();

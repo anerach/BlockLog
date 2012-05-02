@@ -46,8 +46,6 @@ public class CommandUndo extends BlockLogCommand {
 			
 			Statement undoStmt = conn.createStatement();
 			Statement rollbackStmt = conn.createStatement();
-			Statement blocksStmt = conn.createStatement();
-			
 			if(args.length == 1) {
 				rollbackID = Integer.valueOf(args[0]);
 			} else {
@@ -67,7 +65,7 @@ public class CommandUndo extends BlockLogCommand {
 			
 			undoStmt.executeUpdate("INSERT INTO blocklog_undos (rollback_id, player, date) VALUES (" + rollbackID + ", '" + player.getName() + "', " + System.currentTimeMillis()/1000 + ")");
 			
-			ResultSet blocks = blocksStmt.executeQuery(query.getQuery());
+			ResultSet blocks = query.getResult();
 			
 			UndoRollback undo = new UndoRollback(plugin, player, rollbackID, blocks, limit);
 			Integer sid = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, undo, 20L, delay * 20L);

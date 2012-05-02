@@ -1,5 +1,16 @@
 package me.arno.blocklog.database;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.HashMap;
+import java.util.Set;
+import java.util.Map.Entry;
+
+import me.arno.blocklog.BlockLog;
+import me.arno.blocklog.Config;
+
 
 public class Query {
 	private String table;
@@ -19,121 +30,137 @@ public class Query {
 		table = from;
 	}
 	
-	public void addSelect(String... selects) {
+	public Query addSelect(String... selects) {
 		for(String select : selects) {
-			if(selectClause == null) {
+			if(selectClause == null)
 				selectClause = "SELECT " + select;
-			} else {
+			else
 				selectClause += ", " + select;
-			}
 		}
+		return this;
 	}
 	
-	public void addSelectAs(String select, String as) {
-		if(selectClause == null) {
+	public Query addSelectAs(String select, String as) {
+		if(selectClause == null)
 			selectClause = "SELECT " + select + " AS " + as;
-		} else {
+		else
 			selectClause += ", " + select + " AS " + as;
-		}
+		return this;
 	}
 	
-	public void addSelectDate(String select) {
-		addSelectDate(select, null, null);
+	public Query addSelectDate(String select) {
+		return addSelectDate(select, null, select);
 	}
 	
-	public void addSelectDateAs(String select, String as) {
-		addSelectDate(select, null, as);
+	public Query addSelectDateAs(String select, String as) {
+		return addSelectDate(select, null, as);
 	}
 
-	public void addSelectDate(String select, String format, String as) {
-		format = (format == null) ? "%d-%m-%Y %H:%i:%s" : format;
+	public Query addSelectDate(String select, String format) {
+		return addSelectDate(select, format, select);
+	}
+	
+	public Query addSelectDate(String select, String format, String as) {
+		String defaultFormat = new Config().getConfig().getString("blocklog.dateformat");
+		format = (format == null) ? defaultFormat : format;
 		String str = "FROM_UNIXTIME(" + select + ", '" + format + "')" + (as == null ? "" : " AS " + as);
 		
-		if(selectClause == null) {
+		if(selectClause == null)
 			selectClause = "SELECT " + str;
-		} else {
+		else
 			selectClause += ", " + str;
-		}
+		return this;
 	}
 	
-	public void addFrom(String from) {
+	public Query addFrom(String from) {
 		fromClause = "FROM " + from;
 		table = from;
+		return this;
 	}
 	
-	public void addGroupBy(String group) {
-		if(groupByClause == null) {
+	public Query addGroupBy(String group) {
+		if(groupByClause == null)
 			groupByClause = "GROUP BY " + group;
-		} else {
+		else
 			groupByClause += ", " + group;
-		}
+		return this;
 	}
 	
-	public void addOrderBy(String order) {
-		addOrderBy(order, "ASC");
+	public Query addOrderBy(String order) {
+		return addOrderBy(order, "ASC");
 	}
 	
-	public void addOrderBy(String order, String type) {
+	public Query addOrderBy(String order, String type) {
 		orderByClause = "ORDER BY " + order + " " + type;
+		return this;
 	}
 	
-	public void addLimit(Integer min) {
-		addLimit(min, 0);
+	public Query addLimit(Integer min) {
+		return addLimit(min, 0);
 	}
 	
-	public void addLimit(Integer min, Integer max) {
+	public Query addLimit(Integer min, Integer max) {
 		if(max == 0)
 			limitClause = "LIMIT " + min;
 		else
 			limitClause = "LIMIT " + min + ", " + max;
+		return this;
 	}
 	
-	public void addLeftJoin(String joinedTable, String tableRow, String mTableRow) {
-		addJoin("LEFT", joinedTable, tableRow, mTableRow);
+	public Query addLeftJoin(String joinedTable, String tableRow, String mTableRow) {
+		return addJoin("LEFT", joinedTable, tableRow, mTableRow);
 	}
 	
-	public void addRightJoin(String joinedTable, String tableRow, String mTableRow) {
-		addJoin("RIGHT", joinedTable, tableRow, mTableRow);
+	public Query addRightJoin(String joinedTable, String tableRow, String mTableRow) {
+		return addJoin("RIGHT", joinedTable, tableRow, mTableRow);
 	}
 	
-	private void addJoin(String type, String joinedTable, String tableRow, String mTableRow) {
+	private Query addJoin(String type, String joinedTable, String tableRow, String mTableRow) {
 		String join = "";
 		if(type != null) {
 			join += type + " ";
 		}
 		joinClause = join + "JOIN " + joinedTable + " ON " + table + "." + tableRow + " = " + joinedTable + "." + mTableRow;
+		return this;
 	}
 	
-	public void addWhere(String column, Object value) {
-		addWhere(column, value, "=");
+	public Query addWhere(String column, Object value) {
+		return addWhere(column, value, "=");
 	}
 	
-	public void addWhere(String column, Object value, String math) {
-		addWhereClause("AND", column, value, math);
+	public Query addWhere(String column, Object value, String math) {
+		return addWhereClause("AND", column, value, math);
 	}
 	
-	public void addOrWhere(String column, Object value) {
-		addOrWhere(column, value, "=");
+	public Query addOrWhere(String column, Object value) {
+		return addOrWhere(column, value, "=");
 	}
 	
-	public void addOrWhere(String column, Object value, String math) {
-		addWhereClause("OR", column, value, math);
+	public Query addOrWhere(String column, Object value, String math) {
+		return addWhereClause("OR", column, value, math);
 	}
 	
-	private void addWhereClause(String type, String column, Object value, String math) {
+	private Query addWhereClause(String type, String column, Object value, String math) {
 		if(whereClause == null) {
 			whereClause = "WHERE " + column + math + "'" + value.toString() + "'";
 		} else {
 			whereClause += " " + type + " " + column + math + "'" + value.toString() + "'";
 		}
+		return this;
 	}
 	
-	public String getQuery() {
+	private String getQuery() throws SQLException {
 		String query = "";
+		
 		if(selectClause != null)
 			query += selectClause;
+		else
+			throw new SQLException("SELECT clause can't be null");
 		if(fromClause != null)
 			query += " " + fromClause;
+		else
+			throw new SQLException("FROM clause can't be null");
+		
 		if(joinClause != null)
 			query += " " + joinClause;
 		if(whereClause != null)
@@ -144,5 +171,31 @@ public class Query {
 			query += " " + limitClause;
 		
 		return query;
+	}
+	
+	public ResultSet getResult() throws SQLException {
+		Connection conn = BlockLog.plugin.conn;
+		Statement stmt = conn.createStatement();
+		
+		return stmt.executeQuery(getQuery());
+	}
+	
+	public Integer sendUpdate(HashMap<String, String> rowsValues) throws SQLException {
+		Connection conn = BlockLog.plugin.conn;
+		Statement stmt = conn.createStatement();
+		
+		String rows = "";
+		String values = "";
+		
+		boolean first = true;
+		
+		Set<Entry<String, String>> argSet = rowsValues.entrySet();
+		for (Entry<String, String> arg : argSet) {
+			rows += (first) ? "`" + arg.getKey() + "`" : ", `" + arg.getKey() + "`";
+			values += (first) ? "'" + arg.getValue() + "'" : ", '" + arg.getValue() + "'";
+			first = false;
+	    }
+		
+		return stmt.executeUpdate("INSERT INTO " + table + " (" + rows + ") VALUES (" + values + ")");
 	}
 }

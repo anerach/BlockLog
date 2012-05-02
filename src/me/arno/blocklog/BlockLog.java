@@ -46,6 +46,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
@@ -57,6 +58,8 @@ public class BlockLog extends JavaPlugin {
 	public Logger log;
 	public DatabaseSettings dbSettings;
 	public Connection conn;
+	
+	public Config logConfig;
 	
 	public final String[] SQLTables = {"blocks", "rollbacks", "undos", "interactions", "reports", "chat", "deaths", "kills", "commands"};
 	
@@ -122,6 +125,14 @@ public class BlockLog extends JavaPlugin {
 		return null;
 	}
 	
+	public FileConfiguration getLogConfig() {
+		return logConfig.getConfig();
+	}
+	
+	public void saveLogConfig() {
+		logConfig.saveConfig();
+	}
+	
 	private void loadConfiguration() {
 		ArrayList<String> worlds = new ArrayList<String>();
 		for(World world : getServer().getWorlds()) {
@@ -144,15 +155,6 @@ public class BlockLog extends JavaPlugin {
 	    getConfig().addDefault("blocklog.worlds", worlds);
 	    getConfig().addDefault("blocklog.reports", true);
 	    getConfig().addDefault("blocklog.updates", true);
-	    getConfig().addDefault("logs.grow", true);
-	    getConfig().addDefault("logs.leaves", false);
-	    getConfig().addDefault("logs.portal", false);
-	    getConfig().addDefault("logs.form", false);
-	    getConfig().addDefault("logs.fade", false);
-	    getConfig().addDefault("logs.spread", false);
-	    getConfig().addDefault("logs.chat", false);
-	    getConfig().addDefault("logs.kill", false);
-	    getConfig().addDefault("logs.death", false);
 	    getConfig().addDefault("cleanup.log", true);
 	    getConfig().addDefault("cleanup.blocks.enabled", false);
 	    getConfig().addDefault("cleanup.blocks.days", 14);
@@ -164,8 +166,19 @@ public class BlockLog extends JavaPlugin {
 	    getConfig().addDefault("cleanup.deaths.days", 14);
 	    getConfig().addDefault("cleanup.kills.enabled", false);
 	    getConfig().addDefault("cleanup.kills.days", 14);
-	    getConfig().options().copyDefaults(true);
-		saveConfig();
+	    saveConfig();
+		
+	    getLogConfig().addDefault("logs.grow", true);
+	    getLogConfig().addDefault("logs.leaves", true);
+	    getLogConfig().addDefault("logs.portal", false);
+	    getLogConfig().addDefault("logs.form", false);
+	    getLogConfig().addDefault("logs.fade", false);
+	    getLogConfig().addDefault("logs.spread", false);
+	    getLogConfig().addDefault("logs.chat", false);
+	    getLogConfig().addDefault("logs.kill", false);
+	    getLogConfig().addDefault("logs.death", false);
+	    getLogConfig().options().copyDefaults(true);
+	    getLogConfig();
 		
 		if(getConfig().getBoolean("blocklog.autosave.enabled")) {
 			autoSave = getConfig().getInt("blocklog.autosave.blocks");
@@ -270,6 +283,7 @@ public class BlockLog extends JavaPlugin {
 	private void loadPlugin() {
 		plugin = this;
 		currentVersion = getDescription().getVersion();
+		logConfig = new Config("logging.yml");
 		log = getLogger();
 		
 		log.info("Loading metrics");

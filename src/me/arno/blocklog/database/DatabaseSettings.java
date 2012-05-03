@@ -9,6 +9,20 @@ import me.arno.blocklog.Config;
 public class DatabaseSettings {
 	public static Connection getConnection() {
 		try {
+			try
+			{
+				Class.forName("com.mysql.jdbc.Driver").newInstance();
+			}
+			catch (InstantiationException ex)
+			{
+			}
+			catch (IllegalAccessException ex)
+			{
+			}
+			catch (ClassNotFoundException ex)
+			{
+				return null;
+			}
 			Config cfg = new Config();
 			String MySQLHost = cfg.getConfig().getString("mysql.host");
 			String MySQLUser = cfg.getConfig().getString("mysql.username");

@@ -39,8 +39,10 @@ import me.arno.blocklog.listeners.PlayerListener;
 import me.arno.blocklog.listeners.WandListener;
 import me.arno.blocklog.logs.LoggedBlock;
 import me.arno.blocklog.logs.LoggedInteraction;
+import me.arno.blocklog.pail.PailInterface;
 import me.arno.blocklog.schedules.Save;
 import me.arno.blocklog.schedules.Updates;
+import me.escapeNT.pail.Pail;
 
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -129,6 +131,10 @@ public class BlockLog extends JavaPlugin {
 		return logConfig.getConfig();
 	}
 	
+	public void reloadLogConfig() {
+		logConfig.reloadConfig();
+	}
+	
 	public void saveLogConfig() {
 		logConfig.saveConfig();
 	}
@@ -170,12 +176,12 @@ public class BlockLog extends JavaPlugin {
 	    getConfig().options().copyDefaults(true);
 	    saveConfig();
 		
-	    getLogConfig().addDefault("logs.grow", true);
 	    getLogConfig().addDefault("logs.leaves", true);
 	    getLogConfig().addDefault("logs.portal", false);
 	    getLogConfig().addDefault("logs.form", false);
-	    getLogConfig().addDefault("logs.fade", false);
 	    getLogConfig().addDefault("logs.spread", false);
+	    getLogConfig().addDefault("logs.grow", true);
+	    getLogConfig().addDefault("logs.fade", false);
 	    getLogConfig().addDefault("logs.chat", false);
 	    getLogConfig().addDefault("logs.kill", false);
 	    getLogConfig().addDefault("logs.death", false);
@@ -247,6 +253,7 @@ public class BlockLog extends JavaPlugin {
     	plugins.add("GriefPrevention");
     	plugins.add("WorldGuard");
     	plugins.add("mcMMO");
+    	plugins.add("Pail");
     	
     	for(String plugin : plugins) {
     		if(getServer().getPluginManager().isPluginEnabled(plugin)) {
@@ -291,6 +298,9 @@ public class BlockLog extends JavaPlugin {
 		log.info("Loading metrics");
 		loadMetrics();
 	    
+	    log.info("Loading the dependencies");
+	    loadDependencies();
+	    
 	    log.info("Loading the configurations");
 	    loadConfiguration();
 	    
@@ -298,11 +308,13 @@ public class BlockLog extends JavaPlugin {
 	    loadDatabase();
 	    updateDatabase();
 	    
+	    if(softDepends.containsKey("Pail")) {
+	    	log.info("Hooking into pail");
+	    	loadPailInterface();
+	    }
+	    
 	    log.info("Cleaning up the database");
 	    CleanUpDatabase();
-	    
-	    log.info("Loading the dependencies");
-	    loadDependencies();
 	    
 	    if(getConfig().getBoolean("blocklog.updates")) {
 	    	getServer().getScheduler().scheduleSyncRepeatingTask(this, new Updates(), 1L, 1 * 60 * 60 * 20L); // Check every hour for a new version
@@ -441,5 +453,10 @@ public class BlockLog extends JavaPlugin {
 			return command.execute(player, cmd, newArgs);
 		}
 		return true;
+	}
+	
+	public void loadPailInterface() {
+		Pail pail = (Pail) softDepends.get("Pail");
+		pail.loadInterfaceComponent("BlockLog", new PailInterface());
 	}
 }

@@ -7,22 +7,10 @@ import java.sql.SQLException;
 import me.arno.blocklog.Config;
 
 public class DatabaseSettings {
-	public static Connection getConnection() {
+	public static Connection getConnection() throws SQLException {
 		try {
-			try
-			{
-				Class.forName("com.mysql.jdbc.Driver").newInstance();
-			}
-			catch (InstantiationException ex)
-			{
-			}
-			catch (IllegalAccessException ex)
-			{
-			}
-			catch (ClassNotFoundException ex)
-			{
-				return null;
-			}
+			Class.forName("com.mysql.jdbc.Driver").newInstance();
+			
 			Config cfg = new Config();
 			String MySQLHost = cfg.getConfig().getString("mysql.host");
 			String MySQLUser = cfg.getConfig().getString("mysql.username");
@@ -34,8 +22,12 @@ public class DatabaseSettings {
 			
 			Connection conn = DriverManager.getConnection(MySQLUrl, MySQLUser, MySQLPass);
 			return conn;
+		} catch (InstantiationException ex) {
+		} catch (IllegalAccessException ex) {
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} catch (ClassNotFoundException ex) {
+			throw new SQLException("Unable to find the MySQL JDBC Driver");
 		}
 		return null;
 	}

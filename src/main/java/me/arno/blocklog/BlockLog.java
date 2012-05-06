@@ -161,6 +161,7 @@ public class BlockLog extends JavaPlugin {
 	    getConfig().addDefault("blocklog.worlds", worlds);
 	    getConfig().addDefault("blocklog.reports", true);
 	    getConfig().addDefault("blocklog.updates", true);
+	    getConfig().addDefault("blocklog.metrics", true);
 	    getConfig().addDefault("blocklog.dateformat", "%d-%m-%Y %H:%i:%s");
 	    getConfig().addDefault("cleanup.log", true);
 	    getConfig().addDefault("cleanup.blocks.enabled", false);
@@ -231,7 +232,7 @@ public class BlockLog extends JavaPlugin {
 	    	Statement stmt = conn.createStatement();
 	    	
 	    	for(String table : SQLTables) {
-	    		stmt.executeUpdate(getResourceContent("MySQL/blocklog_" + table + ".sql"));
+	    		stmt.executeUpdate(getResourceContent("database/blocklog_" + table + ".sql"));
 	    	}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -294,15 +295,17 @@ public class BlockLog extends JavaPlugin {
 		currentVersion = getDescription().getVersion();
 		logConfig = new Config("logging.yml");
 		log = getLogger();
-		
-		log.info("Loading metrics");
-		loadMetrics();
 	    
 	    log.info("Loading the dependencies");
 	    loadDependencies();
 	    
 	    log.info("Loading the configurations");
 	    loadConfiguration();
+		
+		if(getConfig().getBoolean("blocklog.metrics")) {
+			log.info("Loading metrics");
+			loadMetrics();
+		}
 	    
 	    log.info("Loading the database");
 	    loadDatabase();

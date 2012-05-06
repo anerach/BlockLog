@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.Interaction;
+import me.arno.blocklog.Log;
 import me.arno.blocklog.database.Query;
 import me.arno.blocklog.logs.LoggedBlock;
 import me.arno.blocklog.logs.LoggedInteraction;
@@ -89,6 +90,46 @@ public class WandListener extends BlockLogListener {
 			}
 		} catch(SQLException e) {
 			e.getStackTrace();
+		}
+	}
+	
+	public String createSpaces(Integer amount) {
+		String spaces = "";
+		for(int i=1;amount>i;i++) {
+			spaces += " ";
+		}
+		return spaces;
+	}
+	
+	public void getTestBlockEdits(Player player, Location location) {
+		try {	
+			Query query = new Query("blocklog_blocks");
+			query.addSelect("entity", "trigered", "block_id", "type");
+			query.addSelectDateAs("date", "date");
+			query.addWhere("x", location.getBlockX());
+			query.addWhere("y", location.getBlockY());
+			query.addWhere("z", location.getBlockZ());
+			query.addWhere("world", location.getWorld().getName());
+			query.addOrderBy("date", "DESC");
+			
+			ResultSet rs = query.getResult();
+			
+			player.sendMessage(ChatColor.YELLOW + "Block History" + ChatColor.BLUE + " (" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ") " + ChatColor.DARK_GRAY + "-------------------------------------");
+			player.sendMessage(ChatColor.GRAY + "Player" + createSpaces(20) + "Action" + createSpaces(19) + "Date");
+			
+			while(rs.next()) {
+				Log type = Log.values()[rs.getInt("type")];
+				
+				if(type.getId() <= 12 && type.getId() >= 10)
+					type = Log.EXPLOSION;
+				
+				Integer nameLength = rs.getString("trigered").length();
+				Integer typeLength = type.toString().length();
+				
+				player.sendMessage(ChatColor.GOLD + rs.getString("trigered") + createSpaces(24 - nameLength) + ChatColor.DARK_RED + type.toString() + createSpaces(24 - typeLength) + ChatColor.AQUA + rs.getString("date"));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -183,11 +224,14 @@ public class WandListener extends BlockLogListener {
 		if(!event.isCancelled()) {
 			if(event.getPlayer().getItemInHand().getTypeId() == BLWand  && WandEnabled) {
 				if((event.getAction() == Action.RIGHT_CLICK_BLOCK && (!event.getPlayer().getItemInHand().getType().isBlock()) || event.getAction() == Action.LEFT_CLICK_BLOCK)) {
+					/*
 					Material type = event.getClickedBlock().getType();
 					if(type == Material.WOODEN_DOOR || type == Material.TRAP_DOOR || type == Material.CHEST || type == Material.DISPENSER || type == Material.STONE_BUTTON || type == Material.LEVER)
 						getBlockInteractions(event.getPlayer(), event.getClickedBlock(), Interaction.getByMaterial(type));
 					else
 						getBlockEdits(event.getPlayer(), event.getClickedBlock());
+					*/
+					getTestBlockEdits(event.getPlayer(), event.getClickedBlock().getLocation());
 					
 					event.setCancelled(true);
 				}

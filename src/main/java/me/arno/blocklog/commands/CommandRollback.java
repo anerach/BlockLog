@@ -117,9 +117,7 @@ public class CommandRollback extends BlockLogCommand {
 			}
 			query.addWhere("world", world.getName());
 			query.addWhere("rollback_id", 0);
-			query.addGroupBy("x");
-			query.addGroupBy("y");
-			query.addGroupBy("z");
+			query.addGroupBy("x", "y", "z");
 			query.addOrderBy("date", "DESC");
 			
 			Statement rollbackStmt = conn.createStatement();
@@ -129,14 +127,18 @@ public class CommandRollback extends BlockLogCommand {
 			ResultSet rollback = rollbackStmt.executeQuery("SELECT id FROM blocklog_rollbacks ORDER BY id DESC");
 			rollback.next();
 			
-			Integer rollbackID = rollback.getInt("id");
+			int rollbackID = rollback.getInt("id");
+			int blockCount = query.getRowCount();
 			
-			ResultSet blocks = query.getResult();
-			Rollback rb = new Rollback(plugin, player, rollbackID, blocks, limit);
+			Rollback rb = new Rollback(plugin, player, rollbackID, query, limit);
 			Integer sid = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, rb, 20L, delay * 20L);
 			rb.setId(sid);
 			addSchedule(sid, rollbackID);
-			player.sendMessage(ChatColor.BLUE + "You've started a rollback, to cancel it say /bl cancel " + sid);
+			
+			player.sendMessage(ChatColor.BLUE + "BlockLog will rollback " + ChatColor.GOLD + blockCount + " blocks");
+			player.sendMessage(ChatColor.BLUE + "At a speed of " + ChatColor.GOLD + (limit/delay) + " blocks/second");
+			player.sendMessage(ChatColor.BLUE + "It will take about " + ChatColor.GOLD + Math.round(blockCount/(limit/delay)) + " seconds to complete the rollback");
+			player.sendMessage(ChatColor.BLUE + "To cancel the rollback say " + ChatColor.GOLD + "/bl cancel " + sid);
 			return true;
 		} catch(NumberFormatException e) {
 			player.sendMessage(ChatColor.WHITE + "/bl rollback <delay <value>> [limit <amount>] [player <value>] [since <value>] [until <value>] [area <value>]");

@@ -7,6 +7,7 @@ import java.sql.Statement;
 
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.Log;
+import me.arno.blocklog.database.Query;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -19,18 +20,18 @@ public class Rollback implements Runnable {
 	private final Connection conn;
 	private final Player player;
 	private final Integer rollbackID;
-	private final ResultSet blocks;
+	private final Query query;
 	private final Integer limit;
 	
 	private Integer BlockCount = 0;	
 	private Integer sid;
 	
-	public Rollback(BlockLog plugin, Player player, Integer rollbackID, ResultSet blocks, Integer limit) {
+	public Rollback(BlockLog plugin, Player player, Integer rollbackID, Query query, Integer limit) {
 		this.plugin = plugin;
 		this.conn = plugin.conn;
 		this.player = player;
 		this.rollbackID = rollbackID;
-		this.blocks = blocks;
+		this.query = query;
 		this.limit = limit;
 	}
 	
@@ -42,6 +43,7 @@ public class Rollback implements Runnable {
 	public void run() {
 		try {
 			Statement rollbackStmt = conn.createStatement();
+			ResultSet blocks = query.getResult();
 			
 			World world = player.getWorld();
 			
@@ -49,7 +51,6 @@ public class Rollback implements Runnable {
 				if(blocks.next()) {
 					Location location = new Location(world, blocks.getDouble("x"), blocks.getDouble("y"), blocks.getDouble("z"));
 					Log type = Log.values()[blocks.getInt("type")];
-					
 					
 					if(type == Log.BREAK || type == Log.FIRE || type == Log.EXPLOSION || type == Log.LEAVES || type == Log.FADE || type == Log.EXPLOSION_CREEPER || type == Log.EXPLOSION_GHAST || type == Log.EXPLOSION_TNT)
 						world.getBlockAt(location).setTypeIdAndData(blocks.getInt("block_id"), blocks.getByte("datavalue"), false);
@@ -59,7 +60,7 @@ public class Rollback implements Runnable {
 					rollbackStmt.executeUpdate(String.format("UPDATE blocklog_blocks SET rollback_id = %s WHERE id = %s", rollbackID, blocks.getInt("id")));
 					BlockCount++;
 				} else {
-					player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GREEN + BlockCount + ChatColor.GOLD + " blocks changed!");
+					player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GREEN + BlockCount + ChatColor.GOLD + " blocks of the " + ChatColor.GOLD + query.getRowCount() + " blocks changed!");
 					player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "use the command " + ChatColor.GREEN + "/bl undo " + rollbackID + ChatColor.GOLD + " to undo this rollback!");
 					plugin.getSchedules().remove(sid);
 					plugin.getServer().getScheduler().cancelTask(sid);

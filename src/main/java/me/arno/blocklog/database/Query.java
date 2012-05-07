@@ -78,11 +78,13 @@ public class Query {
 		return this;
 	}
 	
-	public Query addGroupBy(String group) {
-		if(groupByClause == null)
-			groupByClause = "GROUP BY " + group;
-		else
-			groupByClause += ", " + group;
+	public Query addGroupBy(String... groups) {
+		for(String group : groups) {
+			if(groupByClause == null)
+				groupByClause = "GROUP BY " + group;
+			else
+				groupByClause += ", " + group;
+		}
 		return this;
 	}
 	
@@ -178,6 +180,17 @@ public class Query {
 		Statement stmt = conn.createStatement();
 		
 		return stmt.executeQuery(getQuery());
+	}
+	
+	public Integer getRowCount() throws SQLException {
+		Connection conn = BlockLog.plugin.conn;
+		Statement stmt = conn.createStatement();
+		
+		selectClause = "SELECT COUNT(*) AS count";
+		
+		ResultSet rs = stmt.executeQuery(getQuery());
+		rs.next();
+		return rs.getInt("count");
 	}
 	
 	public Integer sendUpdate(HashMap<String, String> rowsValues) throws SQLException {

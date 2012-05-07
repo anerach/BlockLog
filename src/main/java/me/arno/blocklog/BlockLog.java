@@ -162,7 +162,7 @@ public class BlockLog extends JavaPlugin {
 	    getConfig().addDefault("blocklog.reports", true);
 	    getConfig().addDefault("blocklog.updates", true);
 	    getConfig().addDefault("blocklog.metrics", true);
-	    getConfig().addDefault("blocklog.dateformat", "%d-%m-%Y %H:%i:%s");
+	    getConfig().addDefault("blocklog.dateformat", "%d-%m %H:%i");
 	    getConfig().addDefault("cleanup.log", true);
 	    getConfig().addDefault("cleanup.blocks.enabled", false);
 	    getConfig().addDefault("cleanup.blocks.days", 14);

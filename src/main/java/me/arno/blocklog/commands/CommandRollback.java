@@ -85,8 +85,6 @@ public class CommandRollback extends BlockLogCommand {
 			Query query = new Query("blocklog_blocks");
 			query.addSelect("*");
 			if(target != null) {
-				if(entity == null)
-					query.addWhere("entity", "player");
 				query.addWhere("trigered", target);
 			}
 			if(entity != null) {

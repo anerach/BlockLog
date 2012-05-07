@@ -152,7 +152,7 @@ public class Query {
 	}
 	
 	private String getQuery() throws SQLException {
-		String query = "";
+String query = "";
 		
 		if(selectClause != null)
 			query += selectClause;
@@ -186,9 +186,23 @@ public class Query {
 		Connection conn = BlockLog.plugin.conn;
 		Statement stmt = conn.createStatement();
 		
-		selectClause = "SELECT COUNT(*) AS count";
+		String query = "SELECT COUNT(*) AS count";
 		
-		ResultSet rs = stmt.executeQuery(getQuery());
+		if(fromClause != null)
+			query += " " + fromClause;
+		else
+			throw new SQLException("FROM clause can't be null");
+		
+		if(joinClause != null)
+			query += " " + joinClause;
+		if(whereClause != null)
+			query += " " + whereClause;
+		if(orderByClause != null)
+			query += " " + orderByClause;
+		if(limitClause != null)
+			query += " " + limitClause;
+		
+		ResultSet rs = stmt.executeQuery(query);
 		rs.next();
 		return rs.getInt("count");
 	}

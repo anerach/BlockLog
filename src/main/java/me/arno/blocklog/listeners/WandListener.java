@@ -11,6 +11,7 @@ import me.arno.blocklog.Log;
 import me.arno.blocklog.database.Query;
 import me.arno.blocklog.logs.LoggedBlock;
 import me.arno.blocklog.logs.LoggedInteraction;
+import me.arno.blocklog.util.Text;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -93,14 +94,6 @@ public class WandListener extends BlockLogListener {
 		}
 	}
 	
-	public String createSpaces(Integer amount) {
-		String spaces = "";
-		for(int i=1;amount>i;i++) {
-			spaces += " ";
-		}
-		return spaces;
-	}
-	
 	public void getTestBlockEdits(Player player, Location location) {
 		try {	
 			Query query = new Query("blocklog_blocks");
@@ -114,19 +107,16 @@ public class WandListener extends BlockLogListener {
 			
 			ResultSet rs = query.getResult();
 			
-			player.sendMessage(ChatColor.YELLOW + "Block History" + ChatColor.BLUE + " (" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ") " + ChatColor.DARK_GRAY + "-------------------------------------");
-			player.sendMessage(ChatColor.GRAY + "Player" + createSpaces(20) + "Action" + createSpaces(19) + "Date");
-			
-			while(rs.next()) {
+            player.sendMessage(ChatColor.YELLOW + "Block History" + ChatColor.BLUE + " (" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ")" + ChatColor.DARK_GRAY + " ----------------------------------------------------------------------------------------");
+            player.sendMessage(ChatColor.GRAY + Text.addSpaces("Name", 90) + Text.addSpaces("Reason", 90) + Text.addSpaces("Details", 90));
+            
+            while(rs.next()) {
 				Log type = Log.values()[rs.getInt("type")];
 				
 				if(type.getId() <= 12 && type.getId() >= 10)
 					type = Log.EXPLOSION;
 				
-				Integer nameLength = rs.getString("trigered").length();
-				Integer typeLength = type.toString().length();
-				
-				player.sendMessage(ChatColor.GOLD + rs.getString("trigered") + createSpaces(24 - nameLength) + ChatColor.DARK_RED + type.toString() + createSpaces(24 - typeLength) + ChatColor.AQUA + rs.getString("date"));
+				player.sendMessage(Text.addSpaces(ChatColor.GOLD + rs.getString("trigered"), 99) + Text.addSpaces(ChatColor.DARK_RED + type.name(), 99) + Text.addSpaces(ChatColor.AQUA + rs.getString("date"), 99));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

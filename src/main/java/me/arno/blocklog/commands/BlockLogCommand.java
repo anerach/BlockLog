@@ -92,7 +92,7 @@ public class BlockLogCommand {
 		else if(timeVal.equalsIgnoreCase("h"))
 			time = (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60);
 		else if(timeVal.equalsIgnoreCase("d"))
-			time =(int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60 * 24);
+			time = (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60 * 24);
 		else if(timeVal.equalsIgnoreCase("w"))
 			time = (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60 * 24 * 7);
 		return time;

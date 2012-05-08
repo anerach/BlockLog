@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -110,7 +111,7 @@ public class BlockLogCommand {
 	}
 	
 	public boolean execute(Player player, Command cmd, String[] args) {
-		player.sendMessage("This command has no use");
+		player.sendMessage("This command doesn't exists. Say " + ChatColor.GOLD + "/bl help " + ChatColor.WHITE + "for a list of available commands.");
 		return true;
 	}
 }

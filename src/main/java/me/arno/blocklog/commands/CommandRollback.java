@@ -132,14 +132,13 @@ public class CommandRollback extends BlockLogCommand {
 			rb.setId(sid);
 			addSchedule(sid, rollbackID);
 			
-			player.sendMessage(ChatColor.BLUE + "BlockLog will rollback " + ChatColor.GOLD + blockCount + " blocks");
+			player.sendMessage(ChatColor.BLUE + "This rollback will affect " + ChatColor.GOLD + blockCount + " blocks");
 			player.sendMessage(ChatColor.BLUE + "At a speed of " + ChatColor.GOLD + (limit/delay) + " blocks/second");
-			player.sendMessage(ChatColor.BLUE + "It will take about " + ChatColor.GOLD + Math.round(blockCount/(limit/delay)) + " seconds to complete the rollback");
+			player.sendMessage(ChatColor.BLUE + "It will take about " + ChatColor.GOLD + Math.round(blockCount/(limit/delay)) + " seconds " + ChatColor.BLUE + "to complete the rollback");
 			player.sendMessage(ChatColor.BLUE + "To cancel the rollback say " + ChatColor.GOLD + "/bl cancel " + sid);
 			return true;
 		} catch(NumberFormatException e) {
-			player.sendMessage(ChatColor.WHITE + "/bl rollback <delay <value>> [limit <amount>] [player <value>] [since <value>] [until <value>] [area <value>]");
-			return true;
+			return false;
 		} catch(Exception e) {
 			e.printStackTrace();
 		}

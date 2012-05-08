@@ -30,7 +30,7 @@ public class WandListener extends BlockLogListener {
 	public void getBlockInteractions(Player player, Location location, InteractionType interaction) {
 		try {
 			player.sendMessage(ChatColor.YELLOW + "Block History" + ChatColor.BLUE + " (" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ")" + ChatColor.DARK_GRAY + " ------------------------");
-            player.sendMessage(ChatColor.GRAY + Text.addSpaces("Name", 90) + Text.addSpaces("Reason", 75) + "Details");
+            player.sendMessage(ChatColor.GRAY + Text.addSpaces("Name", 90) + Text.addSpaces("Action", 75) + "Details");
             
 			ArrayList<LoggedInteraction> Interactions = plugin.getInteractions();
 			int blockNumber = 0;
@@ -67,7 +67,7 @@ public class WandListener extends BlockLogListener {
 			if(blockCount < maxResults) {
 				Query query = new Query("blocklog_interactions");
 				query.addSelect("player");
-				query.addSelectDateAs("date", "date");
+				query.addSelectDate("date");
 				query.addWhere("x", location.getBlockX());
 				query.addWhere("y", location.getBlockY());
 				query.addWhere("z", location.getBlockZ());
@@ -76,6 +76,7 @@ public class WandListener extends BlockLogListener {
 				query.addLimit(maxResults - blockCount);
 				
 				ResultSet rs = query.getResult();
+				log.info(query.getRowCount().toString());
 				
 				while(rs.next()) {
 	            	String action = "";
@@ -83,9 +84,9 @@ public class WandListener extends BlockLogListener {
 						action = "OPENED";
 					else
 						action = "USED";
+	            	
 	            	String name = Material.getMaterial(rs.getInt("block_id")).toString();
-					
-					player.sendMessage(Text.addSpaces(ChatColor.GOLD + rs.getString("date"), 99) + Text.addSpaces(ChatColor.DARK_RED + action, 80) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + rs.getString("date") + "]");
+					player.sendMessage(Text.addSpaces(ChatColor.GOLD + rs.getString("player"), 99) + Text.addSpaces(ChatColor.DARK_RED + action, 80) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + rs.getString("date") + "]");
 				}
 			}
 		} catch(SQLException e) {
@@ -96,7 +97,7 @@ public class WandListener extends BlockLogListener {
 	public void getBlockEdits(Player player, Location location) {
 		try {
 			player.sendMessage(ChatColor.YELLOW + "Block History" + ChatColor.BLUE + " (" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ")" + ChatColor.DARK_GRAY + " ------------------------");
-            player.sendMessage(ChatColor.GRAY + Text.addSpaces("Name", 90) + Text.addSpaces("Reason", 75) + "Details");
+            player.sendMessage(ChatColor.GRAY + Text.addSpaces("Name", 90) + Text.addSpaces("Action", 75) + "Details");
             
             int blockNumber = 0;
             int blockCount = 0;
@@ -131,7 +132,7 @@ public class WandListener extends BlockLogListener {
 			// Database Results
 			Query query = new Query("blocklog_blocks");
 			query.addSelect("entity", "trigered", "block_id", "type");
-			query.addSelectDateAs("date", "date");
+			query.addSelectDate("date");
 			query.addWhere("x", location.getBlockX());
 			query.addWhere("y", location.getBlockY());
 			query.addWhere("z", location.getBlockZ());

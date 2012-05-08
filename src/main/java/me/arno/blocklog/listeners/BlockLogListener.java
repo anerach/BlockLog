@@ -3,7 +3,7 @@ package me.arno.blocklog.listeners;
 import java.util.logging.Logger;
 
 import me.arno.blocklog.BlockLog;
-import me.arno.blocklog.SettingsManager;
+import me.arno.blocklog.managers.SettingsManager;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

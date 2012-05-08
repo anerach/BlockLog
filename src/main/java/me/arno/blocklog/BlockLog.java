@@ -4,9 +4,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,14 +13,15 @@ import java.util.HashMap;
 import java.util.logging.Logger;
 
 import me.arno.blocklog.commands.*;
-import me.arno.blocklog.database.DatabaseSettings;
 import me.arno.blocklog.listeners.*;
 import me.arno.blocklog.logs.LogType;
 import me.arno.blocklog.logs.LoggedBlock;
 import me.arno.blocklog.logs.LoggedInteraction;
+import me.arno.blocklog.managers.*;
 import me.arno.blocklog.pail.PailInterface;
 import me.arno.blocklog.schedules.Save;
 import me.arno.blocklog.schedules.Updates;
+import me.arno.blocklog.util.Text;
 import me.escapeNT.pail.Pail;
 
 import org.bukkit.ChatColor;
@@ -39,9 +37,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class BlockLog extends JavaPlugin {
 	public static BlockLog plugin;
 	public Logger log;
-	public DatabaseSettings dbSettings;
 	public Connection conn;
 	
+	private DatabaseManager databaseManager;
 	private SettingsManager settingsManager;
 	
 	public final String[] SQLTables = {"blocks", "rollbacks", "undos", "interactions", "reports", "chat", "deaths", "kills", "commands"};
@@ -85,45 +83,26 @@ public class BlockLog extends JavaPlugin {
 		return schedules;
 	}
 	
-	public String getResourceContent(String file) {
-		try {
-			InputStream ResourceFile = getResource("resources/" + file);
-			 
-			final char[] buffer = new char[0x10000];
-			StringBuilder StrBuilder = new StringBuilder();
-			Reader InputReader = new InputStreamReader(ResourceFile, "UTF-8");
-			int read;
-			do {
-				read = InputReader.read(buffer, 0, buffer.length);
-				if (read > 0)
-					StrBuilder.append(buffer, 0, read);
-				
-			} while (read >= 0);
-			InputReader.close();
-			ResourceFile.close();
-			return StrBuilder.toString();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
-	
 	public SettingsManager getSettingsManager() {
 		return settingsManager;
 	}
 	
+	public DatabaseManager getDatabaseManager() {
+		return databaseManager;
+	}
+	
 	private void loadConfiguration() {
-		settingsManager = new SettingsManager();
-		
 		Config worldConfig;
 		for(World world : getServer().getWorlds()) {
-			worldConfig = new Config("worlds" + File.pathSeparator + world.getName() + ".yml");
+			worldConfig = new Config("worlds" + File.separator + world.getName() + ".yml");
 			
 			for(LogType type : LogType.values()) {
 				if(type != LogType.EXPLOSION_CREEPER && type != LogType.EXPLOSION_GHAST && type != LogType.EXPLOSION_TNT) {
 					worldConfig.getConfig().addDefault(type.name(), true);
 				}
 			}
+			worldConfig.getConfig().options().copyDefaults(true);
+			worldConfig.saveConfig();
 		}
 		
 		getConfig().addDefault("mysql.host", "localhost");
@@ -196,11 +175,11 @@ public class BlockLog extends JavaPlugin {
 	
 	private void loadDatabase() {
 		try {
-	    	conn = DatabaseSettings.getConnection();
+	    	conn = getDatabaseManager().getConnection();
 	    	Statement stmt = conn.createStatement();
 	    	
 	    	for(String table : SQLTables) {
-	    		stmt.executeUpdate(getResourceContent("database/blocklog_" + table + ".sql"));
+	    		stmt.executeUpdate(Text.getResourceContent("database/blocklog_" + table + ".sql"));
 	    	}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -262,6 +241,9 @@ public class BlockLog extends JavaPlugin {
 		plugin = this;
 		currentVersion = getDescription().getVersion();
 		log = getLogger();
+		
+		settingsManager = new SettingsManager();
+		databaseManager = new DatabaseManager();
 	    
 	    log.info("Loading the dependencies");
 	    loadDependencies();
@@ -291,7 +273,7 @@ public class BlockLog extends JavaPlugin {
 	    }
 	    
 		log.info("Starting BlockLog");
-		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Save(this, 1, null, false), 100L, getConfig().getInt("blocklog.delay") * 20L);
+		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Save(this, 1, null, false), 100L, getSettingsManager().getBlockSaveDelay() * 20L);
     	
     	getServer().getPluginManager().registerEvents(new WandListener(this), this);
     	getServer().getPluginManager().registerEvents(new BlockListener(this), this);
@@ -359,7 +341,8 @@ public class BlockLog extends JavaPlugin {
 			return false;
 		
 		if(args.length < 1 && player != null) {
-			player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "This server is using BlockLog v" + getDescription().getVersion() + " by Anerach");
+			player.sendMessage(ChatColor.GOLD + "Say " + ChatColor.BLUE + "/bl help " + ChatColor.GOLD + "for a list of available commands");
+			player.sendMessage(ChatColor.GOLD + "This server is using BlockLog v" + getDescription().getVersion() + " by Anerach");
 			return true;
 		}
 		
@@ -373,74 +356,45 @@ public class BlockLog extends JavaPlugin {
 		
 		String[] newArgs = argList.toArray(new String[]{});
 		
-		BlockLogCommand command;
+		BlockLogCommand command = new BlockLogCommand();
 		
-		if(args[0].equalsIgnoreCase("help") || args[0].equalsIgnoreCase("h")) {
+		if(args[0].equalsIgnoreCase("help") || args[0].equalsIgnoreCase("h"))
 			command = new CommandHelp();
-			command.setCommandUsage(command.getCommandUsage());
-			return command.execute(player, cmd, newArgs);
-		} else if(args[0].equalsIgnoreCase("autosave")) {
+		else if(args[0].equalsIgnoreCase("autosave"))
 			command = new CommandAutoSave();
-			command.setCommandUsage(command.getCommandUsage());
-			return command.execute(player, cmd, newArgs);
-		} else if(args[0].equalsIgnoreCase("cancel")) {
+		else if(args[0].equalsIgnoreCase("cancel"))
 			command = new CommandCancel();
-			command.setCommandUsage(command.getCommandUsage());
-			return command.execute(player, cmd, newArgs);
-		} else if(args[0].equalsIgnoreCase("clear")) {
+		else if(args[0].equalsIgnoreCase("clear"))
 			command = new CommandClear();
-			command.setCommandUsage(command.getCommandUsage());
-			return command.execute(player, cmd, newArgs);
-		} else if(args[0].equalsIgnoreCase("config") || args[0].equalsIgnoreCase("cfg")) {
+		else if(args[0].equalsIgnoreCase("config") || args[0].equalsIgnoreCase("cfg"))
 			command = new CommandConfig();
-			command.setCommandUsage(command.getCommandUsage());
-			return command.execute(player, cmd, newArgs);
-		} else if(args[0].equalsIgnoreCase("lookup")) {
+		else if(args[0].equalsIgnoreCase("lookup"))
 			command = new CommandLookup();
-			command.setCommandUsage(command.getCommandUsage());
-			return command.execute(player, cmd, newArgs);
-		} else if(args[0].equalsIgnoreCase("read")) {
+		else if(args[0].equalsIgnoreCase("read"))
 			command = new CommandRead();
-			command.setCommandUsage(command.getCommandUsage());
-			return command.execute(player, cmd, newArgs);
-		} else if(args[0].equalsIgnoreCase("reload")) {
+		else if(args[0].equalsIgnoreCase("reload"))
 			command = new CommandReload();
-			command.setCommandUsage(command.getCommandUsage());
-			return command.execute(player, cmd, newArgs);
-		} else if(args[0].equalsIgnoreCase("report")) {
+		else if(args[0].equalsIgnoreCase("report"))
 			command = new CommandReport();
-			command.setCommandUsage(command.getCommandUsage());
-			return command.execute(player, cmd, newArgs);
-		} else if(args[0].equalsIgnoreCase("rollback") || args[0].equalsIgnoreCase("rb")) {
+		else if(args[0].equalsIgnoreCase("rollback") || args[0].equalsIgnoreCase("rb"))
 			command = new CommandRollback();
-			command.setCommandUsage(command.getCommandUsage());
-			return command.execute(player, cmd, newArgs);
-		} else if(args[0].equalsIgnoreCase("rollbacklist") || args[0].equalsIgnoreCase("rblist") || args[0].equalsIgnoreCase("rbl")) {
+		else if(args[0].equalsIgnoreCase("rollbacklist") || args[0].equalsIgnoreCase("rblist") || args[0].equalsIgnoreCase("rbl"))
 			command = new CommandRollbackList();
-			command.setCommandUsage(command.getCommandUsage());
-			return command.execute(player, cmd, newArgs);
-		} else if(args[0].equalsIgnoreCase("save")) {
+		else if(args[0].equalsIgnoreCase("save"))
 			command = new CommandSave();
-			command.setCommandUsage(command.getCommandUsage());
-			return command.execute(player, cmd, newArgs);
-		} else if(args[0].equalsIgnoreCase("search")) {
+		else if(args[0].equalsIgnoreCase("search"))
 			command = new CommandSearch();
-			command.setCommandUsage(command.getCommandUsage());
-			return command.execute(player, cmd, newArgs);
-		} else if(args[0].equalsIgnoreCase("storage")) {
+		else if(args[0].equalsIgnoreCase("simrollback") || args[0].equalsIgnoreCase("simrb"))
+			command = new CommandSimulateRollback();
+		else if(args[0].equalsIgnoreCase("storage"))
 			command = new CommandStorage();
-			command.setCommandUsage(command.getCommandUsage());
-			return command.execute(player, cmd, newArgs);
-		} else if(args[0].equalsIgnoreCase("undo")) {
+		else if(args[0].equalsIgnoreCase("undo"))
 			command = new CommandUndo();
-			command.setCommandUsage(command.getCommandUsage());
-			return command.execute(player, cmd, newArgs);
-		} else if(args[0].equalsIgnoreCase("wand")) {
+		else if(args[0].equalsIgnoreCase("wand"))
 			command = new CommandWand();
-			command.setCommandUsage(command.getCommandUsage());
-			return command.execute(player, cmd, newArgs);
-		}
-		return true;
+		
+		cmd.setUsage(command.getCommandUsage());
+		return command.execute(player, cmd, newArgs);
 	}
 	
 	public void loadPailInterface() {

@@ -1,21 +1,19 @@
 package me.arno.blocklog.commands;
 
-import me.arno.blocklog.BlockLog;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
 public class CommandStorage extends BlockLogCommand {
-	public CommandStorage(BlockLog plugin) {
-		super(plugin, "blocklog.storage", true);
+	public CommandStorage() {
+		super("blocklog.storage", true);
+		setCommandUsage("/bl storage");
 	}
 
+	@Override
 	public boolean execute(Player player, Command cmd, String[] args) {
-		if(args.length > 0) {
-			player.sendMessage(ChatColor.WHITE + "/bl storage");
-			return true;
-		}
+		if(args.length > 0)
+			return false;
 		
 		if(!hasPermission(player)) {
 			player.sendMessage("You don't have permission");

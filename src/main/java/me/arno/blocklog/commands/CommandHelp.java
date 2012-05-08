@@ -1,20 +1,19 @@
 package me.arno.blocklog.commands;
 
-import me.arno.blocklog.BlockLog;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
 public class CommandHelp extends BlockLogCommand {
-	public CommandHelp(BlockLog plugin) {
-		super(plugin, "blocklog.help");
+	public CommandHelp() {
+		super("blocklog.help");
+		setCommandUsage("/bl help");
 	}
 
+	@Override
 	public boolean execute(Player player, Command cmd, String[] args) {
 		if(args.length > 0) {
-			player.sendMessage(ChatColor.WHITE + "/bl help");
-			return true;
+			return false;
 		}
 		
 		if(!hasPermission(player)) {

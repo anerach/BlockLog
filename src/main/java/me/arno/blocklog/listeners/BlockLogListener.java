@@ -3,10 +3,10 @@ package me.arno.blocklog.listeners;
 import java.util.logging.Logger;
 
 import me.arno.blocklog.BlockLog;
+import me.arno.blocklog.SettingsManager;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.World;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
@@ -29,15 +29,15 @@ public class BlockLogListener implements Listener {
 	    }
 	}
 	
-	public Boolean isLoggingEnabled(World world) {
-		return getConfig().getList("blocklog.worlds").contains(world.getName());
+	public SettingsManager getSettingsManager() {
+		return plugin.getSettingsManager();
 	}
 	
 	public void BlocksLimitReached() {
 		int BlockSize = plugin.getBlocks().size();
-		int WarningBlockSize = getConfig().getInt("blocklog.warning.blocks");
-		int WarningDelay = getConfig().getInt("blocklog.warning.delay") * 1000;
-		int WarningRepeat = getConfig().getInt("blocklog.warning.repeat");
+		int WarningBlockSize = getSettingsManager().getConfig().getInt("blocklog.warning.blocks");
+		int WarningDelay = getSettingsManager().getConfig().getInt("blocklog.warning.delay") * 1000;
+		int WarningRepeat = getSettingsManager().getConfig().getInt("blocklog.warning.repeat");
 		
 		if(BlockSize == plugin.autoSave && BlockSize != 0 && plugin.autoSave != 0) {
 			plugin.saveLogs(0);
@@ -45,20 +45,8 @@ public class BlockLogListener implements Listener {
 			if(time < System.currentTimeMillis()) {
 				time = System.currentTimeMillis() +  WarningDelay;
 				sendAdminMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "BlockLog reached an internal storage of " + BlockSize + "!");
-				sendAdminMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "If you want to save all these blocks use " + ChatColor.DARK_BLUE + "/blfullsave" + ChatColor.GOLD + " or " + ChatColor.DARK_BLUE + "/blsave <blocks>");
+				sendAdminMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "If you want to save all these blocks use " + ChatColor.DARK_BLUE + "/bl save all" + ChatColor.GOLD + " or " + ChatColor.DARK_BLUE + "/bl save <blocks>");
 			}
 		}
-	}
-	
-	public FileConfiguration getConfig() {
-		return plugin.getConfig();
-	}
-	
-	public FileConfiguration getLogConfig() {
-		return plugin.getLogConfig();
-	}
-	
-	public void saveConfig() {
-		plugin.saveConfig();
 	}
 }

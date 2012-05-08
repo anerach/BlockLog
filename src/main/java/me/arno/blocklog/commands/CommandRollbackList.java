@@ -6,15 +6,19 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
-import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.database.Query;
 
 public class CommandRollbackList extends BlockLogCommand {
-	public CommandRollbackList(BlockLog plugin) {
-		super(plugin, "blocklog.rollback");
+	public CommandRollbackList() {
+		super("blocklog.rollback");
+		setCommandUsage("/bl rollbacklist [id <value>] [player <value>] [since <value>] [until <value>] [area <value>]");
 	}
 
+	@Override
 	public boolean execute(Player player, Command cmd, String[] args) {
+		if(args.length > 8)
+			return false;
+		
 		if(args.length % 2 != 0) {
 			player.sendMessage("Invalid amount of args");
 			return true;

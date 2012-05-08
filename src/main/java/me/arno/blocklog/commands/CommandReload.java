@@ -1,21 +1,19 @@
 package me.arno.blocklog.commands;
 
-import me.arno.blocklog.BlockLog;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
 public class CommandReload extends BlockLogCommand {
-	public CommandReload(BlockLog plugin) {
-		super(plugin, "blocklog.reload", true);
+	public CommandReload() {
+		super("blocklog.reload", true);
+		setCommandUsage("/bl reload");
 	}
 
+	@Override
 	public boolean execute(Player player, Command cmd, String[] args) {
-		if(args.length > 0) {
-			player.sendMessage(ChatColor.WHITE + "/bl reload");
-			return true;
-		}
+		if(args.length > 0)
+			return false;
 		
 		if(!hasPermission(player)) {
 			player.sendMessage("You don't have permission");

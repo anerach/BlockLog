@@ -2,7 +2,6 @@ package me.arno.blocklog.commands;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.database.Query;
 
 import org.bukkit.ChatColor;
@@ -10,15 +9,15 @@ import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
 public class CommandSearch extends BlockLogCommand {
-	public CommandSearch(BlockLog plugin) {
-		super(plugin, "blocklog.search");
+	public CommandSearch() {
+		super("blocklog.search");
+		setCommandUsage("/bl search <table> [player <value>] [since <value>] [until <value>]");
 	}
 
+	@Override
 	public boolean execute(Player player, Command cmd, String[] args) {
-		if(args.length < 3) {
-			player.sendMessage(ChatColor.WHITE + "/bl search <table> [player <value>] [since <value>] [until <value>]");
-			return true;
-		}
+		if(args.length < 3)
+			return false;
 		
 		if(!hasPermission(player)) {
 			player.sendMessage("You don't have permission");

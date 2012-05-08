@@ -4,7 +4,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import me.arno.blocklog.BlockLog;
-import me.arno.blocklog.Log;
 
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -16,7 +15,7 @@ import org.bukkit.entity.Player;
 
 public class LoggedBlock {
 	private final BlockLog plugin;
-	private final Log type;
+	private final LogType type;
 	
 	private final Player player;
 	private final BlockState block;
@@ -27,19 +26,19 @@ public class LoggedBlock {
 	
 	private Integer rollback = 0;
 	
-	public LoggedBlock(BlockLog plugin, BlockState block, Log type) {
+	public LoggedBlock(BlockLog plugin, BlockState block, LogType type) {
 		this(plugin, null, block, EntityType.PLAYER, type);
 	}
 	
-	public LoggedBlock(BlockLog plugin, BlockState block, EntityType entity, Log type) {
+	public LoggedBlock(BlockLog plugin, BlockState block, EntityType entity, LogType type) {
 		this(plugin, null, block, entity, type);
 	}
 	
-	public LoggedBlock(BlockLog plugin, Player player, BlockState block, Log type) {
+	public LoggedBlock(BlockLog plugin, Player player, BlockState block, LogType type) {
 		this(plugin, player, block, EntityType.PLAYER, type);
 	}
 	
-	public LoggedBlock(BlockLog plugin, Player player, BlockState block, EntityType entity, Log type) {
+	public LoggedBlock(BlockLog plugin, Player player, BlockState block, EntityType entity, LogType type) {
 		this.plugin = plugin;
 		this.player = player;
 		this.block = block;
@@ -110,7 +109,7 @@ public class LoggedBlock {
 		return date;
 	}
 	
-	public Log getType() {
+	public LogType getType() {
 		return type;
 	}
 	

@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import me.arno.blocklog.BlockLog;
-import me.arno.blocklog.Interaction;
-import me.arno.blocklog.Log;
 import me.arno.blocklog.database.Query;
+import me.arno.blocklog.logs.InteractionType;
+import me.arno.blocklog.logs.LogType;
 import me.arno.blocklog.logs.LoggedBlock;
 import me.arno.blocklog.logs.LoggedInteraction;
 import me.arno.blocklog.util.Text;
@@ -27,25 +27,26 @@ public class WandListener extends BlockLogListener {
 		super(plugin);
 	}
 	
-	public void getBlockInteractions(Player player, Location location, Interaction interaction) {
+	public void getBlockInteractions(Player player, Location location, InteractionType interaction) {
 		try {
-			player.sendMessage(ChatColor.YELLOW + "Block History" + ChatColor.BLUE + " (" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ")" + ChatColor.DARK_GRAY + " ----------------------------------");
+			player.sendMessage(ChatColor.YELLOW + "Block History" + ChatColor.BLUE + " (" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ")" + ChatColor.DARK_GRAY + " ------------------------");
             player.sendMessage(ChatColor.GRAY + Text.addSpaces("Name", 90) + Text.addSpaces("Reason", 75) + "Details");
             
 			ArrayList<LoggedInteraction> Interactions = plugin.getInteractions();
-			int BlockNumber = 0;
-			int BlockCount = 0;
-			int BlockSize = Interactions.size();
+			int blockNumber = 0;
+			int blockCount = 0;
+			int blockSize = Interactions.size();
+			int maxResults = getSettingsManager().getMaxResults();
 			
-			while(BlockSize > BlockNumber)
+			while(blockSize > blockNumber)
 			{
-				LoggedInteraction LInteraction = Interactions.get(BlockNumber); 
+				LoggedInteraction LInteraction = Interactions.get(blockNumber); 
 				if(LInteraction.getX() == location.getX() && LInteraction.getY() == location.getY() && LInteraction.getZ() == location.getZ() && LInteraction.getWorld() == location.getWorld()) {
-					if(BlockCount == getConfig().getInt("blocklog.results"))
+					if(blockCount == maxResults)
 						break;
 					
 					String action = "";
-					if(interaction == Interaction.CHEST || interaction == Interaction.DISPENSER || interaction == Interaction.DOOR || interaction == Interaction.TRAP_DOOR)
+					if(interaction == InteractionType.CHEST || interaction == InteractionType.DISPENSER || interaction == InteractionType.DOOR || interaction == InteractionType.TRAP_DOOR)
 						action = "OPENED";
 					else
 						action = "USED";
@@ -58,12 +59,12 @@ public class WandListener extends BlockLogListener {
 					String date =  calendar.get(Calendar.DAY_OF_MONTH) + "-" + (calendar.get(Calendar.MONTH) + 1) + " " + calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE);
 					
 					player.sendMessage(Text.addSpaces(ChatColor.GOLD + LInteraction.getPlayerName(), 99) + Text.addSpaces(ChatColor.DARK_RED + action, 99) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + date + "]");
-					BlockCount++;
+					blockCount++;
 				}
-				BlockNumber++;
+				blockNumber++;
 			}
 			
-			if(BlockCount < getConfig().getInt("blocklog.results")) {
+			if(blockCount < maxResults) {
 				Query query = new Query("blocklog_interactions");
 				query.addSelect("player");
 				query.addSelectDateAs("date", "date");
@@ -72,13 +73,13 @@ public class WandListener extends BlockLogListener {
 				query.addWhere("z", location.getBlockZ());
 				query.addWhere("world", location.getWorld().getName());
 				query.addOrderBy("date", "DESC");
-				query.addLimit(getConfig().getInt("blocklog.results") - BlockCount);
+				query.addLimit(maxResults - blockCount);
 				
 				ResultSet rs = query.getResult();
 				
 				while(rs.next()) {
 	            	String action = "";
-	            	if(interaction == Interaction.CHEST || interaction == Interaction.DISPENSER || interaction == Interaction.DOOR || interaction == Interaction.TRAP_DOOR)
+	            	if(interaction == InteractionType.CHEST || interaction == InteractionType.DISPENSER || interaction == InteractionType.DOOR || interaction == InteractionType.TRAP_DOOR)
 						action = "OPENED";
 					else
 						action = "USED";
@@ -94,18 +95,19 @@ public class WandListener extends BlockLogListener {
 	
 	public void getBlockEdits(Player player, Location location) {
 		try {
-			player.sendMessage(ChatColor.YELLOW + "Block History" + ChatColor.BLUE + " (" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ")" + ChatColor.DARK_GRAY + " ----------------------------------");
+			player.sendMessage(ChatColor.YELLOW + "Block History" + ChatColor.BLUE + " (" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ")" + ChatColor.DARK_GRAY + " ------------------------");
             player.sendMessage(ChatColor.GRAY + Text.addSpaces("Name", 90) + Text.addSpaces("Reason", 75) + "Details");
             
-            Integer BlockNumber = 0;
-			Integer BlockCount = 0;
-			Integer BlockSize = plugin.getBlocks().size();
+            int blockNumber = 0;
+            int blockCount = 0;
+			int blockSize = plugin.getBlocks().size();
+			int maxResults = getSettingsManager().getMaxResults();
 			
-			while(BlockSize > BlockNumber)
+			while(blockSize > blockNumber)
 			{
-				LoggedBlock LBlock = plugin.getBlocks().get(BlockNumber); 
+				LoggedBlock LBlock = plugin.getBlocks().get(blockNumber); 
 				if(LBlock.getX() == location.getX() && LBlock.getY() == location.getY() && LBlock.getZ() == location.getZ() && LBlock.getWorld() == location.getWorld()) {
-					if(BlockCount == getConfig().getInt("blocklog.results"))
+					if(blockCount == maxResults)
 						break;
 					
 					Calendar calendar = GregorianCalendar.getInstance();
@@ -114,15 +116,15 @@ public class WandListener extends BlockLogListener {
 					String date =  calendar.get(Calendar.DAY_OF_MONTH) + "-" + (calendar.get(Calendar.MONTH) + 1) + " " + calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE);
 					
 					String name = Material.getMaterial(LBlock.getBlockId()).toString();
-					Log type = LBlock.getType();
+					LogType type = LBlock.getType();
 					
 					if(type.getId() <= 12 && type.getId() >= 10)
-						type = Log.EXPLOSION;
+						type = LogType.EXPLOSION;
 					
 					player.sendMessage(Text.addSpaces(ChatColor.GOLD + LBlock.getPlayerName(), 99) + Text.addSpaces(ChatColor.DARK_RED + type.name(), 80) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + date + "]");
-					BlockCount++;
+					blockCount++;
 				}
-				BlockNumber++;
+				blockNumber++;
 			}
 			
 			
@@ -140,10 +142,10 @@ public class WandListener extends BlockLogListener {
 			
 			while(rs.next()) {
 				String name = Material.getMaterial(rs.getInt("block_id")).toString();
-				Log type = Log.values()[rs.getInt("type")];
+				LogType type = LogType.values()[rs.getInt("type")];
 				
 				if(type.getId() <= 12 && type.getId() >= 10)
-					type = Log.EXPLOSION;
+					type = LogType.EXPLOSION;
 				
 				player.sendMessage(Text.addSpaces(ChatColor.GOLD + rs.getString("trigered"), 99) + Text.addSpaces(ChatColor.DARK_RED + type.name(), 81) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + rs.getString("date") + "]");
 			}
@@ -154,15 +156,14 @@ public class WandListener extends BlockLogListener {
 	
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event) {
-		int BLWand = getConfig().getInt("blocklog.wand");
 		boolean WandEnabled = plugin.users.contains(event.getPlayer().getName());
 		if(!event.isCancelled()) {
-			if(event.getPlayer().getItemInHand().getTypeId() == BLWand  && WandEnabled) {
+			if(event.getPlayer().getItemInHand().getType() == getSettingsManager().getWand()  && WandEnabled) {
 				if((event.getAction() == Action.RIGHT_CLICK_BLOCK && (!event.getPlayer().getItemInHand().getType().isBlock()) || event.getAction() == Action.LEFT_CLICK_BLOCK)) {
 					
 					Material type = event.getClickedBlock().getType();
 					if(type == Material.WOODEN_DOOR || type == Material.TRAP_DOOR || type == Material.CHEST || type == Material.DISPENSER || type == Material.STONE_BUTTON || type == Material.LEVER)
-						getBlockInteractions(event.getPlayer(), event.getClickedBlock().getLocation(), Interaction.getByMaterial(type));
+						getBlockInteractions(event.getPlayer(), event.getClickedBlock().getLocation(), InteractionType.getByMaterial(type));
 					else
 						getBlockEdits(event.getPlayer(), event.getClickedBlock().getLocation());
 					
@@ -174,10 +175,9 @@ public class WandListener extends BlockLogListener {
 	
 	@EventHandler
 	public void onBlockPlace(BlockPlaceEvent event) {
-		int BLWand = getConfig().getInt("blocklog.wand");
 		boolean WandEnabled = plugin.users.contains(event.getPlayer().getName());
 		if(!event.isCancelled()) {
-			if(event.getPlayer().getItemInHand().getTypeId() == BLWand && WandEnabled) {
+			if(event.getPlayer().getItemInHand().getType() == getSettingsManager().getWand() && WandEnabled) {
 				if(event.getPlayer().getItemInHand().getType().isBlock()) {
 					getBlockEdits(event.getPlayer(), event.getBlockPlaced().getLocation());
 					event.setCancelled(true);

@@ -7,20 +7,19 @@ import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
-import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.database.Query;
 import me.arno.blocklog.schedules.Rollback;
 
 public class CommandRollback extends BlockLogCommand {
-	public CommandRollback(BlockLog plugin) {
-		super(plugin, "blocklog.rollback");
+	public CommandRollback() {
+		super("blocklog.rollback");
+		setCommandUsage("/bl rollback [delay <value>] [limit <amount>] [player <value>] [since <value>] [until <value>] [area <value>]");
 	}
 	
+	@Override
 	public boolean execute(Player player, Command cmd, String[] args) {
-		if(args.length < 2) {
-			player.sendMessage(ChatColor.WHITE + "/bl rollback [delay <value>] [limit <amount>] [player <value>] [since <value>] [until <value>] [area <value>]");
-			return true;
-		}
+		if(args.length < 2)
+			return false;
 		
 		if(args.length % 2 != 0) {
 			player.sendMessage("Invalid amount of args");

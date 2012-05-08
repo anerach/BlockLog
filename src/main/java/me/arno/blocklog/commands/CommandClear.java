@@ -6,22 +6,20 @@ import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
 
-import me.arno.blocklog.BlockLog;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
 public class CommandClear extends BlockLogCommand {
-	public CommandClear(BlockLog plugin) {
-		super(plugin, "blocklog.clear");
+	public CommandClear() {
+		super("blocklog.clear");
+		setCommandUsage("/bl clear <table1> [table2] [...] <time>");
 	}
 	
+	@Override
 	public boolean execute(Player player, Command cmd, String[] args) {
-		if(args.length < 2) {
-			player.sendMessage(ChatColor.WHITE + "/bl clear <table1> [table2] [...] <time>");
-			return true;
-		}
+		if(args.length < 2)
+			return false;
 		
 		if(!hasPermission(player)) {
 			player.sendMessage("You don't have permission");

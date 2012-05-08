@@ -1,6 +1,6 @@
-package me.arno.blocklog;
+package me.arno.blocklog.logs;
 
-public enum Log {
+public enum LogType {
 	BREAK(0),
 	PLACE(1),
 	FIRE(2),
@@ -16,7 +16,7 @@ public enum Log {
 	EXPLOSION_TNT(12);
 	
 	int id;
-	Log(int id) {
+	LogType(int id) {
 		this.id = id;
 	}
 	
@@ -24,7 +24,7 @@ public enum Log {
 		return this.id;
 	}
 	
-	public Log getType() {
+	public LogType getType() {
 		return this;
 	}
 }

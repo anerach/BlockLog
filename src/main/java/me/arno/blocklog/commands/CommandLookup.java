@@ -2,7 +2,6 @@ package me.arno.blocklog.commands;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.database.Query;
 
 import org.bukkit.ChatColor;
@@ -12,15 +11,15 @@ import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
 public class CommandLookup extends BlockLogCommand {
-	public CommandLookup(BlockLog plugin) {
-		super(plugin, "blocklog.lookup");
+	public CommandLookup() {
+		super("blocklog.lookup");
+		setCommandUsage("/bl lookup [player <value>] [since <value>] [until <value>]");
 	}
 
+	@Override
 	public boolean execute(Player player, Command cmd, String[] args) {
-		if(args.length < 2) {
-			player.sendMessage(ChatColor.WHITE + "/bl lookup [player <value>] [since <value>] [until <value>]");
-			return true;
-		}
+		if(args.length < 2)
+			return false;
 		
 		if(args.length % 2 != 0) {
 			player.sendMessage("Invalid amount of args");

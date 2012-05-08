@@ -3,7 +3,6 @@ package me.arno.blocklog.commands;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.database.Query;
 
 import org.bukkit.ChatColor;
@@ -11,15 +10,15 @@ import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
 public class CommandRead extends BlockLogCommand {
-	public CommandRead(BlockLog plugin) {
-		super(plugin, "blocklog.report.read");
+	public CommandRead() {
+		super("blocklog.report.read");
+		setCommandUsage("/bl read [id] [player <value>] [since <value>] [until <value]");
 	}
 	
+	@Override
 	public boolean execute(Player player, Command cmd, String[] args) {
-		if(args.length > 6) {
-			player.sendMessage(ChatColor.WHITE + "/bl read [id] [player <value>] [since <value>] [until <value]");
-			return true;
-		}
+		if(args.length > 6)
+			return false;
 		
 		if(!getConfig().getBoolean("blocklog.reports")) {
 			player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "The report system is disabled");

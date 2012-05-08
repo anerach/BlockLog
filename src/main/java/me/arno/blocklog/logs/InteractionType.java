@@ -1,8 +1,8 @@
-package me.arno.blocklog;
+package me.arno.blocklog.logs;
 
 import org.bukkit.Material;
 
-public enum Interaction {
+public enum InteractionType {
 	DOOR(0),
 	TRAP_DOOR(1),
 	CHEST(2),
@@ -11,7 +11,7 @@ public enum Interaction {
 	LEVER(5);
 	
 	int id;
-	Interaction(int id) {
+	InteractionType(int id) {
 		this.id = id;
 	}
 	
@@ -19,40 +19,40 @@ public enum Interaction {
 		return this.id;
 	}
 	
-	public Interaction getType() {
+	public InteractionType getType() {
 		return this;
 	}
 	
 	public Material getMaterial() {
-		if(this == Interaction.DOOR) {
+		if(this == InteractionType.DOOR) {
 			return Material.WOODEN_DOOR;
-		} else if(this == Interaction.TRAP_DOOR) {
+		} else if(this == InteractionType.TRAP_DOOR) {
 			return Material.TRAP_DOOR;
-		} else if(this == Interaction.CHEST) {
+		} else if(this == InteractionType.CHEST) {
 			return Material.CHEST;
-		} else if(this == Interaction.DISPENSER) {
+		} else if(this == InteractionType.DISPENSER) {
 			return Material.DISPENSER;
-		} else if(this == Interaction.BUTTON) {
+		} else if(this == InteractionType.BUTTON) {
 			return Material.STONE_BUTTON;
-		} else if(this == Interaction.LEVER) {
+		} else if(this == InteractionType.LEVER) {
 			return Material.LEVER;
 		}
 		return null;
 	}
 	
-	public static Interaction getByMaterial(Material material) {
+	public static InteractionType getByMaterial(Material material) {
 		if(material == Material.WOODEN_DOOR) {
-			return Interaction.DOOR;
+			return InteractionType.DOOR;
 		} else if(material == Material.TRAP_DOOR) {
-			return Interaction.TRAP_DOOR;
+			return InteractionType.TRAP_DOOR;
 		} else if(material == Material.CHEST) {
-			return Interaction.CHEST;
+			return InteractionType.CHEST;
 		} else if(material == Material.DISPENSER) {
-			return Interaction.DISPENSER;
+			return InteractionType.DISPENSER;
 		} else if(material == Material.STONE_BUTTON) {
-			return Interaction.BUTTON;
+			return InteractionType.BUTTON;
 		} else if(material == Material.LEVER) {
-			return Interaction.LEVER;
+			return InteractionType.LEVER;
 		}
 		return null;
 	}

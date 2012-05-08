@@ -3,7 +3,6 @@ package me.arno.blocklog.commands;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.database.Query;
 import me.arno.blocklog.schedules.UndoRollback;
 
@@ -12,15 +11,15 @@ import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
 public class CommandUndo extends BlockLogCommand {
-	public CommandUndo(BlockLog plugin) {
-		super(plugin, "blocklog.rollback");
+	public CommandUndo() {
+		super("blocklog.rollback");
+		setCommandUsage("/bl undo [id] [delay <value>] [limit <amount>]");
 	}
 
+	@Override
 	public boolean execute(Player player, Command cmd, String[] args) {
-		if(args.length > 5) {
-			player.sendMessage(ChatColor.WHITE + "/bl undo [id] [delay <value>] [limit <amount>]");
-			return true;
-		}
+		if(args.length > 5)
+			return false;
 		
 		if(!hasPermission(player)) {
 			player.sendMessage("You don't have permission");

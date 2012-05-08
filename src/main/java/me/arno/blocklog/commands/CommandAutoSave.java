@@ -1,20 +1,19 @@
 package me.arno.blocklog.commands;
 
-import me.arno.blocklog.BlockLog;
-
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
 public class CommandAutoSave extends BlockLogCommand {
-	public CommandAutoSave(BlockLog plugin) {
-		super(plugin, "blocklog.autosave", true);
+	public CommandAutoSave() {
+		super("blocklog.autosave", true);
+		setCommandUsage("/bl autosave [amount|info]");
 	}
 	
+	@Override
 	public boolean execute(Player player, Command cmd, String[] args) {
 		if(args.length > 1) {
-			player.sendMessage(ChatColor.WHITE + "/bl autosave [amount|info]");
-			return true;
+			return false;
 		}
 		
 		if(!hasPermission(player)) {

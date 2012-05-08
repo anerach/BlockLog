@@ -6,8 +6,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import me.arno.blocklog.BlockLog;
-import me.arno.blocklog.Log;
 import me.arno.blocklog.database.Query;
+import me.arno.blocklog.logs.LogType;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -50,9 +50,9 @@ public class Rollback implements Runnable {
 			for(int i=0;i<limit;i++) {
 				if(blocks.next()) {
 					Location location = new Location(world, blocks.getDouble("x"), blocks.getDouble("y"), blocks.getDouble("z"));
-					Log type = Log.values()[blocks.getInt("type")];
+					LogType type = LogType.values()[blocks.getInt("type")];
 					
-					if(type == Log.BREAK || type == Log.FIRE || type == Log.EXPLOSION || type == Log.LEAVES || type == Log.FADE || type == Log.EXPLOSION_CREEPER || type == Log.EXPLOSION_GHAST || type == Log.EXPLOSION_TNT)
+					if(type == LogType.BREAK || type == LogType.FIRE || type == LogType.EXPLOSION || type == LogType.LEAVES || type == LogType.FADE || type == LogType.EXPLOSION_CREEPER || type == LogType.EXPLOSION_GHAST || type == LogType.EXPLOSION_TNT)
 						world.getBlockAt(location).setTypeIdAndData(blocks.getInt("block_id"), blocks.getByte("datavalue"), false);
 					else
 						world.getBlockAt(location).setType(Material.AIR);

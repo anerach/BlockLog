@@ -1,6 +1,7 @@
 package me.arno.blocklog;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,29 +15,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
-import me.arno.blocklog.commands.CommandAutoSave;
-import me.arno.blocklog.commands.CommandCancel;
-import me.arno.blocklog.commands.CommandClear;
-import me.arno.blocklog.commands.CommandConfig;
-import me.arno.blocklog.commands.CommandHelp;
-import me.arno.blocklog.commands.CommandLookup;
-import me.arno.blocklog.commands.CommandRead;
-import me.arno.blocklog.commands.CommandReload;
-import me.arno.blocklog.commands.CommandReport;
-import me.arno.blocklog.commands.CommandRollback;
-import me.arno.blocklog.commands.CommandRollbackList;
-import me.arno.blocklog.commands.CommandSave;
-import me.arno.blocklog.commands.CommandSearch;
-import me.arno.blocklog.commands.CommandStorage;
-import me.arno.blocklog.commands.CommandUndo;
-import me.arno.blocklog.commands.CommandWand;
+import me.arno.blocklog.commands.*;
 import me.arno.blocklog.database.DatabaseSettings;
-import me.arno.blocklog.listeners.BlockListener;
-import me.arno.blocklog.listeners.InteractionListener;
-import me.arno.blocklog.listeners.McMMOListener;
-import me.arno.blocklog.listeners.NoticeListener;
-import me.arno.blocklog.listeners.PlayerListener;
-import me.arno.blocklog.listeners.WandListener;
+import me.arno.blocklog.listeners.*;
+import me.arno.blocklog.logs.LogType;
 import me.arno.blocklog.logs.LoggedBlock;
 import me.arno.blocklog.logs.LoggedInteraction;
 import me.arno.blocklog.pail.PailInterface;
@@ -48,7 +30,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
@@ -61,7 +42,7 @@ public class BlockLog extends JavaPlugin {
 	public DatabaseSettings dbSettings;
 	public Connection conn;
 	
-	public Config logConfig;
+	private SettingsManager settingsManager;
 	
 	public final String[] SQLTables = {"blocks", "rollbacks", "undos", "interactions", "reports", "chat", "deaths", "kills", "commands"};
 	
@@ -127,22 +108,22 @@ public class BlockLog extends JavaPlugin {
 		return null;
 	}
 	
-	public FileConfiguration getLogConfig() {
-		return logConfig.getConfig();
-	}
-	
-	public void reloadLogConfig() {
-		logConfig.reloadConfig();
-	}
-	
-	public void saveLogConfig() {
-		logConfig.saveConfig();
+	public SettingsManager getSettingsManager() {
+		return settingsManager;
 	}
 	
 	private void loadConfiguration() {
-		ArrayList<String> worlds = new ArrayList<String>();
+		settingsManager = new SettingsManager();
+		
+		Config worldConfig;
 		for(World world : getServer().getWorlds()) {
-			worlds.add(world.getName());
+			worldConfig = new Config("worlds" + File.pathSeparator + world.getName() + ".yml");
+			
+			for(LogType type : LogType.values()) {
+				if(type != LogType.EXPLOSION_CREEPER && type != LogType.EXPLOSION_GHAST && type != LogType.EXPLOSION_TNT) {
+					worldConfig.getConfig().addDefault(type.name(), true);
+				}
+			}
 		}
 		
 		getConfig().addDefault("mysql.host", "localhost");
@@ -158,7 +139,6 @@ public class BlockLog extends JavaPlugin {
 	    getConfig().addDefault("blocklog.warning.delay", 30);
 	    getConfig().addDefault("blocklog.autosave.enabled", true);
 	    getConfig().addDefault("blocklog.autosave.blocks", 1000);
-	    getConfig().addDefault("blocklog.worlds", worlds);
 	    getConfig().addDefault("blocklog.reports", true);
 	    getConfig().addDefault("blocklog.updates", true);
 	    getConfig().addDefault("blocklog.metrics", true);
@@ -176,18 +156,6 @@ public class BlockLog extends JavaPlugin {
 	    getConfig().addDefault("cleanup.kills.days", 14);
 	    getConfig().options().copyDefaults(true);
 	    saveConfig();
-		
-	    getLogConfig().addDefault("logs.leaves", true);
-	    getLogConfig().addDefault("logs.portal", false);
-	    getLogConfig().addDefault("logs.form", false);
-	    getLogConfig().addDefault("logs.spread", false);
-	    getLogConfig().addDefault("logs.grow", true);
-	    getLogConfig().addDefault("logs.fade", false);
-	    getLogConfig().addDefault("logs.chat", false);
-	    getLogConfig().addDefault("logs.kill", false);
-	    getLogConfig().addDefault("logs.death", false);
-	    getLogConfig().options().copyDefaults(true);
-	    saveLogConfig();
 		
 		if(getConfig().getBoolean("blocklog.autosave.enabled")) {
 			autoSave = getConfig().getInt("blocklog.autosave.blocks");
@@ -293,7 +261,6 @@ public class BlockLog extends JavaPlugin {
 	private void loadPlugin() {
 		plugin = this;
 		currentVersion = getDescription().getVersion();
-		logConfig = new Config("logging.yml");
 		log = getLogger();
 	    
 	    log.info("Loading the dependencies");
@@ -406,53 +373,71 @@ public class BlockLog extends JavaPlugin {
 		
 		String[] newArgs = argList.toArray(new String[]{});
 		
+		BlockLogCommand command;
+		
 		if(args[0].equalsIgnoreCase("help") || args[0].equalsIgnoreCase("h")) {
-			CommandHelp command = new CommandHelp(this);
+			command = new CommandHelp();
+			command.setCommandUsage(command.getCommandUsage());
 			return command.execute(player, cmd, newArgs);
 		} else if(args[0].equalsIgnoreCase("autosave")) {
-			CommandAutoSave command = new CommandAutoSave(this);
+			command = new CommandAutoSave();
+			command.setCommandUsage(command.getCommandUsage());
 			return command.execute(player, cmd, newArgs);
 		} else if(args[0].equalsIgnoreCase("cancel")) {
-			CommandCancel command = new CommandCancel(this);
+			command = new CommandCancel();
+			command.setCommandUsage(command.getCommandUsage());
 			return command.execute(player, cmd, newArgs);
 		} else if(args[0].equalsIgnoreCase("clear")) {
-			CommandClear command = new CommandClear(this);
+			command = new CommandClear();
+			command.setCommandUsage(command.getCommandUsage());
 			return command.execute(player, cmd, newArgs);
 		} else if(args[0].equalsIgnoreCase("config") || args[0].equalsIgnoreCase("cfg")) {
-			CommandConfig command = new CommandConfig(this);
+			command = new CommandConfig();
+			command.setCommandUsage(command.getCommandUsage());
 			return command.execute(player, cmd, newArgs);
 		} else if(args[0].equalsIgnoreCase("lookup")) {
-			CommandLookup command = new CommandLookup(this);
+			command = new CommandLookup();
+			command.setCommandUsage(command.getCommandUsage());
 			return command.execute(player, cmd, newArgs);
 		} else if(args[0].equalsIgnoreCase("read")) {
-			CommandRead command = new CommandRead(this);
+			command = new CommandRead();
+			command.setCommandUsage(command.getCommandUsage());
 			return command.execute(player, cmd, newArgs);
 		} else if(args[0].equalsIgnoreCase("reload")) {
-			CommandReload command = new CommandReload(this);
+			command = new CommandReload();
+			command.setCommandUsage(command.getCommandUsage());
 			return command.execute(player, cmd, newArgs);
 		} else if(args[0].equalsIgnoreCase("report")) {
-			CommandReport command = new CommandReport(this);
+			command = new CommandReport();
+			command.setCommandUsage(command.getCommandUsage());
 			return command.execute(player, cmd, newArgs);
 		} else if(args[0].equalsIgnoreCase("rollback") || args[0].equalsIgnoreCase("rb")) {
-			CommandRollback command = new CommandRollback(this);
+			command = new CommandRollback();
+			command.setCommandUsage(command.getCommandUsage());
 			return command.execute(player, cmd, newArgs);
 		} else if(args[0].equalsIgnoreCase("rollbacklist") || args[0].equalsIgnoreCase("rblist") || args[0].equalsIgnoreCase("rbl")) {
-			CommandRollbackList command = new CommandRollbackList(this);
+			command = new CommandRollbackList();
+			command.setCommandUsage(command.getCommandUsage());
 			return command.execute(player, cmd, newArgs);
 		} else if(args[0].equalsIgnoreCase("save")) {
-			CommandSave command = new CommandSave(this);
+			command = new CommandSave();
+			command.setCommandUsage(command.getCommandUsage());
 			return command.execute(player, cmd, newArgs);
 		} else if(args[0].equalsIgnoreCase("search")) {
-			CommandSearch command = new CommandSearch(this);
+			command = new CommandSearch();
+			command.setCommandUsage(command.getCommandUsage());
 			return command.execute(player, cmd, newArgs);
 		} else if(args[0].equalsIgnoreCase("storage")) {
-			CommandStorage command = new CommandStorage(this);
+			command = new CommandStorage();
+			command.setCommandUsage(command.getCommandUsage());
 			return command.execute(player, cmd, newArgs);
 		} else if(args[0].equalsIgnoreCase("undo")) {
-			CommandUndo command = new CommandUndo(this);
+			command = new CommandUndo();
+			command.setCommandUsage(command.getCommandUsage());
 			return command.execute(player, cmd, newArgs);
 		} else if(args[0].equalsIgnoreCase("wand")) {
-			CommandWand command = new CommandWand(this);
+			command = new CommandWand();
+			command.setCommandUsage(command.getCommandUsage());
 			return command.execute(player, cmd, newArgs);
 		}
 		return true;

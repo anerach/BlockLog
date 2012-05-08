@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
+import org.bukkit.command.Command;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
@@ -18,24 +19,34 @@ public class BlockLogCommand {
 	public final String permission;
 	public final Boolean console;
 	
-	public BlockLogCommand(BlockLog plugin) {
-		this(plugin, null, false);
+	public String usage;
+	
+	public BlockLogCommand() {
+		this(null, false);
 	}
 	
-	public BlockLogCommand(BlockLog plugin, Boolean console) {
-		this(plugin, null, console);
+	public BlockLogCommand(Boolean console) {
+		this(null, console);
 	}
 	
-	public BlockLogCommand(BlockLog plugin, String permission) {
-		this(plugin, permission, false);
+	public BlockLogCommand(String permission) {
+		this(permission, false);
 	}
 	
-	public BlockLogCommand(BlockLog plugin, String permission, Boolean console) {
-		this.plugin = plugin;
+	public BlockLogCommand(String permission, Boolean console) {
+		this.plugin = BlockLog.plugin;
 		this.log = plugin.log;
 		this.conn = plugin.conn;
 		this.permission = permission;
 		this.console = console;
+	}
+	
+	public void setCommandUsage(String usage) {
+		this.usage = usage;
+	}
+	
+	public String getCommandUsage() {
+		return usage;
 	}
 	
 	public void sendAdminMessage(String msg) {
@@ -96,5 +107,10 @@ public class BlockLogCommand {
 		else if(timeVal.equalsIgnoreCase("w"))
 			time = (int) (System.currentTimeMillis()/1000 - timeInt * 60 * 60 * 24 * 7);
 		return time;
+	}
+	
+	public boolean execute(Player player, Command cmd, String[] args) {
+		player.sendMessage("This command has no use");
+		return true;
 	}
 }

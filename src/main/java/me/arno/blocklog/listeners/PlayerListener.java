@@ -1,25 +1,148 @@
 package me.arno.blocklog.listeners;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
 import org.bukkit.command.Command;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
 
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+
 import me.arno.blocklog.BlockLog;
+import me.arno.blocklog.logs.LogType;
+import me.arno.blocklog.logs.LoggedBlock;
 import me.arno.blocklog.logs.LoggedChat;
 import me.arno.blocklog.logs.LoggedCommand;
 import me.arno.blocklog.logs.LoggedDeath;
 import me.arno.blocklog.logs.LoggedKill;
+import me.ryanhamshire.GriefPrevention.Claim;
+import me.ryanhamshire.GriefPrevention.GriefPrevention;
 
 public class PlayerListener extends BlockLogListener {
 	public PlayerListener(BlockLog plugin) {
 		super(plugin);
+	}
+	
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onBlockPlace(BlockPlaceEvent event) {
+		BlockState block = event.getBlock().getState();
+		Player player = event.getPlayer();
+		
+		Boolean cancel = !getSettingsManager().isLoggingEnabled(player.getWorld(), LogType.PLACE);
+		
+		if(plugin.softDepends.containsKey("GriefPrevention")) {
+			GriefPrevention gp = (GriefPrevention) plugin.softDepends.get("GriefPrevention");
+			Claim claim = gp.dataStore.getClaimAt(block.getLocation(), false, null);
+			
+			if(claim != null)
+				cancel = claim.allowBuild(player) != null;
+		}
+		
+		if(plugin.softDepends.containsKey("WorldGuard")) {
+			WorldGuardPlugin wg = (WorldGuardPlugin) plugin.softDepends.get("WorldGuard");
+			cancel = !wg.canBuild(player, block.getLocation());
+		}
+		
+		boolean WandEnabled = plugin.users.contains(event.getPlayer().getName());
+		
+		if(event.getPlayer().getItemInHand().getType() == getSettingsManager().getWand() && WandEnabled)
+			cancel = true;
+		
+		if(!event.isCancelled() && !cancel) {
+			plugin.addBlock(new LoggedBlock(plugin, player, block, LogType.PLACE));
+			BlocksLimitReached();
+		}
+	}
+
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onBlockBreak(BlockBreakEvent event) {
+		BlockState block = event.getBlock().getState();
+		Player player = event.getPlayer();
+		
+		Boolean cancel = !getSettingsManager().isLoggingEnabled(player.getWorld(), LogType.BREAK);
+		
+		if(plugin.softDepends.containsKey("GriefPrevention")) {
+			GriefPrevention gp = (GriefPrevention) plugin.softDepends.get("GriefPrevention");
+			Claim claim = gp.dataStore.getClaimAt(block.getLocation(), false, null);
+			
+			if(claim != null)
+				cancel = claim.allowBuild(player) != null;
+		}
+		
+		if(plugin.softDepends.containsKey("WorldGuard")) {
+			WorldGuardPlugin wg = (WorldGuardPlugin) plugin.softDepends.get("WorldGuard");
+			cancel = !wg.canBuild(player, block.getLocation());
+		}
+		
+		if(!event.isCancelled() && !cancel) {
+			plugin.addBlock(new LoggedBlock(plugin, player, block, LogType.BREAK));
+			BlocksLimitReached();
+		}
+	}
+	
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onPlayerBucketEmpty(PlayerBucketEmptyEvent event) {
+		BlockState block = event.getBlockClicked().getRelative(event.getBlockFace()).getState();
+		Player player = event.getPlayer();
+		
+		Boolean cancel = !getSettingsManager().isLoggingEnabled(player.getWorld(), LogType.PLACE);
+		
+		if(plugin.softDepends.containsKey("GriefPrevention")) {
+			GriefPrevention gp = (GriefPrevention) plugin.softDepends.get("GriefPrevention");
+			Claim claim = gp.dataStore.getClaimAt(block.getLocation(), false, null);
+			
+			if(claim != null)
+				cancel = claim.allowBuild(player) != null;
+		}
+		
+		if(plugin.softDepends.containsKey("WorldGuard")) {
+			WorldGuardPlugin wg = (WorldGuardPlugin) plugin.softDepends.get("WorldGuard");
+			cancel = !wg.canBuild(player, block.getLocation());
+		}
+		
+		if(!event.isCancelled() && !cancel) {
+			if(event.getBucket() == Material.WATER_BUCKET)
+				block.setType(Material.WATER);
+			else if(event.getBucket() == Material.LAVA_BUCKET)
+				block.setType(Material.LAVA);
+			
+			plugin.addBlock(new LoggedBlock(plugin, player, block, LogType.PLACE));
+			BlocksLimitReached();
+		}
+	}
+	
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onPlayerInteract(PlayerInteractEvent event) {
+		if(!event.isCancelled() && getSettingsManager().isLoggingEnabled(event.getPlayer().getWorld(), LogType.PORTAL)) {
+			Block block;
+			block = event.getClickedBlock().getRelative(BlockFace.UP);
+			if(block.getType() != Material.FIRE)
+				block = event.getClickedBlock().getRelative(BlockFace.NORTH);
+			if(block.getType() != Material.FIRE)
+				block = event.getClickedBlock().getRelative(BlockFace.EAST);
+			if(block.getType() != Material.FIRE)
+				block = event.getClickedBlock().getRelative(BlockFace.SOUTH);
+			if(block.getType() != Material.FIRE)
+				block = event.getClickedBlock().getRelative(BlockFace.WEST);
+			if(block.getType() == Material.FIRE) {
+				plugin.addBlock(new LoggedBlock(plugin, event.getPlayer(), block.getState(), LogType.BREAK));
+				BlocksLimitReached();
+			}
+		}
 	}
 	
 	@EventHandler
@@ -36,7 +159,7 @@ public class PlayerListener extends BlockLogListener {
 	}	
 	@EventHandler
 	public void onPlayerChat(PlayerChatEvent event) {
-		if(!event.isCancelled() && getLogConfig().getBoolean("logs.chat")) {
+		if(!event.isCancelled()) {
 			Player player = event.getPlayer();
 			LoggedChat lchat = new LoggedChat(plugin, player, event.getMessage());
 			lchat.save();
@@ -46,7 +169,7 @@ public class PlayerListener extends BlockLogListener {
 	@EventHandler
 	public void onEntityDeath(EntityDeathEvent event) {
 		if(event.getEntityType() == EntityType.PLAYER) {
-			if(event.getEntity() instanceof Player && getLogConfig().getBoolean("logs.death")) {
+			if(event.getEntity() instanceof Player) {
 				Player player = (Player) event.getEntity();
 				
 				DamageCause deathCause = event.getEntity().getLastDamageCause().getCause();
@@ -81,7 +204,7 @@ public class PlayerListener extends BlockLogListener {
 			LivingEntity victem = event.getEntity();
 			Player killer = event.getEntity().getKiller();
 			
-			if(killer != null && getLogConfig().getBoolean("logs.kill")) {
+			if(killer != null) {
 				LoggedKill lkill = new LoggedKill(plugin, victem, killer);
 				lkill.save();
 			}

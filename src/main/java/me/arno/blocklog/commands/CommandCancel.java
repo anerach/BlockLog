@@ -4,17 +4,16 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
-import me.arno.blocklog.BlockLog;
-
 public class CommandCancel extends BlockLogCommand {
-	public CommandCancel(BlockLog plugin) {
-		super(plugin, "blocklog.rollback");
+	public CommandCancel() {
+		super("blocklog.rollback");
+		setCommandUsage("/bl cancel <id>");
 	}
 	
+	@Override
 	public boolean execute(Player player, Command cmd, String[] args) {
 		if(args.length != 1) {
-			player.sendMessage(ChatColor.WHITE + "/bl cancel <id>");
-			return true;
+			return false;
 		}
 		
 		if(!hasPermission(player)) {

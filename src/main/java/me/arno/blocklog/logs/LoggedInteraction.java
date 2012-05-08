@@ -4,7 +4,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import me.arno.blocklog.BlockLog;
-import me.arno.blocklog.Interaction;
 
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -18,10 +17,10 @@ public class LoggedInteraction {
 	private final Location location;
 	private final World world;
 	
-	private final Interaction type;
+	private final InteractionType type;
 	private final long date;
 	
-	public LoggedInteraction(BlockLog plugin, Player player, Location location, Interaction type) {
+	public LoggedInteraction(BlockLog plugin, Player player, Location location, InteractionType type) {
 		this.plugin = plugin;
 		this.player = player;
 		this.location = location;
@@ -63,7 +62,7 @@ public class LoggedInteraction {
 		return type.getTypeId();
 	}
 	
-	public Interaction getType() {
+	public InteractionType getType() {
 		return type;
 	}
 	

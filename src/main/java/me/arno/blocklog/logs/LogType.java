@@ -13,7 +13,11 @@ public enum LogType {
 	FADE(9),
 	EXPLOSION_CREEPER(10),
 	EXPLOSION_GHAST(11),
-	EXPLOSION_TNT(12);
+	EXPLOSION_TNT(12),
+	CHAT(101),
+	COMMAND(102),
+	DEATH(103),
+	KILL(104);
 	
 	int id;
 	LogType(int id) {

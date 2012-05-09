@@ -147,7 +147,7 @@ public class PlayerListener extends BlockLogListener {
 	
 	@EventHandler
 	public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
-		if(!event.isCancelled()) {
+		if(!event.isCancelled() && getSettingsManager().isLoggingEnabled(event.getPlayer().getWorld(), LogType.COMMAND)) {
 			Player player = event.getPlayer();
 			String[] args = event.getMessage().replace('/', ' ').trim().split(" ");
 			Command cmd = Bukkit.getPluginCommand(args[0]);
@@ -159,7 +159,7 @@ public class PlayerListener extends BlockLogListener {
 	}	
 	@EventHandler
 	public void onPlayerChat(PlayerChatEvent event) {
-		if(!event.isCancelled()) {
+		if(!event.isCancelled() && getSettingsManager().isLoggingEnabled(event.getPlayer().getWorld(), LogType.CHAT)) {
 			Player player = event.getPlayer();
 			LoggedChat lchat = new LoggedChat(plugin, player, event.getMessage());
 			lchat.save();
@@ -168,7 +168,7 @@ public class PlayerListener extends BlockLogListener {
 	
 	@EventHandler
 	public void onEntityDeath(EntityDeathEvent event) {
-		if(event.getEntityType() == EntityType.PLAYER) {
+		if(event.getEntityType() == EntityType.PLAYER && getSettingsManager().isLoggingEnabled(event.getEntity().getWorld(), LogType.DEATH)) {
 			if(event.getEntity() instanceof Player) {
 				Player player = (Player) event.getEntity();
 				
@@ -204,7 +204,7 @@ public class PlayerListener extends BlockLogListener {
 			LivingEntity victem = event.getEntity();
 			Player killer = event.getEntity().getKiller();
 			
-			if(killer != null) {
+			if(killer != null  && getSettingsManager().isLoggingEnabled(victem.getWorld(), LogType.KILL)) {
 				LoggedKill lkill = new LoggedKill(plugin, victem, killer);
 				lkill.save();
 			}

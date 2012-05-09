@@ -1,11 +1,11 @@
 name: BlockLog
 main: me.arno.blocklog.BlockLog
-version: 2.0.2
-author: Anerach
+version: 2.1.0
+author: anerach
 dev-url: http://dev.bukkit.org/server-mods/block-log
 description: >
             A simple and effective log plugin with anti-grief features
-softdepend: [GriefPrevention, WorldGuard]
+softdepend: [Pail]
 commands:
     blocklog:
         description: Shows basic blocklog information

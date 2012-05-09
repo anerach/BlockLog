@@ -9,7 +9,6 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import me.arno.blocklog.BlockLog;
-import me.arno.blocklog.Config;
 
 
 public class Query {
@@ -61,7 +60,7 @@ public class Query {
 	}
 	
 	public Query addSelectDate(String select, String format, String as) {
-		String defaultFormat = new Config().getConfig().getString("blocklog.dateformat");
+		String defaultFormat = BlockLog.plugin.getSettingsManager().getDateFormat();
 		format = (format == null) ? defaultFormat : format;
 		String str = "FROM_UNIXTIME(" + select + ", '" + format + "')" + (as == null ? "" : " AS " + as);
 		
@@ -152,7 +151,7 @@ public class Query {
 	}
 	
 	private String getQuery() throws SQLException {
-String query = "";
+		String query = "";
 		
 		if(selectClause != null)
 			query += selectClause;

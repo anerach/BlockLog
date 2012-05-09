@@ -15,9 +15,9 @@ public class SettingsManager {
 		if(type == LogType.EXPLOSION_CREEPER || type == LogType.EXPLOSION_GHAST || type == LogType.EXPLOSION_TNT)
 			type = LogType.EXPLOSION;
 		
-		Config config = new Config("world" + File.separator + world.getName() + ".yml");
+		Config config = new Config("worlds" + File.separator + world.getName() + ".yml");
 		
-		return config.getConfig().getBoolean(type.name(), false);
+		return config.getConfig().getBoolean(type.name());
 	}
 	
 	public FileConfiguration getConfig() {

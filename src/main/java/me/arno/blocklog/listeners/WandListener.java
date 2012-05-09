@@ -38,8 +38,7 @@ public class WandListener extends BlockLogListener {
 			int blockSize = Interactions.size();
 			int maxResults = getSettingsManager().getMaxResults();
 			
-			while(blockSize > blockNumber)
-			{
+			while(blockSize > blockNumber) {
 				LoggedInteraction LInteraction = Interactions.get(blockNumber); 
 				if(LInteraction.getX() == location.getX() && LInteraction.getY() == location.getY() && LInteraction.getZ() == location.getZ() && LInteraction.getWorld() == location.getWorld()) {
 					if(blockCount == maxResults)
@@ -51,7 +50,7 @@ public class WandListener extends BlockLogListener {
 					else
 						action = "USED";
 					
-					String name = interaction.getMaterial().name();
+					String name = interaction.name();
 					
 					Calendar calendar = GregorianCalendar.getInstance();
 					calendar.setTimeInMillis(LInteraction.getDate() * 1000);
@@ -85,11 +84,13 @@ public class WandListener extends BlockLogListener {
 					else
 						action = "USED";
 	            	
-	            	String name = Material.getMaterial(rs.getInt("block_id")).toString();
-					player.sendMessage(Text.addSpaces(ChatColor.GOLD + rs.getString("player"), 99) + Text.addSpaces(ChatColor.DARK_RED + action, 80) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + rs.getString("date") + "]");
+	            	String name = interaction.name();
+					player.sendMessage(ChatColor.GOLD + Text.addSpaces(rs.getString("player"), 99) + ChatColor.DARK_RED + Text.addSpaces(action, 80) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + rs.getString("date") + "]");
 				}
 			}
 		} catch(SQLException e) {
+			e.getStackTrace();
+		} catch(Exception e) {
 			e.getStackTrace();
 		}
 	}
@@ -104,8 +105,7 @@ public class WandListener extends BlockLogListener {
 			int blockSize = plugin.getBlocks().size();
 			int maxResults = getSettingsManager().getMaxResults();
 			
-			while(blockSize > blockNumber)
-			{
+			while(blockSize > blockNumber) {
 				LoggedBlock LBlock = plugin.getBlocks().get(blockNumber); 
 				if(LBlock.getX() == location.getX() && LBlock.getY() == location.getY() && LBlock.getZ() == location.getZ() && LBlock.getWorld() == location.getWorld()) {
 					if(blockCount == maxResults)
@@ -129,26 +129,28 @@ public class WandListener extends BlockLogListener {
 			}
 			
 			
-			// Database Results
-			Query query = new Query("blocklog_blocks");
-			query.addSelect("entity", "trigered", "block_id", "type");
-			query.addSelectDate("date");
-			query.addWhere("x", location.getBlockX());
-			query.addWhere("y", location.getBlockY());
-			query.addWhere("z", location.getBlockZ());
-			query.addWhere("world", location.getWorld().getName());
-			query.addOrderBy("date", "DESC");
-			
-			ResultSet rs = query.getResult();
-			
-			while(rs.next()) {
-				String name = Material.getMaterial(rs.getInt("block_id")).toString();
-				LogType type = LogType.values()[rs.getInt("type")];
+			if(blockCount < maxResults) {
+				Query query = new Query("blocklog_blocks");
+				query.addSelect("entity", "trigered", "block_id", "type");
+				query.addSelectDate("date");
+				query.addWhere("x", location.getBlockX());
+				query.addWhere("y", location.getBlockY());
+				query.addWhere("z", location.getBlockZ());
+				query.addWhere("world", location.getWorld().getName());
+				query.addOrderBy("date", "DESC");
+				query.addLimit(maxResults - blockCount);
 				
-				if(type.getId() <= 12 && type.getId() >= 10)
-					type = LogType.EXPLOSION;
+				ResultSet rs = query.getResult();
 				
-				player.sendMessage(Text.addSpaces(ChatColor.GOLD + rs.getString("trigered"), 99) + Text.addSpaces(ChatColor.DARK_RED + type.name(), 81) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + rs.getString("date") + "]");
+				while(rs.next()) {
+					String name = Material.getMaterial(rs.getInt("block_id")).toString();
+					LogType type = LogType.values()[rs.getInt("type")];
+					
+					if(type.getId() <= 12 && type.getId() >= 10)
+						type = LogType.EXPLOSION;
+					
+					player.sendMessage(Text.addSpaces(ChatColor.GOLD + rs.getString("trigered"), 99) + Text.addSpaces(ChatColor.DARK_RED + type.name(), 81) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + rs.getString("date") + "]");
+				}
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

@@ -10,7 +10,7 @@ public class Config {
 	FileConfiguration config;
 	File configFile;
 	String file;
-	static File configDir = new File("plugins/BlockLog");
+	static File configDir = BlockLog.plugin.getDataFolder();
 	
 	public Config() {
 		this("config.yml");
@@ -21,7 +21,7 @@ public class Config {
 			configDir.mkdirs();
 		
 		this.file = file;
-		this.configFile = new File("plugins/BlockLog/" + file);
+		this.configFile = new File(configDir + File.separator + file);
 		loadConfig();
 	}
 	

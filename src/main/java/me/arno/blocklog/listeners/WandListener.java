@@ -9,9 +9,9 @@ import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.database.Query;
 import me.arno.blocklog.logs.InteractionType;
 import me.arno.blocklog.logs.LogType;
-import me.arno.blocklog.logs.LoggedBlock;
-import me.arno.blocklog.logs.LoggedInteraction;
-import me.arno.blocklog.util.Text;
+import me.arno.blocklog.logs.BlockEdit;
+import me.arno.blocklog.logs.BlockInteraction;
+import me.arno.util.Text;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -32,14 +32,14 @@ public class WandListener extends BlockLogListener {
 			player.sendMessage(ChatColor.YELLOW + "Block History" + ChatColor.BLUE + " (" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ")" + ChatColor.DARK_GRAY + " ------------------------");
             player.sendMessage(ChatColor.GRAY + Text.addSpaces("Name", 90) + Text.addSpaces("Action", 75) + "Details");
             
-			ArrayList<LoggedInteraction> Interactions = plugin.getInteractions();
+			ArrayList<BlockInteraction> Interactions = getLogManager().getInteractionQueue();
 			int blockNumber = 0;
 			int blockCount = 0;
 			int blockSize = Interactions.size();
 			int maxResults = getSettingsManager().getMaxResults();
 			
 			while(blockSize > blockNumber) {
-				LoggedInteraction LInteraction = Interactions.get(blockNumber); 
+				BlockInteraction LInteraction = Interactions.get(blockNumber); 
 				if(LInteraction.getX() == location.getX() && LInteraction.getY() == location.getY() && LInteraction.getZ() == location.getZ() && LInteraction.getWorld() == location.getWorld()) {
 					if(blockCount == maxResults)
 						break;
@@ -102,11 +102,11 @@ public class WandListener extends BlockLogListener {
             
             int blockNumber = 0;
             int blockCount = 0;
-			int blockSize = plugin.getBlocks().size();
+			int blockSize = getLogManager().getEditQueueSize();
 			int maxResults = getSettingsManager().getMaxResults();
 			
 			while(blockSize > blockNumber) {
-				LoggedBlock LBlock = plugin.getBlocks().get(blockNumber); 
+				BlockEdit LBlock = getLogManager().getEditQueue().get(blockNumber); 
 				if(LBlock.getX() == location.getX() && LBlock.getY() == location.getY() && LBlock.getZ() == location.getZ() && LBlock.getWorld() == location.getWorld()) {
 					if(blockCount == maxResults)
 						break;

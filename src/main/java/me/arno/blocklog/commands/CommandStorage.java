@@ -21,11 +21,11 @@ public class CommandStorage extends BlockLogCommand {
 		}
 		
 		if(player == null) {
-			log.info(String.format("The internal storage contains %s block(s)!", plugin.getBlocks().size()));
-			log.info(String.format("The internal storage contains %s interaction(s)!", plugin.getInteractions().size()));
+			log.info(String.format("The internal storage contains %s block(s)!", getLogManager().getEditQueueSize()));
+			log.info(String.format("The internal storage contains %s interaction(s)!", getLogManager().getInteractionQueueSize()));
 		} else {
-			player.sendMessage(String.format(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "The internal storage contains %s block(s)!", plugin.getBlocks().size()));
-			player.sendMessage(String.format(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "The internal storage contains %s interaction(s)!", plugin.getInteractions().size()));
+			player.sendMessage(String.format(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "The internal storage contains %s block(s)!", getLogManager().getEditQueueSize()));
+			player.sendMessage(String.format(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "The internal storage contains %s interaction(s)!", getLogManager().getInteractionQueueSize()));
 		}
 		return true;
 	}

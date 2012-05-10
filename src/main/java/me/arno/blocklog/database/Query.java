@@ -174,6 +174,21 @@ public class Query {
 		return query;
 	}
 	
+	public int deleteRows() throws SQLException {
+		String query = "DELETE";
+		if(fromClause != null)
+			query += " " + fromClause;
+		else
+			throw new SQLException("FROM clause can't be null");
+		if(whereClause != null)
+			query += " " + whereClause;
+		
+		Connection conn = BlockLog.plugin.conn;
+		Statement stmt = conn.createStatement();
+		
+		return stmt.executeUpdate(query);
+	}
+	
 	public ResultSet getResult() throws SQLException {
 		Connection conn = BlockLog.plugin.conn;
 		Statement stmt = conn.createStatement();

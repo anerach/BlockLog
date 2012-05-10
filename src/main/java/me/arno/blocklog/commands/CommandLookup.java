@@ -99,7 +99,7 @@ public class CommandLookup extends BlockLogCommand {
 			query.addGroupBy("y");
 			query.addGroupBy("z");
 			query.addOrderBy("date", "DESC");
-			query.addLimit(getConfig().getInt("blocklog.results"));
+			query.addLimit(getSettingsManager().getMaxResults());
 			
 			ResultSet actions = query.getResult();
 			

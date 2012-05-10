@@ -37,18 +37,18 @@ public class CommandConfig extends BlockLogCommand {
 				ConfigKey = args[1];
 				ConfigValue = args[2];
 				
-				if(getConfig().isString(ConfigKey))
-					getConfig().set(ConfigKey, ConfigValue);
-				else if(getConfig().isInt(ConfigKey))
-					getConfig().set(ConfigKey, Integer.parseInt(ConfigValue));
-				else if(getConfig().isBoolean(ConfigKey))
-					getConfig().set(ConfigKey, Boolean.parseBoolean(ConfigValue));
+				if(getSettingsManager().getConfig().isString(ConfigKey))
+					getSettingsManager().getConfig().set(ConfigKey, ConfigValue);
+				else if(getSettingsManager().getConfig().isInt(ConfigKey))
+					getSettingsManager().getConfig().set(ConfigKey, Integer.parseInt(ConfigValue));
+				else if(getSettingsManager().getConfig().isBoolean(ConfigKey))
+					getSettingsManager().getConfig().set(ConfigKey, Boolean.parseBoolean(ConfigValue));
 				else
 					return false;
 				
 				player.sendMessage(ChatColor.DARK_RED +"[BlockLog][Config] " + ChatColor.GOLD + "Changed value of " + ConfigKey + " to " + ConfigValue);
-				saveConfig();
-				reloadConfig();
+				getSettingsManager().saveConfig();
+				getSettingsManager().reloadConfig();
 			} else if(action.equalsIgnoreCase("get")) {
 				if(args.length != 2)
 					return false;
@@ -56,12 +56,12 @@ public class CommandConfig extends BlockLogCommand {
 				ConfigKey = args[1].toString();
 				
 				String Result;
-				if(getConfig().isString(ConfigKey))
-					Result = getConfig().getString(ConfigKey);
-				else if(getConfig().isInt(ConfigKey))
-					Result = Integer.toString(getConfig().getInt(ConfigKey));
-				else if(getConfig().isBoolean(ConfigKey))
-					Result = Boolean.toString(getConfig().getBoolean(ConfigKey));
+				if(getSettingsManager().getConfig().isString(ConfigKey))
+					Result = getSettingsManager().getConfig().getString(ConfigKey);
+				else if(getSettingsManager().getConfig().isInt(ConfigKey))
+					Result = Integer.toString(getSettingsManager().getConfig().getInt(ConfigKey));
+				else if(getSettingsManager().getConfig().isBoolean(ConfigKey))
+					Result = Boolean.toString(getSettingsManager().getConfig().getBoolean(ConfigKey));
 				else 
 					return false;
 				

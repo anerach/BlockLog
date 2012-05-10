@@ -79,7 +79,7 @@ public class CommandRollbackList extends BlockLogCommand {
 				query.addWhere("blocklog_rollbacks.date", untilTime.toString(), "<");
 			
 			query.addOrderBy("blocklog_rollbacks.date", "DESC");
-			query.addLimit(getConfig().getInt("blocklog.results"));
+			query.addLimit(getSettingsManager().getMaxResults());
 			
 			ResultSet rollbacks = query.getResult();
 			

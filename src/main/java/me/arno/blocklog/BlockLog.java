@@ -1,11 +1,8 @@
 package me.arno.blocklog;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -13,15 +10,16 @@ import java.util.HashMap;
 import java.util.logging.Logger;
 
 import me.arno.blocklog.commands.*;
+import me.arno.blocklog.database.Query;
 import me.arno.blocklog.listeners.*;
 import me.arno.blocklog.logs.LogType;
-import me.arno.blocklog.logs.LoggedBlock;
-import me.arno.blocklog.logs.LoggedInteraction;
+import me.arno.blocklog.logs.BlockEdit;
+import me.arno.blocklog.logs.BlockInteraction;
 import me.arno.blocklog.managers.*;
 import me.arno.blocklog.pail.PailInterface;
 import me.arno.blocklog.schedules.Save;
 import me.arno.blocklog.schedules.Updates;
-import me.arno.blocklog.util.Text;
+import me.arno.util.Text;
 import me.escapeNT.pail.Pail;
 
 import org.bukkit.ChatColor;
@@ -39,17 +37,11 @@ public class BlockLog extends JavaPlugin {
 	public Logger log;
 	public Connection conn;
 	
-	private DatabaseManager databaseManager;
-	private SettingsManager settingsManager;
-	
-	public final String[] SQLTables = {"blocks", "rollbacks", "undos", "interactions", "reports", "chat", "deaths", "kills", "commands"};
+	private BlockLogManager manager;
 	
 	public ArrayList<String> users = new ArrayList<String>();
 	public HashMap<String, ItemStack> playerItemStack = new HashMap<String, ItemStack>();
 	public HashMap<String, Integer> playerItemSlot = new HashMap<String, Integer>();
-	
-	private ArrayList<LoggedBlock> blocks = new ArrayList<LoggedBlock>();
-	private ArrayList<LoggedInteraction> interactions = new ArrayList<LoggedInteraction>();
 	
 	private HashMap<Integer, Integer> schedules = new HashMap<Integer, Integer>();
 	
@@ -63,32 +55,20 @@ public class BlockLog extends JavaPlugin {
 	public int autoSave = 0;
 	public boolean saving = false;
 	
-	public void addBlock(LoggedBlock block) {
-		blocks.add(block);
-	}
-	
-	public void addInteraction(LoggedInteraction interaction) {
-		interactions.add(interaction);
-	}
-	
-	public ArrayList<LoggedBlock> getBlocks() {
-		return blocks;
-	}
-	
-	public ArrayList<LoggedInteraction> getInteractions() {
-		return interactions;
-	}
-	
 	public HashMap<Integer, Integer> getSchedules() {
 		return schedules;
 	}
 	
 	public SettingsManager getSettingsManager() {
-		return settingsManager;
+		return manager.getSettingsManager();
 	}
 	
 	public DatabaseManager getDatabaseManager() {
-		return databaseManager;
+		return manager.getDatabaseManager();
+	}
+	
+	public LogManager getLogManager() {
+		return manager.getLogManager();
 	}
 	
 	private void loadConfiguration() {
@@ -97,7 +77,7 @@ public class BlockLog extends JavaPlugin {
 			worldConfig = new Config("worlds" + File.separator + world.getName() + ".yml");
 			
 			for(LogType type : LogType.values()) {
-				if(type != LogType.EXPLOSION_CREEPER && type != LogType.EXPLOSION_GHAST && type != LogType.EXPLOSION_TNT) {
+				if(type != LogType.EXPLOSION_CREEPER && type != LogType.EXPLOSION_FIREBALL && type != LogType.EXPLOSION_TNT) {
 					worldConfig.getConfig().addDefault(type.name(), true);
 				}
 			}
@@ -122,17 +102,17 @@ public class BlockLog extends JavaPlugin {
 	    getConfig().addDefault("blocklog.updates", true);
 	    getConfig().addDefault("blocklog.metrics", true);
 	    getConfig().addDefault("blocklog.dateformat", "%d-%m %H:%i");
-	    getConfig().addDefault("cleanup.log", true);
-	    getConfig().addDefault("cleanup.blocks.enabled", false);
-	    getConfig().addDefault("cleanup.blocks.days", 14);
-	    getConfig().addDefault("cleanup.interactions.enabled", false);
-	    getConfig().addDefault("cleanup.interactions.days", 14);
-	    getConfig().addDefault("cleanup.chat.enabled", false);
-	    getConfig().addDefault("cleanup.chat.days", 14);
-	    getConfig().addDefault("cleanup.deaths.enabled", false);
-	    getConfig().addDefault("cleanup.deaths.days", 14);
-	    getConfig().addDefault("cleanup.kills.enabled", false);
-	    getConfig().addDefault("cleanup.kills.days", 14);
+	    getConfig().addDefault("purge.log", true);
+	    getConfig().addDefault("purge.blocks.enabled", false);
+	    getConfig().addDefault("purge.blocks.days", 14);
+	    getConfig().addDefault("purge.interactions.enabled", false);
+	    getConfig().addDefault("purge.interactions.days", 14);
+	    getConfig().addDefault("purge.chat.enabled", false);
+	    getConfig().addDefault("purge.chat.days", 14);
+	    getConfig().addDefault("purge.deaths.enabled", false);
+	    getConfig().addDefault("purge.deaths.days", 14);
+	    getConfig().addDefault("purge.kills.enabled", false);
+	    getConfig().addDefault("purge.kills.days", 14);
 	    getConfig().options().copyDefaults(true);
 	    saveConfig();
 		
@@ -141,31 +121,9 @@ public class BlockLog extends JavaPlugin {
 		}
 	}
 	
-	private void CleanUpDatabase() {
-		Long currentTime = System.currentTimeMillis()/1000;
-		String[] tables = new String[] {"blocks", "interactions", "chat", "deaths", "kills", "commands"};
-		
+	private void purgeDatabase() {
 		try {
-			FileWriter fstream = new FileWriter("BlockLog Database Cleanup.log");
-			BufferedWriter out = new BufferedWriter(fstream);
-			
-			Statement stmt = conn.createStatement();
-			Integer time;
-			
-			for(String table : tables) {
-				if(getConfig().getBoolean("cleanup." + table + ".enabled")) {
-					time = getConfig().getInt("cleanup." + table + ".days") * 60 * 60 * 24;
-					
-					ResultSet rs = stmt.executeQuery("SELECT COUNT(id) AS count FROM blocklog_" + table + " WHERE date < " + (currentTime - time));
-					rs.next();
-					if(rs.getString("count") != null) {
-						out.write("[BlockLog] Deleted " + rs.getString("count") + " results from blocklog_" + table + System.getProperty("line.separator"));
-						
-						stmt.executeUpdate("DELETE FROM blocklog_" + table + " WHERE date < " + (currentTime - time));
-					}
-				}
-			}
-			out.close();
+			getDatabaseManager().purge(DatabaseManager.purgeableTables);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -178,8 +136,8 @@ public class BlockLog extends JavaPlugin {
 	    	conn = getDatabaseManager().getConnection();
 	    	Statement stmt = conn.createStatement();
 	    	
-	    	for(String table : SQLTables) {
-	    		stmt.executeUpdate(Text.getResourceContent("database/blocklog_" + table + ".sql"));
+	    	for(String table : DatabaseManager.databaseTables) {
+	    		stmt.executeUpdate(Text.getResourceContent("database/" + DatabaseManager.databasePrefix + table + ".sql"));
 	    	}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -187,13 +145,24 @@ public class BlockLog extends JavaPlugin {
 	}
 	
 	private void updateDatabase() {
-		Config versions = new Config("VERSIONS");
-		versions.getConfig().addDefault("database", 10);
-		if(versions.getConfig().getInt("database") < 2) {
-			// Update code here
+		try {
+			Config versions = new Config("VERSIONS");
+			if(versions.getConfig().getInt("database", 1) == 10) {
+				new File(Config.configDir + "VERSIONS").delete();
+				versions = new Config("VERSIONS");
+			}
+			
+			versions.getConfig().addDefault("database", 1);
+			versions.getConfig().options().copyDefaults(true);
+			if(versions.getConfig().getInt("database") < 2) {
+				Statement stmt = conn.createStatement();
+				stmt.executeUpdate("ALTER TABLE `blocklog_blocks` CHANGE `trigered` `triggered` varchar(75) NOT NULL");
+				versions.getConfig().set("database", 2);
+			}
+			versions.saveConfig();
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
-		versions.getConfig().options().copyDefaults(true);
-		versions.saveConfig();
 	}
 	
 	private void loadDependencies() {
@@ -231,9 +200,20 @@ public class BlockLog extends JavaPlugin {
 	public void loadMetrics() {
 		try {
 		    Metrics metrics = new Metrics(this);
+		    metrics.addCustomData(new Metrics.Plotter("Total Blocks Stored") {
+		        @Override
+		        public int getValue() {
+		        	try {
+						return new Query("blocklog_blocks").getRowCount();
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+		        	return 0;
+		        }
+		    });
 		    metrics.start();
 		} catch (IOException e) {
-		    // Failed to submit the stats :-(
+			log.warning("Unable to submit the statistics");
 		}
 	}
 	
@@ -242,8 +222,7 @@ public class BlockLog extends JavaPlugin {
 		currentVersion = getDescription().getVersion();
 		log = getLogger();
 		
-		settingsManager = new SettingsManager();
-		databaseManager = new DatabaseManager();
+		manager = new BlockLogManager();
 	    
 	    log.info("Loading the dependencies");
 	    loadDependencies();
@@ -265,12 +244,8 @@ public class BlockLog extends JavaPlugin {
 	    	loadPailInterface();
 	    }
 	    
-	    log.info("Cleaning up the database");
-	    CleanUpDatabase();
-	    
-	    if(getConfig().getBoolean("blocklog.updates")) {
-	    	getServer().getScheduler().scheduleSyncRepeatingTask(this, new Updates(), 1L, 1 * 60 * 60 * 20L); // Check every hour for a new version
-	    }
+	    log.info("Purging the database");
+	    purgeDatabase();
 	    
 		log.info("Starting BlockLog");
 		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Save(this, 1, null, false), 100L, getSettingsManager().getBlockSaveDelay() * 20L);
@@ -280,10 +255,13 @@ public class BlockLog extends JavaPlugin {
     	getServer().getPluginManager().registerEvents(new InteractionListener(this), this);
     	getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
     	
-    	if(getConfig().getBoolean("blocklog.updates"))
-    		getServer().getPluginManager().registerEvents(new NoticeListener(this), this);
     	if(softDepends.containsKey("mcMMO"))
     		getServer().getPluginManager().registerEvents(new McMMOListener(this), this);
+    	
+    	if(getConfig().getBoolean("blocklog.updates")) {
+	    	getServer().getScheduler().scheduleSyncRepeatingTask(this, new Updates(), 1L, 1 * 60 * 60 * 20L); // Check every hour for a new version
+	    	getServer().getPluginManager().registerEvents(new NoticeListener(this), this);
+	    }
     }
 	
 	public void saveLogs(final int count) {
@@ -299,15 +277,15 @@ public class BlockLog extends JavaPlugin {
 			getServer().getScheduler().cancelTasks(this);
 			
 			log.info("Saving all the block edits!");
-			while(!interactions.isEmpty()) {
-	    		LoggedInteraction interaction = interactions.get(0);
+			while(!getLogManager().getInteractionQueue().isEmpty()) {
+	    		BlockInteraction interaction = getLogManager().getInteractionQueue().get(0);
 			    interaction.save();
-			    interactions.remove(0);
+			    getLogManager().getInteractionQueue().remove(0);
 	    	}
-			while(!blocks.isEmpty()) {
-				LoggedBlock block = blocks.get(0);
+			while(!getLogManager().getEditQueue().isEmpty()) {
+				BlockEdit block = getLogManager().getEditQueue().get(0);
 				block.save();
-			  	blocks.remove(0);
+				getLogManager().getEditQueue().remove(0);
 			}
 			log.info("Successfully saved all the block edits!");
 			

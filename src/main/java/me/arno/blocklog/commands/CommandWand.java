@@ -8,8 +8,8 @@ import java.util.HashMap;
 
 import me.arno.blocklog.database.Query;
 import me.arno.blocklog.logs.LogType;
-import me.arno.blocklog.logs.LoggedBlock;
-import me.arno.blocklog.util.Text;
+import me.arno.blocklog.logs.BlockEdit;
+import me.arno.util.Text;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -44,7 +44,7 @@ public class CommandWand extends BlockLogCommand {
 		HashMap<String, ItemStack> playerItemStack = plugin.playerItemStack;
 		HashMap<String, Integer> playerItemSlot = plugin.playerItemSlot;
 		
-		Material wand = Material.getMaterial(getConfig().getInt("blocklog.wand"));
+		Material wand = getSettingsManager().getWand();
 		
 		if(player.getInventory().contains(wand) && !playerItemStack.containsKey(player.getName())) {
 			if(plugin.users.isEmpty()) {
@@ -98,17 +98,17 @@ public class CommandWand extends BlockLogCommand {
 	public void getBlockEdits(Player player, Location location) {
 		try {
 			player.sendMessage(ChatColor.YELLOW + "Block History" + ChatColor.BLUE + " (" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ")" + ChatColor.DARK_GRAY + " ------------------------");
-            player.sendMessage(ChatColor.GRAY + Text.addSpaces("Name", 90) + Text.addSpaces("Reason", 75) + "Details");
+            player.sendMessage(ChatColor.GRAY + Text.addSpaces("Name", 90) + Text.addSpaces("Action", 75) + "Details");
             
-            Integer BlockNumber = 0;
-			Integer BlockCount = 0;
-			Integer BlockSize = plugin.getBlocks().size();
+            int blockNumber = 0;
+            int blockCount = 0;
+			int blockSize = getLogManager().getEditQueueSize();
+			int maxResults = getSettingsManager().getMaxResults();
 			
-			while(BlockSize > BlockNumber)
-			{
-				LoggedBlock LBlock = plugin.getBlocks().get(BlockNumber); 
+			while(blockSize > blockNumber) {
+				BlockEdit LBlock = getLogManager().getEditQueue().get(blockNumber); 
 				if(LBlock.getX() == location.getX() && LBlock.getY() == location.getY() && LBlock.getZ() == location.getZ() && LBlock.getWorld() == location.getWorld()) {
-					if(BlockCount == getConfig().getInt("blocklog.results"))
+					if(blockCount == maxResults)
 						break;
 					
 					Calendar calendar = GregorianCalendar.getInstance();
@@ -123,32 +123,34 @@ public class CommandWand extends BlockLogCommand {
 						type = LogType.EXPLOSION;
 					
 					player.sendMessage(Text.addSpaces(ChatColor.GOLD + LBlock.getPlayerName(), 99) + Text.addSpaces(ChatColor.DARK_RED + type.name(), 80) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + date + "]");
-					BlockCount++;
+					blockCount++;
 				}
-				BlockNumber++;
+				blockNumber++;
 			}
 			
 			
-			// Database Results
-			Query query = new Query("blocklog_blocks");
-			query.addSelect("entity", "trigered", "block_id", "type");
-			query.addSelectDateAs("date", "date");
-			query.addWhere("x", location.getBlockX());
-			query.addWhere("y", location.getBlockY());
-			query.addWhere("z", location.getBlockZ());
-			query.addWhere("world", location.getWorld().getName());
-			query.addOrderBy("date", "DESC");
-			
-			ResultSet rs = query.getResult();
-			
-			while(rs.next()) {
-				String name = Material.getMaterial(rs.getInt("block_id")).toString();
-				LogType type = LogType.values()[rs.getInt("type")];
+			if(blockCount < maxResults) {
+				Query query = new Query("blocklog_blocks");
+				query.addSelect("entity", "trigered", "block_id", "type");
+				query.addSelectDate("date");
+				query.addWhere("x", location.getBlockX());
+				query.addWhere("y", location.getBlockY());
+				query.addWhere("z", location.getBlockZ());
+				query.addWhere("world", location.getWorld().getName());
+				query.addOrderBy("date", "DESC");
+				query.addLimit(maxResults - blockCount);
 				
-				if(type.getId() <= 12 && type.getId() >= 10)
-					type = LogType.EXPLOSION;
+				ResultSet rs = query.getResult();
 				
-				player.sendMessage(Text.addSpaces(ChatColor.GOLD + rs.getString("trigered"), 99) + Text.addSpaces(ChatColor.DARK_RED + type.name(), 81) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + rs.getString("date") + "]");
+				while(rs.next()) {
+					String name = Material.getMaterial(rs.getInt("block_id")).toString();
+					LogType type = LogType.values()[rs.getInt("type")];
+					
+					if(type.getId() <= 12 && type.getId() >= 10)
+						type = LogType.EXPLOSION;
+					
+					player.sendMessage(Text.addSpaces(ChatColor.GOLD + rs.getString("trigered"), 99) + Text.addSpaces(ChatColor.DARK_RED + type.name(), 81) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + rs.getString("date") + "]");
+				}
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

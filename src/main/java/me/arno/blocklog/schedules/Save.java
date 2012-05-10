@@ -4,16 +4,16 @@ import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import me.arno.blocklog.BlockLog;
-import me.arno.blocklog.logs.LoggedBlock;
-import me.arno.blocklog.logs.LoggedInteraction;
+import me.arno.blocklog.logs.BlockEdit;
+import me.arno.blocklog.logs.BlockInteraction;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 public class Save implements Runnable {
 	private final BlockLog plugin;
-	private final ArrayList<LoggedBlock> blocks;
-	private final ArrayList<LoggedInteraction> interactions;
+	private final ArrayList<BlockEdit> blocks;
+	private final ArrayList<BlockInteraction> interactions;
 	private final Logger log;
 	
 	private final Player player;
@@ -26,8 +26,8 @@ public class Save implements Runnable {
 	
 	public Save(BlockLog plugin, Integer count, Player player, Boolean messages) {
 		this.plugin = plugin;
-		this.blocks = plugin.getBlocks();
-		this.interactions = plugin.getInteractions();
+		this.blocks = plugin.getLogManager().getEditQueue();
+		this.interactions = plugin.getLogManager().getInteractionQueue();
 		this.log = plugin.log;
 		
 		this.count = count;

@@ -76,7 +76,7 @@ public class CommandSearch extends BlockLogCommand {
 				query.addWhere("date", untilTime.toString(), ">");
 			
 			query.addOrderBy("date", "DESC");
-			query.addLimit(getConfig().getInt("blocklog.results"));
+			query.addLimit(getSettingsManager().getMaxResults());
 			
 			ResultSet actions = query.getResult();
 			

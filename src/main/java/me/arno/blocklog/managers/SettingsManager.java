@@ -10,9 +10,10 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 
-public class SettingsManager {
+public class SettingsManager extends BlockLogManager {
+	
 	public boolean isLoggingEnabled(World world, LogType type) {
-		if(type == LogType.EXPLOSION_CREEPER || type == LogType.EXPLOSION_GHAST || type == LogType.EXPLOSION_TNT)
+		if(type == LogType.EXPLOSION_CREEPER || type == LogType.EXPLOSION_FIREBALL || type == LogType.EXPLOSION_TNT)
 			type = LogType.EXPLOSION;
 		
 		Config config = new Config("worlds" + File.separator + world.getName() + ".yml");
@@ -20,8 +21,16 @@ public class SettingsManager {
 		return config.getConfig().getBoolean(type.name());
 	}
 	
-	public FileConfiguration getConfig() {
-		return BlockLog.plugin.getConfig();
+	public boolean isPurgeEnabled(String table) {
+		return getConfig().getBoolean("purge." + table + ".enabled");
+	}
+	
+	public boolean isPurgeLoggingEnabled() {
+		return getConfig().getBoolean("purge.log");
+	}
+	
+	public int getPurgeDate(String table) {
+		return getConfig().getInt("purge." + table + ".days");
 	}
 	
 	public int getBlockSaveDelay() {
@@ -58,5 +67,17 @@ public class SettingsManager {
 	
 	public int getMaxResults() {
 		return getConfig().getInt("blocklog.results");
+	}
+	
+	public FileConfiguration getConfig() {
+		return BlockLog.plugin.getConfig();
+	}
+	
+	public void saveConfig() {
+		BlockLog.plugin.saveConfig();
+	}
+	
+	public void reloadConfig() {
+		BlockLog.plugin.reloadConfig();
 	}
 }

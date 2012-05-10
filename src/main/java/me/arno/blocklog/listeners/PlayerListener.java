@@ -24,11 +24,10 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.logs.LogType;
-import me.arno.blocklog.logs.LoggedBlock;
-import me.arno.blocklog.logs.LoggedChat;
-import me.arno.blocklog.logs.LoggedCommand;
-import me.arno.blocklog.logs.LoggedDeath;
-import me.arno.blocklog.logs.LoggedKill;
+import me.arno.blocklog.logs.PlayerChat;
+import me.arno.blocklog.logs.PlayerCommand;
+import me.arno.blocklog.logs.PlayerDeath;
+import me.arno.blocklog.logs.PlayerKill;
 import me.ryanhamshire.GriefPrevention.Claim;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 
@@ -63,7 +62,7 @@ public class PlayerListener extends BlockLogListener {
 			cancel = true;
 		
 		if(!event.isCancelled() && !cancel) {
-			plugin.addBlock(new LoggedBlock(plugin, player, block, LogType.PLACE));
+			getLogManager().queueBlockEdit(player, block, LogType.PLACE);
 			BlocksLimitReached();
 		}
 	}
@@ -89,7 +88,7 @@ public class PlayerListener extends BlockLogListener {
 		}
 		
 		if(!event.isCancelled() && !cancel) {
-			plugin.addBlock(new LoggedBlock(plugin, player, block, LogType.BREAK));
+			getLogManager().queueBlockEdit(player, block, LogType.BREAK);
 			BlocksLimitReached();
 		}
 	}
@@ -120,7 +119,7 @@ public class PlayerListener extends BlockLogListener {
 			else if(event.getBucket() == Material.LAVA_BUCKET)
 				block.setType(Material.LAVA);
 			
-			plugin.addBlock(new LoggedBlock(plugin, player, block, LogType.PLACE));
+			getLogManager().queueBlockEdit(player, block, LogType.PLACE);
 			BlocksLimitReached();
 		}
 	}
@@ -139,7 +138,7 @@ public class PlayerListener extends BlockLogListener {
 			if(block.getType() != Material.FIRE)
 				block = event.getClickedBlock().getRelative(BlockFace.WEST);
 			if(block.getType() == Material.FIRE) {
-				plugin.addBlock(new LoggedBlock(plugin, event.getPlayer(), block.getState(), LogType.BREAK));
+				getLogManager().queueBlockEdit(event.getPlayer(), block.getState(), LogType.BREAK);
 				BlocksLimitReached();
 			}
 		}
@@ -152,7 +151,7 @@ public class PlayerListener extends BlockLogListener {
 			String[] args = event.getMessage().replace('/', ' ').trim().split(" ");
 			Command cmd = Bukkit.getPluginCommand(args[0]);
 			if(cmd != null) {
-				LoggedCommand lcmd = new LoggedCommand(plugin, player, event.getMessage());
+				PlayerCommand lcmd = new PlayerCommand(plugin, player, event.getMessage());
 				lcmd.save();
 			}
 		}
@@ -161,7 +160,7 @@ public class PlayerListener extends BlockLogListener {
 	public void onPlayerChat(PlayerChatEvent event) {
 		if(!event.isCancelled() && getSettingsManager().isLoggingEnabled(event.getPlayer().getWorld(), LogType.CHAT)) {
 			Player player = event.getPlayer();
-			LoggedChat lchat = new LoggedChat(plugin, player, event.getMessage());
+			PlayerChat lchat = new PlayerChat(plugin, player, event.getMessage());
 			lchat.save();
 		}
 	}
@@ -197,7 +196,7 @@ public class PlayerListener extends BlockLogListener {
 				else if(deathCause == DamageCause.LIGHTNING)
 					type = 11;
 				
-				LoggedDeath ldeath = new LoggedDeath(plugin, player, type);
+				PlayerDeath ldeath = new PlayerDeath(plugin, player, type);
 				ldeath.save();
 			}
 		} else {
@@ -205,7 +204,7 @@ public class PlayerListener extends BlockLogListener {
 			Player killer = event.getEntity().getKiller();
 			
 			if(killer != null  && getSettingsManager().isLoggingEnabled(victem.getWorld(), LogType.KILL)) {
-				LoggedKill lkill = new LoggedKill(plugin, victem, killer);
+				PlayerKill lkill = new PlayerKill(plugin, victem, killer);
 				lkill.save();
 			}
 		}

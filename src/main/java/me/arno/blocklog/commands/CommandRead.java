@@ -20,7 +20,7 @@ public class CommandRead extends BlockLogCommand {
 		if(args.length > 6)
 			return false;
 		
-		if(!getConfig().getBoolean("blocklog.reports")) {
+		if(!getSettingsManager().isReportsEnabled()) {
 			player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "The report system is disabled");
 			return true;
 		}

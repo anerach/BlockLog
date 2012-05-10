@@ -8,10 +8,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Server;
 import org.bukkit.command.Command;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import me.arno.blocklog.BlockLog;
+import me.arno.blocklog.managers.LogManager;
+import me.arno.blocklog.managers.SettingsManager;
 
 public class BlockLogCommand {
 	public final BlockLog plugin;
@@ -40,6 +41,14 @@ public class BlockLogCommand {
 		this.conn = plugin.conn;
 		this.permission = permission;
 		this.console = console;
+	}
+	
+	public SettingsManager getSettingsManager() {
+		return plugin.getSettingsManager();
+	}
+	
+	public LogManager getLogManager() {
+		return plugin.getLogManager();
 	}
 	
 	public void setCommandUsage(String usage) {
@@ -81,18 +90,6 @@ public class BlockLogCommand {
 	
 	public Server getServer() {
 		return plugin.getServer();
-	}
-	
-	public FileConfiguration getConfig() {
-		return plugin.getConfig();
-	}
-	
-	public void saveConfig() {
-		plugin.saveConfig();
-	}
-	
-	public void reloadConfig() {
-		plugin.reloadConfig();
 	}
 	
 	public Integer convertToUnixtime(Integer timeInt, String timeVal) {

@@ -2,7 +2,6 @@ package me.arno.blocklog.listeners;
 
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.logs.LogType;
-import me.arno.blocklog.logs.LoggedBlock;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -29,7 +28,7 @@ public class BlockListener extends BlockLogListener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockBurn(BlockBurnEvent event) {
 		if(!event.isCancelled() && getSettingsManager().isLoggingEnabled(event.getBlock().getWorld(), LogType.FIRE)) {
-			plugin.addBlock(new LoggedBlock(plugin, event.getBlock().getState(), LogType.FIRE));
+			getLogManager().queueBlockEdit(event.getBlock().getState(), LogType.FIRE);
 			BlocksLimitReached();
 		}
 	}
@@ -38,7 +37,7 @@ public class BlockListener extends BlockLogListener {
 	public void onBlockIgnite(BlockIgniteEvent event) {
 		if(!event.isCancelled() && event.getPlayer() != null) {
 			if(event.getBlock().getType() == Material.TNT && getSettingsManager().isLoggingEnabled(event.getPlayer().getWorld(), LogType.BREAK)) {
-				plugin.addBlock(new LoggedBlock(plugin, event.getPlayer(), event.getBlock().getState(), LogType.BREAK));
+				getLogManager().queueBlockEdit(event.getPlayer(), event.getBlock().getState(), LogType.BREAK);
 				BlocksLimitReached();
 			}
 		}
@@ -49,14 +48,15 @@ public class BlockListener extends BlockLogListener {
 		if(!event.isCancelled() && getSettingsManager().isLoggingEnabled(event.getLocation().getWorld(), LogType.EXPLOSION)) {
 			LogType logType = LogType.EXPLOSION;
 			Player target = null;
-			if(event.getEntityType() != null) {
+			if(event.getEntityType() != null) { // Returns null when using a bed in the nether
 				if(event.getEntityType() == EntityType.CREEPER) {
 					logType = LogType.EXPLOSION_CREEPER;
 					Creeper creeper = (Creeper) event.getEntity();
-					if(creeper.getTarget() instanceof Player)
+					if(creeper.getTarget() instanceof Player) {
 						target = (Player) creeper.getTarget();
+					}
 				} else if(event.getEntityType() == EntityType.GHAST || event.getEntityType() == EntityType.FIREBALL) {
-					logType = LogType.EXPLOSION_GHAST;
+					logType = LogType.EXPLOSION_FIREBALL;
 				} else if(event.getEntityType() == EntityType.PRIMED_TNT) {
 					logType = LogType.EXPLOSION_TNT;
 				}
@@ -65,9 +65,9 @@ public class BlockListener extends BlockLogListener {
 			for(Block block : event.blockList()) {
 				if(block.getType() != Material.TNT) {
 					if(target == null)
-						plugin.addBlock(new LoggedBlock(plugin, block.getState(), event.getEntityType(), logType));
+						getLogManager().queueBlockEdit(block.getState(), event.getEntityType(), logType);
 					else
-						plugin.addBlock(new LoggedBlock(plugin, target, block.getState(), event.getEntityType(), logType));
+						getLogManager().queueBlockEdit(target, block.getState(), event.getEntityType(), logType);
 					BlocksLimitReached();
 				}
 			}
@@ -78,7 +78,7 @@ public class BlockListener extends BlockLogListener {
 	public void onLeavesDecay(LeavesDecayEvent event) {
 		if(!event.isCancelled()) {
 			if(getSettingsManager().isLoggingEnabled(event.getBlock().getWorld(), LogType.LEAVES)) {
-				plugin.addBlock(new LoggedBlock(plugin, event.getBlock().getState(), LogType.LEAVES));
+				getLogManager().queueBlockEdit(event.getBlock().getState(), LogType.LEAVES);
 				BlocksLimitReached();
 			}
 		}
@@ -90,7 +90,7 @@ public class BlockListener extends BlockLogListener {
 			if(getSettingsManager().isLoggingEnabled(event.getWorld(), LogType.GROW)) {
 				Player player = event.getPlayer();
 				for(BlockState block : event.getBlocks()) {
-					plugin.addBlock(new LoggedBlock(plugin, player, block, LogType.GROW));
+					getLogManager().queueBlockEdit(player, block, LogType.GROW);
 					BlocksLimitReached();
 				}
 			}
@@ -101,10 +101,12 @@ public class BlockListener extends BlockLogListener {
 	public void onEntityCreatePortal(EntityCreatePortalEvent event) {
 		if(!event.isCancelled()) {
 			if(getSettingsManager().isLoggingEnabled(event.getEntity().getWorld(), LogType.PORTAL)) {
-				Player player = (Player) event.getEntity();
-				for(BlockState block : event.getBlocks()) {
-					plugin.addBlock(new LoggedBlock(plugin, player, block, LogType.PORTAL));
-					BlocksLimitReached();
+				if(event.getEntity() instanceof Player) {
+					Player player = (Player) event.getEntity();
+					for(BlockState block : event.getBlocks()) {
+						getLogManager().queueBlockEdit(player, block, LogType.PORTAL);
+						BlocksLimitReached();
+					}
 				}
 			}
 		}
@@ -114,7 +116,7 @@ public class BlockListener extends BlockLogListener {
 	public void onBlockForm(BlockFormEvent event) {
 		if(!event.isCancelled()) {
 			if(plugin.getSettingsManager().isLoggingEnabled(event.getNewState().getWorld(), LogType.FORM)) {
-				plugin.addBlock(new LoggedBlock(plugin, event.getNewState(), LogType.FORM));
+				getLogManager().queueBlockEdit(event.getNewState(), LogType.FORM);
 				BlocksLimitReached();
 			}
 		}
@@ -124,7 +126,7 @@ public class BlockListener extends BlockLogListener {
 	public void onBlockSpread(BlockSpreadEvent event) {
 		if(!event.isCancelled()) {
 			if(plugin.getSettingsManager().isLoggingEnabled(event.getNewState().getWorld(), LogType.SPREAD)) {
-				plugin.addBlock(new LoggedBlock(plugin, event.getNewState(), LogType.SPREAD));
+				getLogManager().queueBlockEdit(event.getNewState(), LogType.SPREAD);
 				BlocksLimitReached();
 			}
 		}
@@ -134,7 +136,7 @@ public class BlockListener extends BlockLogListener {
 	public void onBlockFade(BlockFadeEvent event) {
 		if(!event.isCancelled()) {
 			if(plugin.getSettingsManager().isLoggingEnabled(event.getNewState().getWorld(), LogType.FADE)) {
-				plugin.addBlock(new LoggedBlock(plugin, event.getNewState(), LogType.FADE));
+				getLogManager().queueBlockEdit(event.getNewState(), LogType.FADE);
 				BlocksLimitReached();
 			}
 		}

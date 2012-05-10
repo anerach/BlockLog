@@ -3,6 +3,7 @@ package me.arno.blocklog.listeners;
 import java.util.logging.Logger;
 
 import me.arno.blocklog.BlockLog;
+import me.arno.blocklog.managers.LogManager;
 import me.arno.blocklog.managers.SettingsManager;
 
 import org.bukkit.Bukkit;
@@ -33,8 +34,12 @@ public class BlockLogListener implements Listener {
 		return plugin.getSettingsManager();
 	}
 	
+	public LogManager getLogManager() {
+		return plugin.getLogManager();
+	}
+	
 	public void BlocksLimitReached() {
-		int BlockSize = plugin.getBlocks().size();
+		int BlockSize = getLogManager().getEditQueueSize();
 		int WarningBlockSize = getSettingsManager().getConfig().getInt("blocklog.warning.blocks");
 		int WarningDelay = getSettingsManager().getConfig().getInt("blocklog.warning.delay") * 1000;
 		int WarningRepeat = getSettingsManager().getConfig().getInt("blocklog.warning.repeat");

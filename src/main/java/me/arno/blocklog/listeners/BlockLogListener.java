@@ -3,7 +3,7 @@ package me.arno.blocklog.listeners;
 import java.util.logging.Logger;
 
 import me.arno.blocklog.BlockLog;
-import me.arno.blocklog.managers.LogManager;
+import me.arno.blocklog.managers.QueueManager;
 import me.arno.blocklog.managers.SettingsManager;
 
 import org.bukkit.Bukkit;
@@ -34,8 +34,8 @@ public class BlockLogListener implements Listener {
 		return plugin.getSettingsManager();
 	}
 	
-	public LogManager getLogManager() {
-		return plugin.getLogManager();
+	public QueueManager getLogManager() {
+		return plugin.getQueueManager();
 	}
 	
 	public void BlocksLimitReached() {

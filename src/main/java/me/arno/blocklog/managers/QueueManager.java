@@ -12,7 +12,7 @@ import me.arno.blocklog.logs.LogType;
 import me.arno.blocklog.logs.BlockEdit;
 import me.arno.blocklog.logs.BlockInteraction;
 
-public class LogManager extends BlockLogManager {
+public class QueueManager extends BlockLogManager {
 	private final ArrayList<BlockEdit> blockEdits = new ArrayList<BlockEdit>();
 	private final ArrayList<BlockInteraction> blockInteractions = new ArrayList<BlockInteraction>();
 	

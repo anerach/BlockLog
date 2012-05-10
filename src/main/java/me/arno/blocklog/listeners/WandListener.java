@@ -65,14 +65,14 @@ public class WandListener extends BlockLogListener {
 			
 			if(blockCount < maxResults) {
 				Query query = new Query("blocklog_interactions");
-				query.addSelect("player");
-				query.addSelectDate("date");
-				query.addWhere("x", location.getBlockX());
-				query.addWhere("y", location.getBlockY());
-				query.addWhere("z", location.getBlockZ());
-				query.addWhere("world", location.getWorld().getName());
-				query.addOrderBy("date", "DESC");
-				query.addLimit(maxResults - blockCount);
+				query.select("player");
+				query.selectDate("date");
+				query.where("x", location.getBlockX());
+				query.where("y", location.getBlockY());
+				query.where("z", location.getBlockZ());
+				query.where("world", location.getWorld().getName());
+				query.orderBy("date", "DESC");
+				query.limit(maxResults - blockCount);
 				
 				ResultSet rs = query.getResult();
 				log.info(query.getRowCount().toString());
@@ -131,14 +131,14 @@ public class WandListener extends BlockLogListener {
 			
 			if(blockCount < maxResults) {
 				Query query = new Query("blocklog_blocks");
-				query.addSelect("entity", "trigered", "block_id", "type");
-				query.addSelectDate("date");
-				query.addWhere("x", location.getBlockX());
-				query.addWhere("y", location.getBlockY());
-				query.addWhere("z", location.getBlockZ());
-				query.addWhere("world", location.getWorld().getName());
-				query.addOrderBy("date", "DESC");
-				query.addLimit(maxResults - blockCount);
+				query.select("entity", "trigered", "block_id", "type");
+				query.selectDate("date");
+				query.where("x", location.getBlockX());
+				query.where("y", location.getBlockY());
+				query.where("z", location.getBlockZ());
+				query.where("world", location.getWorld().getName());
+				query.orderBy("date", "DESC");
+				query.limit(maxResults - blockCount);
 				
 				ResultSet rs = query.getResult();
 				

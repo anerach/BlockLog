@@ -64,18 +64,18 @@ public class CommandLookup extends BlockLogCommand {
 			World world = player.getWorld();
 			
 			Query query = new Query("blocklog_blocks");
-			query.addSelect("*");
-			query.addSelectDate("date");
+			query.select("*");
+			query.selectDate("date");
 			if(target != null) {
-				query.addWhere("entity", "player");
-				query.addWhere("trigered", target);
+				query.where("entity", "player");
+				query.where("trigered", target);
 			}
 			if(entity != null)
-				query.addWhere("entity", entity);
+				query.where("entity", entity);
 			if(sinceTime != 0)
-				query.addWhere("date", sinceTime.toString(), "<");
+				query.where("date", sinceTime.toString(), "<");
 			if(untilTime != 0)
-				query.addWhere("date", untilTime.toString(), ">");
+				query.where("date", untilTime.toString(), ">");
 			if(area != 0) {
 				Integer xMin = player.getLocation().getBlockX() - area;
 				Integer xMax = player.getLocation().getBlockX() + area;
@@ -84,22 +84,22 @@ public class CommandLookup extends BlockLogCommand {
 				Integer zMin = player.getLocation().getBlockZ() - area;
 				Integer zMax = player.getLocation().getBlockZ() + area;
 				
-				query.addWhere("x", xMin.toString(), ">=");
-				query.addWhere("x", xMax.toString(), "<=");
+				query.where("x", xMin.toString(), ">=");
+				query.where("x", xMax.toString(), "<=");
 				
-				query.addWhere("y", yMin.toString(), ">=");
-				query.addWhere("y", yMax.toString(), "<=");
+				query.where("y", yMin.toString(), ">=");
+				query.where("y", yMax.toString(), "<=");
 				
-				query.addWhere("z", zMin.toString(), ">=");
-				query.addWhere("z", zMax.toString(), "<=");
+				query.where("z", zMin.toString(), ">=");
+				query.where("z", zMax.toString(), "<=");
 			}
-			query.addWhere("world", world.getName());
-			query.addWhere("rollback_id", new Integer(0).toString());
-			query.addGroupBy("x");
-			query.addGroupBy("y");
-			query.addGroupBy("z");
-			query.addOrderBy("date", "DESC");
-			query.addLimit(getSettingsManager().getMaxResults());
+			query.where("world", world.getName());
+			query.where("rollback_id", new Integer(0).toString());
+			query.groupBy("x");
+			query.groupBy("y");
+			query.groupBy("z");
+			query.orderBy("date", "DESC");
+			query.limit(getSettingsManager().getMaxResults());
 			
 			ResultSet actions = query.getResult();
 			

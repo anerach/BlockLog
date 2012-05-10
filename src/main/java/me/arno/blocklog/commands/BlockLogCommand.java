@@ -11,7 +11,8 @@ import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
 import me.arno.blocklog.BlockLog;
-import me.arno.blocklog.managers.LogManager;
+import me.arno.blocklog.managers.DatabaseManager;
+import me.arno.blocklog.managers.QueueManager;
 import me.arno.blocklog.managers.SettingsManager;
 
 public class BlockLogCommand {
@@ -47,8 +48,12 @@ public class BlockLogCommand {
 		return plugin.getSettingsManager();
 	}
 	
-	public LogManager getLogManager() {
-		return plugin.getLogManager();
+	public DatabaseManager getDatabaseManager() {
+		return plugin.getDatabaseManager();
+	}
+	
+	public QueueManager getLogManager() {
+		return plugin.getQueueManager();
 	}
 	
 	public void setCommandUsage(String usage) {

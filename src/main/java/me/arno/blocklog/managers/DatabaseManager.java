@@ -44,7 +44,7 @@ public class DatabaseManager extends BlockLogManager {
 				if(timestamp == 0)
 					timestamp = (System.currentTimeMillis()/1000) - (getSettingsManager().getPurgeDate(table) * 60 * 60 * 24);
 				query = new Query(databasePrefix + table);
-				query.addWhere("date", timestamp, "<");
+				query.where("date", timestamp, "<");
 				int count = query.deleteRows();
 				
 				if(getSettingsManager().isPurgeLoggingEnabled())

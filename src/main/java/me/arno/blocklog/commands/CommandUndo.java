@@ -54,8 +54,8 @@ public class CommandUndo extends BlockLogCommand {
 			}
 			
 			Query query = new Query("blocklog_blocks");
-			query.addSelect("*");
-			query.addWhere("rollback_id", rollbackID);
+			query.select("*");
+			query.where("rollback_id", rollbackID);
 			
 			if(rollbackID == 0) {
 				player.sendMessage(ChatColor.WHITE + "Rollback ID can't be 0");

@@ -62,21 +62,21 @@ public class CommandSearch extends BlockLogCommand {
 			}
 			
 			Query query = new Query("blocklog_" + table);
-			query.addSelect("*");
-			query.addSelectDateAs("date" , "ldate");
+			query.select("*");
+			query.selectDateAs("date" , "ldate");
 			if(target != null)
-				query.addWhere("player", target);
+				query.where("player", target);
 			if(victem != null)
-				query.addWhere("victem", victem);
+				query.where("victem", victem);
 			if(killer != null)
-				query.addWhere("killer", killer);
+				query.where("killer", killer);
 			if(sinceTime != 0)
-				query.addWhere("date", sinceTime.toString(), "<");
+				query.where("date", sinceTime.toString(), "<");
 			if(untilTime != 0)
-				query.addWhere("date", untilTime.toString(), ">");
+				query.where("date", untilTime.toString(), ">");
 			
-			query.addOrderBy("date", "DESC");
-			query.addLimit(getSettingsManager().getMaxResults());
+			query.orderBy("date", "DESC");
+			query.limit(getSettingsManager().getMaxResults());
 			
 			ResultSet actions = query.getResult();
 			

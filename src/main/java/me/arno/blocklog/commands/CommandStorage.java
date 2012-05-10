@@ -1,5 +1,9 @@
 package me.arno.blocklog.commands;
 
+import java.sql.SQLException;
+
+import me.arno.blocklog.database.Query;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
@@ -20,12 +24,19 @@ public class CommandStorage extends BlockLogCommand {
 			return true;
 		}
 		
-		if(player == null) {
-			log.info(String.format("The internal storage contains %s block(s)!", getLogManager().getEditQueueSize()));
-			log.info(String.format("The internal storage contains %s interaction(s)!", getLogManager().getInteractionQueueSize()));
-		} else {
-			player.sendMessage(String.format(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "The internal storage contains %s block(s)!", getLogManager().getEditQueueSize()));
-			player.sendMessage(String.format(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "The internal storage contains %s interaction(s)!", getLogManager().getInteractionQueueSize()));
+		try {
+			int blockEdits = new Query().from("blocklog_blocks").getRowCount();
+			int blockInteractions = new Query().from("blocklog_blocks").getRowCount();
+		
+			if(player == null) {
+				log.info(String.format("The database contains %s block edits!", blockEdits));
+				log.info(String.format("The database contains %s block interactions!", blockInteractions));
+			} else {
+				player.sendMessage(String.format(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "The database contains %s block edits!", blockEdits));
+				player.sendMessage(String.format(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "The database contains %s block interactions!", blockInteractions));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 		return true;
 	}

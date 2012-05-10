@@ -33,17 +33,17 @@ public class CommandRead extends BlockLogCommand {
 		try {
 			Statement stmt = conn.createStatement();
 			Query query = new Query("blocklog_reports");
-			query.addSelect("*").addOrderBy("date", "DESC");
+			query.select("*").orderBy("date", "DESC");
 			
 			if(args.length == 0) {
-				query.addWhere("seen", 0);
+				query.where("seen", 0);
 				ResultSet reports = query.getResult();
 				player.sendMessage(ChatColor.DARK_RED + "[Reports]");
 				while(reports.next()) {
 					player.sendMessage(String.format("[#%s] %s", reports.getString("id"), reports.getString("player")));
 				}
 			} else if(args.length == 1) {
-				query.addWhere("id", args[0]);
+				query.where("id", args[0]);
 				ResultSet reports = query.getResult();
 				reports.next();
 				player.sendMessage(ChatColor.DARK_RED + "[#" + reports.getString("id") + "] " + ChatColor.GOLD + reports.getString("player"));
@@ -73,13 +73,13 @@ public class CommandRead extends BlockLogCommand {
 					return true;
 				}
 				
-				query.addWhere("seen", 0);
+				query.where("seen", 0);
 				if(target != null)
-					query.addWhere("player", target);
+					query.where("player", target);
 				if(sinceTime != 0)
-					query.addWhere("date", sinceTime.toString(), ">");
+					query.where("date", sinceTime.toString(), ">");
 				if(untilTime != 0)
-					query.addWhere("date", untilTime.toString(), "<");
+					query.where("date", untilTime.toString(), "<");
 				
 				ResultSet reports = query.getResult();
 				player.sendMessage(ChatColor.DARK_RED + "[Reports]");

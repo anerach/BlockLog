@@ -26,8 +26,8 @@ public class Save implements Runnable {
 	
 	public Save(BlockLog plugin, Integer count, Player player, Boolean messages) {
 		this.plugin = plugin;
-		this.blocks = plugin.getLogManager().getEditQueue();
-		this.interactions = plugin.getLogManager().getInteractionQueue();
+		this.blocks = plugin.getQueueManager().getEditQueue();
+		this.interactions = plugin.getQueueManager().getInteractionQueue();
 		this.log = plugin.log;
 		
 		this.count = count;

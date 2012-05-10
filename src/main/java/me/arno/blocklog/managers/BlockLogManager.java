@@ -3,12 +3,12 @@ package me.arno.blocklog.managers;
 public class BlockLogManager {
 	private DatabaseManager databaseManager;
 	private SettingsManager settingsManager;
-	private LogManager logManager;
+	private QueueManager queueManager;
 	
 	public BlockLogManager() {
 		databaseManager = new DatabaseManager();
 		settingsManager = new SettingsManager();
-		logManager = new LogManager();
+		queueManager = new QueueManager();
 	}
 	
 	public DatabaseManager getDatabaseManager() {
@@ -19,7 +19,7 @@ public class BlockLogManager {
 		return settingsManager;
 	}
 	
-	public LogManager getLogManager() {
-		return logManager;
+	public QueueManager getQueueManager() {
+		return queueManager;
 	}
 }

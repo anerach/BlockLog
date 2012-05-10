@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
+import me.arno.blocklog.Metrics.Graph;
 import me.arno.blocklog.commands.*;
 import me.arno.blocklog.database.Query;
 import me.arno.blocklog.listeners.*;
@@ -67,8 +68,8 @@ public class BlockLog extends JavaPlugin {
 		return manager.getDatabaseManager();
 	}
 	
-	public LogManager getLogManager() {
-		return manager.getLogManager();
+	public QueueManager getQueueManager() {
+		return manager.getQueueManager();
 	}
 	
 	private void loadConfiguration() {
@@ -167,7 +168,7 @@ public class BlockLog extends JavaPlugin {
 	
 	private void loadDependencies() {
 		ArrayList<String> plugins = new ArrayList<String>();
-    	plugins.add("GriefPrevention");
+		plugins.add("GriefPrevention");
     	plugins.add("WorldGuard");
     	plugins.add("mcMMO");
     	plugins.add("Pail");
@@ -200,17 +201,65 @@ public class BlockLog extends JavaPlugin {
 	public void loadMetrics() {
 		try {
 		    Metrics metrics = new Metrics(this);
-		    metrics.addCustomData(new Metrics.Plotter("Total Blocks Stored") {
-		        @Override
+		    
+		    // Storage Graph
+		    Graph graph = metrics.createGraph("Storage");
+		    graph.addPlotter(new Metrics.Plotter("Block Edits") {
+		    	@Override
 		        public int getValue() {
 		        	try {
-						return new Query("blocklog_blocks").getRowCount();
-					} catch (SQLException e) {
-						e.printStackTrace();
-					}
+						return new Query().from(DatabaseManager.databasePrefix + "blocks").getRowCount();
+					} catch (SQLException e) { e.printStackTrace(); }
 		        	return 0;
 		        }
+
 		    });
+		    graph.addPlotter(new Metrics.Plotter("Block Interactions") {
+			    @Override
+			    public int getValue() {
+			    	try {
+						return new Query().from(DatabaseManager.databasePrefix + "interactions").getRowCount();
+			    	} catch (SQLException e) { e.printStackTrace(); }
+			    	return 0;
+			    }
+		    });
+		    graph.addPlotter(new Metrics.Plotter("Chat Messages") {
+			    @Override
+			    public int getValue() {
+			    	try {
+						return new Query().from(DatabaseManager.databasePrefix + "chat").getRowCount();
+			    	} catch (SQLException e) { e.printStackTrace(); }
+			    	return 0;
+			    }
+		    });
+		    graph.addPlotter(new Metrics.Plotter("Executed Commands") {
+			    @Override
+			    public int getValue() {
+			    	try {
+						return new Query().from(DatabaseManager.databasePrefix + "commands").getRowCount();
+			    	} catch (SQLException e) { e.printStackTrace(); }
+			    	return 0;
+			    }
+		    });
+		    graph.addPlotter(new Metrics.Plotter("Player Kills") {
+			    @Override
+			    public int getValue() {
+			    	try {
+						return new Query().from(DatabaseManager.databasePrefix + "kills").getRowCount();
+			    	} catch (SQLException e) { e.printStackTrace(); }
+			    	return 0;
+			    }
+		    });
+		    graph.addPlotter(new Metrics.Plotter("Entity Deaths") {
+			    @Override
+			    public int getValue() {
+			    	try {
+						return new Query().from(DatabaseManager.databasePrefix + "deaths").getRowCount();
+			    	} catch (SQLException e) { e.printStackTrace(); }
+			    	return 0;
+			    }
+		    });
+		    
 		    metrics.start();
 		} catch (IOException e) {
 			log.warning("Unable to submit the statistics");
@@ -277,15 +326,15 @@ public class BlockLog extends JavaPlugin {
 			getServer().getScheduler().cancelTasks(this);
 			
 			log.info("Saving all the block edits!");
-			while(!getLogManager().getInteractionQueue().isEmpty()) {
-	    		BlockInteraction interaction = getLogManager().getInteractionQueue().get(0);
+			while(!getQueueManager().getInteractionQueue().isEmpty()) {
+	    		BlockInteraction interaction = getQueueManager().getInteractionQueue().get(0);
 			    interaction.save();
-			    getLogManager().getInteractionQueue().remove(0);
+			    getQueueManager().getInteractionQueue().remove(0);
 	    	}
-			while(!getLogManager().getEditQueue().isEmpty()) {
-				BlockEdit block = getLogManager().getEditQueue().get(0);
+			while(!getQueueManager().getEditQueue().isEmpty()) {
+				BlockEdit block = getQueueManager().getEditQueue().get(0);
 				block.save();
-				getLogManager().getEditQueue().remove(0);
+				getQueueManager().getEditQueue().remove(0);
 			}
 			log.info("Successfully saved all the block edits!");
 			
@@ -342,12 +391,14 @@ public class BlockLog extends JavaPlugin {
 			command = new CommandAutoSave();
 		else if(args[0].equalsIgnoreCase("cancel"))
 			command = new CommandCancel();
-		else if(args[0].equalsIgnoreCase("clear"))
-			command = new CommandClear();
 		else if(args[0].equalsIgnoreCase("config") || args[0].equalsIgnoreCase("cfg"))
 			command = new CommandConfig();
 		else if(args[0].equalsIgnoreCase("lookup"))
 			command = new CommandLookup();
+		else if(args[0].equalsIgnoreCase("purge"))
+			command = new CommandPurge();
+		else if(args[0].equalsIgnoreCase("queue"))
+			command = new CommandQueue();
 		else if(args[0].equalsIgnoreCase("read"))
 			command = new CommandRead();
 		else if(args[0].equalsIgnoreCase("reload"))

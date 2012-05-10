@@ -29,7 +29,7 @@ public class Query {
 		table = from;
 	}
 	
-	public Query addSelect(String... selects) {
+	public Query select(String... selects) {
 		for(String select : selects) {
 			if(selectClause == null)
 				selectClause = "SELECT " + select;
@@ -39,7 +39,7 @@ public class Query {
 		return this;
 	}
 	
-	public Query addSelectAs(String select, String as) {
+	public Query selectAs(String select, String as) {
 		if(selectClause == null)
 			selectClause = "SELECT " + select + " AS " + as;
 		else
@@ -47,19 +47,19 @@ public class Query {
 		return this;
 	}
 	
-	public Query addSelectDate(String select) {
-		return addSelectDate(select, null, select);
+	public Query selectDate(String select) {
+		return selectDate(select, null, select);
 	}
 	
-	public Query addSelectDateAs(String select, String as) {
-		return addSelectDate(select, null, as);
+	public Query selectDateAs(String select, String as) {
+		return selectDate(select, null, as);
 	}
 
-	public Query addSelectDate(String select, String format) {
-		return addSelectDate(select, format, select);
+	public Query selectDate(String select, String format) {
+		return selectDate(select, format, select);
 	}
 	
-	public Query addSelectDate(String select, String format, String as) {
+	public Query selectDate(String select, String format, String as) {
 		String defaultFormat = BlockLog.plugin.getSettingsManager().getDateFormat();
 		format = (format == null) ? defaultFormat : format;
 		String str = "FROM_UNIXTIME(" + select + ", '" + format + "')" + (as == null ? "" : " AS " + as);
@@ -71,13 +71,13 @@ public class Query {
 		return this;
 	}
 	
-	public Query addFrom(String from) {
+	public Query from(String from) {
 		fromClause = "FROM " + from;
 		table = from;
 		return this;
 	}
 	
-	public Query addGroupBy(String... groups) {
+	public Query groupBy(String... groups) {
 		for(String group : groups) {
 			if(groupByClause == null)
 				groupByClause = "GROUP BY " + group;
@@ -87,20 +87,20 @@ public class Query {
 		return this;
 	}
 	
-	public Query addOrderBy(String order) {
-		return addOrderBy(order, "ASC");
+	public Query orderBy(String order) {
+		return orderBy(order, "ASC");
 	}
 	
-	public Query addOrderBy(String order, String type) {
+	public Query orderBy(String order, String type) {
 		orderByClause = "ORDER BY " + order + " " + type;
 		return this;
 	}
 	
-	public Query addLimit(Integer min) {
-		return addLimit(min, 0);
+	public Query limit(Integer min) {
+		return limit(min, 0);
 	}
 	
-	public Query addLimit(Integer min, Integer max) {
+	public Query limit(Integer min, Integer max) {
 		if(max == 0)
 			limitClause = "LIMIT " + min;
 		else
@@ -108,15 +108,15 @@ public class Query {
 		return this;
 	}
 	
-	public Query addLeftJoin(String joinedTable, String tableRow, String mTableRow) {
-		return addJoin("LEFT", joinedTable, tableRow, mTableRow);
+	public Query leftJoin(String joinedTable, String tableRow, String mTableRow) {
+		return join("LEFT", joinedTable, tableRow, mTableRow);
 	}
 	
-	public Query addRightJoin(String joinedTable, String tableRow, String mTableRow) {
-		return addJoin("RIGHT", joinedTable, tableRow, mTableRow);
+	public Query rightJoin(String joinedTable, String tableRow, String mTableRow) {
+		return join("RIGHT", joinedTable, tableRow, mTableRow);
 	}
 	
-	private Query addJoin(String type, String joinedTable, String tableRow, String mTableRow) {
+	private Query join(String type, String joinedTable, String tableRow, String mTableRow) {
 		String join = "";
 		if(type != null) {
 			join += type + " ";
@@ -125,23 +125,23 @@ public class Query {
 		return this;
 	}
 	
-	public Query addWhere(String column, Object value) {
-		return addWhere(column, value, "=");
+	public Query where(String column, Object value) {
+		return where(column, value, "=");
 	}
 	
-	public Query addWhere(String column, Object value, String math) {
-		return addWhereClause("AND", column, value, math);
+	public Query where(String column, Object value, String math) {
+		return whereClause("AND", column, value, math);
 	}
 	
-	public Query addOrWhere(String column, Object value) {
-		return addOrWhere(column, value, "=");
+	public Query orWhere(String column, Object value) {
+		return orWhere(column, value, "=");
 	}
 	
-	public Query addOrWhere(String column, Object value, String math) {
-		return addWhereClause("OR", column, value, math);
+	public Query orWhere(String column, Object value, String math) {
+		return whereClause("OR", column, value, math);
 	}
 	
-	private Query addWhereClause(String type, String column, Object value, String math) {
+	private Query whereClause(String type, String column, Object value, String math) {
 		if(whereClause == null) {
 			whereClause = "WHERE " + column + math + "'" + value.toString() + "'";
 		} else {

@@ -60,26 +60,26 @@ public class CommandRollbackList extends BlockLogCommand {
 			}
 			
 			Query query = new Query("blocklog_rollbacks");
-			query.addLeftJoin("blocklog_undos", "id", "rollback_id");
+			query.leftJoin("blocklog_undos", "id", "rollback_id");
 			
-			query.addSelect("blocklog_rollbacks.id","blocklog_rollbacks.player");
-			query.addSelectDate("blocklog_rollbacks.date", "date");
+			query.select("blocklog_rollbacks.id","blocklog_rollbacks.player");
+			query.selectDate("blocklog_rollbacks.date", "date");
 			
-			query.addSelectAs("blocklog_undos.player", "uplayer");
+			query.selectAs("blocklog_undos.player", "uplayer");
 			
 			if(target != null)
-				query.addWhere("blocklog_rollbacks.player", target);
+				query.where("blocklog_rollbacks.player", target);
 			if(id != 0)
-				query.addWhere("blocklog_rollbacks.id", id.toString());
+				query.where("blocklog_rollbacks.id", id.toString());
 			if(area != 0)
-				query.addWhere("blocklog_rollbacks.area", area.toString());
+				query.where("blocklog_rollbacks.area", area.toString());
 			if(sinceTime != 0)
-				query.addWhere("blocklog_rollbacks.date", sinceTime.toString(), ">");
+				query.where("blocklog_rollbacks.date", sinceTime.toString(), ">");
 			if(untilTime != 0)
-				query.addWhere("blocklog_rollbacks.date", untilTime.toString(), "<");
+				query.where("blocklog_rollbacks.date", untilTime.toString(), "<");
 			
-			query.addOrderBy("blocklog_rollbacks.date", "DESC");
-			query.addLimit(getSettingsManager().getMaxResults());
+			query.orderBy("blocklog_rollbacks.date", "DESC");
+			query.limit(getSettingsManager().getMaxResults());
 			
 			ResultSet rollbacks = query.getResult();
 			

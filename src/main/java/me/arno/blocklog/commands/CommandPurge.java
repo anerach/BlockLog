@@ -10,8 +10,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
-public class CommandClear extends BlockLogCommand {
-	public CommandClear() {
+public class CommandPurge extends BlockLogCommand {
+	public CommandPurge() {
 		super("blocklog.clear");
 		setCommandUsage("/bl clear <table1> [table2] [...] <time>");
 	}
@@ -70,6 +70,8 @@ public class CommandClear extends BlockLogCommand {
 			}
 		}
 		
+		
+		
 		try {
 			Statement stmt = conn.createStatement();
 			
@@ -84,7 +86,7 @@ public class CommandClear extends BlockLogCommand {
 			}
 	    } catch (SQLException e) {
     		e.printStackTrace();
-    	}
+		}
 		
 		return true;
 	}

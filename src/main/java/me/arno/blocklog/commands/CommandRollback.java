@@ -82,19 +82,19 @@ public class CommandRollback extends BlockLogCommand {
 			World world = player.getWorld();
 			
 			Query query = new Query("blocklog_blocks");
-			query.addSelect("*");
+			query.select("*");
 			if(target != null) {
-				query.addWhere("trigered", target);
+				query.where("trigered", target);
 			}
 			if(entity != null) {
 				if(entity.equalsIgnoreCase("tnt"))
 					entity = "primed_tnt";
-				query.addWhere("entity", entity);
+				query.where("entity", entity);
 			}
 			if(sinceTime != 0)
-				query.addWhere("date", sinceTime.toString(), ">");
+				query.where("date", sinceTime.toString(), ">");
 			if(untilTime != 0)
-				query.addWhere("date", untilTime.toString(), "<");
+				query.where("date", untilTime.toString(), "<");
 			if(area != 0) {
 				Integer xMin = player.getLocation().getBlockX() - area;
 				Integer xMax = player.getLocation().getBlockX() + area;
@@ -103,19 +103,19 @@ public class CommandRollback extends BlockLogCommand {
 				Integer zMin = player.getLocation().getBlockZ() - area;
 				Integer zMax = player.getLocation().getBlockZ() + area;
 				
-				query.addWhere("x", xMin.toString(), ">=");
-				query.addWhere("x", xMax.toString(), "<=");
+				query.where("x", xMin.toString(), ">=");
+				query.where("x", xMax.toString(), "<=");
 				
-				query.addWhere("y", yMin.toString(), ">=");
-				query.addWhere("y", yMax.toString(), "<=");
+				query.where("y", yMin.toString(), ">=");
+				query.where("y", yMax.toString(), "<=");
 				
-				query.addWhere("z", zMin.toString(), ">=");
-				query.addWhere("z", zMax.toString(), "<=");
+				query.where("z", zMin.toString(), ">=");
+				query.where("z", zMax.toString(), "<=");
 			}
-			query.addWhere("world", world.getName());
-			query.addWhere("rollback_id", 0);
-			query.addGroupBy("x", "y", "z");
-			query.addOrderBy("date", "DESC");
+			query.where("world", world.getName());
+			query.where("rollback_id", 0);
+			query.groupBy("x", "y", "z");
+			query.orderBy("date", "DESC");
 			
 			Statement rollbackStmt = conn.createStatement();
 			

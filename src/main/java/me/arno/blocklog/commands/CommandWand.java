@@ -102,11 +102,11 @@ public class CommandWand extends BlockLogCommand {
             
             int blockNumber = 0;
             int blockCount = 0;
-			int blockSize = getLogManager().getEditQueueSize();
+			int blockSize = getQueueManager().getEditQueueSize();
 			int maxResults = getSettingsManager().getMaxResults();
 			
 			while(blockSize > blockNumber) {
-				BlockEdit LBlock = getLogManager().getEditQueue().get(blockNumber); 
+				BlockEdit LBlock = getQueueManager().getEditQueue().get(blockNumber); 
 				if(LBlock.getX() == location.getX() && LBlock.getY() == location.getY() && LBlock.getZ() == location.getZ() && LBlock.getWorld() == location.getWorld()) {
 					if(blockCount == maxResults)
 						break;

@@ -32,7 +32,7 @@ public class WandListener extends BlockLogListener {
 			player.sendMessage(ChatColor.YELLOW + "Block History" + ChatColor.BLUE + " (" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ")" + ChatColor.DARK_GRAY + " ------------------------");
             player.sendMessage(ChatColor.GRAY + Text.addSpaces("Name", 90) + Text.addSpaces("Action", 75) + "Details");
             
-			ArrayList<BlockInteraction> Interactions = getLogManager().getInteractionQueue();
+			ArrayList<BlockInteraction> Interactions = getQueueManager().getInteractionQueue();
 			int blockNumber = 0;
 			int blockCount = 0;
 			int blockSize = Interactions.size();
@@ -102,11 +102,11 @@ public class WandListener extends BlockLogListener {
             
             int blockNumber = 0;
             int blockCount = 0;
-			int blockSize = getLogManager().getEditQueueSize();
+			int blockSize = getQueueManager().getEditQueueSize();
 			int maxResults = getSettingsManager().getMaxResults();
 			
 			while(blockSize > blockNumber) {
-				BlockEdit LBlock = getLogManager().getEditQueue().get(blockNumber); 
+				BlockEdit LBlock = getQueueManager().getEditQueue().get(blockNumber); 
 				if(LBlock.getX() == location.getX() && LBlock.getY() == location.getY() && LBlock.getZ() == location.getZ() && LBlock.getWorld() == location.getWorld()) {
 					if(blockCount == maxResults)
 						break;

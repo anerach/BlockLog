@@ -46,6 +46,7 @@ public class Rollback implements Runnable {
 			ResultSet blocks = query.getResult();
 			
 			World world = player.getWorld();
+			int totalBlocks = query.getRowCount();
 			
 			for(int i=0;i<limit;i++) {
 				if(blocks.next()) {
@@ -60,7 +61,7 @@ public class Rollback implements Runnable {
 					rollbackStmt.executeUpdate(String.format("UPDATE blocklog_blocks SET rollback_id = %s WHERE id = %s", rollbackID, blocks.getInt("id")));
 					BlockCount++;
 				} else {
-					player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GREEN + BlockCount + ChatColor.GOLD + " blocks of the " + ChatColor.GOLD + query.getRowCount() + " blocks changed!");
+					player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GREEN + BlockCount + ChatColor.GOLD + " blocks of the " + ChatColor.GREEN + totalBlocks + ChatColor.GOLD + " blocks changed!");
 					player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "use the command " + ChatColor.GREEN + "/bl undo " + rollbackID + ChatColor.GOLD + " to undo this rollback!");
 					plugin.getSchedules().remove(sid);
 					plugin.getServer().getScheduler().cancelTask(sid);

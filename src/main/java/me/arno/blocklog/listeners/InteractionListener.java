@@ -17,17 +17,17 @@ public class InteractionListener extends BlockLogListener {
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		if(!event.isCancelled()) {
 			if(event.getClickedBlock().getType() == Material.WOODEN_DOOR) {
-				getLogManager().queueBlockInteraction(event.getPlayer(), event.getClickedBlock().getLocation(), InteractionType.DOOR);
+				getQueueManager().queueBlockInteraction(event.getPlayer(), event.getClickedBlock().getLocation(), InteractionType.DOOR);
 			} else if(event.getClickedBlock().getType() == Material.TRAP_DOOR) {
-				getLogManager().queueBlockInteraction(event.getPlayer(), event.getClickedBlock().getLocation(), InteractionType.TRAP_DOOR);
+				getQueueManager().queueBlockInteraction(event.getPlayer(), event.getClickedBlock().getLocation(), InteractionType.TRAP_DOOR);
 			} else if(event.getClickedBlock().getType() == Material.CHEST) {
-				getLogManager().queueBlockInteraction(event.getPlayer(), event.getClickedBlock().getLocation(), InteractionType.CHEST);
+				getQueueManager().queueBlockInteraction(event.getPlayer(), event.getClickedBlock().getLocation(), InteractionType.CHEST);
 			} else if(event.getClickedBlock().getType() == Material.DISPENSER) {
-				getLogManager().queueBlockInteraction(event.getPlayer(), event.getClickedBlock().getLocation(), InteractionType.DISPENSER);
+				getQueueManager().queueBlockInteraction(event.getPlayer(), event.getClickedBlock().getLocation(), InteractionType.DISPENSER);
 			} else if(event.getClickedBlock().getType() == Material.STONE_BUTTON) {
-				getLogManager().queueBlockInteraction(event.getPlayer(), event.getClickedBlock().getLocation(), InteractionType.BUTTON);
+				getQueueManager().queueBlockInteraction(event.getPlayer(), event.getClickedBlock().getLocation(), InteractionType.BUTTON);
 			} else if(event.getClickedBlock().getType() == Material.LEVER) {
-				getLogManager().queueBlockInteraction(event.getPlayer(), event.getClickedBlock().getLocation(), InteractionType.LEVER);
+				getQueueManager().queueBlockInteraction(event.getPlayer(), event.getClickedBlock().getLocation(), InteractionType.LEVER);
 			}
 		}
 	}

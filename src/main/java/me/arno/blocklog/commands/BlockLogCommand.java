@@ -52,7 +52,7 @@ public class BlockLogCommand {
 		return plugin.getDatabaseManager();
 	}
 	
-	public QueueManager getLogManager() {
+	public QueueManager getQueueManager() {
 		return plugin.getQueueManager();
 	}
 	

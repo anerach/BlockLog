@@ -34,12 +34,12 @@ public class BlockLogListener implements Listener {
 		return plugin.getSettingsManager();
 	}
 	
-	public QueueManager getLogManager() {
+	public QueueManager getQueueManager() {
 		return plugin.getQueueManager();
 	}
 	
 	public void BlocksLimitReached() {
-		int BlockSize = getLogManager().getEditQueueSize();
+		int BlockSize = getQueueManager().getEditQueueSize();
 		int WarningBlockSize = getSettingsManager().getConfig().getInt("blocklog.warning.blocks");
 		int WarningDelay = getSettingsManager().getConfig().getInt("blocklog.warning.delay") * 1000;
 		int WarningRepeat = getSettingsManager().getConfig().getInt("blocklog.warning.repeat");

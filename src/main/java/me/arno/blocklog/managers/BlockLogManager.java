@@ -1,25 +1,17 @@
 package me.arno.blocklog.managers;
 
+import me.arno.blocklog.BlockLog;
+
 public class BlockLogManager {
-	private DatabaseManager databaseManager;
-	private SettingsManager settingsManager;
-	private QueueManager queueManager;
-	
-	public BlockLogManager() {
-		databaseManager = new DatabaseManager();
-		settingsManager = new SettingsManager();
-		queueManager = new QueueManager();
+	public SettingsManager getSettingsManager() {
+		return BlockLog.plugin.getSettingsManager();
 	}
 	
 	public DatabaseManager getDatabaseManager() {
-		return databaseManager;
-	}
-	
-	public SettingsManager getSettingsManager() {
-		return settingsManager;
+		return BlockLog.plugin.getDatabaseManager();
 	}
 	
 	public QueueManager getQueueManager() {
-		return queueManager;
+		return BlockLog.plugin.getQueueManager();
 	}
 }

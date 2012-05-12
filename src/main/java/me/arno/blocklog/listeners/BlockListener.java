@@ -28,7 +28,7 @@ public class BlockListener extends BlockLogListener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockBurn(BlockBurnEvent event) {
 		if(!event.isCancelled() && getSettingsManager().isLoggingEnabled(event.getBlock().getWorld(), LogType.FIRE)) {
-			getLogManager().queueBlockEdit(event.getBlock().getState(), LogType.FIRE);
+			getQueueManager().queueBlockEdit(event.getBlock().getState(), LogType.FIRE);
 			BlocksLimitReached();
 		}
 	}
@@ -37,7 +37,7 @@ public class BlockListener extends BlockLogListener {
 	public void onBlockIgnite(BlockIgniteEvent event) {
 		if(!event.isCancelled() && event.getPlayer() != null) {
 			if(event.getBlock().getType() == Material.TNT && getSettingsManager().isLoggingEnabled(event.getPlayer().getWorld(), LogType.BREAK)) {
-				getLogManager().queueBlockEdit(event.getPlayer(), event.getBlock().getState(), LogType.BREAK);
+				getQueueManager().queueBlockEdit(event.getPlayer(), event.getBlock().getState(), LogType.BREAK);
 				BlocksLimitReached();
 			}
 		}
@@ -48,6 +48,8 @@ public class BlockListener extends BlockLogListener {
 		if(!event.isCancelled() && getSettingsManager().isLoggingEnabled(event.getLocation().getWorld(), LogType.EXPLOSION)) {
 			LogType logType = LogType.EXPLOSION;
 			Player target = null;
+			EntityType entityType = (event.getEntityType() == null) ? EntityType.PLAYER : event.getEntityType();
+			
 			if(event.getEntityType() != null) { // Returns null when using a bed in the nether
 				if(event.getEntityType() == EntityType.CREEPER) {
 					logType = LogType.EXPLOSION_CREEPER;
@@ -65,9 +67,9 @@ public class BlockListener extends BlockLogListener {
 			for(Block block : event.blockList()) {
 				if(block.getType() != Material.TNT) {
 					if(target == null)
-						getLogManager().queueBlockEdit(block.getState(), event.getEntityType(), logType);
+						getQueueManager().queueBlockEdit(block.getState(), entityType, logType);
 					else
-						getLogManager().queueBlockEdit(target, block.getState(), event.getEntityType(), logType);
+						getQueueManager().queueBlockEdit(target, block.getState(), entityType, logType);
 					BlocksLimitReached();
 				}
 			}
@@ -78,7 +80,7 @@ public class BlockListener extends BlockLogListener {
 	public void onLeavesDecay(LeavesDecayEvent event) {
 		if(!event.isCancelled()) {
 			if(getSettingsManager().isLoggingEnabled(event.getBlock().getWorld(), LogType.LEAVES)) {
-				getLogManager().queueBlockEdit(event.getBlock().getState(), LogType.LEAVES);
+				getQueueManager().queueBlockEdit(event.getBlock().getState(), LogType.LEAVES);
 				BlocksLimitReached();
 			}
 		}
@@ -90,7 +92,7 @@ public class BlockListener extends BlockLogListener {
 			if(getSettingsManager().isLoggingEnabled(event.getWorld(), LogType.GROW)) {
 				Player player = event.getPlayer();
 				for(BlockState block : event.getBlocks()) {
-					getLogManager().queueBlockEdit(player, block, LogType.GROW);
+					getQueueManager().queueBlockEdit(player, block, LogType.GROW);
 					BlocksLimitReached();
 				}
 			}
@@ -104,7 +106,7 @@ public class BlockListener extends BlockLogListener {
 				if(event.getEntity() instanceof Player) {
 					Player player = (Player) event.getEntity();
 					for(BlockState block : event.getBlocks()) {
-						getLogManager().queueBlockEdit(player, block, LogType.PORTAL);
+						getQueueManager().queueBlockEdit(player, block, LogType.PORTAL);
 						BlocksLimitReached();
 					}
 				}
@@ -116,7 +118,7 @@ public class BlockListener extends BlockLogListener {
 	public void onBlockForm(BlockFormEvent event) {
 		if(!event.isCancelled()) {
 			if(plugin.getSettingsManager().isLoggingEnabled(event.getNewState().getWorld(), LogType.FORM)) {
-				getLogManager().queueBlockEdit(event.getNewState(), LogType.FORM);
+				getQueueManager().queueBlockEdit(event.getNewState(), LogType.FORM);
 				BlocksLimitReached();
 			}
 		}
@@ -126,7 +128,7 @@ public class BlockListener extends BlockLogListener {
 	public void onBlockSpread(BlockSpreadEvent event) {
 		if(!event.isCancelled()) {
 			if(plugin.getSettingsManager().isLoggingEnabled(event.getNewState().getWorld(), LogType.SPREAD)) {
-				getLogManager().queueBlockEdit(event.getNewState(), LogType.SPREAD);
+				getQueueManager().queueBlockEdit(event.getNewState(), LogType.SPREAD);
 				BlocksLimitReached();
 			}
 		}
@@ -136,7 +138,7 @@ public class BlockListener extends BlockLogListener {
 	public void onBlockFade(BlockFadeEvent event) {
 		if(!event.isCancelled()) {
 			if(plugin.getSettingsManager().isLoggingEnabled(event.getNewState().getWorld(), LogType.FADE)) {
-				getLogManager().queueBlockEdit(event.getNewState(), LogType.FADE);
+				getQueueManager().queueBlockEdit(event.getNewState(), LogType.FADE);
 				BlocksLimitReached();
 			}
 		}

@@ -62,7 +62,7 @@ public class PlayerListener extends BlockLogListener {
 			cancel = true;
 		
 		if(!event.isCancelled() && !cancel) {
-			getLogManager().queueBlockEdit(player, block, LogType.PLACE);
+			getQueueManager().queueBlockEdit(player, block, LogType.PLACE);
 			BlocksLimitReached();
 		}
 	}
@@ -88,7 +88,7 @@ public class PlayerListener extends BlockLogListener {
 		}
 		
 		if(!event.isCancelled() && !cancel) {
-			getLogManager().queueBlockEdit(player, block, LogType.BREAK);
+			getQueueManager().queueBlockEdit(player, block, LogType.BREAK);
 			BlocksLimitReached();
 		}
 	}
@@ -119,7 +119,7 @@ public class PlayerListener extends BlockLogListener {
 			else if(event.getBucket() == Material.LAVA_BUCKET)
 				block.setType(Material.LAVA);
 			
-			getLogManager().queueBlockEdit(player, block, LogType.PLACE);
+			getQueueManager().queueBlockEdit(player, block, LogType.PLACE);
 			BlocksLimitReached();
 		}
 	}
@@ -138,7 +138,7 @@ public class PlayerListener extends BlockLogListener {
 			if(block.getType() != Material.FIRE)
 				block = event.getClickedBlock().getRelative(BlockFace.WEST);
 			if(block.getType() == Material.FIRE) {
-				getLogManager().queueBlockEdit(event.getPlayer(), block.getState(), LogType.BREAK);
+				getQueueManager().queueBlockEdit(event.getPlayer(), block.getState(), LogType.BREAK);
 				BlocksLimitReached();
 			}
 		}

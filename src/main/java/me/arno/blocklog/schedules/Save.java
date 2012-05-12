@@ -1,5 +1,6 @@
 package me.arno.blocklog.schedules;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
@@ -37,15 +38,22 @@ public class Save implements Runnable {
 	
 	@Override
 	public void run() {
-		if(!plugin.saving) {
+		if(!plugin.saving || count == 1) {
+			plugin.saving = true;
+			try {
+				if(plugin.conn.isValid(3)) {
+					plugin.conn = plugin.getDatabaseManager().getConnection();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			
 			if(messages) {
 				if(player == null)
 					log.info("Saving " + ((count == 0) ? "all the" : count) + " block edits");
 				else
 					player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Saving " + ((count == 0) ? "all the" : count) + " block edits");
 			}
-			
-			plugin.saving = true;
 			
 			if(count == 0) {
 		    	while(!interactions.isEmpty()) {

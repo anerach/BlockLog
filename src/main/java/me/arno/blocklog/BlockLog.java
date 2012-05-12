@@ -38,7 +38,9 @@ public class BlockLog extends JavaPlugin {
 	public Logger log;
 	public Connection conn;
 	
-	private BlockLogManager manager;
+	private SettingsManager settingsManager;
+	private DatabaseManager databaseManager;
+	private QueueManager queueManager;
 	
 	public ArrayList<String> users = new ArrayList<String>();
 	public HashMap<String, ItemStack> playerItemStack = new HashMap<String, ItemStack>();
@@ -61,15 +63,15 @@ public class BlockLog extends JavaPlugin {
 	}
 	
 	public SettingsManager getSettingsManager() {
-		return manager.getSettingsManager();
+		return settingsManager;
 	}
 	
 	public DatabaseManager getDatabaseManager() {
-		return manager.getDatabaseManager();
+		return databaseManager;
 	}
 	
 	public QueueManager getQueueManager() {
-		return manager.getQueueManager();
+		return queueManager;
 	}
 	
 	private void loadConfiguration() {
@@ -267,22 +269,19 @@ public class BlockLog extends JavaPlugin {
 	}
 	
 	private void loadPlugin() {
-		plugin = this;
+		BlockLog.plugin = this;
 		currentVersion = getDescription().getVersion();
 		log = getLogger();
 		
-		manager = new BlockLogManager();
-	    
+		settingsManager = new SettingsManager();
+		databaseManager = new DatabaseManager();
+		queueManager = new QueueManager();
+		
 	    log.info("Loading the dependencies");
 	    loadDependencies();
 	    
 	    log.info("Loading the configurations");
 	    loadConfiguration();
-		
-		if(getConfig().getBoolean("blocklog.metrics")) {
-			log.info("Loading metrics");
-			loadMetrics();
-		}
 	    
 	    log.info("Loading the database");
 	    loadDatabase();
@@ -295,6 +294,11 @@ public class BlockLog extends JavaPlugin {
 	    
 	    log.info("Purging the database");
 	    purgeDatabase();
+		
+		if(getConfig().getBoolean("blocklog.metrics")) {
+			log.info("Loading metrics");
+			loadMetrics();
+		}
 	    
 		log.info("Starting BlockLog");
 		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Save(this, 1, null, false), 100L, getSettingsManager().getBlockSaveDelay() * 20L);

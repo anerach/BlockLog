@@ -13,9 +13,11 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockFadeEvent;
 import org.bukkit.event.block.BlockFormEvent;
+import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.block.LeavesDecayEvent;
+import org.bukkit.event.entity.EntityChangeBlockEvent; // Endermen item pickup?
 import org.bukkit.event.entity.EntityCreatePortalEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.world.StructureGrowEvent;
@@ -23,6 +25,40 @@ import org.bukkit.event.world.StructureGrowEvent;
 public class BlockListener extends BlockLogListener {
 	public BlockListener(BlockLog plugin) {
 		super(plugin);
+	}
+	
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onEntityChangeBlock(EntityChangeBlockEvent event) {
+		if(!event.isCancelled()) {
+			log.info("From: " + event.getBlock().getType().name());
+			log.info("To: " + event.getTo().name());
+			/*if(event.getBlock().getType() == Material.AIR && getSettingsManager().isLoggingEnabled(event.getBlock().getWorld(), LogType.BREAK)) {
+				getQueueManager().queueBlockEdit(event.getBlock().getState(), LogType.BREAK);
+			} else if(getSettingsManager().isLoggingEnabled(event.getBlock().getWorld(), LogType.PLACE)) {
+				getQueueManager().queueBlockEdit(event.getBlock().getState(), LogType.PLACE);
+			}*/
+			BlocksLimitReached();
+		}
+	}
+	
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void onBlockFromTo(BlockFromToEvent event) {
+		if(!event.isCancelled()) {
+			if(event.getBlock().getType() == Material.DRAGON_EGG) {
+				BlockState blockState = event.getToBlock().getState();
+				blockState.setType(Material.DRAGON_EGG);
+				
+				if(getSettingsManager().isLoggingEnabled(event.getBlock().getWorld(), LogType.BREAK))
+					getQueueManager().queueBlockEdit(event.getBlock().getState(), LogType.BREAK);
+				if(getSettingsManager().isLoggingEnabled(event.getBlock().getWorld(), LogType.PLACE))
+					getQueueManager().queueBlockEdit(blockState, LogType.PLACE);
+			} else if(getSettingsManager().isLoggingEnabled(event.getBlock().getWorld(), LogType.SPREAD)) {
+				BlockState blockState = event.getToBlock().getState();
+				blockState.setType(event.getBlock().getType());
+				
+				getQueueManager().queueBlockEdit(blockState, LogType.SPREAD);
+			}
+		}
 	}
 	
 	@EventHandler(priority = EventPriority.HIGHEST)

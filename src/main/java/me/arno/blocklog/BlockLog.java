@@ -150,17 +150,15 @@ public class BlockLog extends JavaPlugin {
 	private void updateDatabase() {
 		try {
 			Config versions = new Config("VERSIONS");
-			if(versions.getConfig().getInt("database", 1) == 10) {
-				new File(Config.configDir + "VERSIONS").delete();
-				versions = new Config("VERSIONS");
-			}
-			
 			versions.getConfig().addDefault("database", 1);
 			versions.getConfig().options().copyDefaults(true);
-			if(versions.getConfig().getInt("database") < 2) {
+			versions.saveConfig();
+			
+			if(versions.getConfig().getInt("database") == 10) {
 				Statement stmt = conn.createStatement();
+				stmt.executeUpdate("ALTER TABLE `blocklog_chat` CHANGE `message` `message` TEXT NOT NULL");
 				stmt.executeUpdate("ALTER TABLE `blocklog_blocks` CHANGE `trigered` `triggered` varchar(75) NOT NULL");
-				versions.getConfig().set("database", 2);
+				versions.getConfig().set("database", 1);
 			}
 			versions.saveConfig();
 		} catch (SQLException e) {
@@ -329,7 +327,7 @@ public class BlockLog extends JavaPlugin {
 		try {
 			getServer().getScheduler().cancelTasks(this);
 			
-			log.info("Saving all the block edits!");
+			log.info("Saving all the queued logs!");
 			while(!getQueueManager().getInteractionQueue().isEmpty()) {
 	    		BlockInteraction interaction = getQueueManager().getInteractionQueue().get(0);
 			    interaction.save();
@@ -340,9 +338,10 @@ public class BlockLog extends JavaPlugin {
 				block.save();
 				getQueueManager().getEditQueue().remove(0);
 			}
-			log.info("Successfully saved all the block edits!");
+			log.info("Successfully saved all the queued logs!");
 			
-			conn.close();
+			if(conn != null)
+				conn.close();
 		} catch(SQLException e) {
 			e.printStackTrace();
 		}

@@ -107,7 +107,7 @@ public class CommandSimulateRollback extends BlockLogCommand {
 			int blockCount = query.getRowCount();
 			
 			player.sendMessage(ChatColor.BLUE + "This rollback will affect " + ChatColor.GOLD + blockCount + " blocks");
-			player.sendMessage(ChatColor.BLUE + "At a speed of " + ChatColor.GOLD + (limit/delay) + " blocks/second");
+			player.sendMessage(ChatColor.BLUE + "At a speed of " + ChatColor.GOLD + Math.round(limit/delay) + " blocks/second");
 			player.sendMessage(ChatColor.BLUE + "It will take about " + ChatColor.GOLD + Math.round(blockCount/(limit/delay)) + " seconds " + ChatColor.BLUE + "to complete the rollback");
 			return true;
 		} catch(NumberFormatException e) {

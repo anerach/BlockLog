@@ -1,19 +1,17 @@
 package me.arno.blocklog.commands;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import me.arno.blocklog.database.Query;
-import me.arno.blocklog.schedules.UndoRollback;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
-public class CommandUndo extends BlockLogCommand {
-	public CommandUndo() {
+public class CommandSimulateUndo extends BlockLogCommand {
+	public CommandSimulateUndo() {
 		super("blocklog.rollback");
-		setCommandUsage("/bl undo [id] [delay <value>] [limit <amount>]");
+		setCommandUsage("/bl simundo [id] [delay <value>] [limit <amount>]");
 	}
 
 	@Override
@@ -43,7 +41,6 @@ public class CommandUndo extends BlockLogCommand {
 				}
 			}
 			
-			Statement undoStmt = conn.createStatement();
 			Statement rollbackStmt = conn.createStatement();
 			if(args.length == 1) {
 				rollbackID = Integer.valueOf(args[0]);
@@ -61,25 +58,15 @@ public class CommandUndo extends BlockLogCommand {
 				return true;
 			}
 			
-			undoStmt.executeUpdate("INSERT INTO blocklog_undos (rollback_id, player, date) VALUES (" + rollbackID + ", '" + player.getName() + "', " + System.currentTimeMillis()/1000 + ")");
-			
-			ResultSet blocks = query.getResult();
 			int blockCount = query.getRowCount();
-			
-			UndoRollback undo = new UndoRollback(plugin, player, rollbackID, blocks, limit);
-			Integer sid = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, undo, 20L, delay * 20L);
-			undo.setId(sid);
 			
 			player.sendMessage(ChatColor.BLUE + "This undo will affect " + ChatColor.GOLD + blockCount + " blocks");
 			player.sendMessage(ChatColor.BLUE + "At a speed of about " + ChatColor.GOLD + Math.round(limit/delay) + " blocks/second");
 			player.sendMessage(ChatColor.BLUE + "It will take about " + ChatColor.GOLD + Math.round(blockCount/(limit/delay)) + " seconds " + ChatColor.BLUE + "to complete the rollback");
-			player.sendMessage(ChatColor.BLUE + "To cancel the undo say " + ChatColor.GOLD + "/bl cancel " + sid);
 			return true;
-		} catch(NumberFormatException e) {
-			return false;
-		} catch(SQLException e) {
+		} catch (NumberFormatException e) {
 			e.printStackTrace();
-		} catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return false;

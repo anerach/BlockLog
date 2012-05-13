@@ -1,6 +1,7 @@
 package me.arno.blocklog.commands;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -139,6 +140,8 @@ public class CommandRollback extends BlockLogCommand {
 			return true;
 		} catch(NumberFormatException e) {
 			return false;
+		} catch(SQLException e) {
+			e.printStackTrace();
 		} catch(Exception e) {
 			e.printStackTrace();
 		}

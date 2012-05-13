@@ -30,13 +30,13 @@ public class BlockListener extends BlockLogListener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onEntityChangeBlock(EntityChangeBlockEvent event) {
 		if(!event.isCancelled()) {
-			log.info("From: " + event.getBlock().getType().name());
-			log.info("To: " + event.getTo().name());
-			/*if(event.getBlock().getType() == Material.AIR && getSettingsManager().isLoggingEnabled(event.getBlock().getWorld(), LogType.BREAK)) {
+			if(event.getBlock().getType() == Material.AIR && getSettingsManager().isLoggingEnabled(event.getBlock().getWorld(), LogType.BREAK, LogType.PLACE)) {
+				BlockState blockState = event.getBlock().getState();
+				blockState.setType(event.getTo());
+				
 				getQueueManager().queueBlockEdit(event.getBlock().getState(), LogType.BREAK);
-			} else if(getSettingsManager().isLoggingEnabled(event.getBlock().getWorld(), LogType.PLACE)) {
-				getQueueManager().queueBlockEdit(event.getBlock().getState(), LogType.PLACE);
-			}*/
+				getQueueManager().queueBlockEdit(blockState, LogType.PLACE);
+			}
 			BlocksLimitReached();
 		}
 	}
@@ -48,10 +48,10 @@ public class BlockListener extends BlockLogListener {
 				BlockState blockState = event.getToBlock().getState();
 				blockState.setType(Material.DRAGON_EGG);
 				
-				if(getSettingsManager().isLoggingEnabled(event.getBlock().getWorld(), LogType.BREAK))
+				if(getSettingsManager().isLoggingEnabled(event.getBlock().getWorld(), LogType.BREAK, LogType.PLACE)) {
 					getQueueManager().queueBlockEdit(event.getBlock().getState(), LogType.BREAK);
-				if(getSettingsManager().isLoggingEnabled(event.getBlock().getWorld(), LogType.PLACE))
 					getQueueManager().queueBlockEdit(blockState, LogType.PLACE);
+				}
 			} else if(getSettingsManager().isLoggingEnabled(event.getBlock().getWorld(), LogType.SPREAD)) {
 				BlockState blockState = event.getToBlock().getState();
 				blockState.setType(event.getBlock().getType());

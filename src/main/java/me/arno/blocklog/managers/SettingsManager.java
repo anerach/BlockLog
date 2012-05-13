@@ -12,13 +12,17 @@ import org.bukkit.configuration.file.FileConfiguration;
 
 public class SettingsManager extends BlockLogManager {
 	
-	public boolean isLoggingEnabled(World world, LogType type) {
-		if(type == LogType.EXPLOSION_CREEPER || type == LogType.EXPLOSION_FIREBALL || type == LogType.EXPLOSION_TNT)
-			type = LogType.EXPLOSION;
-		
-		Config config = new Config("worlds" + File.separator + world.getName() + ".yml");
-		
-		return config.getConfig().getBoolean(type.name());
+	public boolean isLoggingEnabled(World world, LogType... types) {
+		for(LogType type : types) {
+			if(type == LogType.EXPLOSION_CREEPER || type == LogType.EXPLOSION_FIREBALL || type == LogType.EXPLOSION_TNT)
+				type = LogType.EXPLOSION;
+			
+			Config config = new Config("worlds" + File.separator + world.getName() + ".yml");
+			
+			if(!config.getConfig().getBoolean(type.name()))
+				return false;
+		}
+		return true;
 	}
 	
 	public boolean isPurgeEnabled(String table) {

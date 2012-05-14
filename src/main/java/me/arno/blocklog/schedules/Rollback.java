@@ -6,8 +6,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import me.arno.blocklog.BlockLog;
-import me.arno.blocklog.database.Query;
 import me.arno.blocklog.logs.LogType;
+import me.arno.util.Query;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;

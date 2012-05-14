@@ -5,7 +5,7 @@ import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
-import me.arno.blocklog.database.Query;
+import me.arno.util.Query;
 
 public class CommandSimulateRollback extends BlockLogCommand {
 

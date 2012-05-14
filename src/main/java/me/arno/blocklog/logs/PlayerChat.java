@@ -13,8 +13,8 @@ public class PlayerChat {
 	private final String message;
 	private final Long time;
 	
-	public PlayerChat(BlockLog plugin, Player player, String message) {
-		this.plugin = plugin;
+	public PlayerChat(Player player, String message) {
+		this.plugin = BlockLog.plugin;
 		this.player = player;
 		this.message = message.replace("\\", "\\\\").replace("'", "\\'").trim();
 		this.time = System.currentTimeMillis()/1000;

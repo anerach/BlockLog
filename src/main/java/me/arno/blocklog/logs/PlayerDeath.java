@@ -16,8 +16,8 @@ public class PlayerDeath {
 	private final Location location;
 	private final Long time;
 	
-	public PlayerDeath(BlockLog plugin, Player player, Integer type) {
-		this.plugin = plugin;
+	public PlayerDeath(Player player, Integer type) {
+		this.plugin = BlockLog.plugin;
 		this.player = player;
 		this.type = type;
 		this.time = System.currentTimeMillis()/1000;

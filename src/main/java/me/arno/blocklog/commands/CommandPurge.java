@@ -12,7 +12,7 @@ import org.bukkit.entity.Player;
 
 public class CommandPurge extends BlockLogCommand {
 	public CommandPurge() {
-		super("blocklog.clear");
+		super("blocklog.purge");
 		setCommandUsage("/bl clear <table1> [table2] [...] <time>");
 	}
 	

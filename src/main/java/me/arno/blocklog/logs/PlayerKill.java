@@ -18,8 +18,8 @@ public class PlayerKill {
 	private final Location location;
 	private final Long time;
 	
-	public PlayerKill(BlockLog plugin, LivingEntity victem, Player killer) {
-		this.plugin = plugin;
+	public PlayerKill(LivingEntity victem, Player killer) {
+		this.plugin = BlockLog.plugin;
 		this.victem = victem;
 		this.killer = killer;
 		this.time = System.currentTimeMillis()/1000;

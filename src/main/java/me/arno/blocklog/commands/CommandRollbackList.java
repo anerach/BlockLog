@@ -6,7 +6,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
-import me.arno.blocklog.database.Query;
+import me.arno.util.Query;
 
 public class CommandRollbackList extends BlockLogCommand {
 	public CommandRollbackList() {

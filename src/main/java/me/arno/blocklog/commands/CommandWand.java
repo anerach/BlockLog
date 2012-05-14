@@ -6,9 +6,9 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 
-import me.arno.blocklog.database.Query;
 import me.arno.blocklog.logs.LogType;
 import me.arno.blocklog.logs.BlockEdit;
+import me.arno.util.Query;
 import me.arno.util.Text;
 
 import org.bukkit.ChatColor;

@@ -6,11 +6,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import me.arno.blocklog.BlockLog;
-import me.arno.blocklog.database.Query;
 import me.arno.blocklog.logs.InteractionType;
 import me.arno.blocklog.logs.LogType;
 import me.arno.blocklog.logs.BlockEdit;
 import me.arno.blocklog.logs.BlockInteraction;
+import me.arno.util.Query;
 import me.arno.util.Text;
 
 import org.bukkit.ChatColor;

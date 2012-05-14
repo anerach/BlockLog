@@ -1,4 +1,4 @@
-package me.arno.blocklog.database;
+package me.arno.util;
 
 import java.sql.Connection;
 import java.sql.ResultSet;

@@ -16,8 +16,8 @@ public class PlayerCommand {
 	private final Command cmd;
 	private final Integer time;
 	
-	public PlayerCommand(BlockLog plugin, Player player, String message) {
-		this.plugin = plugin;
+	public PlayerCommand(Player player, String message) {
+		this.plugin = BlockLog.plugin;
 		this.player = player;
 		this.message = message.replace("\\", "\\\\").replace("'", "\\'").trim();
 		String[] args = message.replace('/', ' ').trim().split(" ");

@@ -8,7 +8,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import me.arno.blocklog.BlockLog;
-import me.arno.blocklog.database.Query;
+import me.arno.util.Query;
 
 public class DatabaseManager extends BlockLogManager {
 	public static final String databasePrefix = "blocklog_";

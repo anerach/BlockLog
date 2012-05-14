@@ -30,7 +30,6 @@ import me.arno.blocklog.commands.CommandSimulateUndo;
 import me.arno.blocklog.commands.CommandStorage;
 import me.arno.blocklog.commands.CommandUndo;
 import me.arno.blocklog.commands.CommandWand;
-import me.arno.blocklog.database.Query;
 import me.arno.blocklog.listeners.BlockListener;
 import me.arno.blocklog.listeners.InteractionListener;
 import me.arno.blocklog.listeners.McMMOListener;
@@ -45,6 +44,7 @@ import me.arno.blocklog.managers.SettingsManager;
 import me.arno.blocklog.pail.PailInterface;
 import me.arno.blocklog.schedules.Save;
 import me.arno.blocklog.schedules.Updates;
+import me.arno.util.Query;
 import me.arno.util.Text;
 import me.escapeNT.pail.Pail;
 

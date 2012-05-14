@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS `blocklog_blocks` (
 	`id` int(11) NOT NULL AUTO_INCREMENT,
 	`entity` varchar(75) NOT NULL,
-	`trigered` varchar(75) NOT NULL,
+	`triggered` varchar(75) NOT NULL,
 	`world` varchar(75) NOT NULL,
 	`block_id` int(11) NOT NULL,
 	`datavalue` int(11) NOT NULL,

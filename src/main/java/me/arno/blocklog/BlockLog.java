@@ -29,7 +29,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -41,14 +40,13 @@ public class BlockLog extends JavaPlugin {
 	private SettingsManager settingsManager;
 	private DatabaseManager databaseManager;
 	private QueueManager queueManager;
+	private DependencyManager dependencyManager;
 	
 	public ArrayList<String> users = new ArrayList<String>();
 	public HashMap<String, ItemStack> playerItemStack = new HashMap<String, ItemStack>();
 	public HashMap<String, Integer> playerItemSlot = new HashMap<String, Integer>();
 	
 	private HashMap<Integer, Integer> schedules = new HashMap<Integer, Integer>();
-	
-	public HashMap<String, Plugin> softDepends = new HashMap<String, Plugin>();
 	
 	public String newVersion;
 	public String currentVersion;
@@ -74,6 +72,10 @@ public class BlockLog extends JavaPlugin {
 		return queueManager;
 	}
 	
+	public DependencyManager getDependencyManager() {
+		return dependencyManager;
+	}
+	
 	private void loadConfiguration() {
 		Config worldConfig;
 		for(World world : getServer().getWorlds()) {
@@ -91,7 +93,7 @@ public class BlockLog extends JavaPlugin {
 		getConfig().addDefault("mysql.host", "localhost");
 	    getConfig().addDefault("mysql.username", "root");
 	    getConfig().addDefault("mysql.password", "");
-	    getConfig().addDefault("mysql.database", "");
+	    getConfig().addDefault("mysql.database", "bukkit");
 	    getConfig().addDefault("mysql.port", 3306);
 	   	getConfig().addDefault("blocklog.wand", 19);
 	   	getConfig().addDefault("blocklog.results", 5);
@@ -166,38 +168,6 @@ public class BlockLog extends JavaPlugin {
 		}
 	}
 	
-	private void loadDependencies() {
-		ArrayList<String> plugins = new ArrayList<String>();
-		plugins.add("GriefPrevention");
-    	plugins.add("WorldGuard");
-    	plugins.add("mcMMO");
-    	plugins.add("Pail");
-    	
-    	for(String plugin : plugins) {
-    		if(getServer().getPluginManager().isPluginEnabled(plugin)) {
-    			softDepends.put(plugin, getServer().getPluginManager().getPlugin(plugin));
-    		}
-    	}
-	}
-	
-	public boolean reloadPlugin() {
-		if(saving)
-			return false;
-		
-		getServer().getScheduler().cancelTasks(this);
-		softDepends.clear();
-		
-		log.info("Reloading the configurations");
-		loadConfiguration();
-		    
-		log.info("Reloading the database");
-		loadDatabase();
-		   
-		log.info("Reloading the dependencies");
-		loadDependencies();
-		return true;
-	}
-	
 	public void loadMetrics() {
 		try {
 		    Metrics metrics = new Metrics(this);
@@ -266,26 +236,39 @@ public class BlockLog extends JavaPlugin {
 		}
 	}
 	
+	public boolean reloadPlugin() {
+		if(saving)
+			return false;
+		
+		getServer().getScheduler().cancelTasks(this);
+		
+		log.info("Reloading the configurations");
+		loadConfiguration();
+		    
+		log.info("Reloading the database");
+		loadDatabase();
+		return true;
+	}
+	
 	private void loadPlugin() {
 		BlockLog.plugin = this;
 		currentVersion = getDescription().getVersion();
 		log = getLogger();
 		
+		log.info("Loading the configurations");
+	    loadConfiguration();
+		
+		log.info("Loading the managers");
 		settingsManager = new SettingsManager();
 		databaseManager = new DatabaseManager();
 		queueManager = new QueueManager();
-		
-	    log.info("Loading the dependencies");
-	    loadDependencies();
-	    
-	    log.info("Loading the configurations");
-	    loadConfiguration();
+		dependencyManager = new DependencyManager();
 	    
 	    log.info("Loading the database");
 	    loadDatabase();
 	    updateDatabase();
 	    
-	    if(softDepends.containsKey("Pail")) {
+	    if(getDependencyManager().isDependencyEnabled("Pail")) {
 	    	log.info("Hooking into pail");
 	    	loadPailInterface();
 	    }
@@ -306,7 +289,7 @@ public class BlockLog extends JavaPlugin {
     	getServer().getPluginManager().registerEvents(new InteractionListener(this), this);
     	getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
     	
-    	if(softDepends.containsKey("mcMMO"))
+    	if(getDependencyManager().isDependencyEnabled("mcMMO"))
     		getServer().getPluginManager().registerEvents(new McMMOListener(this), this);
     	
     	if(getConfig().getBoolean("blocklog.updates")) {
@@ -418,6 +401,8 @@ public class BlockLog extends JavaPlugin {
 			command = new CommandSearch();
 		else if(args[0].equalsIgnoreCase("simrollback") || args[0].equalsIgnoreCase("simrb"))
 			command = new CommandSimulateRollback();
+		else if(args[0].equalsIgnoreCase("simundo"))
+			command = new CommandSimulateUndo();
 		else if(args[0].equalsIgnoreCase("storage"))
 			command = new CommandStorage();
 		else if(args[0].equalsIgnoreCase("undo"))
@@ -430,7 +415,7 @@ public class BlockLog extends JavaPlugin {
 	}
 	
 	public void loadPailInterface() {
-		Pail pail = (Pail) softDepends.get("Pail");
+		Pail pail = (Pail) getDependencyManager().getDependency("Pail");
 		pail.loadInterfaceComponent("BlockLog", new PailInterface());
 	}
 }

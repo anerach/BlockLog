@@ -43,16 +43,16 @@ public class PlayerListener extends BlockLogListener {
 		
 		Boolean cancel = !getSettingsManager().isLoggingEnabled(player.getWorld(), LogType.PLACE);
 		
-		if(plugin.softDepends.containsKey("GriefPrevention")) {
-			GriefPrevention gp = (GriefPrevention) plugin.softDepends.get("GriefPrevention");
+		if(getDependencyManager().isDependencyEnabled("GriefPrevention")) {
+			GriefPrevention gp = (GriefPrevention) getDependencyManager().getDependency("GriefPrevention");
 			Claim claim = gp.dataStore.getClaimAt(block.getLocation(), false, null);
 			
 			if(claim != null)
 				cancel = claim.allowBuild(player) != null;
 		}
 		
-		if(plugin.softDepends.containsKey("WorldGuard")) {
-			WorldGuardPlugin wg = (WorldGuardPlugin) plugin.softDepends.get("WorldGuard");
+		if(getDependencyManager().isDependencyEnabled("WorldGuard")) {
+			WorldGuardPlugin wg = (WorldGuardPlugin) getDependencyManager().getDependency("WorldGuard");
 			cancel = !wg.canBuild(player, block.getLocation());
 		}
 		
@@ -74,16 +74,16 @@ public class PlayerListener extends BlockLogListener {
 		
 		Boolean cancel = !getSettingsManager().isLoggingEnabled(player.getWorld(), LogType.BREAK);
 		
-		if(plugin.softDepends.containsKey("GriefPrevention")) {
-			GriefPrevention gp = (GriefPrevention) plugin.softDepends.get("GriefPrevention");
+		if(getDependencyManager().isDependencyEnabled("GriefPrevention")) {
+			GriefPrevention gp = (GriefPrevention) getDependencyManager().getDependency("GriefPrevention");
 			Claim claim = gp.dataStore.getClaimAt(block.getLocation(), false, null);
 			
 			if(claim != null)
 				cancel = claim.allowBuild(player) != null;
 		}
 		
-		if(plugin.softDepends.containsKey("WorldGuard")) {
-			WorldGuardPlugin wg = (WorldGuardPlugin) plugin.softDepends.get("WorldGuard");
+		if(getDependencyManager().isDependencyEnabled("WorldGuard")) {
+			WorldGuardPlugin wg = (WorldGuardPlugin) getDependencyManager().getDependency("WorldGuard");
 			cancel = !wg.canBuild(player, block.getLocation());
 		}
 		
@@ -100,16 +100,16 @@ public class PlayerListener extends BlockLogListener {
 		
 		Boolean cancel = !getSettingsManager().isLoggingEnabled(player.getWorld(), LogType.PLACE);
 		
-		if(plugin.softDepends.containsKey("GriefPrevention")) {
-			GriefPrevention gp = (GriefPrevention) plugin.softDepends.get("GriefPrevention");
+		if(getDependencyManager().isDependencyEnabled("GriefPrevention")) {
+			GriefPrevention gp = (GriefPrevention) getDependencyManager().getDependency("GriefPrevention");
 			Claim claim = gp.dataStore.getClaimAt(block.getLocation(), false, null);
 			
 			if(claim != null)
 				cancel = claim.allowBuild(player) != null;
 		}
 		
-		if(plugin.softDepends.containsKey("WorldGuard")) {
-			WorldGuardPlugin wg = (WorldGuardPlugin) plugin.softDepends.get("WorldGuard");
+		if(getDependencyManager().isDependencyEnabled("WorldGuard")) {
+			WorldGuardPlugin wg = (WorldGuardPlugin) getDependencyManager().getDependency("WorldGuard");
 			cancel = !wg.canBuild(player, block.getLocation());
 		}
 		

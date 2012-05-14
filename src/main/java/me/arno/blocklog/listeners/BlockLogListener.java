@@ -3,8 +3,7 @@ package me.arno.blocklog.listeners;
 import java.util.logging.Logger;
 
 import me.arno.blocklog.BlockLog;
-import me.arno.blocklog.managers.QueueManager;
-import me.arno.blocklog.managers.SettingsManager;
+import me.arno.blocklog.managers.*;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -32,6 +31,10 @@ public class BlockLogListener implements Listener {
 	
 	public SettingsManager getSettingsManager() {
 		return plugin.getSettingsManager();
+	}
+	
+	public DependencyManager getDependencyManager() {
+		return plugin.getDependencyManager();
 	}
 	
 	public QueueManager getQueueManager() {

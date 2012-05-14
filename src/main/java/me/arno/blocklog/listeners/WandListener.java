@@ -119,9 +119,6 @@ public class WandListener extends BlockLogListener {
 					String name = Material.getMaterial(LBlock.getBlockId()).toString();
 					LogType type = LBlock.getType();
 					
-					if(type.getId() <= 12 && type.getId() >= 10)
-						type = LogType.EXPLOSION;
-					
 					player.sendMessage(Text.addSpaces(ChatColor.GOLD + LBlock.getPlayerName(), 99) + Text.addSpaces(ChatColor.DARK_RED + type.name(), 80) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + date + "]");
 					blockCount++;
 				}
@@ -131,7 +128,7 @@ public class WandListener extends BlockLogListener {
 			
 			if(blockCount < maxResults) {
 				Query query = new Query("blocklog_blocks");
-				query.select("entity", "trigered", "block_id", "type");
+				query.select("entity", "triggered", "block_id", "type");
 				query.selectDate("date");
 				query.where("x", location.getBlockX());
 				query.where("y", location.getBlockY());
@@ -146,10 +143,7 @@ public class WandListener extends BlockLogListener {
 					String name = Material.getMaterial(rs.getInt("block_id")).toString();
 					LogType type = LogType.values()[rs.getInt("type")];
 					
-					if(type.getId() <= 12 && type.getId() >= 10)
-						type = LogType.EXPLOSION;
-					
-					player.sendMessage(Text.addSpaces(ChatColor.GOLD + rs.getString("trigered"), 99) + Text.addSpaces(ChatColor.DARK_RED + type.name(), 81) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + rs.getString("date") + "]");
+					player.sendMessage(Text.addSpaces(ChatColor.GOLD + rs.getString("triggered"), 99) + Text.addSpaces(ChatColor.DARK_RED + type.name(), 81) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + rs.getString("date") + "]");
 				}
 			}
 		} catch (SQLException e) {

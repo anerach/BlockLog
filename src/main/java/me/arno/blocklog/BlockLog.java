@@ -10,13 +10,38 @@ import java.util.HashMap;
 import java.util.logging.Logger;
 
 import me.arno.blocklog.Metrics.Graph;
-import me.arno.blocklog.commands.*;
+import me.arno.blocklog.commands.BlockLogCommand;
+import me.arno.blocklog.commands.CommandAutoSave;
+import me.arno.blocklog.commands.CommandCancel;
+import me.arno.blocklog.commands.CommandConfig;
+import me.arno.blocklog.commands.CommandHelp;
+import me.arno.blocklog.commands.CommandLookup;
+import me.arno.blocklog.commands.CommandPurge;
+import me.arno.blocklog.commands.CommandQueue;
+import me.arno.blocklog.commands.CommandRead;
+import me.arno.blocklog.commands.CommandReload;
+import me.arno.blocklog.commands.CommandReport;
+import me.arno.blocklog.commands.CommandRollback;
+import me.arno.blocklog.commands.CommandRollbackList;
+import me.arno.blocklog.commands.CommandSave;
+import me.arno.blocklog.commands.CommandSearch;
+import me.arno.blocklog.commands.CommandSimulateRollback;
+import me.arno.blocklog.commands.CommandSimulateUndo;
+import me.arno.blocklog.commands.CommandStorage;
+import me.arno.blocklog.commands.CommandUndo;
+import me.arno.blocklog.commands.CommandWand;
 import me.arno.blocklog.database.Query;
-import me.arno.blocklog.listeners.*;
+import me.arno.blocklog.listeners.BlockListener;
+import me.arno.blocklog.listeners.InteractionListener;
+import me.arno.blocklog.listeners.McMMOListener;
+import me.arno.blocklog.listeners.NoticeListener;
+import me.arno.blocklog.listeners.PlayerListener;
+import me.arno.blocklog.listeners.WandListener;
 import me.arno.blocklog.logs.LogType;
-import me.arno.blocklog.logs.BlockEdit;
-import me.arno.blocklog.logs.BlockInteraction;
-import me.arno.blocklog.managers.*;
+import me.arno.blocklog.managers.DatabaseManager;
+import me.arno.blocklog.managers.DependencyManager;
+import me.arno.blocklog.managers.QueueManager;
+import me.arno.blocklog.managers.SettingsManager;
 import me.arno.blocklog.pail.PailInterface;
 import me.arno.blocklog.schedules.Save;
 import me.arno.blocklog.schedules.Updates;
@@ -82,7 +107,7 @@ public class BlockLog extends JavaPlugin {
 			worldConfig = new Config("worlds" + File.separator + world.getName() + ".yml");
 			
 			for(LogType type : LogType.values()) {
-				if(type != LogType.EXPLOSION_CREEPER && type != LogType.EXPLOSION_FIREBALL && type != LogType.EXPLOSION_TNT) {
+				if(type != LogType.CREEPER && type != LogType.FIREBALL && type != LogType.TNT) {
 					worldConfig.getConfig().addDefault(type.name(), true);
 				}
 			}
@@ -282,7 +307,7 @@ public class BlockLog extends JavaPlugin {
 		}
 	    
 		log.info("Starting BlockLog");
-		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Save(this, 1, null, false), 100L, getSettingsManager().getBlockSaveDelay() * 20L);
+		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Save(1, null, false), 100L, getSettingsManager().getBlockSaveDelay() * 20L);
     	
     	getServer().getPluginManager().registerEvents(new WandListener(this), this);
     	getServer().getPluginManager().registerEvents(new BlockListener(this), this);
@@ -299,11 +324,11 @@ public class BlockLog extends JavaPlugin {
     }
 	
 	public void saveLogs(final int count) {
-		saveLogs(count, null);
+		saveLogs(count, getServer().getConsoleSender());
 	}
 	
-	public void saveLogs(final int count, final Player player) {
-		getServer().getScheduler().scheduleAsyncDelayedTask(this, new Save(this, count, player));
+	public void saveLogs(final int count, final CommandSender sender) {
+		getServer().getScheduler().scheduleAsyncDelayedTask(this, new Save(count, sender));
 	}
 	
 	private void stopPlugin() {
@@ -312,14 +337,10 @@ public class BlockLog extends JavaPlugin {
 			
 			log.info("Saving all the queued logs!");
 			while(!getQueueManager().getInteractionQueue().isEmpty()) {
-	    		BlockInteraction interaction = getQueueManager().getInteractionQueue().get(0);
-			    interaction.save();
-			    getQueueManager().getInteractionQueue().remove(0);
+				getQueueManager().saveQueuedInteraction();
 	    	}
 			while(!getQueueManager().getEditQueue().isEmpty()) {
-				BlockEdit block = getQueueManager().getEditQueue().get(0);
-				block.save();
-				getQueueManager().getEditQueue().remove(0);
+				getQueueManager().saveQueuedEdit();
 			}
 			log.info("Successfully saved all the queued logs!");
 			
@@ -344,6 +365,7 @@ public class BlockLog extends JavaPlugin {
 		log.info("v" + PluginDesc.getVersion() + " is disabled!");
 	}
 	
+	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
 		Player player = null;
 		

@@ -111,4 +111,76 @@ public class QueueManager extends BlockLogManager {
 	public int getInteractionQueueSize() {
 		return blockInteractions.size();
 	}
+	
+	/**
+	 * Gets a queued block edit
+	 * 
+	 * @param index The index of the queued block edit
+	 * @return A {@link BlockEdit} object that represents the queued block edit
+	 */
+	public BlockEdit getQueuedBlockEdit(int index) {
+		return getEditQueue().get(index);
+	}
+	
+	/**
+	 * Gets the oldest queued block edit
+	 * 
+	 * @return A {@link BlockEdit} object that represents the queued block edit
+	 */
+	public BlockEdit getOldestQueuedBlockEdit() {
+		return getEditQueue().get(0);
+	}
+	
+	/**
+	 * Gets a queued block interaction
+	 * 
+	 * @param index The index of the queued block interaction
+	 * @return A {@link BlockInteraction} object that represents a queued block interaction
+	 */
+	public BlockInteraction getQueuedInteraction(int index) {
+		return getInteractionQueue().get(index);
+	}
+	
+	/**
+	 * Gets the oldest queued block interaction
+	 * 
+	 * @return A {@link BlockInteraction} object that represents a queued block interaction
+	 */
+	public BlockInteraction getOldestQueuedInteraction() {
+		return getInteractionQueue().get(0);
+	}
+	
+	/**
+	 * Saves the oldest queued block edit
+	 */
+	public void saveQueuedEdit() {
+		saveQueuedEdit(0);
+	}
+	
+	/**
+	 * Saves a queued block edit
+	 * 
+	 * @param index The index of the queued block interaction
+	 */
+	public void saveQueuedEdit(int index) {
+		getEditQueue().get(index).save();
+		getEditQueue().remove(index);
+	}
+	
+	/**
+	 * Saves the oldest queued block interactions
+	 */
+	public void saveQueuedInteraction() {
+		saveQueuedInteraction(0);
+	}
+	
+	/**
+	 * Saves a queued block interactions
+	 * 
+	 * @param index The index of the queued block interaction
+	 */
+	public void saveQueuedInteraction(int index) {
+		getInteractionQueue().get(index).save();
+		getInteractionQueue().remove(index);
+	}
 }

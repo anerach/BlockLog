@@ -26,7 +26,7 @@ public class CommandStorage extends BlockLogCommand {
 		
 		try {
 			int blockEdits = new Query().from("blocklog_blocks").getRowCount();
-			int blockInteractions = new Query().from("blocklog_blocks").getRowCount();
+			int blockInteractions = new Query().from("blocklog_interactions").getRowCount();
 		
 			if(player == null) {
 				log.info(String.format("The database contains %s block edits!", blockEdits));

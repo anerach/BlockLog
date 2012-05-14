@@ -68,7 +68,7 @@ public class CommandLookup extends BlockLogCommand {
 			query.selectDate("date");
 			if(target != null) {
 				query.where("entity", "player");
-				query.where("trigered", target);
+				query.where("triggered", target);
 			}
 			if(entity != null)
 				query.where("entity", entity);

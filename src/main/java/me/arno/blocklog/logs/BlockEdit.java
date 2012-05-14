@@ -58,7 +58,7 @@ public class BlockEdit {
 	}
 	
 	public String getEntityName() {
-		return entity.name().toLowerCase();
+		return (entity == null) ? "unknown" : entity.name().toLowerCase();
 	}
 	
 	public EntityType getEntity() {

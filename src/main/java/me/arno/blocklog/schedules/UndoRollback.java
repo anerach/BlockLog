@@ -49,7 +49,7 @@ public class UndoRollback implements Runnable {
 					Location location = new Location(world, blocks.getDouble("x"), blocks.getDouble("y"), blocks.getDouble("z"));
 					LogType type = LogType.values()[blocks.getInt("type")];
 					
-					if(type == LogType.BREAK || type == LogType.FIRE || type == LogType.EXPLOSION || type == LogType.LEAVES || type == LogType.FADE || type == LogType.EXPLOSION_CREEPER || type == LogType.EXPLOSION_FIREBALL || type == LogType.EXPLOSION_TNT)
+					if(type == LogType.BREAK || type == LogType.FIRE || type == LogType.EXPLOSION || type == LogType.LEAVES || type == LogType.FADE || type == LogType.CREEPER || type == LogType.FIREBALL || type == LogType.TNT)
 						world.getBlockAt(location).setType(Material.AIR);
 					else
 						world.getBlockAt(location).setTypeIdAndData(blocks.getInt("block_id"), blocks.getByte("datavalue"), false);

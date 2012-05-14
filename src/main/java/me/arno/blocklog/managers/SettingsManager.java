@@ -14,7 +14,7 @@ public class SettingsManager extends BlockLogManager {
 	
 	public boolean isLoggingEnabled(World world, LogType... types) {
 		for(LogType type : types) {
-			if(type == LogType.EXPLOSION_CREEPER || type == LogType.EXPLOSION_FIREBALL || type == LogType.EXPLOSION_TNT)
+			if(type == LogType.CREEPER || type == LogType.FIREBALL || type == LogType.TNT)
 				type = LogType.EXPLOSION;
 			
 			Config config = new Config("worlds" + File.separator + world.getName() + ".yml");

@@ -71,7 +71,7 @@ public class CommandSimulateRollback extends BlockLogCommand {
 			Query query = new Query("blocklog_blocks");
 			query.select("*");
 			if(target != null) {
-				query.where("trigered", target);
+				query.where("triggered", target);
 			}
 			if(entity != null) {
 				if(entity.equalsIgnoreCase("tnt"))

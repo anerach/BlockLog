@@ -88,15 +88,15 @@ public class BlockListener extends BlockLogListener {
 			
 			if(event.getEntityType() != null) { // Returns null when using a bed in the nether
 				if(event.getEntityType() == EntityType.CREEPER) {
-					logType = LogType.EXPLOSION_CREEPER;
+					logType = LogType.CREEPER;
 					Creeper creeper = (Creeper) event.getEntity();
 					if(creeper.getTarget() instanceof Player) {
 						target = (Player) creeper.getTarget();
 					}
 				} else if(event.getEntityType() == EntityType.GHAST || event.getEntityType() == EntityType.FIREBALL) {
-					logType = LogType.EXPLOSION_FIREBALL;
+					logType = LogType.FIREBALL;
 				} else if(event.getEntityType() == EntityType.PRIMED_TNT) {
-					logType = LogType.EXPLOSION_TNT;
+					logType = LogType.TNT;
 				}
 			}
 			

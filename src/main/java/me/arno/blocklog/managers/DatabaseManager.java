@@ -15,7 +15,7 @@ public class DatabaseManager extends BlockLogManager {
 	public static final String[] databaseTables = {"blocks", "rollbacks", "undos", "interactions", "reports", "chat", "deaths", "kills", "commands"};
 	public static final String[] purgeableTables = {"blocks", "interactions", "chat", "deaths", "kills", "commands"};
 	
-	public Connection getConnection() {
+	public Connection getConnection() throws SQLException {
 		try {
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
 			return DriverManager.getConnection("jdbc:mysql://" + getHost() + ":" + getPort() + "/" + getDatabase(), getUsername(), getPassword());
@@ -24,10 +24,8 @@ public class DatabaseManager extends BlockLogManager {
 		} catch (SQLException e) {
 			BlockLog.plugin.log.severe("Unable to connect to the MySQL Server");
 			BlockLog.plugin.log.severe("Please check your MySQL settings in your config.yml");
-			BlockLog.plugin.getPluginLoader().disablePlugin(BlockLog.plugin);
 		} catch (ClassNotFoundException e) {
-			BlockLog.plugin.log.severe("Unable to find the MySQL JDBC Driver");
-			BlockLog.plugin.getPluginLoader().disablePlugin(BlockLog.plugin);
+			throw new SQLException("Unable to find the MySQL JDBC Driver");
 		}
 		return null;
 	}

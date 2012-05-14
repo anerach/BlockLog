@@ -52,10 +52,10 @@ public class CommandHelp extends BlockLogCommand {
 			player.sendMessage(ChatColor.DARK_RED +"/bl rollback" + ChatColor.GOLD + " - Blocklog's rollback command");
 		
 		if(player.hasPermission("blocklog.rollback"))
-			player.sendMessage(ChatColor.DARK_RED +"/bl simundo" + ChatColor.GOLD + " - Simulates an undo but it doesn't start one");
+			player.sendMessage(ChatColor.DARK_RED +"/bl simundo" + ChatColor.GOLD + " - Simulates an undo");
 			
 		if(player.hasPermission("blocklog.rollback"))
-			player.sendMessage(ChatColor.DARK_RED +"/bl simrollback" + ChatColor.GOLD + " - Blocklog's rollback command");
+			player.sendMessage(ChatColor.DARK_RED +"/bl simrollback" + ChatColor.GOLD + " - Simulates a rollback");
 		
 		if(player.hasPermission("blocklog.autosave"))
 			player.sendMessage(ChatColor.DARK_RED +"/bl autosave" + ChatColor.GOLD + " - Enables autosave feature");

@@ -13,16 +13,17 @@ public class PlayerCommand {
 	private final BlockLog plugin;
 	private final Player player;
 	private final String message;
+	private final String[] args;
 	private final Command cmd;
-	private final Integer time;
+	private final float time;
 	
 	public PlayerCommand(Player player, String message) {
 		this.plugin = BlockLog.plugin;
 		this.player = player;
 		this.message = message.replace("\\", "\\\\").replace("'", "\\'").trim();
-		String[] args = message.replace('/', ' ').trim().split(" ");
+		this.args = message.replace('/', ' ').trim().split(" ");
 		this.cmd = Bukkit.getPluginCommand(args[0]);
-		this.time = (int) (System.currentTimeMillis()/1000);
+		this.time = System.currentTimeMillis()/1000;
 	}
 	
 	public void save() {
@@ -54,7 +55,7 @@ public class PlayerCommand {
 		return message;
 	}
 	
-	public Integer getDate() {
+	public float getDate() {
 		return time;
 	}
 }

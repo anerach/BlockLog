@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Creeper;
+import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -17,10 +18,10 @@ import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.block.LeavesDecayEvent;
-import org.bukkit.event.entity.EntityChangeBlockEvent; // Endermen item pickup?
 import org.bukkit.event.entity.EntityCreatePortalEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.world.StructureGrowEvent;
+import org.bukkit.event.block.BlockPhysicsEvent;
 
 public class BlockListener extends BlockLogListener {
 	public BlockListener(BlockLog plugin) {
@@ -28,16 +29,15 @@ public class BlockListener extends BlockLogListener {
 	}
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onEntityChangeBlock(EntityChangeBlockEvent event) {
+	public void onBlockPhysics(BlockPhysicsEvent event) {
 		if(!event.isCancelled()) {
-			if(event.getBlock().getType() == Material.AIR && getSettingsManager().isLoggingEnabled(event.getBlock().getWorld(), LogType.BREAK, LogType.PLACE)) {
+			if(getSettingsManager().isLoggingEnabled(event.getBlock().getWorld(), LogType.BREAK, LogType.PLACE)) {
 				BlockState blockState = event.getBlock().getState();
-				blockState.setType(event.getTo());
+				blockState.setType(event.getChangedType());
 				
 				getQueueManager().queueBlockEdit(event.getBlock().getState(), LogType.BREAK);
 				getQueueManager().queueBlockEdit(blockState, LogType.PLACE);
 			}
-			BlocksLimitReached();
 		}
 	}
 	
@@ -56,6 +56,7 @@ public class BlockListener extends BlockLogListener {
 				BlockState blockState = event.getToBlock().getState();
 				blockState.setType(event.getBlock().getType());
 				
+				getQueueManager().queueBlockEdit(event.getToBlock().getState(), LogType.FADE);
 				getQueueManager().queueBlockEdit(blockState, LogType.SPREAD);
 			}
 		}
@@ -145,6 +146,11 @@ public class BlockListener extends BlockLogListener {
 						getQueueManager().queueBlockEdit(player, block, LogType.PORTAL);
 						BlocksLimitReached();
 					}
+				} else if(event.getEntity() instanceof EnderDragon) {
+					for(BlockState block : event.getBlocks()) {
+						getQueueManager().queueBlockEdit(block, EntityType.ENDER_DRAGON, LogType.PORTAL);
+						BlocksLimitReached();
+					}
 				}
 			}
 		}
@@ -153,7 +159,7 @@ public class BlockListener extends BlockLogListener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockForm(BlockFormEvent event) {
 		if(!event.isCancelled()) {
-			if(plugin.getSettingsManager().isLoggingEnabled(event.getNewState().getWorld(), LogType.FORM)) {
+			if(getSettingsManager().isLoggingEnabled(event.getNewState().getWorld(), LogType.FORM)) {
 				getQueueManager().queueBlockEdit(event.getNewState(), LogType.FORM);
 				BlocksLimitReached();
 			}
@@ -163,7 +169,7 @@ public class BlockListener extends BlockLogListener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockSpread(BlockSpreadEvent event) {
 		if(!event.isCancelled()) {
-			if(plugin.getSettingsManager().isLoggingEnabled(event.getNewState().getWorld(), LogType.SPREAD)) {
+			if(getSettingsManager().isLoggingEnabled(event.getNewState().getWorld(), LogType.SPREAD)) {
 				getQueueManager().queueBlockEdit(event.getNewState(), LogType.SPREAD);
 				BlocksLimitReached();
 			}
@@ -173,7 +179,7 @@ public class BlockListener extends BlockLogListener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onBlockFade(BlockFadeEvent event) {
 		if(!event.isCancelled()) {
-			if(plugin.getSettingsManager().isLoggingEnabled(event.getNewState().getWorld(), LogType.FADE)) {
+			if(getSettingsManager().isLoggingEnabled(event.getNewState().getWorld(), LogType.FADE)) {
 				getQueueManager().queueBlockEdit(event.getNewState(), LogType.FADE);
 				BlocksLimitReached();
 			}

@@ -54,6 +54,7 @@ public class CommandUndo extends BlockLogCommand {
 			}
 			
 			Query query = new Query("blocklog_blocks");
+			query.select("*");
 			query.where("rollback_id", rollbackID);
 			
 			if(rollbackID == 0) {

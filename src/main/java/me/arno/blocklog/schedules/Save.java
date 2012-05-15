@@ -37,7 +37,7 @@ public class Save implements Runnable {
 		}
 
 		if(messages) {
-			if(sender == null) sender.sendMessage(ChatColor.GOLD + "Saving " + ((count == 0) ? "all the" : count) + " block edits");
+			if(sender != null) sender.sendMessage(ChatColor.DARK_RED + "[BlockLog]" + ChatColor.GOLD + " Saving " + ((count == 0) ? "all the" : count) + " block edits");
 		}
 
 		if(count == 0) {
@@ -77,7 +77,7 @@ public class Save implements Runnable {
 		plugin.saving = false;
 
 		if(messages) {
-			if(sender == null) sender.sendMessage(ChatColor.GOLD + "Successfully saved " + ((count == 0) ? "all the" : count) + " block edits");
+			if(sender != null) sender.sendMessage(ChatColor.DARK_RED + "[BlockLog]" + ChatColor.GOLD + " Successfully saved " + ((count == 0) ? "all the" : count) + " block edits");
 		}
 	}
 	

@@ -1,6 +1,6 @@
 name: BlockLog
 main: me.arno.blocklog.BlockLog
-version: 2.1.0
+version: 2.2.0
 author: anerach
 dev-url: http://dev.bukkit.org/server-mods/block-log
 description: >
@@ -29,6 +29,7 @@ permissions:
             blocklog.save: true
             blocklog.rollback: true
             blocklog.storage: true
+            blocklog.queue: true
             blocklog.report.read: true
             blocklog.search: true
     blocklog.user:
@@ -36,6 +37,7 @@ permissions:
         children:
             blocklog.help: true
             blocklog.report.write: true
+        default: true
     blocklog.help:
         description: Gives access to the help command
     blocklog.wand:
@@ -54,8 +56,10 @@ permissions:
         description: Gives access to the reload command
     blocklog.storage:
         description: Gives access to the storage command
-    blocklog.clear:
-        description: Gives access to the clear command
+    blocklog.queue:
+        description: Gives access to the queue command
+    blocklog.purge:
+        description: Gives access to the purge command
     blocklog.report.write:
         description: Gives the ability to report griefs
     blocklog.report.read:

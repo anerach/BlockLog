@@ -10,37 +10,10 @@ import java.util.HashMap;
 import java.util.logging.Logger;
 
 import me.arno.blocklog.Metrics.Graph;
-import me.arno.blocklog.commands.BlockLogCommand;
-import me.arno.blocklog.commands.CommandAutoSave;
-import me.arno.blocklog.commands.CommandCancel;
-import me.arno.blocklog.commands.CommandConfig;
-import me.arno.blocklog.commands.CommandHelp;
-import me.arno.blocklog.commands.CommandLookup;
-import me.arno.blocklog.commands.CommandPurge;
-import me.arno.blocklog.commands.CommandQueue;
-import me.arno.blocklog.commands.CommandRead;
-import me.arno.blocklog.commands.CommandReload;
-import me.arno.blocklog.commands.CommandReport;
-import me.arno.blocklog.commands.CommandRollback;
-import me.arno.blocklog.commands.CommandRollbackList;
-import me.arno.blocklog.commands.CommandSave;
-import me.arno.blocklog.commands.CommandSearch;
-import me.arno.blocklog.commands.CommandSimulateRollback;
-import me.arno.blocklog.commands.CommandSimulateUndo;
-import me.arno.blocklog.commands.CommandStorage;
-import me.arno.blocklog.commands.CommandUndo;
-import me.arno.blocklog.commands.CommandWand;
-import me.arno.blocklog.listeners.BlockListener;
-import me.arno.blocklog.listeners.InteractionListener;
-import me.arno.blocklog.listeners.McMMOListener;
-import me.arno.blocklog.listeners.NoticeListener;
-import me.arno.blocklog.listeners.PlayerListener;
-import me.arno.blocklog.listeners.WandListener;
+import me.arno.blocklog.commands.*;
+import me.arno.blocklog.listeners.*;
 import me.arno.blocklog.logs.LogType;
-import me.arno.blocklog.managers.DatabaseManager;
-import me.arno.blocklog.managers.DependencyManager;
-import me.arno.blocklog.managers.QueueManager;
-import me.arno.blocklog.managers.SettingsManager;
+import me.arno.blocklog.managers.*;
 import me.arno.blocklog.pail.PailInterface;
 import me.arno.blocklog.schedules.Save;
 import me.arno.blocklog.schedules.Updates;
@@ -296,7 +269,8 @@ public class BlockLog extends JavaPlugin {
 	    
 	    if(getDependencyManager().isDependencyEnabled("Pail")) {
 	    	log.info("Hooking into pail");
-	    	loadPailInterface();
+	    	Pail pail = (Pail) getDependencyManager().getDependency("Pail");
+			pail.loadInterfaceComponent("BlockLog", new PailInterface());
 	    }
 	    
 	    log.info("Purging the database");
@@ -314,6 +288,8 @@ public class BlockLog extends JavaPlugin {
     	getServer().getPluginManager().registerEvents(new BlockListener(), this);
     	getServer().getPluginManager().registerEvents(new InteractionListener(), this);
     	getServer().getPluginManager().registerEvents(new PlayerListener(), this);
+    	getServer().getPluginManager().registerEvents(new EntityListener(), this);
+    	getServer().getPluginManager().registerEvents(new WorldListener(), this);
     	
     	if(getDependencyManager().isDependencyEnabled("mcMMO"))
     		getServer().getPluginManager().registerEvents(new McMMOListener(), this);
@@ -376,7 +352,7 @@ public class BlockLog extends JavaPlugin {
 		if(!cmd.getName().equalsIgnoreCase("blocklog"))
 			return false;
 		
-		if(args.length < 1 && player != null) {
+		if(args.length < 1) {
 			player.sendMessage(ChatColor.GOLD + "Say " + ChatColor.BLUE + "/bl help " + ChatColor.GOLD + "for a list of available commands");
 			player.sendMessage(ChatColor.GOLD + "This server is using BlockLog v" + getDescription().getVersion() + " by Anerach");
 			return true;
@@ -435,10 +411,5 @@ public class BlockLog extends JavaPlugin {
 		
 		cmd.setUsage(command.getCommandUsage());
 		return command.execute(player, cmd, newArgs);
-	}
-	
-	public void loadPailInterface() {
-		Pail pail = (Pail) getDependencyManager().getDependency("Pail");
-		pail.loadInterfaceComponent("BlockLog", new PailInterface());
 	}
 }

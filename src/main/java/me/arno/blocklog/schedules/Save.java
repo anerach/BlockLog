@@ -29,7 +29,11 @@ public class Save implements Runnable {
 	@Override
 	public void run() {
 		try {
-			if(!plugin.conn.isClosed()) {
+			if(plugin.conn == null) {
+				plugin.conn = plugin.getDatabaseManager().getConnection();
+			}
+			
+			if(plugin.conn.isClosed()) {
 				plugin.conn = plugin.getDatabaseManager().getConnection();
 			}
 		} catch (SQLException e) {

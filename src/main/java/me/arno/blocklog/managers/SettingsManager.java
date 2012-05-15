@@ -38,15 +38,19 @@ public class SettingsManager extends BlockLogManager {
 	}
 	
 	public int getBlockSaveDelay() {
-		return getConfig().getInt("blocklog.delay");
+		return getConfig().getInt("blocklog.save-delay");
 	}
 	
 	public boolean isAutoSaveEnabled() {
-		return getConfig().getBoolean("blocklog.autosave.enabled");
+		return getConfig().getBoolean("auto-save.enabled");
 	}
 	
 	public int getAutoSaveBlocks() {
-		return getConfig().getInt("blocklog.autosave.blocks");
+		return getConfig().getInt("auto-save.blocks");
+	}
+
+	public boolean saveOnWorldSave() {
+		return (isAutoSaveEnabled() && getConfig().getBoolean("auto-save.world-save"));
 	}
 	
 	public boolean isReportsEnabled() {
@@ -71,10 +75,6 @@ public class SettingsManager extends BlockLogManager {
 	
 	public int getMaxResults() {
 		return getConfig().getInt("blocklog.results");
-	}
-
-	public boolean saveOnWorldSave() {
-		return (getConfig().getBoolean("blocklog.autosave.enabled") && getConfig().getBoolean("blocklog.autosave.world-save"));
 	}
 	
 	public FileConfiguration getConfig() {

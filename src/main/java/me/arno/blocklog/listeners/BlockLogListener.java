@@ -42,17 +42,17 @@ public class BlockLogListener implements Listener {
 	}
 	
 	public void BlocksLimitReached() {
-		int BlockSize = getQueueManager().getEditQueueSize();
-		int WarningBlockSize = getSettingsManager().getConfig().getInt("blocklog.warning.blocks");
-		int WarningDelay = getSettingsManager().getConfig().getInt("blocklog.warning.delay") * 1000;
-		int WarningRepeat = getSettingsManager().getConfig().getInt("blocklog.warning.repeat");
+		int queueSize = getQueueManager().getEditQueueSize();
+		int maxQueueSize = getSettingsManager().getConfig().getInt("warning.blocks");
+		int delay = getSettingsManager().getConfig().getInt("warning.delay") * 1000;
+		int repeat = getSettingsManager().getConfig().getInt("warning.repeat");
 		
-		if(BlockSize == plugin.autoSave && BlockSize != 0 && plugin.autoSave != 0) {
+		if(queueSize == plugin.autoSave && queueSize != 0 && plugin.autoSave != 0) {
 			plugin.saveLogs(0);
-		} else if(plugin.autoSave == 0 && (BlockSize ==  WarningBlockSize || (BlockSize > WarningBlockSize && (BlockSize % WarningRepeat == 0)))) {
+		} else if(plugin.autoSave == 0 && (queueSize ==  maxQueueSize || (queueSize > maxQueueSize && (queueSize % repeat == 0)))) {
 			if(time < System.currentTimeMillis()) {
-				time = System.currentTimeMillis() +  WarningDelay;
-				sendAdminMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "BlockLog reached an internal storage of " + BlockSize + "!");
+				time = System.currentTimeMillis() +  delay;
+				sendAdminMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "BlockLog reached an internal storage of " + queueSize + "!");
 				sendAdminMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "If you want to save all these blocks use " + ChatColor.DARK_BLUE + "/bl save all" + ChatColor.GOLD + " or " + ChatColor.DARK_BLUE + "/bl save <blocks>");
 			}
 		}

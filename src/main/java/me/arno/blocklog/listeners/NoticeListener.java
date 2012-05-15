@@ -1,25 +1,11 @@
 package me.arno.blocklog.listeners;
 
-import java.util.logging.Logger;
-
-import me.arno.blocklog.BlockLog;
-
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-public class NoticeListener implements Listener {
-	BlockLog plugin;
-	
-	Logger log;
-	
-	public NoticeListener(BlockLog plugin) {
-		this.plugin = plugin;
-		
-		log = plugin.log;
-	}
+public class NoticeListener extends BlockLogListener {
 	
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {

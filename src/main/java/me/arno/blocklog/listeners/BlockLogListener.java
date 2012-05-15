@@ -16,8 +16,8 @@ public class BlockLogListener implements Listener {
 	
 	private float time;
 	
-	public BlockLogListener(BlockLog plugin) {
-		this.plugin = plugin;
+	public BlockLogListener() {
+		this.plugin = BlockLog.plugin;
 		this.log = plugin.log;
 	}
 	

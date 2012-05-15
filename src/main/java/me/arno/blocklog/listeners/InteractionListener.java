@@ -1,6 +1,5 @@
 package me.arno.blocklog.listeners;
 
-import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.logs.InteractionType;
 
 import org.bukkit.Material;
@@ -9,9 +8,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 public class InteractionListener extends BlockLogListener {
-	public InteractionListener(BlockLog plugin) {
-		super(plugin);
-	}
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerInteract(PlayerInteractEvent event) {

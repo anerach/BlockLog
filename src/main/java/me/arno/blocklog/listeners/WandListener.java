@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.logs.InteractionType;
 import me.arno.blocklog.logs.LogType;
 import me.arno.blocklog.logs.BlockEdit;
@@ -23,10 +22,6 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 public class WandListener extends BlockLogListener {
-	public WandListener(BlockLog plugin) {
-		super(plugin);
-	}
-	
 	public void getBlockInteractions(Player player, Location location, InteractionType interaction) {
 		try {
 			player.sendMessage(ChatColor.YELLOW + "Block History" + ChatColor.BLUE + " (" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ")" + ChatColor.DARK_GRAY + " ------------------------");

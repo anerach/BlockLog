@@ -128,6 +128,7 @@ public class BlockLog extends JavaPlugin {
 	    getConfig().addDefault("blocklog.warning.delay", 30);
 	    getConfig().addDefault("blocklog.autosave.enabled", true);
 	    getConfig().addDefault("blocklog.autosave.blocks", 1000);
+	    getConfig().addDefault("blocklog.autosave.world-save", false);
 	    getConfig().addDefault("blocklog.reports", true);
 	    getConfig().addDefault("blocklog.updates", true);
 	    getConfig().addDefault("blocklog.metrics", true);
@@ -309,17 +310,17 @@ public class BlockLog extends JavaPlugin {
 		log.info("Starting BlockLog");
 		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Save(1, null, false), 100L, getSettingsManager().getBlockSaveDelay() * 20L);
     	
-    	getServer().getPluginManager().registerEvents(new WandListener(this), this);
-    	getServer().getPluginManager().registerEvents(new BlockListener(this), this);
-    	getServer().getPluginManager().registerEvents(new InteractionListener(this), this);
-    	getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
+    	getServer().getPluginManager().registerEvents(new WandListener(), this);
+    	getServer().getPluginManager().registerEvents(new BlockListener(), this);
+    	getServer().getPluginManager().registerEvents(new InteractionListener(), this);
+    	getServer().getPluginManager().registerEvents(new PlayerListener(), this);
     	
     	if(getDependencyManager().isDependencyEnabled("mcMMO"))
-    		getServer().getPluginManager().registerEvents(new McMMOListener(this), this);
+    		getServer().getPluginManager().registerEvents(new McMMOListener(), this);
     	
     	if(getConfig().getBoolean("blocklog.updates")) {
 	    	getServer().getScheduler().scheduleSyncRepeatingTask(this, new Updates(), 1L, 1 * 60 * 60 * 20L); // Check every hour for a new version
-	    	getServer().getPluginManager().registerEvents(new NoticeListener(this), this);
+	    	getServer().getPluginManager().registerEvents(new NoticeListener(), this);
 	    }
     }
 	

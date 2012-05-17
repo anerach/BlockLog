@@ -18,8 +18,8 @@ public class WorldListener extends BlockLogListener {
 				Player player = event.getPlayer();
 				for(BlockState block : event.getBlocks()) {
 					getQueueManager().queueBlockEdit(player, block, LogType.GROW);
-					BlocksLimitReached();
 				}
+				BlocksLimitReached();
 			}
 		}
 	}

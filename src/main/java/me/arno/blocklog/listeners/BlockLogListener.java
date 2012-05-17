@@ -47,7 +47,7 @@ public class BlockLogListener implements Listener {
 		int delay = getSettingsManager().getConfig().getInt("warning.delay") * 1000;
 		int repeat = getSettingsManager().getConfig().getInt("warning.repeat");
 		
-		if(queueSize == plugin.autoSave && queueSize != 0 && plugin.autoSave != 0) {
+		if(plugin.saving == false && queueSize >= plugin.autoSave && queueSize != 0 && plugin.autoSave != 0) {
 			plugin.saveLogs(0);
 		} else if(plugin.autoSave == 0 && (queueSize ==  maxQueueSize || (queueSize > maxQueueSize && (queueSize % repeat == 0)))) {
 			if(time < System.currentTimeMillis()) {

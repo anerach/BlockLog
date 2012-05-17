@@ -48,9 +48,9 @@ public class EntityListener extends BlockLogListener {
 						getQueueManager().queueBlockEdit(block.getState(), entityType, logType);
 					else
 						getQueueManager().queueBlockEdit(target, block.getState(), entityType, logType);
-					BlocksLimitReached();
 				}
 			}
+			BlocksLimitReached();
 		}
 	}
 	
@@ -67,9 +67,9 @@ public class EntityListener extends BlockLogListener {
 				} else if(event.getEntity() instanceof EnderDragon) {
 					for(BlockState block : event.getBlocks()) {
 						getQueueManager().queueBlockEdit(block, EntityType.ENDER_DRAGON, LogType.PORTAL);
-						BlocksLimitReached();
 					}
 				}
+				BlocksLimitReached();
 			}
 		}
 	}

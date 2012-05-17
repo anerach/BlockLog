@@ -44,8 +44,6 @@ public class Text {
         	return -1;
     }
 	
-
-	
 	public static String getResourceContent(String file) {
 		try {
 			InputStream ResourceFile = BlockLog.plugin.getResource("resources/" + file);

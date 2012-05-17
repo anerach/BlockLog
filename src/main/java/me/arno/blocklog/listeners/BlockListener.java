@@ -18,7 +18,6 @@ import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.block.LeavesDecayEvent;
-import org.bukkit.event.block.BlockPhysicsEvent;
 
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
@@ -78,19 +77,6 @@ public class BlockListener extends BlockLogListener {
 		if(!event.isCancelled() && !cancel) {
 			getQueueManager().queueBlockEdit(player, block, LogType.BREAK);
 			BlocksLimitReached();
-		}
-	}
-	
-	@EventHandler(priority = EventPriority.HIGHEST)
-	public void onBlockPhysics(BlockPhysicsEvent event) {
-		if(!event.isCancelled()) {
-			if(getSettingsManager().isLoggingEnabled(event.getBlock().getWorld(), LogType.BREAK, LogType.PLACE)) {
-				BlockState blockState = event.getBlock().getState();
-				blockState.setType(event.getChangedType());
-				
-				getQueueManager().queueBlockEdit(event.getBlock().getState(), LogType.BREAK);
-				getQueueManager().queueBlockEdit(blockState, LogType.PLACE);
-			}
 		}
 	}
 	

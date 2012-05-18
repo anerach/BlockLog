@@ -35,7 +35,7 @@ public class DatabaseManager extends BlockLogManager {
 	}
 	
 	public void purge(String[] tables, long timestamp) throws SQLException, IOException {
-		FileWriter fileWriter = new FileWriter("BlockLog Database Cleanup.log");
+		FileWriter fileWriter = new FileWriter("BlockLog Database Cleanup.log", true);
 		BufferedWriter writer = new BufferedWriter(fileWriter);
 		
 		Query query;

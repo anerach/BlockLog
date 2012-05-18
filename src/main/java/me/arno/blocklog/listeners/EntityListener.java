@@ -24,11 +24,12 @@ public class EntityListener extends BlockLogListener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onEntityExplode(EntityExplodeEvent event) {
 		if(!event.isCancelled() && getSettingsManager().isLoggingEnabled(event.getLocation().getWorld(), LogType.EXPLOSION)) {
-			LogType logType = LogType.EXPLOSION;
 			Player target = null;
-			EntityType entityType = (event.getEntityType() == null) ? EntityType.PLAYER : event.getEntityType();
+			LogType logType = LogType.EXPLOSION;
+			EntityType entityType = EntityType.PLAYER;
 			
-			if(event.getEntityType() != null) { // Returns null when using a bed in the nether
+			if(event.getEntityType() != null) {
+				entityType = event.getEntityType();
 				if(event.getEntityType() == EntityType.CREEPER) {
 					logType = LogType.CREEPER;
 					Creeper creeper = (Creeper) event.getEntity();

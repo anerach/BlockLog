@@ -19,20 +19,22 @@ public class Rollback implements Runnable {
 	private final BlockLog plugin;
 	private final Connection conn;
 	private final Player player;
-	private final Integer rollbackID;
 	private final Query query;
-	private final Integer limit;
+	private final int rollbackID;
+	private final int limit;
+	private final int totalBlocks;
 	
-	private Integer BlockCount = 0;	
-	private Integer sid;
+	private int BlockCount = 0;	
+	private int sid;
 	
-	public Rollback(BlockLog plugin, Player player, Integer rollbackID, Query query, Integer limit) {
+	public Rollback(BlockLog plugin, Player player, Integer rollbackID, Query query, Integer limit) throws SQLException {
 		this.plugin = plugin;
 		this.conn = plugin.conn;
 		this.player = player;
 		this.rollbackID = rollbackID;
 		this.query = query;
 		this.limit = limit;
+		this.totalBlocks = query.getRowCount();
 	}
 	
 	public void setId(Integer sid) {
@@ -46,7 +48,6 @@ public class Rollback implements Runnable {
 			ResultSet blocks = query.getResult();
 			
 			World world = player.getWorld();
-			int totalBlocks = query.getRowCount();
 			
 			for(int i=0;i<limit;i++) {
 				if(blocks.next()) {

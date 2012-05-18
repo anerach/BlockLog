@@ -25,7 +25,7 @@ public class Save implements Runnable {
 		this.sender = sender;
 		this.messages = messages;
 	}
-
+	
 	@Override
 	public void run() {
 		try {
@@ -39,49 +39,52 @@ public class Save implements Runnable {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
-		if(messages) {
-			if(sender != null) sender.sendMessage(ChatColor.DARK_RED + "[BlockLog]" + ChatColor.GOLD + " Saving " + ((count == 0) ? "all the" : count) + " block edits");
-		}
-
-		if(count == 0) {
-			while(!getQueueManager().getInteractionQueue().isEmpty()) {
-				try {
-					getQueueManager().saveQueuedInteraction();
-				} catch (Exception e) {
-					e.printStackTrace();
+		
+		if(!plugin.saving || count == 1) {
+			plugin.saving = true;
+			if(messages) {
+				if(sender != null) sender.sendMessage(ChatColor.DARK_RED + "[BlockLog]" + ChatColor.GOLD + " Saving " + ((count == 0) ? "all the" : count) + " block edits");
+			}
+	
+			if(count == 0) {
+				while(!getQueueManager().getInteractionQueue().isEmpty()) {
+					try {
+						getQueueManager().saveQueuedInteraction();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				while(!getQueueManager().getEditQueue().isEmpty()) {
+					try {
+						getQueueManager().saveQueuedEdit();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+			} else {
+				for(int i = count; i != 0; i--) {
+					try {
+						if (getQueueManager().getInteractionQueue().isEmpty())
+							break;
+						getQueueManager().saveQueuedInteraction();
+					} catch (Exception e) {
+					}
+				}
+				for(int i = count; i != 0; i--) {
+					try {
+						if (getQueueManager().getEditQueue().isEmpty())
+							break;
+						getQueueManager().saveQueuedEdit();
+					} catch (Exception e) {
+					}
 				}
 			}
-			while(!getQueueManager().getEditQueue().isEmpty()) {
-				try {
-					getQueueManager().saveQueuedEdit();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+	
+			plugin.saving = false;
+	
+			if(messages) {
+				if(sender != null) sender.sendMessage(ChatColor.DARK_RED + "[BlockLog]" + ChatColor.GOLD + " Successfully saved " + ((count == 0) ? "all the" : count) + " block edits");
 			}
-		} else {
-			for(int i = count; i != 0; i--) {
-				try {
-					if (getQueueManager().getInteractionQueue().isEmpty())
-						break;
-					getQueueManager().saveQueuedInteraction();
-				} catch (Exception e) {
-				}
-			}
-			for(int i = count; i != 0; i--) {
-				try {
-					if (getQueueManager().getEditQueue().isEmpty())
-						break;
-					getQueueManager().saveQueuedEdit();
-				} catch (Exception e) {
-				}
-			}
-		}
-
-		plugin.saving = false;
-
-		if(messages) {
-			if(sender != null) sender.sendMessage(ChatColor.DARK_RED + "[BlockLog]" + ChatColor.GOLD + " Successfully saved " + ((count == 0) ? "all the" : count) + " block edits");
 		}
 	}
 	

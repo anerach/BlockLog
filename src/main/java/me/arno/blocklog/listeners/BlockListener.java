@@ -91,12 +91,6 @@ public class BlockListener extends BlockLogListener {
 					getQueueManager().queueBlockEdit(event.getBlock().getState(), LogType.BREAK);
 					getQueueManager().queueBlockEdit(blockState, LogType.PLACE);
 				}
-			} else if(getSettingsManager().isLoggingEnabled(event.getBlock().getWorld(), LogType.SPREAD)) {
-				BlockState blockState = event.getToBlock().getState();
-				blockState.setType(event.getBlock().getType());
-				
-				getQueueManager().queueBlockEdit(event.getToBlock().getState(), LogType.FADE);
-				getQueueManager().queueBlockEdit(blockState, LogType.SPREAD);
 			}
 		}
 	}

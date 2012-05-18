@@ -120,8 +120,8 @@ public class BlockLog extends JavaPlugin {
 	    getConfig().options().copyDefaults(true);
 	    saveConfig();
 		
-		if(getConfig().getBoolean("blocklog.autosave.enabled")) {
-			autoSave = getConfig().getInt("blocklog.autosave.blocks");
+		if(getConfig().getBoolean("auto-save.enabled")) {
+			autoSave = getConfig().getInt("auto-save.blocks");
 		}
 	}
 	

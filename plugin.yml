@@ -1,6 +1,6 @@
 name: BlockLog
 main: me.arno.blocklog.BlockLog
-version: 2.2.0
+version: 2.2.1
 author: anerach
 dev-url: http://dev.bukkit.org/server-mods/block-log
 description: >
@@ -18,7 +18,7 @@ permissions:
             blocklog.moderator: true
             blocklog.reload: true
             blocklog.config: true
-            blocklog.clear: true
+            blocklog.purge: true
             blocklog.autosave: true
     blocklog.moderator:
         description: Gives access to most of the blocklog commands

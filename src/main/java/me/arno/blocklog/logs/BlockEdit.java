@@ -26,18 +26,6 @@ public class BlockEdit {
 	
 	private int rollback = 0;
 	
-	public BlockEdit(BlockState block, LogType type) {
-		this(null, block, EntityType.UNKNOWN, type);
-	}
-	
-	public BlockEdit(Player player, BlockState block, LogType type) {
-		this(player, block, EntityType.PLAYER, type);
-	}
-	
-	public BlockEdit(BlockState block, EntityType entity, LogType type) {
-		this(null, block, entity, type);
-	}
-	
 	public BlockEdit(Player player, BlockState block, EntityType entity, LogType type) {
 		this.plugin = BlockLog.plugin;
 		this.player = player;

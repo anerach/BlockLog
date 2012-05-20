@@ -105,7 +105,10 @@ public class CommandLookup extends BlockLogCommand {
 			query.limit(getSettingsManager().getMaxResults());
 			
 			ResultSet actions = query.getResult();
-			while(actions.next()) {
+			player.sendMessage(ChatColor.YELLOW + "Player History" + ChatColor.DARK_GRAY + " -------------------------------");
+            player.sendMessage(ChatColor.GRAY + Text.addSpaces("Name", 90) + Text.addSpaces("Action", 75) + "Details");
+            
+            while(actions.next()) {
 				String name = Material.getMaterial(actions.getInt("block_id")).toString();
 				LogType type = LogType.values()[actions.getInt("type")];
 				

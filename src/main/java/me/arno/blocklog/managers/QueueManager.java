@@ -24,7 +24,7 @@ public class QueueManager extends BlockLogManager {
 	 * @param type {@link LogType} of the log
 	 */
 	public void queueBlockEdit(BlockState block, LogType type) {
-		queueBlockEdit(block, type);
+		queueBlockEdit(null, block, EntityType.UNKNOWN, type);
 	}
 	
 	/**
@@ -36,7 +36,7 @@ public class QueueManager extends BlockLogManager {
 	 * @param type {@link LogType} of the log
 	 */
 	public void queueBlockEdit(Player player, BlockState block, LogType type) {
-		queueBlockEdit(player, block, type);
+		queueBlockEdit(player, block, EntityType.PLAYER, type);
 	}
 	
 	/**

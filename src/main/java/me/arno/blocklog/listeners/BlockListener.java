@@ -6,6 +6,7 @@ import me.ryanhamshire.GriefPrevention.GriefPrevention;
 
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -49,7 +50,7 @@ public class BlockListener extends BlockLogListener {
 			cancel = true;
 		
 		if(!event.isCancelled() && !cancel) {
-			getQueueManager().queueBlockEdit(player, block, LogType.PLACE);
+			getQueueManager().queueBlockEdit(player, block, EntityType.PLAYER, LogType.PLACE);
 			BlocksLimitReached();
 		}
 	}
@@ -137,6 +138,7 @@ public class BlockListener extends BlockLogListener {
 	public void onBlockSpread(BlockSpreadEvent event) {
 		if(!event.isCancelled()) {
 			if(getSettingsManager().isLoggingEnabled(event.getNewState().getWorld(), LogType.SPREAD)) {
+				getQueueManager().queueBlockEdit(event.getBlock().getState(), LogType.FADE);
 				getQueueManager().queueBlockEdit(event.getNewState(), LogType.SPREAD);
 				BlocksLimitReached();
 			}

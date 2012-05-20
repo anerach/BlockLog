@@ -22,9 +22,9 @@ public class BlockEdit {
 	private final EntityType entity;
 	private final GameMode gamemode;
 	
-	private long date;
+	private final long date;
 	
-	private Integer rollback = 0;
+	private int rollback = 0;
 	
 	public BlockEdit(BlockState block, LogType type) {
 		this(null, block, EntityType.UNKNOWN, type);
@@ -42,10 +42,10 @@ public class BlockEdit {
 		this.plugin = BlockLog.plugin;
 		this.player = player;
 		this.block = block;
-		this.entity = entity;
+		this.entity = (entity == null) ? EntityType.UNKNOWN : entity;
 		this.type = type;
 		this.date = (System.currentTimeMillis()/1000);
-		this.gamemode  = (player != null) ? player.getGameMode() : null;
+		this.gamemode  = (player == null) ? GameMode.SURVIVAL : player.getGameMode();
 	}
 
 	public void save() {
@@ -58,12 +58,7 @@ public class BlockEdit {
 	}
 	
 	public String getEntityName() {
-		if(entity == EntityType.PLAYER)
-			return "player";
-		else if(entity == EntityType.UNKNOWN)
-			return "unknown";
-		
-		return entity.getName();
+		return entity.toString().toLowerCase();
 	}
 	
 	public EntityType getEntity() {
@@ -71,7 +66,7 @@ public class BlockEdit {
 	}
 	
 	public int getPlayerGameMode() {
-		return (gamemode != null) ? gamemode.getValue() : 0;
+		return gamemode.getValue();
 	}
 	
 	public int getBlockId() {

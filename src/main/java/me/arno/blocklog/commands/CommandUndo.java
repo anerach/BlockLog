@@ -4,7 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import me.arno.blocklog.schedules.UndoRollback;
-import me.arno.util.Query;
+import me.arno.blocklog.util.Query;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;

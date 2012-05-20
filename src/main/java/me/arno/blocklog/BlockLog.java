@@ -17,8 +17,8 @@ import me.arno.blocklog.managers.*;
 import me.arno.blocklog.pail.PailInterface;
 import me.arno.blocklog.schedules.Save;
 import me.arno.blocklog.schedules.Updates;
-import me.arno.util.Query;
-import me.arno.util.Text;
+import me.arno.blocklog.util.Query;
+import me.arno.blocklog.util.Text;
 import me.escapeNT.pail.Pail;
 
 import org.bukkit.ChatColor;
@@ -154,12 +154,16 @@ public class BlockLog extends JavaPlugin {
 			versions.getConfig().addDefault("database", 1);
 			versions.getConfig().options().copyDefaults(true);
 			versions.saveConfig();
-			
+
+			Statement stmt = conn.createStatement();
 			if(versions.getConfig().getInt("database") == 10) {
-				Statement stmt = conn.createStatement();
 				stmt.executeUpdate("ALTER TABLE `blocklog_chat` CHANGE `message` `message` TEXT NOT NULL");
 				stmt.executeUpdate("ALTER TABLE `blocklog_blocks` CHANGE `trigered` `triggered` varchar(75) NOT NULL");
 				versions.getConfig().set("database", 1);
+			} else if(versions.getConfig().getInt("database") == 1) {
+				stmt.executeUpdate("UPDATE `blocklog_blocks` SET `entity`='player' WHERE `triggered`!='environment' AND `entity`!='creeper'");
+				stmt.executeUpdate("UPDATE `blocklog_blocks` SET `entity`='unkown' WHERE `triggered`='environment'");
+				versions.getConfig().set("database", 2);
 			}
 			versions.saveConfig();
 		} catch (SQLException e) {

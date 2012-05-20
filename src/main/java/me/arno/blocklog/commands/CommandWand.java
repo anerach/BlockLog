@@ -8,8 +8,8 @@ import java.util.HashMap;
 
 import me.arno.blocklog.logs.LogType;
 import me.arno.blocklog.logs.BlockEdit;
-import me.arno.util.Query;
-import me.arno.util.Text;
+import me.arno.blocklog.util.Query;
+import me.arno.blocklog.util.Text;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;

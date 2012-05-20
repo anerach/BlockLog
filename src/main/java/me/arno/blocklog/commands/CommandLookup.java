@@ -3,7 +3,9 @@ package me.arno.blocklog.commands;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import me.arno.util.Query;
+import me.arno.blocklog.logs.LogType;
+import me.arno.blocklog.util.Query;
+import me.arno.blocklog.util.Text;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -14,7 +16,7 @@ import org.bukkit.entity.Player;
 public class CommandLookup extends BlockLogCommand {
 	public CommandLookup() {
 		super("blocklog.lookup");
-		setCommandUsage("/bl lookup [player <value>] [since <value>] [until <value>]");
+		setCommandUsage("/bl lookup [player <value>] [entity <value>] [since <value>] [until <value>]");
 	}
 
 	@Override
@@ -58,7 +60,7 @@ public class CommandLookup extends BlockLogCommand {
 			}
 			
 			if(untilTime != 0 && sinceTime > untilTime) {
-				player.sendMessage(ChatColor.WHITE + "Until can't be bigger than since.");
+				player.sendMessage("Until can't be bigger than since.");
 				return true;
 			}
 			
@@ -95,7 +97,7 @@ public class CommandLookup extends BlockLogCommand {
 				query.where("z", zMax.toString(), "<=");
 			}
 			query.where("world", world.getName());
-			query.where("rollback_id", new Integer(0).toString());
+			query.where("rollback_id", 0);
 			query.groupBy("x");
 			query.groupBy("y");
 			query.groupBy("z");
@@ -103,17 +105,12 @@ public class CommandLookup extends BlockLogCommand {
 			query.limit(getSettingsManager().getMaxResults());
 			
 			ResultSet actions = query.getResult();
-			
 			while(actions.next()) {
 				String name = Material.getMaterial(actions.getInt("block_id")).toString();
-				int type = actions.getInt("type");
+				LogType type = LogType.values()[actions.getInt("type")];
 				
-				player.sendMessage(ChatColor.BLUE + "[" + actions.getString("fdate") + "]" + ChatColor.DARK_RED + "[World:" + actions.getString("world") + ", X:" + actions.getString("x") + ", Y:" + actions.getString("y") + ", Z:" + actions.getString("z") + "]");
-				if(type == 0) {
-					player.sendMessage(ChatColor.GOLD + actions.getString("player") + ChatColor.DARK_GREEN + " broke a " + ChatColor.GOLD + name);
-				} else if(type == 1) {
-					player.sendMessage(ChatColor.GOLD + actions.getString("player") + ChatColor.DARK_GREEN + " placed a " + ChatColor.GOLD + name);
-				}
+				//player.sendMessage(ChatColor.DARK_RED + "[World:" + actions.getString("world") + ", X:" + actions.getString("x") + ", Y:" + actions.getString("y") + ", Z:" + actions.getString("z") + "]");
+				player.sendMessage(Text.addSpaces(ChatColor.GOLD + actions.getString("triggered"), 99) + Text.addSpaces(ChatColor.DARK_RED + type.name(), 81) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + actions.getString("date") + "]");
 			}
 		} catch(SQLException e) {
 			

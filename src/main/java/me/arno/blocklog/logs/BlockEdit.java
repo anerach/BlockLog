@@ -27,7 +27,7 @@ public class BlockEdit {
 	private Integer rollback = 0;
 	
 	public BlockEdit(BlockState block, LogType type) {
-		this(null, block, EntityType.PLAYER, type);
+		this(null, block, EntityType.UNKNOWN, type);
 	}
 	
 	public BlockEdit(Player player, BlockState block, LogType type) {
@@ -58,7 +58,12 @@ public class BlockEdit {
 	}
 	
 	public String getEntityName() {
-		return (entity == null) ? "unknown" : entity.name().toLowerCase();
+		if(entity == EntityType.PLAYER)
+			return "player";
+		else if(entity == EntityType.UNKNOWN)
+			return "unknown";
+		
+		return entity.getName();
 	}
 	
 	public EntityType getEntity() {

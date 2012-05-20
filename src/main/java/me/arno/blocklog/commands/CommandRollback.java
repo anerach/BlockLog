@@ -43,7 +43,7 @@ public class CommandRollback extends BlockLogCommand {
 			
 			String param_target = null;
 			String param_until = null;
-			String param_from = null;
+			String param_since = null;
 			String param_area = null;
 			
 			for(int i=0;i<args.length;i+=2) {
@@ -62,7 +62,7 @@ public class CommandRollback extends BlockLogCommand {
 					param_target = value;
 					entity = value;
 				} else if(type.equalsIgnoreCase("since")) {
-					param_from = value;
+					param_since = value;
 					Character c = value.charAt(value.length() - 1);
 					sinceTime = convertToUnixtime(Integer.valueOf(value.replace(c, ' ').trim()), c.toString());
 				} else if(type.equalsIgnoreCase("until")) {
@@ -120,7 +120,7 @@ public class CommandRollback extends BlockLogCommand {
 			
 			Statement rollbackStmt = conn.createStatement();
 			
-			rollbackStmt.executeUpdate("INSERT INTO blocklog_rollbacks (player, world, param_player, param_from, param_until, param_area, date) VALUES ('" + player.getName() + "', '" + player.getWorld().getName() + "', '" + param_target + "', '" + param_from + "', '" + param_until + "', " + param_area + ", " + System.currentTimeMillis()/1000 + ")");
+			rollbackStmt.executeUpdate("INSERT INTO blocklog_rollbacks (player, world, param_player, param_from, param_until, param_area, date) VALUES ('" + player.getName() + "', '" + player.getWorld().getName() + "', '" + param_target + "', '" + param_since + "', '" + param_until + "', " + param_area + ", " + System.currentTimeMillis()/1000 + ")");
 			
 			ResultSet rollback = rollbackStmt.executeQuery("SELECT id FROM blocklog_rollbacks ORDER BY id DESC");
 			rollback.next();

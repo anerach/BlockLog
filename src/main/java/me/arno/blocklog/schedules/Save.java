@@ -48,35 +48,21 @@ public class Save implements Runnable {
 	
 			if(count == 0) {
 				while(!getQueueManager().getInteractionQueue().isEmpty()) {
-					try {
-						getQueueManager().saveQueuedInteraction();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
+					getQueueManager().saveQueuedInteraction();
 				}
 				while(!getQueueManager().getEditQueue().isEmpty()) {
-					try {
-						getQueueManager().saveQueuedEdit();
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
+					getQueueManager().saveQueuedEdit();
 				}
 			} else {
 				for(int i = count; i != 0; i--) {
-					try {
-						if (getQueueManager().getInteractionQueue().isEmpty())
-							break;
-						getQueueManager().saveQueuedInteraction();
-					} catch (Exception e) {
-					}
+					if (getQueueManager().getInteractionQueue().isEmpty())
+						break;
+					getQueueManager().saveQueuedInteraction();
 				}
 				for(int i = count; i != 0; i--) {
-					try {
-						if (getQueueManager().getEditQueue().isEmpty())
-							break;
-						getQueueManager().saveQueuedEdit();
-					} catch (Exception e) {
-					}
+					if (getQueueManager().getEditQueue().isEmpty())
+						break;
+					getQueueManager().saveQueuedEdit();
 				}
 			}
 	

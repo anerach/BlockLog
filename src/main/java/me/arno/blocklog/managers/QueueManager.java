@@ -163,8 +163,10 @@ public class QueueManager extends BlockLogManager {
 	 * @param index The index of the queued block interaction
 	 */
 	public void saveQueuedEdit(int index) {
-		getEditQueue().get(index).save();
-		getEditQueue().remove(index);
+		if(getEditQueue().get(index) != null) {
+			getEditQueue().get(index).save();
+			getEditQueue().remove(index);
+		}
 	}
 	
 	/**
@@ -180,7 +182,9 @@ public class QueueManager extends BlockLogManager {
 	 * @param index The index of the queued block interaction
 	 */
 	public void saveQueuedInteraction(int index) {
-		getInteractionQueue().get(index).save();
-		getInteractionQueue().remove(index);
+		if(getInteractionQueue().get(index) != null) {
+			getInteractionQueue().get(index).save();
+			getInteractionQueue().remove(index);
+		}
 	}
 }

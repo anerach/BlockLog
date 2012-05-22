@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
@@ -20,9 +19,9 @@ public class BlockLogCommand {
 	public final Logger log;
 	public final Connection conn;
 	public final String permission;
-	public final Boolean console;
+	public final boolean console;
 	
-	public String usage;
+	public String usage = "/bl";
 	
 	public BlockLogCommand() {
 		this(null, false);
@@ -91,10 +90,6 @@ public class BlockLogCommand {
 	
 	public void addSchedule(Integer id, Integer rollback) {
 		plugin.getSchedules().put(id, rollback);
-	}
-	
-	public Server getServer() {
-		return plugin.getServer();
 	}
 	
 	public Integer convertToUnixtime(Integer timeInt, String timeVal) {

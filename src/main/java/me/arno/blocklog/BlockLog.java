@@ -162,7 +162,7 @@ public class BlockLog extends JavaPlugin {
 				versions.getConfig().set("database", 1);
 			} else if(versions.getConfig().getInt("database") == 1) {
 				stmt.executeUpdate("UPDATE `blocklog_blocks` SET `entity`='player' WHERE `triggered`!='environment' AND `entity`!='creeper'");
-				stmt.executeUpdate("UPDATE `blocklog_blocks` SET `entity`='unkown' WHERE `triggered`='environment'");
+				stmt.executeUpdate("UPDATE `blocklog_blocks` SET `entity`='unkown' WHERE `triggered`='environment' AND `entity`!='creeper' AND `entity`!='fireball' AND `entity`!='primed_tnt'");
 				versions.getConfig().set("database", 2);
 			}
 			versions.saveConfig();
@@ -330,6 +330,7 @@ public class BlockLog extends JavaPlugin {
 		} catch(SQLException e) {
 			e.printStackTrace();
 		}
+		BlockLog.plugin = null;
 	}
 	
 	@Override

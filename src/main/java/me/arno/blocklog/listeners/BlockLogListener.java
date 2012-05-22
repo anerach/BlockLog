@@ -7,7 +7,6 @@ import me.arno.blocklog.managers.*;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
 public class BlockLogListener implements Listener {
@@ -22,11 +21,7 @@ public class BlockLogListener implements Listener {
 	}
 	
 	public void sendAdminMessage(String msg) {
-		for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-	    	if (player.isOp() || player.hasPermission("blocklog.notices")) {
-	    		player.sendMessage(msg);
-	        }
-	    }
+		Bukkit.broadcast(msg, "blocklog.notices");
 	}
 	
 	public SettingsManager getSettingsManager() {
@@ -53,7 +48,7 @@ public class BlockLogListener implements Listener {
 			if(time < System.currentTimeMillis()) {
 				time = System.currentTimeMillis() +  delay;
 				sendAdminMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "BlockLog reached an internal storage of " + queueSize + "!");
-				sendAdminMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "If you want to save all these blocks use " + ChatColor.DARK_BLUE + "/bl save all" + ChatColor.GOLD + " or " + ChatColor.DARK_BLUE + "/bl save <blocks>");
+				sendAdminMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "If you want to save all the queued logs use " + ChatColor.DARK_BLUE + "/bl save all");
 			}
 		}
 	}

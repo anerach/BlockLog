@@ -1,5 +1,6 @@
 package me.arno.blocklog.commands;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
@@ -25,7 +26,7 @@ public class CommandCancel extends BlockLogCommand {
 			Integer sid = Integer.valueOf(args[0]);
 			
 			if(getSchedules().containsKey(sid)) {
-				getServer().getScheduler().cancelTask(sid);
+				Bukkit.getServer().getScheduler().cancelTask(sid);
 				
 				player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "You've cancelled the scheduled rollback #" + sid);
 				player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "Use the command " + ChatColor.GREEN + "/bl undo " + getSchedules().get(sid) + ChatColor.GOLD + " to undo this rollback!");

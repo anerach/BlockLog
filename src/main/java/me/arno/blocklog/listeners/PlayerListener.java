@@ -57,7 +57,7 @@ public class PlayerListener extends BlockLogListener {
 	
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerInteract(PlayerInteractEvent event) {
-		if(!event.isCancelled() && getSettingsManager().isLoggingEnabled(event.getPlayer().getWorld(), LogType.PORTAL)) {
+		if(!event.isCancelled() && getSettingsManager().isLoggingEnabled(event.getPlayer().getWorld(), LogType.FIRE)) {
 			Block block;
 			block = event.getClickedBlock().getRelative(BlockFace.UP);
 			if(block.getType() != Material.FIRE)

@@ -10,7 +10,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 public class InteractionListener extends BlockLogListener {
 	
-	@EventHandler(priority = EventPriority.HIGHEST)
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		if(!event.isCancelled() && (event.getAction() == Action.LEFT_CLICK_BLOCK && event.getAction() == Action.RIGHT_CLICK_BLOCK)) {
 			if(event.getClickedBlock().getType() == Material.WOODEN_DOOR) {

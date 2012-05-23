@@ -24,7 +24,7 @@ import me.ryanhamshire.GriefPrevention.GriefPrevention;
 
 public class PlayerListener extends BlockLogListener {
 	
-	@EventHandler(priority = EventPriority.HIGHEST)
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerBucketEmpty(PlayerBucketEmptyEvent event) {
 		BlockState block = event.getBlockClicked().getRelative(event.getBlockFace()).getState();
 		Player player = event.getPlayer();
@@ -55,7 +55,7 @@ public class PlayerListener extends BlockLogListener {
 		}
 	}
 	
-	@EventHandler(priority = EventPriority.HIGHEST)
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		if(!event.isCancelled() && getSettingsManager().isLoggingEnabled(event.getPlayer().getWorld(), LogType.FIRE)) {
 			Block block;
@@ -75,7 +75,7 @@ public class PlayerListener extends BlockLogListener {
 		}
 	}
 	
-	@EventHandler
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
 		if(!event.isCancelled() && getSettingsManager().isLoggingEnabled(event.getPlayer().getWorld(), LogType.COMMAND)) {
 			Player player = event.getPlayer();
@@ -86,8 +86,9 @@ public class PlayerListener extends BlockLogListener {
 				lcmd.save();
 			}
 		}
-	}	
-	@EventHandler
+	}
+	
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerChat(PlayerChatEvent event) {
 		if(!event.isCancelled() && getSettingsManager().isLoggingEnabled(event.getPlayer().getWorld(), LogType.CHAT)) {
 			Player player = event.getPlayer();

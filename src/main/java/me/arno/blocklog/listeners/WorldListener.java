@@ -11,7 +11,7 @@ import org.bukkit.event.world.WorldSaveEvent;
 
 public class WorldListener extends BlockLogListener {
 
-	@EventHandler(priority = EventPriority.HIGHEST)
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onStructureGrow(StructureGrowEvent event) {
 		if(!event.isCancelled()) {
 			if(getSettingsManager().isLoggingEnabled(event.getWorld(), LogType.GROW)) {

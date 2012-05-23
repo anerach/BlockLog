@@ -21,7 +21,7 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
 public class EntityListener extends BlockLogListener {
 	
-	@EventHandler(priority = EventPriority.HIGHEST)
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onEntityExplode(EntityExplodeEvent event) {
 		if(!event.isCancelled() && getSettingsManager().isLoggingEnabled(event.getLocation().getWorld(), LogType.EXPLOSION)) {
 			Player target = null;
@@ -55,7 +55,7 @@ public class EntityListener extends BlockLogListener {
 		}
 	}
 	
-	@EventHandler(priority = EventPriority.HIGHEST)
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onEntityCreatePortal(EntityCreatePortalEvent event) {
 		if(!event.isCancelled()) {
 			if(getSettingsManager().isLoggingEnabled(event.getEntity().getWorld(), LogType.PORTAL)) {
@@ -75,7 +75,7 @@ public class EntityListener extends BlockLogListener {
 		}
 	}
 	
-	@EventHandler
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onEntityDeath(EntityDeathEvent event) {
 		if(event.getEntityType() == EntityType.PLAYER && getSettingsManager().isLoggingEnabled(event.getEntity().getWorld(), LogType.DEATH)) {
 			if(event.getEntity() instanceof Player) {

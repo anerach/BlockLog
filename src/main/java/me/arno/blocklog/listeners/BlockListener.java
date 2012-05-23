@@ -24,7 +24,7 @@ import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 
 public class BlockListener extends BlockLogListener {
 
-	@EventHandler(priority = EventPriority.HIGHEST)
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onBlockPlace(BlockPlaceEvent event) {
 		BlockState block = event.getBlock().getState();
 		Player player = event.getPlayer();
@@ -55,7 +55,7 @@ public class BlockListener extends BlockLogListener {
 		}
 	}
 
-	@EventHandler(priority = EventPriority.HIGHEST)
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onBlockBreak(BlockBreakEvent event) {
 		BlockState block = event.getBlock().getState();
 		Player player = event.getPlayer();
@@ -81,7 +81,7 @@ public class BlockListener extends BlockLogListener {
 		}
 	}
 	
-	@EventHandler(priority = EventPriority.HIGHEST)
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onBlockFromTo(BlockFromToEvent event) {
 		if(!event.isCancelled()) {
 			if(event.getBlock().getType() == Material.DRAGON_EGG) {
@@ -96,7 +96,7 @@ public class BlockListener extends BlockLogListener {
 		}
 	}
 	
-	@EventHandler(priority = EventPriority.HIGHEST)
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onBlockBurn(BlockBurnEvent event) {
 		if(!event.isCancelled() && getSettingsManager().isLoggingEnabled(event.getBlock().getWorld(), LogType.FIRE)) {
 			getQueueManager().queueBlockEdit(event.getBlock().getState(), LogType.FIRE);
@@ -104,7 +104,7 @@ public class BlockListener extends BlockLogListener {
 		}
 	}
 	
-	@EventHandler(priority = EventPriority.HIGHEST)
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onBlockIgnite(BlockIgniteEvent event) {
 		if(!event.isCancelled() && event.getPlayer() != null) {
 			if(event.getBlock().getType() == Material.TNT && getSettingsManager().isLoggingEnabled(event.getPlayer().getWorld(), LogType.BREAK)) {
@@ -114,7 +114,7 @@ public class BlockListener extends BlockLogListener {
 		}
 	}
 	
-	@EventHandler(priority = EventPriority.HIGHEST)
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onLeavesDecay(LeavesDecayEvent event) {
 		if(!event.isCancelled()) {
 			if(getSettingsManager().isLoggingEnabled(event.getBlock().getWorld(), LogType.LEAVES)) {
@@ -124,7 +124,7 @@ public class BlockListener extends BlockLogListener {
 		}
 	}
 	
-	@EventHandler(priority = EventPriority.HIGHEST)
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onBlockForm(BlockFormEvent event) {
 		if(!event.isCancelled()) {
 			if(getSettingsManager().isLoggingEnabled(event.getNewState().getWorld(), LogType.FORM)) {
@@ -134,7 +134,7 @@ public class BlockListener extends BlockLogListener {
 		}
 	}
 	
-	@EventHandler(priority = EventPriority.HIGHEST)
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onBlockSpread(BlockSpreadEvent event) {
 		if(!event.isCancelled()) {
 			if(getSettingsManager().isLoggingEnabled(event.getNewState().getWorld(), LogType.SPREAD)) {
@@ -145,7 +145,7 @@ public class BlockListener extends BlockLogListener {
 		}
 	}
 	
-	@EventHandler(priority = EventPriority.HIGHEST)
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void onBlockFade(BlockFadeEvent event) {
 		if(!event.isCancelled()) {
 			if(getSettingsManager().isLoggingEnabled(event.getNewState().getWorld(), LogType.FADE)) {

@@ -160,11 +160,13 @@ public class BlockLog extends JavaPlugin {
 				stmt.executeUpdate("ALTER TABLE `blocklog_chat` CHANGE `message` `message` TEXT NOT NULL");
 				stmt.executeUpdate("ALTER TABLE `blocklog_blocks` CHANGE `trigered` `triggered` varchar(75) NOT NULL");
 				versions.getConfig().set("database", 1);
-			} else if(versions.getConfig().getInt("database") == 1) {
+			}
+			if(versions.getConfig().getInt("database") == 1) {
 				stmt.executeUpdate("UPDATE `blocklog_blocks` SET `entity`='player' WHERE `triggered`!='environment' AND `entity`!='creeper'");
 				stmt.executeUpdate("UPDATE `blocklog_blocks` SET `entity`='unkown' WHERE `triggered`='environment' AND `entity`!='creeper' AND `entity`!='fireball' AND `entity`!='primed_tnt'");
 				versions.getConfig().set("database", 2);
-			} else if(versions.getConfig().getInt("database") == 2) {
+			}
+			if(versions.getConfig().getInt("database") == 2) {
 				stmt.executeUpdate("ALTER TABLE `blocklog_commands` CHANGE `command` `command` varchar(255) NOT NULL");
 				versions.getConfig().set("database", 3);
 			}

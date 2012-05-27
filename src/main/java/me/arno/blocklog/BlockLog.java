@@ -151,7 +151,7 @@ public class BlockLog extends JavaPlugin {
 	private void updateDatabase() {
 		try {
 			Config versions = new Config("VERSIONS");
-			versions.getConfig().addDefault("database", 1);
+			versions.getConfig().addDefault("database", 3);
 			versions.getConfig().options().copyDefaults(true);
 			versions.saveConfig();
 
@@ -164,6 +164,9 @@ public class BlockLog extends JavaPlugin {
 				stmt.executeUpdate("UPDATE `blocklog_blocks` SET `entity`='player' WHERE `triggered`!='environment' AND `entity`!='creeper'");
 				stmt.executeUpdate("UPDATE `blocklog_blocks` SET `entity`='unkown' WHERE `triggered`='environment' AND `entity`!='creeper' AND `entity`!='fireball' AND `entity`!='primed_tnt'");
 				versions.getConfig().set("database", 2);
+			} else if(versions.getConfig().getInt("database") == 2) {
+				stmt.executeUpdate("ALTER TABLE `blocklog_commands` CHANGE `command` `command` varchar(255) NOT NULL");
+				versions.getConfig().set("database", 3);
 			}
 			versions.saveConfig();
 		} catch (SQLException e) {

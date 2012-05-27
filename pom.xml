@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>me.arno.blocklog</groupId>
   <artifactId>BlockLog</artifactId>
-  <version>2.2.2</version>
+  <version>2.2.3</version>
   <name>BlockLog</name>
   <description>An anti-grief plugin for servers running bukkit</description>
   <url>https://github.com/anerach/BlockLog</url>
@@ -18,7 +18,7 @@
   	<dependency>
   		<groupId>org.bukkit</groupId>
   		<artifactId>bukkit</artifactId>
-  		<version>1.2.5-R2.0</version>
+  		<version>1.2.5-R3.0</version>
   	</dependency>
   	<dependency>
 		<groupId>com.gmail.nossr50.mcMMO</groupId>

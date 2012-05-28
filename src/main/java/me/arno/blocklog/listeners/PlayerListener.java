@@ -14,13 +14,9 @@ import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-
 import me.arno.blocklog.logs.LogType;
 import me.arno.blocklog.logs.PlayerChat;
 import me.arno.blocklog.logs.PlayerCommand;
-import me.ryanhamshire.GriefPrevention.Claim;
-import me.ryanhamshire.GriefPrevention.GriefPrevention;
 
 public class PlayerListener extends BlockLogListener {
 	
@@ -29,22 +25,7 @@ public class PlayerListener extends BlockLogListener {
 		BlockState block = event.getBlockClicked().getRelative(event.getBlockFace()).getState();
 		Player player = event.getPlayer();
 		
-		Boolean cancel = !getSettingsManager().isLoggingEnabled(player.getWorld(), LogType.PLACE);
-		
-		if(getDependencyManager().isDependencyEnabled("GriefPrevention")) {
-			GriefPrevention gp = (GriefPrevention) getDependencyManager().getDependency("GriefPrevention");
-			Claim claim = gp.dataStore.getClaimAt(block.getLocation(), false, null);
-			
-			if(claim != null)
-				cancel = claim.allowBuild(player) != null;
-		}
-		
-		if(getDependencyManager().isDependencyEnabled("WorldGuard")) {
-			WorldGuardPlugin wg = (WorldGuardPlugin) getDependencyManager().getDependency("WorldGuard");
-			cancel = !wg.canBuild(player, block.getLocation());
-		}
-		
-		if(!event.isCancelled() && !cancel) {
+		if(!event.isCancelled() && getSettingsManager().isLoggingEnabled(player.getWorld(), LogType.PLACE)) {
 			if(event.getBucket() == Material.WATER_BUCKET)
 				block.setType(Material.WATER);
 			else if(event.getBucket() == Material.LAVA_BUCKET)

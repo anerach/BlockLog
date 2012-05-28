@@ -34,19 +34,5 @@
 		<scope>system</scope>
 		<systemPath>${project.basedir}/lib/Pail.jar</systemPath>
 	</dependency>
-	<dependency>
-		<groupId>me.ryanhamshire.GriefPrevention</groupId>
-   		<artifactId>GriefPrevention</artifactId>
-		<version>3.5</version>
-		<scope>system</scope>
-		<systemPath>${project.basedir}/lib/GriefPrevention.jar</systemPath>
-	</dependency>
-	<dependency>
-		<groupId>com.sk89q</groupId>
-		<artifactId>worldguard</artifactId>
-		<version>5.5</version>
-		<scope>system</scope>
-		<systemPath>${project.basedir}/lib/WorldGuard.jar</systemPath>
-	</dependency>
   </dependencies>
 </project>

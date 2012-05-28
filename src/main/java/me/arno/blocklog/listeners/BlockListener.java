@@ -1,8 +1,6 @@
 package me.arno.blocklog.listeners;
 
 import me.arno.blocklog.logs.LogType;
-import me.ryanhamshire.GriefPrevention.Claim;
-import me.ryanhamshire.GriefPrevention.GriefPrevention;
 
 import org.bukkit.Material;
 import org.bukkit.block.BlockState;
@@ -20,8 +18,6 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.block.LeavesDecayEvent;
 
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-
 public class BlockListener extends BlockLogListener {
 
 	@EventHandler(priority = EventPriority.MONITOR)
@@ -30,19 +26,6 @@ public class BlockListener extends BlockLogListener {
 		Player player = event.getPlayer();
 		
 		Boolean cancel = !getSettingsManager().isLoggingEnabled(player.getWorld(), LogType.PLACE);
-		
-		if(getDependencyManager().isDependencyEnabled("GriefPrevention")) {
-			GriefPrevention gp = (GriefPrevention) getDependencyManager().getDependency("GriefPrevention");
-			Claim claim = gp.dataStore.getClaimAt(block.getLocation(), false, null);
-			
-			if(claim != null)
-				cancel = claim.allowBuild(player) != null;
-		}
-		
-		if(getDependencyManager().isDependencyEnabled("WorldGuard")) {
-			WorldGuardPlugin wg = (WorldGuardPlugin) getDependencyManager().getDependency("WorldGuard");
-			cancel = !wg.canBuild(player, block.getLocation());
-		}
 		
 		boolean WandEnabled = plugin.users.contains(event.getPlayer().getName());
 		
@@ -60,22 +43,7 @@ public class BlockListener extends BlockLogListener {
 		BlockState block = event.getBlock().getState();
 		Player player = event.getPlayer();
 		
-		Boolean cancel = !getSettingsManager().isLoggingEnabled(player.getWorld(), LogType.BREAK);
-		
-		if(getDependencyManager().isDependencyEnabled("GriefPrevention")) {
-			GriefPrevention gp = (GriefPrevention) getDependencyManager().getDependency("GriefPrevention");
-			Claim claim = gp.dataStore.getClaimAt(block.getLocation(), false, null);
-			
-			if(claim != null)
-				cancel = claim.allowBuild(player) != null;
-		}
-		
-		if(getDependencyManager().isDependencyEnabled("WorldGuard")) {
-			WorldGuardPlugin wg = (WorldGuardPlugin) getDependencyManager().getDependency("WorldGuard");
-			cancel = !wg.canBuild(player, block.getLocation());
-		}
-		
-		if(!event.isCancelled() && !cancel) {
+		if(!event.isCancelled() && getSettingsManager().isLoggingEnabled(player.getWorld(), LogType.BREAK)) {
 			getQueueManager().queueBlockEdit(player, block, LogType.BREAK);
 			BlocksLimitReached();
 		}

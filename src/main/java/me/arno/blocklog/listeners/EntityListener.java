@@ -28,7 +28,7 @@ public class EntityListener extends BlockLogListener {
 			LogType logType = LogType.EXPLOSION;
 			EntityType entityType = EntityType.PLAYER;
 			
-			if(event.getEntityType() != null) {
+			if(event.getEntity() != null) {
 				entityType = event.getEntityType();
 				if(event.getEntityType() == EntityType.CREEPER) {
 					logType = LogType.CREEPER;

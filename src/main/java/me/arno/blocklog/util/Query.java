@@ -196,7 +196,7 @@ public class Query {
 		return stmt.executeQuery(getQuery());
 	}
 	
-	public Integer getRowCount() throws SQLException {
+	public int getRowCount() throws SQLException {
 		Connection conn = BlockLog.plugin.conn;
 		Statement stmt = conn.createStatement();
 		

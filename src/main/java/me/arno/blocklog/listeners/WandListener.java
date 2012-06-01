@@ -70,7 +70,6 @@ public class WandListener extends BlockLogListener {
 				query.limit(maxResults - blockCount);
 				
 				ResultSet rs = query.getResult();
-				log.info(query.getRowCount().toString());
 				
 				while(rs.next()) {
 	            	String action = "";

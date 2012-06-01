@@ -93,13 +93,14 @@ public class BlockLog extends JavaPlugin {
 	    getConfig().addDefault("mysql.password", "");
 	    getConfig().addDefault("mysql.database", "bukkit");
 	    getConfig().addDefault("mysql.port", 3306);
-	   	getConfig().addDefault("blocklog.wand", 19);
+	    getConfig().addDefault("blocklog.wand", 19);
 	   	getConfig().addDefault("blocklog.results", 5);
 	   	getConfig().addDefault("blocklog.save-delay", 1);
 	    getConfig().addDefault("blocklog.reports", true);
 	    getConfig().addDefault("blocklog.updates", true);
 	    getConfig().addDefault("blocklog.metrics", true);
 	    getConfig().addDefault("blocklog.dateformat", "%d-%m %H:%i");
+	    getConfig().addDefault("blocklog.debug", false);
 	    getConfig().addDefault("warning.blocks", 500);
 	    getConfig().addDefault("warning.repeat", 100);
 	    getConfig().addDefault("warning.delay", 30);

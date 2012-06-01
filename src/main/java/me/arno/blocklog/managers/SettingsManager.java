@@ -25,6 +25,10 @@ public class SettingsManager extends BlockLogManager {
 		return true;
 	}
 	
+	public boolean isDebugEnabled() {
+		return getConfig().getBoolean("blocklog.debug");
+	}
+	
 	public boolean isPurgeEnabled(String table) {
 		return getConfig().getBoolean("purge." + table + ".enabled");
 	}

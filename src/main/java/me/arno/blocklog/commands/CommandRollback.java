@@ -8,7 +8,7 @@ import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
-import me.arno.blocklog.schedules.Rollback;
+import me.arno.blocklog.schedules.RollbackSchedule;
 import me.arno.blocklog.util.Query;
 
 public class CommandRollback extends BlockLogCommand {
@@ -128,8 +128,8 @@ public class CommandRollback extends BlockLogCommand {
 			int rollbackID = rollback.getInt("id");
 			int blockCount = query.getRowCount();
 			
-			Rollback rb = new Rollback(player, rollbackID, query, limit);
-			Integer sid = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, rb, 20L, delay * 20L);
+			RollbackSchedule rb = new RollbackSchedule(player, rollbackID, query, limit);
+			int sid = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, rb, 20L, delay * 20L);
 			rb.setId(sid);
 			addSchedule(sid, rollbackID);
 			

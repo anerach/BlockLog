@@ -13,7 +13,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-public class Rollback implements Runnable {
+public class RollbackSchedule implements Runnable {
 	private final BlockLog plugin;
 	private final Player player;
 	private final int rollbackID;
@@ -25,7 +25,7 @@ public class Rollback implements Runnable {
 	private int blockCount = 0;	
 	private int sid;
 	
-	public Rollback(Player player, int rollbackID, Query query, int limit) throws SQLException {
+	public RollbackSchedule(Player player, int rollbackID, Query query, int limit) throws SQLException {
 		this.plugin = BlockLog.plugin;
 		this.player = player;
 		this.rollbackID = rollbackID;
@@ -80,5 +80,4 @@ public class Rollback implements Runnable {
 			}
 		}
 	}
-
 }

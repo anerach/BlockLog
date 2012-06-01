@@ -3,7 +3,8 @@ package me.arno.blocklog.commands;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import me.arno.blocklog.schedules.UndoRollback;
+
+import me.arno.blocklog.schedules.RollbackSchedule;
 import me.arno.blocklog.util.Query;
 
 import org.bukkit.ChatColor;
@@ -64,11 +65,11 @@ public class CommandUndo extends BlockLogCommand {
 			
 			undoStmt.executeUpdate("INSERT INTO blocklog_undos (rollback_id, player, date) VALUES (" + rollbackID + ", '" + player.getName() + "', " + System.currentTimeMillis()/1000 + ")");
 			
-			ResultSet blocks = query.getResult();
 			int blockCount = query.getRowCount();
 			
-			UndoRollback undo = new UndoRollback(plugin, player, rollbackID, blocks, limit);
-			Integer sid = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, undo, 20L, delay * 20L);
+			//UndoRollback undo = new UndoRollback(plugin, player, rollbackID, blocks, limit);
+			RollbackSchedule undo = new RollbackSchedule(player, rollbackID, query, limit);
+			int sid = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, undo, 20L, delay * 20L);
 			undo.setId(sid);
 			
 			player.sendMessage(ChatColor.BLUE + "This undo will affect " + ChatColor.GOLD + blockCount + " blocks");

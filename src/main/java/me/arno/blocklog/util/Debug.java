@@ -5,8 +5,7 @@ import java.util.logging.Logger;
 import me.arno.blocklog.BlockLog;
 
 public class Debug {
-	private static final String plugin = "BlockLog";
-	private static final Logger log = Logger.getLogger("Minecraft");
+	private static final Logger log = BlockLog.plugin.log;
 	
 	public static void SQL(String msg) {
 		log("SQL", msg);
@@ -18,6 +17,6 @@ public class Debug {
 	
 	private static void log(String type, String msg) {
 		if(BlockLog.plugin.getSettingsManager().isDebugEnabled())
-			log.warning("[" + plugin + "][Debug][" + type + "] " + msg);
+			log.warning("[Debug] [" + type + "] " + msg);
 	}
 }

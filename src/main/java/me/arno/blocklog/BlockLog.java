@@ -15,8 +15,8 @@ import me.arno.blocklog.listeners.*;
 import me.arno.blocklog.logs.LogType;
 import me.arno.blocklog.managers.*;
 import me.arno.blocklog.pail.PailInterface;
-import me.arno.blocklog.schedules.Save;
-import me.arno.blocklog.schedules.Updates;
+import me.arno.blocklog.schedules.SaveSchedule;
+import me.arno.blocklog.schedules.UpdatesSchedule;
 import me.arno.blocklog.util.Query;
 import me.arno.blocklog.util.Text;
 import me.escapeNT.pail.Pail;
@@ -292,7 +292,7 @@ public class BlockLog extends JavaPlugin {
 		}
 	    
 		log.info("Starting BlockLog");
-		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Save(1, null, false), 100L, getSettingsManager().getBlockSaveDelay() * 20L);
+		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new SaveSchedule(1, null, false), 100L, getSettingsManager().getBlockSaveDelay() * 20L);
     	
     	getServer().getPluginManager().registerEvents(new WandListener(), this);
     	getServer().getPluginManager().registerEvents(new BlockListener(), this);
@@ -305,7 +305,7 @@ public class BlockLog extends JavaPlugin {
     		getServer().getPluginManager().registerEvents(new McMMOListener(), this);
     	
     	if(getConfig().getBoolean("blocklog.updates")) {
-	    	getServer().getScheduler().scheduleSyncRepeatingTask(this, new Updates(), 1L, 1 * 60 * 60 * 20L); // Check every hour for a new version
+	    	getServer().getScheduler().scheduleSyncRepeatingTask(this, new UpdatesSchedule(), 1L, 1 * 60 * 60 * 20L); // Check every hour for a new version
 	    	getServer().getPluginManager().registerEvents(new NoticeListener(), this);
 	    }
     }
@@ -315,7 +315,7 @@ public class BlockLog extends JavaPlugin {
 	}
 	
 	public void saveLogs(final int count, final CommandSender sender) {
-		getServer().getScheduler().scheduleAsyncDelayedTask(this, new Save(count, sender));
+		getServer().getScheduler().scheduleAsyncDelayedTask(this, new SaveSchedule(count, sender));
 	}
 	
 	private void stopPlugin() {

@@ -8,18 +8,18 @@ import me.arno.blocklog.managers.QueueManager;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
-public class Save implements Runnable {
+public class SaveSchedule implements Runnable {
 	private final BlockLog plugin;
 
 	private final CommandSender sender;
 	private final Integer count;
 	private final Boolean messages;
 
-	public Save(Integer count, CommandSender sender) {
+	public SaveSchedule(Integer count, CommandSender sender) {
 		this(count, sender, true);
 	}
 
-	public Save(Integer count, CommandSender sender, Boolean messages) {
+	public SaveSchedule(Integer count, CommandSender sender, Boolean messages) {
 		this.plugin = BlockLog.plugin;
 		this.count = count;
 		this.sender = sender;

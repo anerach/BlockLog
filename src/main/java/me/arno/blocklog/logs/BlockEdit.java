@@ -29,7 +29,7 @@ public class BlockEdit {
 	
 	public BlockEdit(Player player, BlockState block, EntityType entity, LogType type) {
 		this.id = 0;
-		this.player = player.getName();
+		this.player = (player != null) ? player.getName() : null;
 		this.entity = ((entity == null) ? EntityType.UNKNOWN.toString() : entity.toString()).toLowerCase();
 		this.block = block.getTypeId();
 		this.data = block.getData().getData();

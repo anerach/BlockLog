@@ -128,7 +128,7 @@ public class CommandRollback extends BlockLogCommand {
 			int rollbackID = rollback.getInt("id");
 			int blockCount = query.getRowCount();
 			
-			Rollback rb = new Rollback(plugin, player, rollbackID, query, limit);
+			Rollback rb = new Rollback(player, rollbackID, query, limit);
 			Integer sid = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, rb, 20L, delay * 20L);
 			rb.setId(sid);
 			addSchedule(sid, rollbackID);

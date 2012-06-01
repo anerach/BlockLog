@@ -6,6 +6,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
+import me.arno.blocklog.util.Debug;
 import me.arno.blocklog.util.Query;
 
 public class CommandRollbackList extends BlockLogCommand {
@@ -63,23 +64,25 @@ public class CommandRollbackList extends BlockLogCommand {
 			query.leftJoin("blocklog_undos", "id", "rollback_id");
 			
 			query.select("blocklog_rollbacks.id","blocklog_rollbacks.player");
-			query.selectDate("blocklog_rollbacks.date", "date");
+			query.selectDateAs("blocklog_rollbacks.date", "date");
 			
 			query.selectAs("blocklog_undos.player", "uplayer");
 			
 			if(target != null)
 				query.where("blocklog_rollbacks.player", target);
 			if(id != 0)
-				query.where("blocklog_rollbacks.id", id.toString());
+				query.where("blocklog_rollbacks.id", id);
 			if(area != 0)
-				query.where("blocklog_rollbacks.area", area.toString());
+				query.where("blocklog_rollbacks.area", area);
 			if(sinceTime != 0)
-				query.where("blocklog_rollbacks.date", sinceTime.toString(), ">");
+				query.where("blocklog_rollbacks.date", sinceTime, ">");
 			if(untilTime != 0)
-				query.where("blocklog_rollbacks.date", untilTime.toString(), "<");
+				query.where("blocklog_rollbacks.date", untilTime, "<");
 			
 			query.orderBy("blocklog_rollbacks.date", "DESC");
 			query.limit(getSettingsManager().getMaxResults());
+			
+			Debug.SQL(query.getQuery());
 			
 			ResultSet rollbacks = query.getResult();
 			

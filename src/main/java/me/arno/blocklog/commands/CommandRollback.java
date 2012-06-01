@@ -4,12 +4,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import org.bukkit.ChatColor;
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
+import me.arno.blocklog.Rollback;
 import me.arno.blocklog.schedules.RollbackSchedule;
-import me.arno.blocklog.util.Query;
 
 public class CommandRollback extends BlockLogCommand {
 	public CommandRollback() {
@@ -80,44 +79,6 @@ public class CommandRollback extends BlockLogCommand {
 				return true;
 			}
 			
-			World world = player.getWorld();
-			
-			Query query = new Query("blocklog_blocks");
-			query.select("*");
-			if(target != null) {
-				query.where("triggered", target);
-			}
-			if(entity != null) {
-				if(entity.equalsIgnoreCase("tnt"))
-					entity = "primed_tnt";
-				query.where("entity", entity);
-			}
-			if(sinceTime != 0)
-				query.where("date", sinceTime.toString(), ">");
-			if(untilTime != 0)
-				query.where("date", untilTime.toString(), "<");
-			if(area != 0) {
-				Integer xMin = player.getLocation().getBlockX() - area;
-				Integer xMax = player.getLocation().getBlockX() + area;
-				Integer yMin = player.getLocation().getBlockY() - area;
-				Integer yMax = player.getLocation().getBlockY() + area;
-				Integer zMin = player.getLocation().getBlockZ() - area;
-				Integer zMax = player.getLocation().getBlockZ() + area;
-				
-				query.where("x", xMin.toString(), ">=");
-				query.where("x", xMax.toString(), "<=");
-				
-				query.where("y", yMin.toString(), ">=");
-				query.where("y", yMax.toString(), "<=");
-				
-				query.where("z", zMin.toString(), ">=");
-				query.where("z", zMax.toString(), "<=");
-			}
-			query.where("world", world.getName());
-			query.where("rollback_id", 0);
-			query.groupBy("x", "y", "z");
-			query.orderBy("date", "DESC");
-			
 			Statement rollbackStmt = conn.createStatement();
 			
 			rollbackStmt.executeUpdate("INSERT INTO blocklog_rollbacks (player, world, param_player, param_from, param_until, param_area, date) VALUES ('" + player.getName() + "', '" + player.getWorld().getName() + "', '" + param_target + "', '" + param_since + "', '" + param_until + "', " + param_area + ", " + System.currentTimeMillis()/1000 + ")");
@@ -126,12 +87,14 @@ public class CommandRollback extends BlockLogCommand {
 			rollback.next();
 			
 			int rollbackID = rollback.getInt("id");
-			int blockCount = query.getRowCount();
 			
-			RollbackSchedule rb = new RollbackSchedule(player, rollbackID, query, limit);
-			int sid = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, rb, 20L, delay * 20L);
-			rb.setId(sid);
+			Rollback rb = new Rollback(player, target, entity, sinceTime, untilTime, area, delay, limit, rollbackID);
+			RollbackSchedule rbSchedule = new RollbackSchedule(rb);
+			int sid = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, rbSchedule, 20L, delay * 20L);
+			rbSchedule.setId(sid);
 			addSchedule(sid, rollbackID);
+			
+			int blockCount = rbSchedule.getBlockCount();
 			
 			player.sendMessage(ChatColor.BLUE + "This rollback will affect " + ChatColor.GOLD + blockCount + " blocks");
 			player.sendMessage(ChatColor.BLUE + "At a speed of " + ChatColor.GOLD + (limit/delay) + " blocks/second");

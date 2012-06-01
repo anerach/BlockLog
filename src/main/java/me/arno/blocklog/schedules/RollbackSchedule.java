@@ -1,16 +1,13 @@
 package me.arno.blocklog.schedules;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 
 import me.arno.blocklog.BlockLog;
+import me.arno.blocklog.Rollback;
+import me.arno.blocklog.Undo;
 import me.arno.blocklog.logs.BlockEdit;
-import me.arno.blocklog.util.Query;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 public class RollbackSchedule implements Runnable {
@@ -20,46 +17,37 @@ public class RollbackSchedule implements Runnable {
 	private final int limit;
 	private final int totalBlocks;
 	
-	private final ArrayList<BlockEdit> blockEdits = new ArrayList<BlockEdit>();
+	private ArrayList<BlockEdit> blockEdits = new ArrayList<BlockEdit>();
 	
 	private int blockCount = 0;	
 	private int sid;
 	
-	public RollbackSchedule(Player player, int rollbackID, Query query, int limit) throws SQLException {
+	public RollbackSchedule(Undo undo) {
 		this.plugin = BlockLog.plugin;
-		this.player = player;
-		this.rollbackID = rollbackID;
-		this.limit = limit;
-		this.totalBlocks = query.getRowCount();
+		this.player = undo.getSender();
+		this.limit = undo.getLimit();
+		this.rollbackID = undo.getRollback();
 		
-		ResultSet rs = query.getResult();
+		this.blockEdits = undo.getBlocks();
+		this.totalBlocks = blockEdits.size();
+	}
+	
+	public RollbackSchedule(Rollback rb) {
+		this.plugin = BlockLog.plugin;
+		this.player = rb.getSender();
+		this.limit = rb.getLimit();
+		this.rollbackID = rb.getId();
 		
-		while(rs.next()) {
-			int id = rs.getInt("id");
-			String entity = rs.getString("entity");
-			String triggered = rs.getString("triggered");
-			int block_id = rs.getInt("block_id");
-			int data = rs.getInt("datavalue");
-			int gamemode = rs.getInt("gamemode");
-			int type = rs.getInt("type");
-			long date = rs.getLong("date");
-			
-
-			String world = rs.getString("world");
-			int x = rs.getInt("x");
-			int y = rs.getInt("y");
-			int z = rs.getInt("z");
-			Location location = new Location(Bukkit.getWorld(world), x, y, z);
-			
-			BlockEdit blockEdit = new BlockEdit(id, triggered, entity, block_id, data, gamemode, location, type, date);
-			blockEdit.setRollback(rs.getInt("rollback_id"));
-			
-			blockEdits.add(blockEdit);
-		}
+		this.blockEdits = rb.getBlocks();
+		this.totalBlocks = blockEdits.size();
 	}
 	
 	public void setId(Integer sid) {
 		this.sid = sid;
+	}
+	
+	public int getBlockCount() {
+		return totalBlocks;
 	}
 	
 	@Override

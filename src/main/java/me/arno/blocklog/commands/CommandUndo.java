@@ -4,8 +4,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import me.arno.blocklog.Undo;
 import me.arno.blocklog.schedules.RollbackSchedule;
-import me.arno.blocklog.util.Query;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -54,10 +54,6 @@ public class CommandUndo extends BlockLogCommand {
 				rollbackID = rs.getInt("id");
 			}
 			
-			Query query = new Query("blocklog_blocks");
-			query.select("*");
-			query.where("rollback_id", rollbackID);
-			
 			if(rollbackID == 0) {
 				player.sendMessage(ChatColor.WHITE + "Rollback ID can't be 0");
 				return true;
@@ -65,12 +61,12 @@ public class CommandUndo extends BlockLogCommand {
 			
 			undoStmt.executeUpdate("INSERT INTO blocklog_undos (rollback_id, player, date) VALUES (" + rollbackID + ", '" + player.getName() + "', " + System.currentTimeMillis()/1000 + ")");
 			
-			int blockCount = query.getRowCount();
+			Undo undo = new Undo(player, delay, limit, rollbackID);
+			RollbackSchedule undoSchedule = new RollbackSchedule(undo);
+			int sid = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, undoSchedule, 20L, delay * 20L);
+			undoSchedule.setId(sid);
 			
-			//UndoRollback undo = new UndoRollback(plugin, player, rollbackID, blocks, limit);
-			RollbackSchedule undo = new RollbackSchedule(player, rollbackID, query, limit);
-			int sid = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, undo, 20L, delay * 20L);
-			undo.setId(sid);
+			int blockCount = undoSchedule.getBlockCount();
 			
 			player.sendMessage(ChatColor.BLUE + "This undo will affect " + ChatColor.GOLD + blockCount + " blocks");
 			player.sendMessage(ChatColor.BLUE + "At a speed of about " + ChatColor.GOLD + Math.round(limit/delay) + " blocks/second");

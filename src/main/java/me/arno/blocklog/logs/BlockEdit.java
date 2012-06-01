@@ -15,6 +15,7 @@ import org.bukkit.entity.Player;
 
 
 public class BlockEdit {
+	private final int id;
 	private final String player;
 	private final String entity;
 	private final int block;
@@ -27,6 +28,7 @@ public class BlockEdit {
 	private int rollback = 0;
 	
 	public BlockEdit(Player player, BlockState block, EntityType entity, LogType type) {
+		this.id = 0;
 		this.player = player.getName();
 		this.entity = ((entity == null) ? EntityType.UNKNOWN.toString() : entity.toString()).toLowerCase();
 		this.block = block.getTypeId();
@@ -34,10 +36,11 @@ public class BlockEdit {
 		this.gamemode = (player != null) ? player.getGameMode().getValue() : 0;
 		this.location = block.getLocation();
 		this.type = type;
-		this.date = (System.currentTimeMillis()/1000);
+		this.date = System.currentTimeMillis()/1000;
 	}
 	
-	public BlockEdit(String player, String entity, int block, int data, int gamemode, Location location, int type, long date) {
+	public BlockEdit(int id, String player, String entity, int block, int data, int gamemode, Location location, int type, long date) {
+		this.id = id;
 		this.player = player;
 		this.entity = entity;
 		this.block = block;
@@ -45,7 +48,7 @@ public class BlockEdit {
 		this.gamemode = gamemode;
 		this.location = location;
 		this.type = LogType.values()[type];
-		this.date = (System.currentTimeMillis()/1000);
+		this.date = System.currentTimeMillis()/1000;
 	}
 
 	public void save() {
@@ -57,18 +60,31 @@ public class BlockEdit {
     	}
 	}
 	
-	public void rollback() {
-		if(rollback == 0) {
-			if(type == LogType.BREAK || type == LogType.FIRE || type == LogType.EXPLOSION || type == LogType.LEAVES || type == LogType.FADE || type == LogType.CREEPER || type == LogType.FIREBALL || type == LogType.TNT)
-				getWorld().getBlockAt(location).setTypeIdAndData(block, data, false);
-			else
-				getWorld().getBlockAt(location).setType(Material.AIR);
-		} else {
-			if(type == LogType.BREAK || type == LogType.FIRE || type == LogType.EXPLOSION || type == LogType.LEAVES || type == LogType.FADE || type == LogType.CREEPER || type == LogType.FIREBALL || type == LogType.TNT)
-				getWorld().getBlockAt(location).setType(Material.AIR);
-			else
-				getWorld().getBlockAt(location).setTypeIdAndData(block, data, false);
-		}
+	public boolean rollback(int rb) {
+		try {
+			if(rollback == 0) {
+				if(type == LogType.BREAK || type == LogType.FIRE || type == LogType.EXPLOSION || type == LogType.LEAVES || type == LogType.FADE || type == LogType.CREEPER || type == LogType.FIREBALL || type == LogType.TNT)
+					getWorld().getBlockAt(location).setTypeIdAndData(block, data, false);
+				else
+					getWorld().getBlockAt(location).setType(Material.AIR);
+			} else {
+				if(type == LogType.BREAK || type == LogType.FIRE || type == LogType.EXPLOSION || type == LogType.LEAVES || type == LogType.FADE || type == LogType.CREEPER || type == LogType.FIREBALL || type == LogType.TNT)
+					getWorld().getBlockAt(location).setType(Material.AIR);
+				else
+					getWorld().getBlockAt(location).setTypeIdAndData(block, data, false);
+			}
+			
+			if(id == 0) {
+				this.setRollback(rb);
+			} else {
+				Statement stmt = BlockLog.plugin.conn.createStatement();
+				stmt.executeUpdate(String.format("UPDATE blocklog_blocks SET rollback_id = %s WHERE id = %s", rollback, id));
+			}
+			return true;
+		} catch (SQLException e) {
+    		e.printStackTrace();
+    	}
+		return false;
 	}
 	
 	public String getEntityName() {

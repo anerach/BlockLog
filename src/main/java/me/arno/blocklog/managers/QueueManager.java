@@ -162,15 +162,18 @@ public class QueueManager extends BlockLogManager {
 	 * 
 	 * @param index The index of the queued block interaction
 	 */
-	public void saveQueuedEdit(int index) throws IndexOutOfBoundsException {
+	public void saveQueuedEdit(int index) {
 		if(getEditQueueSize() > index) {
-			getEditQueue().get(index).save();
-			getEditQueue().remove(index);
+			BlockEdit blockEdit = getEditQueue().get(index);
+			if(blockEdit != null) {
+				blockEdit.save();
+				getEditQueue().remove(index);
+			}
 		}
 	}
 	
 	/**
-	 * Saves the oldest queued block interactions
+	 * Saves the oldest queued block interaction
 	 */
 	public void saveQueuedInteraction() {
 		saveQueuedInteraction(0);
@@ -181,10 +184,13 @@ public class QueueManager extends BlockLogManager {
 	 * 
 	 * @param index The index of the queued block interaction
 	 */
-	public void saveQueuedInteraction(int index) throws IndexOutOfBoundsException {
+	public void saveQueuedInteraction(int index) {
 		if(getInteractionQueueSize() > index) {
-			getInteractionQueue().get(index).save();
-			getInteractionQueue().remove(index);
+			BlockInteraction blockInteraction = getInteractionQueue().get(index);
+			if(blockInteraction != null) {
+				blockInteraction.save();
+				getInteractionQueue().remove(index);
+			}
 		}
 	}
 }

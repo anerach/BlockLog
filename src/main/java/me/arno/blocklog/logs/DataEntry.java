@@ -6,10 +6,8 @@ import java.util.HashMap;
 import me.arno.blocklog.util.Query;
 
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 
 public class DataEntry {
-	
 	private String player;
 	private LogType type;
 	private String world;
@@ -20,14 +18,6 @@ public class DataEntry {
 	
 	private String data;
 	
-	public DataEntry(Player player, LogType type, Location location) {
-		this(player.getName(), type, location, null);
-	}
-	
-	public DataEntry(Player player, LogType type, Location location, String data) {
-		this(player.getName(), type, location, data);
-	}
-
 	public DataEntry(String player, LogType type, Location location, String data) {
 		this.player = player;
 		this.world = location.getWorld().getName();

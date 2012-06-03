@@ -21,7 +21,7 @@ public class QueueManager extends BlockLogManager {
 	 * @param type {@link LogType} of the log
 	 */
 	public void queueBlockEdit(BlockState block, LogType type) {
-		queueBlockEdit(null, block, EntityType.UNKNOWN, type);
+		queueBlockEdit("environment", block, EntityType.UNKNOWN, type);
 	}
 	
 	/**
@@ -32,7 +32,7 @@ public class QueueManager extends BlockLogManager {
 	 * @param block {@link BlockState} of the block that got destroyed
 	 * @param type {@link LogType} of the log
 	 */
-	public void queueBlockEdit(Player player, BlockState block, LogType type) {
+	public void queueBlockEdit(String player, BlockState block, LogType type) {
 		queueBlockEdit(player, block, EntityType.PLAYER, type);
 	}
 	
@@ -57,7 +57,7 @@ public class QueueManager extends BlockLogManager {
 	 * @param entity {@link EntityType} of the entity that triggered this event
 	 * @param type {@link LogType} of the log
 	 */
-	public void queueBlockEdit(Player player, BlockState block, EntityType entity, LogType type) {
+	public void queueBlockEdit(String player, BlockState block, EntityType entity, LogType type) {
 		blockEdits.add(new BlockEntry(player, entity, type, block));
 	}
 	

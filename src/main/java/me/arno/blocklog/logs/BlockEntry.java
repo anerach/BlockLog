@@ -7,7 +7,6 @@ import me.arno.blocklog.util.Query;
 
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
 
 public class BlockEntry extends DataEntry {
 	private String entity;
@@ -15,14 +14,10 @@ public class BlockEntry extends DataEntry {
 	private byte datavalue;
 	private int rollback = 0;
 	
-	public BlockEntry(Player player, EntityType entity, LogType type, BlockState block) {
-		this(player.getName(), entity.toString(), type, block);
-	}
-
-	public BlockEntry(String player, String entity, LogType type, BlockState block) {
+	public BlockEntry(String player, EntityType entity, LogType type, BlockState block) {
 		super(player, type, block.getLocation(), null);
 		
-		this.entity = entity;
+		this.entity = entity.toString();
 		this.block = block.getType().getId();
 		this.datavalue = block.getRawData();
 	}

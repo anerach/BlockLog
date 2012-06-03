@@ -15,6 +15,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
@@ -53,7 +54,7 @@ public class WandListener extends BlockLogListener {
 			
 			if(blockCount < maxResults) {
 				Query query = new Query("blocklog_blocks");
-				query.select("entity", "triggered", "block_id", "type");
+				query.select("entity", "player", "block", "type");
 				query.selectDate("date");
 				query.where("x", location.getBlockX());
 				query.where("y", location.getBlockY());
@@ -65,10 +66,10 @@ public class WandListener extends BlockLogListener {
 				ResultSet rs = query.getResult();
 				
 				while(rs.next()) {
-					String name = Material.getMaterial(rs.getInt("block_id")).toString();
+					String name = Material.getMaterial(rs.getInt("block")).toString();
 					LogType type = LogType.values()[rs.getInt("type")];
 					
-					player.sendMessage(Text.addSpaces(ChatColor.GOLD + rs.getString("triggered"), 99) + Text.addSpaces(ChatColor.DARK_RED + type.name(), 81) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + rs.getString("date") + "]");
+					player.sendMessage(Text.addSpaces(ChatColor.GOLD + rs.getString("player"), 99) + Text.addSpaces(ChatColor.DARK_RED + type.toString(), 81) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + rs.getString("date") + "]");
 				}
 			}
 		} catch (SQLException e) {
@@ -78,11 +79,22 @@ public class WandListener extends BlockLogListener {
 	
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event) {
-		
+		Player player = event.getPlayer();
+		if(plugin.users.contains(player.getName()) && player.getItemInHand().getType() == getSettingsManager().getWand()) {
+			if(event.getAction() == Action.LEFT_CLICK_BLOCK) {
+				getBlockEdits(player, event.getClickedBlock().getLocation());
+			}
+		}
 	}
 	
 	@EventHandler
 	public void onBlockPlace(BlockPlaceEvent event) {
+		Player player = event.getPlayer();
+		if(!getSettingsManager().getWand().isBlock())
+			return;
 		
+		if(plugin.users.contains(player.getName()) && player.getItemInHand().getType() == getSettingsManager().getWand()) {
+			getBlockEdits(player, event.getBlock().getLocation());
+		}
 	}
 }

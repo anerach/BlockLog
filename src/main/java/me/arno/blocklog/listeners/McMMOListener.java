@@ -12,7 +12,7 @@ public class McMMOListener extends BlockLogListener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onFakeBlockBreak(FakeBlockBreakEvent event) {
 		if(!event.isCancelled()) {
-			getQueueManager().queueBlockEdit(event.getPlayer(), event.getBlock().getState(), LogType.BREAK);
+			getQueueManager().queueBlockEdit(event.getPlayer(), event.getBlock().getState(), LogType.BLOCK_BREAK);
 			BlocksLimitReached();
 		}
 	} 

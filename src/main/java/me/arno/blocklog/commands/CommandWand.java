@@ -6,8 +6,8 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 
+import me.arno.blocklog.logs.BlockEntry;
 import me.arno.blocklog.logs.LogType;
-import me.arno.blocklog.logs.BlockEdit;
 import me.arno.blocklog.util.Query;
 import me.arno.blocklog.util.Text;
 
@@ -106,8 +106,8 @@ public class CommandWand extends BlockLogCommand {
 			int maxResults = getSettingsManager().getMaxResults();
 			
 			while(blockSize > blockNumber) {
-				BlockEdit LBlock = getQueueManager().getEditQueue().get(blockNumber); 
-				if(LBlock.getX() == location.getX() && LBlock.getY() == location.getY() && LBlock.getZ() == location.getZ() && LBlock.getWorld() == location.getWorld()) {
+				BlockEntry LBlock = getQueueManager().getEditQueue().get(blockNumber); 
+				if(LBlock.getX() == location.getX() && LBlock.getY() == location.getY() && LBlock.getZ() == location.getZ() && LBlock.getWorld().equalsIgnoreCase(location.getWorld().getName())) {
 					if(blockCount == maxResults)
 						break;
 					
@@ -116,10 +116,10 @@ public class CommandWand extends BlockLogCommand {
 					
 					String date =  calendar.get(Calendar.DAY_OF_MONTH) + "-" + (calendar.get(Calendar.MONTH) + 1) + " " + calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE);
 					
-					String name = Material.getMaterial(LBlock.getBlockId()).toString();
+					String name = Material.getMaterial(LBlock.getBlock()).toString();
 					LogType type = LBlock.getType();
 					
-					player.sendMessage(Text.addSpaces(ChatColor.GOLD + LBlock.getPlayerName(), 99) + Text.addSpaces(ChatColor.DARK_RED + type.name(), 80) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + date + "]");
+					player.sendMessage(Text.addSpaces(ChatColor.GOLD + LBlock.getPlayer(), 99) + Text.addSpaces(ChatColor.DARK_RED + type.name(), 80) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + date + "]");
 					blockCount++;
 				}
 				blockNumber++;

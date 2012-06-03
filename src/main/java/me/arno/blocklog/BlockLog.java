@@ -80,7 +80,7 @@ public class BlockLog extends JavaPlugin {
 			worldConfig = new Config("worlds" + File.separator + world.getName() + ".yml");
 			
 			for(LogType type : LogType.values()) {
-				if(type != LogType.CREEPER && type != LogType.FIREBALL && type != LogType.TNT) {
+				if(type != LogType.EXPLOSION_CREEPER && type != LogType.EXPLOSION_FIREBALL && type != LogType.EXPLOSION_TNT) {
 					worldConfig.getConfig().addDefault(type.name(), true);
 				}
 			}
@@ -295,11 +295,11 @@ public class BlockLog extends JavaPlugin {
 		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new SaveSchedule(1, null, false), 100L, getSettingsManager().getBlockSaveDelay() * 20L);
     	
     	getServer().getPluginManager().registerEvents(new WandListener(), this);
-    	getServer().getPluginManager().registerEvents(new BlockListener(), this);
+    	/*getServer().getPluginManager().registerEvents(new BlockListener(), this);
     	getServer().getPluginManager().registerEvents(new InteractionListener(), this);
     	getServer().getPluginManager().registerEvents(new PlayerListener(), this);
     	getServer().getPluginManager().registerEvents(new EntityListener(), this);
-    	getServer().getPluginManager().registerEvents(new WorldListener(), this);
+    	getServer().getPluginManager().registerEvents(new WorldListener(), this);*/
     	
     	if(getDependencyManager().isDependencyEnabled("mcMMO"))
     		getServer().getPluginManager().registerEvents(new McMMOListener(), this);
@@ -323,9 +323,6 @@ public class BlockLog extends JavaPlugin {
 			getServer().getScheduler().cancelTasks(this);
 			
 			log.info("Saving all the queued logs!");
-			while(!getQueueManager().getInteractionQueue().isEmpty()) {
-				getQueueManager().saveQueuedInteraction();
-	    	}
 			while(!getQueueManager().getEditQueue().isEmpty()) {
 				getQueueManager().saveQueuedEdit();
 			}

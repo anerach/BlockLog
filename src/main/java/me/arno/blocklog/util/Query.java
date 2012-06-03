@@ -221,7 +221,7 @@ public class Query {
 		return rs.getInt("count");
 	}
 	
-	public Integer sendUpdate(HashMap<String, String> rowsValues) throws SQLException {
+	public int insert(HashMap<String, Object> rowsValues) throws SQLException {
 		Connection conn = BlockLog.plugin.conn;
 		Statement stmt = conn.createStatement();
 		
@@ -230,8 +230,8 @@ public class Query {
 		
 		boolean first = true;
 		
-		Set<Entry<String, String>> argSet = rowsValues.entrySet();
-		for (Entry<String, String> arg : argSet) {
+		Set<Entry<String, Object>> argSet = rowsValues.entrySet();
+		for (Entry<String, Object> arg : argSet) {
 			rows += (first) ? "`" + arg.getKey() + "`" : ", `" + arg.getKey() + "`";
 			values += (first) ? "'" + arg.getValue() + "'" : ", '" + arg.getValue() + "'";
 			first = false;

@@ -14,12 +14,12 @@ public class SettingsManager extends BlockLogManager {
 	
 	public boolean isLoggingEnabled(World world, LogType... types) {
 		for(LogType type : types) {
-			if(type == LogType.CREEPER || type == LogType.FIREBALL || type == LogType.TNT)
-				type = LogType.EXPLOSION;
+			if(type == LogType.EXPLOSION_CREEPER || type == LogType.EXPLOSION_FIREBALL || type == LogType.EXPLOSION_TNT)
+				type = LogType.EXPLOSION_OTHER;
 			
 			Config config = new Config("worlds" + File.separator + world.getName() + ".yml");
 			
-			if(!config.getConfig().getBoolean(type.name()))
+			if(!config.getConfig().getBoolean(type.toString()))
 				return false;
 		}
 		return true;

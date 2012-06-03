@@ -63,12 +63,12 @@ public class BlockEdit {
 	public boolean rollback(int rb) {
 		try {
 			if(rollback == 0) {
-				if(type == LogType.BREAK || type == LogType.FIRE || type == LogType.EXPLOSION || type == LogType.LEAVES || type == LogType.FADE || type == LogType.CREEPER || type == LogType.FIREBALL || type == LogType.TNT)
+				if(!type.isCreateLog())
 					getWorld().getBlockAt(location).setTypeIdAndData(block, data, false);
 				else
 					getWorld().getBlockAt(location).setType(Material.AIR);
 			} else {
-				if(type == LogType.BREAK || type == LogType.FIRE || type == LogType.EXPLOSION || type == LogType.LEAVES || type == LogType.FADE || type == LogType.CREEPER || type == LogType.FIREBALL || type == LogType.TNT)
+				if(!type.isCreateLog())
 					getWorld().getBlockAt(location).setType(Material.AIR);
 				else
 					getWorld().getBlockAt(location).setTypeIdAndData(block, data, false);

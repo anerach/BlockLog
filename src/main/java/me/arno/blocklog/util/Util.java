@@ -7,7 +7,42 @@ import java.io.Reader;
 
 import me.arno.blocklog.BlockLog;
 
-public class Text {
+public class Util {
+	
+	public static boolean isNumeric(String str) {
+		try {
+			Integer.parseInt(str);
+		} catch(NumberFormatException e) {
+			return false;
+		}
+		return true;
+	}
+	
+	
+	public static String getResourceContent(String file) {
+		try {
+			InputStream resourceFile = BlockLog.plugin.getResource("resources/" + file);
+			 
+			final char[] buffer = new char[0x10000];
+			StringBuilder strBuilder = new StringBuilder();
+			Reader inputReader = new InputStreamReader(resourceFile, "UTF-8");
+			int read;
+			
+			do {
+				read = inputReader.read(buffer, 0, buffer.length);
+				if (read > 0)
+					strBuilder.append(buffer, 0, read);
+				
+			} while (read >= 0);
+			
+			inputReader.close();
+			resourceFile.close();
+			return strBuilder.toString();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 	
 	public static String addSpaces(String message, int totalLength) {
 		double spaces = Math.round((totalLength - wordLength(message)) / charLength(' ')); // Space = 4, Letter = 6
@@ -44,26 +79,4 @@ public class Text {
         	return -1;
     }
 	
-	public static String getResourceContent(String file) {
-		try {
-			InputStream ResourceFile = BlockLog.plugin.getResource("resources/" + file);
-			 
-			final char[] buffer = new char[0x10000];
-			StringBuilder StrBuilder = new StringBuilder();
-			Reader InputReader = new InputStreamReader(ResourceFile, "UTF-8");
-			int read;
-			do {
-				read = InputReader.read(buffer, 0, buffer.length);
-				if (read > 0)
-					StrBuilder.append(buffer, 0, read);
-				
-			} while (read >= 0);
-			InputReader.close();
-			ResourceFile.close();
-			return StrBuilder.toString();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
 }

@@ -18,7 +18,7 @@ import me.arno.blocklog.pail.PailInterface;
 import me.arno.blocklog.schedules.SaveSchedule;
 import me.arno.blocklog.schedules.UpdatesSchedule;
 import me.arno.blocklog.util.Query;
-import me.arno.blocklog.util.Text;
+import me.arno.blocklog.util.Util;
 import me.escapeNT.pail.Pail;
 
 import org.bukkit.ChatColor;
@@ -142,7 +142,7 @@ public class BlockLog extends JavaPlugin {
 	    	Statement stmt = conn.createStatement();
 	    	
 	    	for(String table : DatabaseManager.databaseTables) {
-	    		stmt.executeUpdate(Text.getResourceContent("database/" + DatabaseManager.databasePrefix + table + ".sql"));
+	    		stmt.executeUpdate(Util.getResourceContent("database/" + DatabaseManager.databasePrefix + table + ".sql"));
 	    	}
 		} catch (SQLException e) {
 			e.printStackTrace();

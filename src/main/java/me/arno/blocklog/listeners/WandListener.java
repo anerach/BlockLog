@@ -8,7 +8,7 @@ import java.util.GregorianCalendar;
 import me.arno.blocklog.logs.BlockEntry;
 import me.arno.blocklog.logs.LogType;
 import me.arno.blocklog.util.Query;
-import me.arno.blocklog.util.Text;
+import me.arno.blocklog.util.Util;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -24,7 +24,7 @@ public class WandListener extends BlockLogListener {
 	public void getBlockEdits(Player player, Location location) {
 		try {
 			player.sendMessage(ChatColor.YELLOW + "Block History" + ChatColor.BLUE + " (" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ")" + ChatColor.DARK_GRAY + " ------------------------");
-            player.sendMessage(ChatColor.GRAY + Text.addSpaces("Name", 90) + Text.addSpaces("Action", 75) + "Details");
+            player.sendMessage(ChatColor.GRAY + Util.addSpaces("Name", 90) + Util.addSpaces("Action", 75) + "Details");
             
             int blockNumber = 0;
             int blockCount = 0;
@@ -45,7 +45,7 @@ public class WandListener extends BlockLogListener {
 					String name = Material.getMaterial(LBlock.getBlock()).toString();
 					LogType type = LBlock.getType();
 					
-					player.sendMessage(Text.addSpaces(ChatColor.GOLD + LBlock.getPlayer(), 99) + Text.addSpaces(ChatColor.DARK_RED + type.name(), 80) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + date + "]");
+					player.sendMessage(Util.addSpaces(ChatColor.GOLD + LBlock.getPlayer(), 99) + Util.addSpaces(ChatColor.DARK_RED + type.name(), 80) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + date + "]");
 					blockCount++;
 				}
 				blockNumber++;
@@ -69,7 +69,7 @@ public class WandListener extends BlockLogListener {
 					String name = Material.getMaterial(rs.getInt("block")).toString();
 					LogType type = LogType.values()[rs.getInt("type")];
 					
-					player.sendMessage(Text.addSpaces(ChatColor.GOLD + rs.getString("player"), 99) + Text.addSpaces(ChatColor.DARK_RED + type.toString(), 81) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + rs.getString("date") + "]");
+					player.sendMessage(Util.addSpaces(ChatColor.GOLD + rs.getString("player"), 99) + Util.addSpaces(ChatColor.DARK_RED + type.toString(), 81) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + rs.getString("date") + "]");
 				}
 			}
 		} catch (SQLException e) {

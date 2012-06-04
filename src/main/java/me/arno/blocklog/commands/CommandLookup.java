@@ -5,7 +5,7 @@ import java.sql.SQLException;
 
 import me.arno.blocklog.logs.LogType;
 import me.arno.blocklog.util.Query;
-import me.arno.blocklog.util.Text;
+import me.arno.blocklog.util.Util;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -106,14 +106,14 @@ public class CommandLookup extends BlockLogCommand {
 			
 			ResultSet actions = query.getResult();
 			player.sendMessage(ChatColor.YELLOW + "Player History" + ChatColor.DARK_GRAY + " -------------------------------");
-            player.sendMessage(ChatColor.GRAY + Text.addSpaces("Name", 90) + Text.addSpaces("Action", 75) + "Details");
+            player.sendMessage(ChatColor.GRAY + Util.addSpaces("Name", 90) + Util.addSpaces("Action", 75) + "Details");
             
             while(actions.next()) {
 				String name = Material.getMaterial(actions.getInt("block_id")).toString();
 				LogType type = LogType.values()[actions.getInt("type")];
 				
 				//player.sendMessage(ChatColor.DARK_RED + "[World:" + actions.getString("world") + ", X:" + actions.getString("x") + ", Y:" + actions.getString("y") + ", Z:" + actions.getString("z") + "]");
-				player.sendMessage(Text.addSpaces(ChatColor.GOLD + actions.getString("triggered"), 99) + Text.addSpaces(ChatColor.DARK_RED + type.name(), 81) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + actions.getString("date") + "]");
+				player.sendMessage(Util.addSpaces(ChatColor.GOLD + actions.getString("triggered"), 99) + Util.addSpaces(ChatColor.DARK_RED + type.name(), 81) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + actions.getString("date") + "]");
 			}
 		} catch(SQLException e) {
 			

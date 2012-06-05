@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import me.arno.blocklog.util.Query;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
 public class DataEntry {
@@ -18,6 +19,14 @@ public class DataEntry {
 	
 	private String data;
 	
+	/**
+	 * Creates a new database entry
+	 * 
+	 * @param player The player who triggered the event
+	 * @param type The event type
+	 * @param location The location where the event happened
+	 * @param data Custom data, can by anything from a name to a number
+	 */
 	public DataEntry(String player, LogType type, Location location, String data) {
 		this.player = player;
 		this.world = location.getWorld().getName();
@@ -27,14 +36,6 @@ public class DataEntry {
 		this.date = System.currentTimeMillis()/1000;
 		
 		this.data = data;
-	}
-	
-	public boolean rollback() {
-		return false;
-	}
-	
-	public boolean playerRollback() {
-		return false;
 	}
 	
 	public void save() {
@@ -64,6 +65,10 @@ public class DataEntry {
 	
 	public String getData() {
 		return data;
+	}
+	
+	public Location getLocation() {
+		return new Location(Bukkit.getWorld(getWorld()), getX(), getY(), getZ());
 	}
 	
 	public String getWorld() {

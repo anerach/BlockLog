@@ -5,6 +5,9 @@ import java.util.HashMap;
 
 import me.arno.blocklog.util.Query;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.EntityType;
 
@@ -20,6 +23,21 @@ public class BlockEntry extends DataEntry {
 		this.entity = entity.toString();
 		this.block = block.getType().getId();
 		this.datavalue = block.getRawData();
+	}
+	
+	public void rollback() {
+		World world = Bukkit.getWorld(getWorld());
+		if(rollback == 0) {
+			if(!getType().isCreateLog())
+				world.getBlockAt(getLocation()).setTypeIdAndData(block, getDataValue(), false);
+			else
+				world.getBlockAt(getLocation()).setType(Material.AIR);
+		} else {
+			if(!getType().isCreateLog())
+				world.getBlockAt(getLocation()).setType(Material.AIR);
+			else
+				world.getBlockAt(getLocation()).setTypeIdAndData(block, getDataValue(), false);
+		}
 	}
 
 	@Override

@@ -7,11 +7,27 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
 import me.arno.blocklog.logs.BlockEntry;
+import me.arno.blocklog.logs.DataEntry;
 import me.arno.blocklog.logs.LogType;
 import me.arno.blocklog.logs.BlockEdit;
 
 public class QueueManager extends BlockLogManager {
-	private final ArrayList<BlockEntry> blockEdits = new ArrayList<BlockEntry>();
+	private final ArrayList<BlockEntry> blockEntries = new ArrayList<BlockEntry>();
+	private final ArrayList<DataEntry> dataEntries = new ArrayList<DataEntry>();
+	
+	public void queueData(DataEntry dataEntry) {
+		dataEntries.add(dataEntry);
+	}
+	
+	/**
+	 * Logs a block edit by the environment.
+	 * This can be either a block that has been created or a block that has been destroyed
+	 * 
+	 * @param blockEntry {@link BlockEntry} of the block that got destroyed
+	 */
+	public void queueData(BlockEntry blockEntry) {
+		blockEntries.add(blockEntry);
+	}
 	
 	/**
 	 * Logs a block edit by the environment.
@@ -45,7 +61,7 @@ public class QueueManager extends BlockLogManager {
 	 * @param type {@link LogType} of the log
 	 */
 	public void queueBlockEdit(BlockState block, EntityType entity, LogType type) {
-		queueBlockEdit(null, block, entity, type);
+		queueBlockEdit("environment", block, entity, type);
 	}
 	
 	/**
@@ -58,7 +74,7 @@ public class QueueManager extends BlockLogManager {
 	 * @param type {@link LogType} of the log
 	 */
 	public void queueBlockEdit(String player, BlockState block, EntityType entity, LogType type) {
-		blockEdits.add(new BlockEntry(player, entity, type, block));
+		blockEntries.add(new BlockEntry(player, entity, type, block));
 	}
 	
 	/**
@@ -67,7 +83,7 @@ public class QueueManager extends BlockLogManager {
 	 * @return An {@link ArrayList} containing all the unsaved block edits
 	 */
 	public ArrayList<BlockEntry> getEditQueue() {
-		return blockEdits;
+		return blockEntries;
 	}
 	
 	/**
@@ -76,7 +92,7 @@ public class QueueManager extends BlockLogManager {
 	 * @return An integer value that represents the amount of unsaved block edits
 	 */
 	public int getEditQueueSize() {
-		return blockEdits.size();
+		return blockEntries.size();
 	}
 	
 	/**

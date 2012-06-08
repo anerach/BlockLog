@@ -108,4 +108,8 @@ public class DataEntry {
 	public long getDate() {
 		return date;
 	}
+	
+	public void setDate(long date) {
+		this.date = date;
+	}
 }

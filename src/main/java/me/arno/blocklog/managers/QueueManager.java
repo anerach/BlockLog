@@ -83,6 +83,10 @@ public class QueueManager extends BlockLogManager {
 		blockEntries.add(new BlockEntry(player, entity, type, block));
 	}
 	
+	public ArrayList<BlockEntry> getBlockEntries() {
+		return blockEntries;
+	}
+	
 	/**
 	 * Returns true if the queue is empty
 	 * 
@@ -285,5 +289,16 @@ public class QueueManager extends BlockLogManager {
 				chestEntries.remove(index);
 			}
 		}
+	}
+	
+	public boolean isQueueEmpty() {
+		return isEditQueueEmpty() && isInteractionQueueEmpty() && isDataQueueEmpty() && isChestQueueEmpty();
+	}
+	
+	public void saveQueue() {
+		saveQueuedEdit();
+		saveQueuedInteraction();
+		saveQueuedData();
+		saveQueuedChest();
 	}
 }

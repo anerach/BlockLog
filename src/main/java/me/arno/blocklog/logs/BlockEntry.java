@@ -1,11 +1,14 @@
 package me.arno.blocklog.logs;
 
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
 
+import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.util.Query;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
@@ -19,26 +22,43 @@ public class BlockEntry extends DataEntry {
 	private int rollback = 0;
 	
 	public BlockEntry(String player, EntityType entity, LogType type, BlockState block) {
-		super(player, type, block.getLocation(), null);
-		
-		this.entity = entity.toString().toLowerCase();
-		this.block = block.getType().getId();
-		this.datavalue = block.getRawData();
+		this(player, entity, type, block.getLocation(), block.getType().getId(), block.getRawData());
 	}
 	
-	public void rollback() {
-		World world = Bukkit.getWorld(getWorld());
-		if(rollback == 0) {
-			if(!getType().isCreateLog())
-				world.getBlockAt(getLocation()).setTypeIdAndData(block, getDataValue(), false);
-			else
-				world.getBlockAt(getLocation()).setType(Material.AIR);
-		} else {
-			if(!getType().isCreateLog())
-				world.getBlockAt(getLocation()).setType(Material.AIR);
-			else
-				world.getBlockAt(getLocation()).setTypeIdAndData(block, getDataValue(), false);
+	public BlockEntry(String player, EntityType entity, LogType type, Location location, int block, byte data) {
+		super(player, type, location, null);
+		
+		this.entity = entity.toString().toLowerCase();
+		this.block = block;
+		this.datavalue = data;
+	}
+	
+	public boolean rollback(int rollback) {
+		try {
+			World world = Bukkit.getWorld(getWorld());
+			if(rollback == 0) {
+				if(!getType().isCreateLog())
+					world.getBlockAt(getLocation()).setTypeIdAndData(block, getDataValue(), false);
+				else
+					world.getBlockAt(getLocation()).setType(Material.AIR);
+			} else {
+				if(!getType().isCreateLog())
+					world.getBlockAt(getLocation()).setType(Material.AIR);
+				else
+					world.getBlockAt(getLocation()).setTypeIdAndData(block, getDataValue(), false);
+			}
+			
+			if(id == 0) {
+				this.setRollback(rollback);
+			} else {
+				Statement stmt = BlockLog.plugin.conn.createStatement();
+				stmt.executeUpdate("UPDATE blocklog_blocks SET rollback = 0 WHERE id = " + id);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
 		}
+		return true;
 	}
 
 	@Override

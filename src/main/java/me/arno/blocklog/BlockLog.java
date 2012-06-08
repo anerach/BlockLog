@@ -305,8 +305,8 @@ public class BlockLog extends JavaPlugin {
 			getServer().getScheduler().cancelTasks(this);
 			
 			log.info("Saving all the queued logs!");
-			while(getQueueManager().isEditQueueEmpty()) {
-				getQueueManager().saveQueuedEdit();
+			while(getQueueManager().isQueueEmpty()) {
+				getQueueManager().saveQueue();
 			}
 			log.info("Successfully saved all the queued logs!");
 			

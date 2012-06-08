@@ -46,14 +46,14 @@ public class SaveSchedule implements Runnable {
 			}
 	
 			if(count == 0) {
-				while(!getQueueManager().getEditQueue().isEmpty()) {
-					getQueueManager().saveQueuedEdit();
+				while(getQueueManager().isQueueEmpty()) {
+					getQueueManager().saveQueue();
 				}
 			} else {
 				for(int i = count; i != 0; i--) {
-					if (getQueueManager().getEditQueue().isEmpty())
+					if(getQueueManager().isQueueEmpty())
 						break;
-					getQueueManager().saveQueuedEdit();
+					getQueueManager().saveQueue();
 				}
 			}
 	

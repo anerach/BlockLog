@@ -7,26 +7,32 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
 import me.arno.blocklog.logs.BlockEntry;
+import me.arno.blocklog.logs.ChestEntry;
 import me.arno.blocklog.logs.DataEntry;
+import me.arno.blocklog.logs.InteractionEntry;
 import me.arno.blocklog.logs.LogType;
-import me.arno.blocklog.logs.BlockEdit;
 
 public class QueueManager extends BlockLogManager {
-	private final ArrayList<BlockEntry> blockEntries = new ArrayList<BlockEntry>();
 	private final ArrayList<DataEntry> dataEntries = new ArrayList<DataEntry>();
+	private final ArrayList<BlockEntry> blockEntries = new ArrayList<BlockEntry>();
+	private final ArrayList<InteractionEntry> interactionEntries = new ArrayList<InteractionEntry>();
+	private final ArrayList<ChestEntry> chestEntries = new ArrayList<ChestEntry>();
 	
 	public void queueData(DataEntry dataEntry) {
 		dataEntries.add(dataEntry);
 	}
 	
+	public void queueInteraction(InteractionEntry interactionEntry) {
+		interactionEntries.add(interactionEntry);
+	}
+	
 	/**
-	 * Logs a block edit by the environment.
-	 * This can be either a block that has been created or a block that has been destroyed
+	 * Logs a chest interaction by a player
 	 * 
-	 * @param blockEntry {@link BlockEntry} of the block that got destroyed
+	 * @param chestEntry {@link ChestEntry} of the chest that got opened
 	 */
-	public void queueData(BlockEntry blockEntry) {
-		blockEntries.add(blockEntry);
+	public void queueData(ChestEntry chestEntry) {
+		chestEntries.add(chestEntry);
 	}
 	
 	/**
@@ -78,40 +84,119 @@ public class QueueManager extends BlockLogManager {
 	}
 	
 	/**
-	 * Gets a list of unsaved block edits
+	 * Returns true if the queue is empty
 	 * 
-	 * @return An {@link ArrayList} containing all the unsaved block edits
+	 * @return true if the queue is empty
 	 */
-	public ArrayList<BlockEntry> getEditQueue() {
-		return blockEntries;
+	public boolean isEditQueueEmpty() {
+		return blockEntries.isEmpty();
 	}
 	
 	/**
-	 * Gets the amount of unsaved block edits
+	 * Returns true if the queue is empty
 	 * 
-	 * @return An integer value that represents the amount of unsaved block edits
+	 * @return true if the queue is empty
+	 */
+	public boolean isInteractionQueueEmpty() {
+		return interactionEntries.isEmpty();
+	}
+	
+	/**
+	 * Returns true if the queue is empty
+	 * 
+	 * @return true if the queue is empty
+	 */
+	public boolean isDataQueueEmpty() {
+		return dataEntries.isEmpty();
+	}
+	
+	/**
+	 * Returns true if the queue is empty
+	 * 
+	 * @return true if the queue is empty
+	 */
+	public boolean isChestQueueEmpty() {
+		return chestEntries.isEmpty();
+	}
+	
+	/**
+	 * Returns the amount of queued block edits
+	 * 
+	 * @return the amount of queued block edits
 	 */
 	public int getEditQueueSize() {
 		return blockEntries.size();
 	}
 	
 	/**
-	 * Gets a queued block edit
+	 * Returns the amount of queued block interactions
 	 * 
-	 * @param index The index of the queued block edit
-	 * @return A {@link BlockEdit} object that represents the queued block edit
+	 * @return the amount of queued block interactions
 	 */
-	public BlockEntry getQueuedBlockEdit(int index) throws IndexOutOfBoundsException {
-		return getEditQueue().get(index);
+	public int getInteractionQueueSize() {
+		return interactionEntries.size();
 	}
 	
 	/**
-	 * Gets the oldest queued block edit
+	 * Returns the amount of queued data entry
 	 * 
-	 * @return A {@link BlockEdit} object that represents the queued block edit
+	 * @return the amount of queued data entry
 	 */
-	public BlockEntry getOldestQueuedBlockEdit() {
-		return getEditQueue().get(0);
+	public int getDataQueueSize() {
+		return dataEntries.size();
+	}
+	
+	/**
+	 * Returns the amount of queued chest interactions
+	 * 
+	 * @return the amount of queued chest interactions
+	 */
+	public int getChestQueueSize() {
+		return chestEntries.size();
+	}
+	
+	/**
+	 * Returns a queued block edit
+	 * 
+	 * @param index The index of the queued block edit
+	 * @return {@link BlockEntry} object that represents the queued block edit
+	 */
+	public BlockEntry getQueuedEdit(int index) throws IndexOutOfBoundsException {
+		return blockEntries.get(index);
+	}
+
+	/**
+	 * Returns a queued interaction
+	 * 
+	 * @param index The index of the queued interaction
+	 * @return {@link InteractionEntry} object that represents the queued interaction
+	 */
+	public InteractionEntry getQueuedInteraction(int index) throws IndexOutOfBoundsException {
+		return interactionEntries.get(index);
+	}
+	
+
+
+	/**
+	 * Returns a queued data entry
+	 * 
+	 * @param index The index of the queued data entry
+	 * @return {@link InteractionEntry} object that represents the queued data entry
+	 */
+	public DataEntry getQueuedData(int index) throws IndexOutOfBoundsException {
+		return dataEntries.get(index);
+	}
+	
+
+
+	/**
+	 * Returns a queued chest interaction
+	 * 
+	 * @param index The index of the queued chest interaction
+	 * @return {@link InteractionEntry} object that represents the queued chest interaction
+	 */
+	public ChestEntry getQueuedChest(int index) throws IndexOutOfBoundsException {
+		return chestEntries.get(index);
 	}
 	
 	/**
@@ -122,16 +207,82 @@ public class QueueManager extends BlockLogManager {
 	}
 	
 	/**
+	 * Saves the oldest queued interaction
+	 */
+	public void saveQueuedInteraction() {
+		saveQueuedInteraction(0);
+	}
+	
+	/**
+	 * Saves the oldest queued data entry
+	 */
+	public void saveQueuedData() {
+		saveQueuedData(0);
+	}
+	
+	/**
+	 * Saves the oldest queued chest interaction
+	 */
+	public void saveQueuedChest() {
+		saveQueuedChest(0);
+	}
+	
+	/**
 	 * Saves a queued block edit
 	 * 
 	 * @param index The index of the queued block interaction
 	 */
 	public void saveQueuedEdit(int index) {
 		if(getEditQueueSize() > index) {
-			BlockEntry blockEdit = getEditQueue().get(index);
-			if(blockEdit != null) {
-				blockEdit.save();
-				getEditQueue().remove(index);
+			BlockEntry edit = getQueuedEdit(index);
+			if(edit != null) {
+				edit.save();
+				blockEntries.remove(index);
+			}
+		}
+	}
+	
+	/**
+	 * Saves a queued block edit
+	 * 
+	 * @param index The index of the queued block interaction
+	 */
+	public void saveQueuedInteraction(int index) {
+		if(getInteractionQueueSize() > index) {
+			InteractionEntry interaction = getQueuedInteraction(index);
+			if(interaction != null) {
+				interaction.save();
+				interactionEntries.remove(index);
+			}
+		}
+	}
+	
+	/**
+	 * Saves a queued data entry
+	 * 
+	 * @param index The index of the queued data entry
+	 */
+	public void saveQueuedData(int index) {
+		if(getDataQueueSize() > index) {
+			DataEntry data = getQueuedData(index);
+			if(data != null) {
+				data.save();
+				dataEntries.remove(index);
+			}
+		}
+	}
+	
+	/**
+	 * Saves a queued chest interaction
+	 * 
+	 * @param index The index of the queued chest interaction
+	 */
+	public void saveQueuedChest(int index) {
+		if(getChestQueueSize() > index) {
+			ChestEntry chest = getQueuedChest(index);
+			if(chest != null) {
+				chest.save();
+				chestEntries.remove(index);
 			}
 		}
 	}

@@ -15,6 +15,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.InventoryHolder;
 
 public class PlayerListener extends BlockLogListener {
 	
@@ -73,6 +74,9 @@ public class PlayerListener extends BlockLogListener {
 		
 		Player player = event.getPlayer();
 		Block block = event.getClickedBlock();
+		
+		if(block instanceof InventoryHolder)
+			return;
 		
 		getQueueManager().queueData(new InteractionEntry(player.getName(), block.getLocation(), block.getType().getId()));
 	}

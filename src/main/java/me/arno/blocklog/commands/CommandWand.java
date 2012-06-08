@@ -106,7 +106,7 @@ public class CommandWand extends BlockLogCommand {
 			int maxResults = getSettingsManager().getMaxResults();
 			
 			while(blockSize > blockNumber) {
-				BlockEntry LBlock = getQueueManager().getEditQueue().get(blockNumber); 
+				BlockEntry LBlock = getQueueManager().getQueuedEdit(blockNumber); 
 				if(LBlock.getX() == location.getX() && LBlock.getY() == location.getY() && LBlock.getZ() == location.getZ() && LBlock.getWorld().equalsIgnoreCase(location.getWorld().getName())) {
 					if(blockCount == maxResults)
 						break;

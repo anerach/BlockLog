@@ -12,6 +12,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.entity.EntityType;
 
 public class BlockEntry extends DataEntry {
+	private int id = 0;
 	private String entity;
 	private int block;
 	private byte datavalue;
@@ -20,7 +21,7 @@ public class BlockEntry extends DataEntry {
 	public BlockEntry(String player, EntityType entity, LogType type, BlockState block) {
 		super(player, type, block.getLocation(), null);
 		
-		this.entity = entity.toString();
+		this.entity = entity.toString().toLowerCase();
 		this.block = block.getType().getId();
 		this.datavalue = block.getRawData();
 	}
@@ -53,15 +54,23 @@ public class BlockEntry extends DataEntry {
 			values.put("type", getTypeId());
 			values.put("rollback", getRollback());
 			values.put("world", getWorld());
-			values.put("x", getZ());
+			values.put("x", getX());
 			values.put("y", getY());
-			values.put("z", getX());
+			values.put("z", getZ());
 			values.put("date", getDate());
 			
 			query.insert(values);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 	
 	public String getEntity() {

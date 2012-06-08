@@ -150,31 +150,13 @@ public class BlockLog extends JavaPlugin {
 	}
 	
 	private void updateDatabase() {
-		try {
-			Config versions = new Config("VERSIONS");
-			versions.getConfig().addDefault("database", 3);
-			versions.getConfig().options().copyDefaults(true);
-			versions.saveConfig();
-
-			Statement stmt = conn.createStatement();
-			if(versions.getConfig().getInt("database") == 10) {
-				stmt.executeUpdate("ALTER TABLE `blocklog_chat` CHANGE `message` `message` TEXT NOT NULL");
-				stmt.executeUpdate("ALTER TABLE `blocklog_blocks` CHANGE `trigered` `triggered` varchar(75) NOT NULL");
-				versions.getConfig().set("database", 1);
-			}
-			if(versions.getConfig().getInt("database") == 1) {
-				stmt.executeUpdate("UPDATE `blocklog_blocks` SET `entity`='player' WHERE `triggered`!='environment' AND `entity`!='creeper'");
-				stmt.executeUpdate("UPDATE `blocklog_blocks` SET `entity`='unkown' WHERE `triggered`='environment' AND `entity`!='creeper' AND `entity`!='fireball' AND `entity`!='primed_tnt'");
-				versions.getConfig().set("database", 2);
-			}
-			if(versions.getConfig().getInt("database") == 2) {
-				stmt.executeUpdate("ALTER TABLE `blocklog_commands` CHANGE `command` `command` varchar(255) NOT NULL");
-				versions.getConfig().set("database", 3);
-			}
-			versions.saveConfig();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		Config versions = new Config("VERSIONS");
+		versions.getConfig().addDefault("database", 1);
+		versions.getConfig().options().copyDefaults(true);
+		
+		// Functions here
+		
+		versions.saveConfig();
 	}
 	
 	public void loadMetrics() {
@@ -202,6 +184,7 @@ public class BlockLog extends JavaPlugin {
 			    	return 0;
 			    }
 		    });
+		    /*
 		    graph.addPlotter(new Metrics.Plotter("Chat Messages") {
 			    @Override
 			    public int getValue() {
@@ -238,7 +221,7 @@ public class BlockLog extends JavaPlugin {
 			    	return 0;
 			    }
 		    });
-		    
+		    */
 		    metrics.start();
 		} catch (IOException e) {
 			log.warning("Unable to submit the statistics");
@@ -295,11 +278,10 @@ public class BlockLog extends JavaPlugin {
 		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new SaveSchedule(1, null, false), 100L, getSettingsManager().getBlockSaveDelay() * 20L);
     	
     	getServer().getPluginManager().registerEvents(new WandListener(), this);
-    	/*getServer().getPluginManager().registerEvents(new BlockListener(), this);
-    	getServer().getPluginManager().registerEvents(new InteractionListener(), this);
+    	getServer().getPluginManager().registerEvents(new BlockListener(), this);
     	getServer().getPluginManager().registerEvents(new PlayerListener(), this);
     	getServer().getPluginManager().registerEvents(new EntityListener(), this);
-    	getServer().getPluginManager().registerEvents(new WorldListener(), this);*/
+    	getServer().getPluginManager().registerEvents(new WorldListener(), this);
     	
     	if(getDependencyManager().isDependencyEnabled("mcMMO"))
     		getServer().getPluginManager().registerEvents(new McMMOListener(), this);
@@ -323,7 +305,7 @@ public class BlockLog extends JavaPlugin {
 			getServer().getScheduler().cancelTasks(this);
 			
 			log.info("Saving all the queued logs!");
-			while(!getQueueManager().getEditQueue().isEmpty()) {
+			while(getQueueManager().isEditQueueEmpty()) {
 				getQueueManager().saveQueuedEdit();
 			}
 			log.info("Successfully saved all the queued logs!");

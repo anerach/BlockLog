@@ -19,7 +19,7 @@ public class SettingsManager extends BlockLogManager {
 			
 			Config config = new Config("worlds" + File.separator + world.getName() + ".yml");
 			
-			if(!config.getConfig().getBoolean(type.toString()))
+			if(!config.getConfig().getBoolean(type.name()))
 				return false;
 		}
 		return true;

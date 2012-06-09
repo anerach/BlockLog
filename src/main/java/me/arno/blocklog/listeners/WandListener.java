@@ -2,9 +2,11 @@ package me.arno.blocklog.listeners;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.logs.BlockEntry;
 import me.arno.blocklog.logs.LogType;
 import me.arno.blocklog.util.Query;
@@ -45,7 +47,7 @@ public class WandListener extends BlockLogListener {
 					String name = Material.getMaterial(LBlock.getBlock()).toString();
 					LogType type = LBlock.getType();
 					
-					player.sendMessage(Util.addSpaces(ChatColor.GOLD + LBlock.getPlayer(), 99) + Util.addSpaces(ChatColor.DARK_RED + type.name(), 80) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + date + "]");
+					player.sendMessage(Util.addSpaces(ChatColor.GOLD + LBlock.getPlayer(), 99) + Util.addSpaces(ChatColor.DARK_RED + type.toString(), 80) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + date + "]");
 					blockCount++;
 				}
 				blockNumber++;
@@ -53,20 +55,31 @@ public class WandListener extends BlockLogListener {
 			
 			
 			if(blockCount < maxResults) {
-				Query query = new Query("blocklog_blocks");
-				query.select("entity", "player", "block", "type");
-				query.selectDate("date");
-				query.where("x", location.getBlockX());
-				query.where("y", location.getBlockY());
-				query.where("z", location.getBlockZ());
-				query.where("world", location.getWorld().getName());
+				Query query = new Query();
+				Query blockQuery = new Query("blocklog_blocks");
+				Query chestQuery = new Query("blocklog_chests");
+				Query interactionQuery = new Query("blocklog_interactions");
+				
+				blockQuery.select("player", "entity", "block", "data", "0 AS amount", "type").selectDate("date");
+				chestQuery.select("player", "'player'", "item", "data", "amount", "type").selectDate("date");;
+				interactionQuery.select("player", "'player'", "block", "0", "0", "19").selectDate("date");;
+				
+				blockQuery.where("x", location.getBlockX()).where("y", location.getBlockY()).where("z", location.getBlockZ());
+				chestQuery.where("x", location.getBlockX()).where("y", location.getBlockY()).where("z", location.getBlockZ());
+				interactionQuery.where("x", location.getBlockX()).where("y", location.getBlockY()).where("z", location.getBlockZ());
+				
+				blockQuery.where("world", location.getWorld().getName());
+				chestQuery.where("world", location.getWorld().getName());
+				interactionQuery.where("world", location.getWorld().getName());
+				
 				query.orderBy("date", "DESC");
 				query.limit(maxResults - blockCount);
 				
-				ResultSet rs = query.getResult();
+				Statement stmt = BlockLog.plugin.conn.createStatement();
+				ResultSet rs = stmt.executeQuery(query.unionClause(blockQuery, chestQuery, interactionQuery));
 				
 				while(rs.next()) {
-					String name = Material.getMaterial(rs.getInt("block")).toString();
+					String name = Material.getMaterial(rs.getInt("block")).toString() + (rs.getInt("amount") == 0 ? "" : " (" + rs.getInt("amount") + ")");
 					LogType type = LogType.values()[rs.getInt("type")];
 					
 					player.sendMessage(Util.addSpaces(ChatColor.GOLD + rs.getString("player"), 99) + Util.addSpaces(ChatColor.DARK_RED + type.toString(), 81) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + rs.getString("date") + "]");
@@ -83,6 +96,7 @@ public class WandListener extends BlockLogListener {
 		if(plugin.users.contains(player.getName()) && player.getItemInHand().getType() == getSettingsManager().getWand()) {
 			if(event.getAction() == Action.LEFT_CLICK_BLOCK) {
 				getBlockEdits(player, event.getClickedBlock().getLocation());
+				event.setCancelled(true);
 			}
 		}
 	}
@@ -95,6 +109,7 @@ public class WandListener extends BlockLogListener {
 		
 		if(plugin.users.contains(player.getName()) && player.getItemInHand().getType() == getSettingsManager().getWand()) {
 			getBlockEdits(player, event.getBlock().getLocation());
+			event.setCancelled(true);
 		}
 	}
 }

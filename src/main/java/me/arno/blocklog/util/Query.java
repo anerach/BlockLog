@@ -150,6 +150,24 @@ public class Query {
 		return this;
 	}
 	
+	public String unionClause(Query... queries) throws SQLException {
+		String str = "";
+		for(Query query : queries) {
+			if(str.equals(""))
+				str += "(" + query.getQuery() + ")";
+			else
+				str += " UNION (" + query.getQuery() + ") ";
+		}
+		if(whereClause != null)
+			str += " " + whereClause;
+		if(orderByClause != null)
+			str += " " + orderByClause;
+		if(limitClause != null)
+			str += " " + limitClause;
+		
+		return str;
+	}
+	
 	public String getQuery() throws SQLException {
 		String query = "";
 		

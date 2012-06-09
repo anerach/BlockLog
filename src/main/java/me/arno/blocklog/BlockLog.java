@@ -14,12 +14,10 @@ import me.arno.blocklog.commands.*;
 import me.arno.blocklog.listeners.*;
 import me.arno.blocklog.logs.LogType;
 import me.arno.blocklog.managers.*;
-import me.arno.blocklog.pail.PailInterface;
 import me.arno.blocklog.schedules.SaveSchedule;
 import me.arno.blocklog.schedules.UpdatesSchedule;
 import me.arno.blocklog.util.Query;
 import me.arno.blocklog.util.Util;
-import me.escapeNT.pail.Pail;
 
 import org.bukkit.ChatColor;
 import org.bukkit.World;
@@ -259,12 +257,6 @@ public class BlockLog extends JavaPlugin {
 	    log.info("Loading the database");
 	    loadDatabase();
 	    updateDatabase();
-	    
-	    if(getDependencyManager().isDependencyEnabled("Pail")) {
-	    	log.info("Hooking into pail");
-	    	Pail pail = (Pail) getDependencyManager().getDependency("Pail");
-			pail.loadInterfaceComponent("BlockLog", new PailInterface());
-	    }
 	    
 	    log.info("Purging the database");
 	    purgeDatabase();

@@ -27,12 +27,5 @@
 		<scope>system</scope>
 		<systemPath>${project.basedir}/lib/mcMMO.jar</systemPath>
 	</dependency>
-	<dependency>
-		<groupId>me.escapeNT.pail</groupId>
-   		<artifactId>Pail</artifactId>
-		<version>0.8</version>
-		<scope>system</scope>
-		<systemPath>${project.basedir}/lib/Pail.jar</systemPath>
-	</dependency>
   </dependencies>
 </project>

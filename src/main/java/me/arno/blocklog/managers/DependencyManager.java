@@ -9,7 +9,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 
 public class DependencyManager extends BlockLogManager {
-	public static final String[] optionalDependencies = {"GriefPrevention", "WorldGuard", "mcMMO", "Pail"};
+	public static final String[] optionalDependencies = {"mcMMO"};
 	private final HashMap<String, Plugin> availableDependencies = new HashMap<String, Plugin>();
 	
 	public DependencyManager() {

@@ -1,15 +1,13 @@
 package me.arno.blocklog.commands;
 
 import org.bukkit.ChatColor;
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import me.arno.blocklog.util.Query;
+import me.arno.blocklog.Rollback;
 
 public class CommandSimulateRollback extends BlockLogCommand {
-
 	public CommandSimulateRollback() {
 		super("blocklog.rollback");
 		setCommandUsage("/bl simrollback [delay <value>] [limit <amount>] [player <value>] [since <value>] [until <value>] [area <value>]");
@@ -69,45 +67,9 @@ public class CommandSimulateRollback extends BlockLogCommand {
 				return true;
 			}
 			
-			World world = player.getWorld();
+			Rollback rollback = new Rollback(player, target, entity, sinceTime, untilTime, area, delay, limit, 0);
 			
-			Query query = new Query("blocklog_blocks");
-			query.select("*");
-			if(target != null) {
-				query.where("triggered", target);
-			}
-			if(entity != null) {
-				if(entity.equalsIgnoreCase("tnt"))
-					entity = "primed_tnt";
-				query.where("entity", entity);
-			}
-			if(sinceTime != 0)
-				query.where("date", sinceTime.toString(), ">");
-			if(untilTime != 0)
-				query.where("date", untilTime.toString(), "<");
-			if(area != 0) {
-				Integer xMin = player.getLocation().getBlockX() - area;
-				Integer xMax = player.getLocation().getBlockX() + area;
-				Integer yMin = player.getLocation().getBlockY() - area;
-				Integer yMax = player.getLocation().getBlockY() + area;
-				Integer zMin = player.getLocation().getBlockZ() - area;
-				Integer zMax = player.getLocation().getBlockZ() + area;
-				
-				query.where("x", xMin.toString(), ">=");
-				query.where("x", xMax.toString(), "<=");
-				
-				query.where("y", yMin.toString(), ">=");
-				query.where("y", yMax.toString(), "<=");
-				
-				query.where("z", zMin.toString(), ">=");
-				query.where("z", zMax.toString(), "<=");
-			}
-			query.where("world", world.getName());
-			query.where("rollback_id", 0);
-			query.groupBy("x", "y", "z");
-			query.orderBy("date", "DESC");
-			
-			int blockCount = query.getRowCount();
+			int blockCount = rollback.getAffectedBlockCount();
 			
 			player.sendMessage(ChatColor.BLUE + "This rollback will affect " + ChatColor.GOLD + blockCount + " blocks");
 			player.sendMessage(ChatColor.BLUE + "At a speed of " + ChatColor.GOLD + Math.round(limit/delay) + " blocks/second");

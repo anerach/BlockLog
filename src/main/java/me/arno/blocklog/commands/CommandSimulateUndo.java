@@ -3,7 +3,7 @@ package me.arno.blocklog.commands;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
-import me.arno.blocklog.util.Query;
+import me.arno.blocklog.Undo;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -54,15 +54,13 @@ public class CommandSimulateUndo extends BlockLogCommand {
 				rollbackID = rs.getInt("id");
 			}
 			
-			Query query = new Query("blocklog_blocks");
-			query.where("rollback_id", rollbackID);
-			
 			if(rollbackID == 0) {
 				player.sendMessage(ChatColor.WHITE + "Rollback ID can't be 0");
 				return true;
 			}
 			
-			int blockCount = query.getRowCount();
+			Undo undo = new Undo(player, delay, limit, rollbackID);
+			int blockCount = undo.getAffectedBlockCount();
 			
 			player.sendMessage(ChatColor.BLUE + "This undo will affect " + ChatColor.GOLD + blockCount + " blocks");
 			player.sendMessage(ChatColor.BLUE + "At a speed of about " + ChatColor.GOLD + Math.round(limit/delay) + " blocks/second");

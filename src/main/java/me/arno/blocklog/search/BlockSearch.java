@@ -115,7 +115,7 @@ public class BlockSearch {
 				int block = rs.getInt("block");
 				byte data = rs.getByte("data");
 				int type = rs.getInt("type");
-				int rollback = rs.getInt("rollback_id");
+				int rollback = rs.getInt("rollback");
 				long date = rs.getLong("date");
 				
 				Location loc = new Location(Bukkit.getWorld(rs.getString("world")), rs.getInt("x"), rs.getInt("y"), rs.getInt("z"));

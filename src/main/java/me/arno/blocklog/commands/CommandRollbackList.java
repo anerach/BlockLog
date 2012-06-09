@@ -7,7 +7,6 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import me.arno.blocklog.util.Debug;
 import me.arno.blocklog.util.Query;
 
 public class CommandRollbackList extends BlockLogCommand {
@@ -84,8 +83,6 @@ public class CommandRollbackList extends BlockLogCommand {
 			
 			query.orderBy("blocklog_rollbacks.date", "DESC");
 			query.limit(getSettingsManager().getMaxResults());
-			
-			Debug.SQL(query.getQuery());
 			
 			ResultSet rollbacks = query.getResult();
 			

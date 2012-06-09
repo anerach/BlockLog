@@ -110,12 +110,10 @@ public class BlockLog extends JavaPlugin {
 	    getConfig().addDefault("purge.blocks.days", 14);
 	    getConfig().addDefault("purge.interactions.enabled", false);
 	    getConfig().addDefault("purge.interactions.days", 14);
-	    getConfig().addDefault("purge.chat.enabled", false);
-	    getConfig().addDefault("purge.chat.days", 14);
-	    getConfig().addDefault("purge.deaths.enabled", false);
-	    getConfig().addDefault("purge.deaths.days", 14);
-	    getConfig().addDefault("purge.kills.enabled", false);
-	    getConfig().addDefault("purge.kills.days", 14);
+	    getConfig().addDefault("purge.chests.enabled", false);
+	    getConfig().addDefault("purge.chests.days", 14);
+	    getConfig().addDefault("purge.data.enabled", false);
+	    getConfig().addDefault("purge.data.days", 14);
 	    getConfig().options().copyDefaults(true);
 	    saveConfig();
 		

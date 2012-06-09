@@ -46,27 +46,16 @@ public class CommandPurge extends BlockLogCommand {
 			if(args[i].equalsIgnoreCase("all")) {
 				tables.add("blocks");
 				tables.add("interactions");
-				tables.add("chat");
-				tables.add("deaths");
-				tables.add("kills");
-				tables.add("commands");
-			} else if(args[i].equalsIgnoreCase("player")) {
-				tables.add("chat");
-				tables.add("deaths");
-				tables.add("kills");
-				tables.add("commands");
+				tables.add("chests");
+				tables.add("data");
+			} else if(args[i].equalsIgnoreCase("data")) {
+				tables.add("data");
 			} else if(args[i].equalsIgnoreCase("blocks")) {
 				tables.add("blocks");
 			} else if(args[i].equalsIgnoreCase("interactions")) {
 				tables.add("interactions");
-			} else if(args[i].equalsIgnoreCase("chat")) {
-				tables.add("chat");
-			} else if(args[i].equalsIgnoreCase("deaths")) {
-				tables.add("deaths");
-			} else if(args[i].equalsIgnoreCase("kills")) {
-				tables.add("kills");
-			} else if(args[i].equalsIgnoreCase("commands")) {
-				tables.add("commands");
+			} else if(args[i].equalsIgnoreCase("chests")) {
+				tables.add("chests");
 			}
 		}
 		

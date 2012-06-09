@@ -36,7 +36,7 @@ public class BlockEntry extends DataEntry {
 	public boolean rollback(int rollback) {
 		try {
 			World world = Bukkit.getWorld(getWorld());
-			if(rollback == 0) {
+			if(this.rollback == 0) {
 				if(!getType().isCreateLog())
 					world.getBlockAt(getLocation()).setTypeIdAndData(block, getDataValue(), false);
 				else
@@ -52,13 +52,13 @@ public class BlockEntry extends DataEntry {
 				this.setRollback(rollback);
 			} else {
 				Statement stmt = BlockLog.plugin.conn.createStatement();
-				stmt.executeUpdate("UPDATE blocklog_blocks SET rollback = 0 WHERE id = " + id);
+				stmt.executeUpdate("UPDATE blocklog_blocks SET rollback = " + rollback + " WHERE id = " + id);
 			}
+			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return false;
 		}
-		return true;
+		return false;
 	}
 
 	@Override

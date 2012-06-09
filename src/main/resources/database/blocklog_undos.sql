@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `blocklog_undo` (
+CREATE TABLE IF NOT EXISTS `blocklog_undos` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `rollback` int(11) NOT NULL,
   `player` varchar(255) NOT NULL,

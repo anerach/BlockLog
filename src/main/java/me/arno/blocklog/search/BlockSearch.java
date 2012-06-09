@@ -34,8 +34,10 @@ public class BlockSearch {
 	}
 	
 	public void setEntity(String entity) {
-		if(entity.equalsIgnoreCase("tnt"))
-			entity = "primed_tnt";
+		if(entity != null) {
+			if(entity.equalsIgnoreCase("tnt"))
+				entity = "primed_tnt";
+		}
 		
 		this.entity = entity;
 	}
@@ -69,14 +71,19 @@ public class BlockSearch {
 	public ArrayList<BlockEntry> getResults() {
 		ArrayList<BlockEntry> blockEntries = new ArrayList<BlockEntry>();
 		
-		World world = location.getWorld();
+		World world = null;
+		int xMin = 0; int xMax = 0; int yMin = 0; int yMax = 0; int zMin = 0; int zMax = 0;
 		
-		int xMin = location.getBlockX() - area;
-		int xMax = location.getBlockX() + area;
-		int yMin = location.getBlockY() - area;
-		int yMax = location.getBlockY() + area;
-		int zMin = location.getBlockZ() - area;
-		int zMax = location.getBlockZ() + area;
+		if(location != null) {
+			world = location.getWorld();
+			
+			xMin = location.getBlockX() - area;
+			xMax = location.getBlockX() + area;
+			yMin = location.getBlockY() - area;
+			yMax = location.getBlockY() + area;
+			zMin = location.getBlockZ() - area;
+			zMax = location.getBlockZ() + area;
+		}
 		
 		Query query = new Query("blocklog_blocks");
 		query.select("*");
@@ -88,10 +95,10 @@ public class BlockSearch {
 			query.where("date", since, ">");
 		if(until != 0)
 			query.where("date", until, "<");
-		if(area != 0)
+		if(area != 0 && location != null)
 			query.where("x", xMin, ">=").where("x", xMax, "<=").where("y", yMin, ">=").where("y", yMax, "<=").where("z", zMin, ">=").where("z", zMax, "<=");
 		if(world != null)
-			query.where("world", world);
+			query.where("world", world.getName());
 		if(rollback != 0)
 			query.where("rollback", rollback);
 		
@@ -120,7 +127,7 @@ public class BlockSearch {
 				
 				Location loc = new Location(Bukkit.getWorld(rs.getString("world")), rs.getInt("x"), rs.getInt("y"), rs.getInt("z"));
 
-				EntityType entityType = EntityType.valueOf(entity);
+				EntityType entityType = EntityType.valueOf(entity.toUpperCase());
 				LogType logType = LogType.values()[type];
 				
 				BlockEntry blockEntry = new BlockEntry(player, entityType, logType, loc, block, data);
@@ -141,7 +148,7 @@ public class BlockSearch {
 		if(!edit.getWorld().equalsIgnoreCase(world))
 			return false;
 		
-		if(edit.getRollback() == rollback)
+		if(edit.getRollback() != rollback)
 			return false;
 		
 		if(player != null) {

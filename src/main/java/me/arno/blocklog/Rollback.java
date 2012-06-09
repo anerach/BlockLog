@@ -27,8 +27,13 @@ public class Rollback {
 		search.setLocation(sender.getLocation());
 		search.setDate(since, until);
 		search.setArea(area);
+		search.setRollback(0);
 		
 		blockEntries = search.getResults();
+	}
+	
+	public int getAffectedBlockCount() {
+		return blockEntries.size();
 	}
 	
 	public int getId() {

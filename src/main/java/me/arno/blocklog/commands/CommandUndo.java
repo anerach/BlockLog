@@ -2,10 +2,11 @@ package me.arno.blocklog.commands;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.HashMap;
 
 import me.arno.blocklog.Undo;
 import me.arno.blocklog.schedules.RollbackSchedule;
+import me.arno.blocklog.util.Query;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -44,12 +45,10 @@ public class CommandUndo extends BlockLogCommand {
 				}
 			}
 			
-			Statement undoStmt = conn.createStatement();
-			Statement rollbackStmt = conn.createStatement();
 			if(args.length == 1) {
 				rollbackID = Integer.valueOf(args[0]);
 			} else {
-				ResultSet rs = rollbackStmt.executeQuery("SELECT id FROM blocklog_rollbacks ORDER BY id DESC");
+				ResultSet rs = new Query("blocklog_rollbacks").select("id").orderBy("id", "DESC").getResult();
 				rs.next();
 				rollbackID = rs.getInt("id");
 			}
@@ -59,7 +58,14 @@ public class CommandUndo extends BlockLogCommand {
 				return true;
 			}
 			
-			undoStmt.executeUpdate("INSERT INTO blocklog_undos (rollback_id, player, date) VALUES (" + rollbackID + ", '" + player.getName() + "', " + System.currentTimeMillis()/1000 + ")");
+			Query query = new Query("blocklog_undos");
+			
+			HashMap<String, Object> values = new HashMap<String, Object>();
+			values.put("rollback", rollbackID);
+			values.put("player", player.getName());
+			values.put("date", System.currentTimeMillis()/1000);
+			
+			query.insert(values);
 			
 			Undo undo = new Undo(player, delay, limit, rollbackID);
 			RollbackSchedule undoSchedule = new RollbackSchedule(undo);

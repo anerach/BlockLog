@@ -2,13 +2,15 @@ package me.arno.blocklog.commands;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.HashMap;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.entity.Player;
 
 import me.arno.blocklog.Rollback;
 import me.arno.blocklog.schedules.RollbackSchedule;
+import me.arno.blocklog.util.Query;
 
 public class CommandRollback extends BlockLogCommand {
 	public CommandRollback() {
@@ -34,41 +36,37 @@ public class CommandRollback extends BlockLogCommand {
 		try {
 			String target = null;
 			String entity = null;
-			Integer untilTime = 0;
-			Integer sinceTime = 0;
-			Integer area = 0;
-			Integer limit = 200;
-			Integer delay = 3;
+			int untilTime = 0;
+			int sinceTime = 0;
+			int area = 0;
+			int limit = 200;
+			int delay = 3;
 			
-			String param_target = null;
-			String param_until = null;
-			String param_since = null;
-			String param_area = null;
+			String arg_until = null;
+			String arg_since = null;
+			String arg_delay = null;
 			
 			for(int i=0;i<args.length;i+=2) {
 				String type = args[i];
 				String value = args[i+1];
 				if(type.equalsIgnoreCase("limit")) {
-					param_area = value;
 					limit = Integer.valueOf(value);
 				} else if(type.equalsIgnoreCase("area")) {
-					param_area = value;
 					area = Integer.valueOf(value);
 				} else if(type.equalsIgnoreCase("player")) {
-					param_target = value;
 					target = value;
 				} else if(type.equalsIgnoreCase("entity")) {
-					param_target = value;
 					entity = value;
 				} else if(type.equalsIgnoreCase("since")) {
-					param_since = value;
+					arg_since = value;
 					Character c = value.charAt(value.length() - 1);
 					sinceTime = convertToUnixtime(Integer.valueOf(value.replace(c, ' ').trim()), c.toString());
 				} else if(type.equalsIgnoreCase("until")) {
-					param_until = value;
+					arg_until = value;
 					Character c = value.charAt(value.length() - 1);
 					untilTime = convertToUnixtime(Integer.valueOf(value.replace(c, ' ').trim()), c.toString());
 				} else if(type.equalsIgnoreCase("delay")) {
+					arg_delay = value;
 					Character c = value.charAt(value.length() - 1);
 					delay = Integer.valueOf(value.replace(c, ' ').trim());
 				}
@@ -79,11 +77,26 @@ public class CommandRollback extends BlockLogCommand {
 				return true;
 			}
 			
-			Statement rollbackStmt = conn.createStatement();
+			Query query = new Query("blocklog_rollbacks");
 			
-			rollbackStmt.executeUpdate("INSERT INTO blocklog_rollbacks (player, world, param_player, param_from, param_until, param_area, date) VALUES ('" + player.getName() + "', '" + player.getWorld().getName() + "', '" + param_target + "', '" + param_since + "', '" + param_until + "', " + param_area + ", " + System.currentTimeMillis()/1000 + ")");
+			HashMap<String, Object> values = new HashMap<String, Object>();
+			values.put("player", player.getName());
+			values.put("world", player.getWorld().getName());
+			values.put("arg_player", target);
+			values.put("arg_entity", entity);
+			values.put("arg_since", arg_since);
+			values.put("arg_until", arg_until);
+			values.put("arg_area", area);
+			values.put("arg_delay", arg_delay);
+			values.put("arg_limit", limit);
+			values.put("date", System.currentTimeMillis()/1000);
 			
-			ResultSet rollback = rollbackStmt.executeQuery("SELECT id FROM blocklog_rollbacks ORDER BY id DESC");
+			query.insert(values);
+			
+			query = new Query("blocklog_rollbacks");
+			query.select("id").orderBy("id", "DESC");
+			
+			ResultSet rollback = query.getResult();
 			rollback.next();
 			
 			int rollbackID = rollback.getInt("id");
@@ -94,7 +107,7 @@ public class CommandRollback extends BlockLogCommand {
 			rbSchedule.setId(sid);
 			addSchedule(sid, rollbackID);
 			
-			int blockCount = rbSchedule.getBlockCount();
+			int blockCount = rb.getAffectedBlockCount();
 			
 			player.sendMessage(ChatColor.BLUE + "This rollback will affect " + ChatColor.GOLD + blockCount + " blocks");
 			player.sendMessage(ChatColor.BLUE + "At a speed of " + ChatColor.GOLD + (limit/delay) + " blocks/second");

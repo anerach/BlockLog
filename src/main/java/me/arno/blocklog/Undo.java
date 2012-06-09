@@ -27,6 +27,10 @@ public class Undo {
 		blockEntries = search.getResults();
 	}
 	
+	public int getAffectedBlockCount() {
+		return blockEntries.size();
+	}
+	
 	public int getRollback() {
 		return rollback;
 	}

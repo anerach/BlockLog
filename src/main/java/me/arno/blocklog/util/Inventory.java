@@ -49,18 +49,20 @@ public class Inventory {
 	public static ItemStack[] compressInv(ItemStack[] items) {
 		ArrayList<ItemStack> compressedInv = new ArrayList<ItemStack>();
 		for(ItemStack item: items) {
-			int type = item.getTypeId();
-			byte data = rawData(item);
-			boolean found = false;
-			for(ItemStack compressedItem : compressedInv) {
-				if(compressedItem.getTypeId() == type && rawData(compressedItem) == data) {
-					compressedItem.setAmount(compressedItem.getAmount() + item.getAmount());
-					found = true;
-					break;
+			if (item != null) {
+				int type = item.getTypeId();
+				byte data = rawData(item);
+				boolean found = false;
+				for(ItemStack compressedItem : compressedInv) {
+					if(compressedItem.getTypeId() == type && rawData(compressedItem) == data) {
+						compressedItem.setAmount(compressedItem.getAmount() + item.getAmount());
+						found = true;
+						break;
+					}
 				}
+				if(!found)
+					compressedInv.add(new ItemStack(type, item.getAmount(), (short) 0, data));
 			}
-			if(!found)
-				compressedInv.add(new ItemStack(type, item.getAmount(), (short) 0, data));
 		}
 		
 		Collections.sort(compressedInv, new ItemStackComparator());

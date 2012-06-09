@@ -7,7 +7,6 @@ import me.arno.blocklog.util.Inventory;
 
 import org.bukkit.Location;
 import org.bukkit.block.BlockState;
-import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -27,9 +26,9 @@ public class ChestListener extends BlockLogListener {
 		if(!containers.containsKey(player.getName()))
 			return;
 		
-		ContainerState cont = containers.get(player);
+		ContainerState cont = containers.get(player.getName());
 		
-		BlockState state = cont.loc.getBlock().getState();
+		BlockState state = cont.location.getBlock().getState();
 		
 		if (!(state instanceof InventoryHolder))
 			return;
@@ -82,19 +81,18 @@ public class ChestListener extends BlockLogListener {
 		Player player = event.getPlayer();
 		BlockState block = event.getClickedBlock().getState();
 		
-		if(block instanceof Chest) {
+		if(block instanceof InventoryHolder) {
 			checkInventory(player, block);
 		}
 	}
 	
 	private static class ContainerState {
-		
 		public final ItemStack[] items;
-		public final Location loc;
-		
+		public final Location location;
+
 		private ContainerState(Location loc, ItemStack[] items) {
 			this.items = items;
-			this.loc = loc;
+			this.location = loc;
 		}
 	}
 }

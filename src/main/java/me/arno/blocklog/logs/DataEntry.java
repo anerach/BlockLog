@@ -108,6 +108,10 @@ public class DataEntry {
 	public long getDate() {
 		return date;
 	}
+
+	public void setType(LogType type) {
+		this.type = type;
+	}
 	
 	public void setDate(long date) {
 		this.date = date;

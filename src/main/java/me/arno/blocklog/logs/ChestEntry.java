@@ -1,6 +1,5 @@
 package me.arno.blocklog.logs;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 
@@ -14,30 +13,33 @@ public class ChestEntry extends BlockEntry {
 	private ItemStack[] items;
 	
 	public ChestEntry(String player, BlockState block, ItemStack[] items) {
-		super(player, EntityType.PLAYER, LogType.INVENTORY_INTERACTION, block);
+		super(player, EntityType.PLAYER, LogType.INTERACTION, block);
 		this.items = items;
 	}
 	
-	public void saveChestItems() {
-		Query query;
+	@Override
+	public void save() {
 		try {
-			this.save();
-			query = new Query("blocklog_blocks").where("date", getDate());
-			query.where("x", getX()).where("y", getY()).where("z", getZ());
-			query.select("id");
-			
-			ResultSet rs = query.getResult();
-			rs.next();
-			setId(rs.getInt("id"));
-			
-			query = new Query("blocklog_chests");
+			Query query = new Query("blocklog_chests");
 			HashMap<String, Object> values = new HashMap<String, Object>();
-			values.put("chest", getId());
 			
-			for(ItemStack item : items) {
-				values.put("item", item.getType().getId());
-				values.put("amount", item.getAmount());
-				values.put("data", item.getData().getData());
+			values.put("player", getPlayer());
+			values.put("world", getWorld());
+			values.put("x", getX());
+			values.put("y", getY());
+			values.put("z", getZ());
+			values.put("date", getDate());
+			
+			for(ItemStack itemStack : getItems()) {
+				if(itemStack.getAmount() > 0)
+					setType(LogType.CHEST_PUT);
+				else
+					setType(LogType.CHEST_TAKE);
+				
+				values.put("item", itemStack.getType().getId());
+				values.put("amount", itemStack.getAmount());
+				values.put("data", itemStack.getData().getData());
+				values.put("type", getTypeId());
 				
 				query.insert(values);
 			}

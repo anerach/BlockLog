@@ -21,15 +21,16 @@ public enum LogType {
 	ENDERMAN_PLACE(17, "PLACE", true),
 	ENDERMAN_PICKUP(18, "BREAK", false),
 	INTERACTION(19, "INTERACTION"),
-	INVENTORY_INTERACTION(20, "INTERACTION"),
-	PLAYER_CHAT(21, "CHAT"),
-	PLAYER_COMMAND(22, "COMMAND"),
-	PLAYER_DEATH(23, "DEATH"),
-	PLAYER_TELEPORT(24, "TELEPORT"),
-	PLAYER_LOGIN(25, "LOGIN"),
-	PLAYER_LOGOUT(26, "LOGOUT"),
-	PVP_DEATH(27, "DEATH"),
-	MOB_DEATH(28, "DEATH");
+	CHEST_PUT(20, "PLACE"),
+	CHEST_TAKE(21, "TAKE"),
+	PLAYER_CHAT(22, "CHAT"),
+	PLAYER_COMMAND(23, "COMMAND"),
+	PLAYER_DEATH(24, "DEATH"),
+	PLAYER_TELEPORT(25, "TELEPORT"),
+	PLAYER_LOGIN(26, "LOGIN"),
+	PLAYER_LOGOUT(27, "LOGOUT"),
+	PVP_DEATH(28, "DEATH"),
+	MOB_DEATH(29, "DEATH");
 	
 	int id;
 	String name;
@@ -41,6 +42,7 @@ public enum LogType {
 	
 	LogType(int id, String name, boolean blockCreate) {
 		this.id = id;
+		this.name = name;
 		this.blockCreate = blockCreate;
 	}
 	

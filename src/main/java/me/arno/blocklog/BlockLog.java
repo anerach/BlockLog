@@ -277,10 +277,11 @@ public class BlockLog extends JavaPlugin {
 		log.info("Starting BlockLog");
 		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new SaveSchedule(1, null, false), 100L, getSettingsManager().getBlockSaveDelay() * 20L);
     	
-    	getServer().getPluginManager().registerEvents(new WandListener(), this);
     	getServer().getPluginManager().registerEvents(new BlockListener(), this);
-    	getServer().getPluginManager().registerEvents(new PlayerListener(), this);
+    	getServer().getPluginManager().registerEvents(new ChestListener(), this);
     	getServer().getPluginManager().registerEvents(new EntityListener(), this);
+    	getServer().getPluginManager().registerEvents(new PlayerListener(), this);
+    	getServer().getPluginManager().registerEvents(new WandListener(), this);
     	getServer().getPluginManager().registerEvents(new WorldListener(), this);
     	
     	if(getDependencyManager().isDependencyEnabled("mcMMO"))
@@ -305,7 +306,7 @@ public class BlockLog extends JavaPlugin {
 			getServer().getScheduler().cancelTasks(this);
 			
 			log.info("Saving all the queued logs!");
-			while(getQueueManager().isQueueEmpty()) {
+			while(!getQueueManager().isQueueEmpty()) {
 				getQueueManager().saveQueue();
 			}
 			log.info("Successfully saved all the queued logs!");

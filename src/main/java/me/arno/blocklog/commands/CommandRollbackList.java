@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import me.arno.blocklog.util.Debug;
@@ -16,19 +17,21 @@ public class CommandRollbackList extends BlockLogCommand {
 	}
 
 	@Override
-	public boolean execute(Player player, Command cmd, String[] args) {
+	public boolean execute(CommandSender sender, Command cmd, String[] args) {
 		if(args.length > 8)
 			return false;
 		
 		if(args.length % 2 != 0) {
-			player.sendMessage("Invalid amount of args");
+			sender.sendMessage("Invalid amount of args");
 			return true;
 		}
 		
-		if(!hasPermission(player)) {
-			player.sendMessage("You don't have permission");
+		if(!hasPermission(sender)) {
+			sender.sendMessage("You don't have permission");
 			return true;
 		}
+		
+		Player player = (Player) sender;
 		
 		try {
 			String target = null;

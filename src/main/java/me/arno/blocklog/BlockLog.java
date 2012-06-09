@@ -23,7 +23,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -325,17 +324,12 @@ public class BlockLog extends JavaPlugin {
 	
 	@Override
 	public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args) {
-		Player player = null;
-		
-		if (sender instanceof Player)
-			player = (Player) sender;
-		
 		if(!cmd.getName().equalsIgnoreCase("blocklog"))
 			return false;
 		
 		if(args.length < 1) {
-			player.sendMessage(ChatColor.GOLD + "Say " + ChatColor.BLUE + "/bl help " + ChatColor.GOLD + "for a list of available commands");
-			player.sendMessage(ChatColor.GOLD + "This server is using BlockLog v" + getDescription().getVersion() + " by Anerach");
+			sender.sendMessage(ChatColor.GOLD + "Say " + ChatColor.BLUE + "/bl help " + ChatColor.GOLD + "for a list of available commands");
+			sender.sendMessage(ChatColor.GOLD + "This server is using BlockLog v" + getDescription().getVersion() + " by Anerach");
 			return true;
 		}
 		
@@ -391,6 +385,6 @@ public class BlockLog extends JavaPlugin {
 			command = new CommandWand();
 		
 		cmd.setUsage(command.getCommandUsage());
-		return command.execute(player, cmd, newArgs);
+		return command.execute(sender, cmd, newArgs);
 	}
 }

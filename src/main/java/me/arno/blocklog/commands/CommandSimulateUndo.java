@@ -7,6 +7,7 @@ import me.arno.blocklog.util.Query;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class CommandSimulateUndo extends BlockLogCommand {
@@ -16,14 +17,16 @@ public class CommandSimulateUndo extends BlockLogCommand {
 	}
 
 	@Override
-	public boolean execute(Player player, Command cmd, String[] args) {
+	public boolean execute(CommandSender sender, Command cmd, String[] args) {
 		if(args.length > 5)
 			return false;
 		
-		if(!hasPermission(player)) {
-			player.sendMessage("You don't have permission");
+		if(!hasPermission(sender)) {
+			sender.sendMessage("You don't have permission");
 			return true;
 		}
+		
+		Player player = (Player) sender;
 		
 		int rollbackID = 0;
 		

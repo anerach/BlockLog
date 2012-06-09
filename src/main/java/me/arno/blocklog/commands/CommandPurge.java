@@ -1,28 +1,28 @@
 package me.arno.blocklog.commands;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
 
+import me.arno.blocklog.util.Query;
+
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
 
 public class CommandPurge extends BlockLogCommand {
 	public CommandPurge() {
-		super("blocklog.purge");
+		super("blocklog.purge", true);
 		setCommandUsage("/bl clear <table1> [table2] [...] <time>");
 	}
 	
 	@Override
-	public boolean execute(Player player, Command cmd, String[] args) {
+	public boolean execute(CommandSender sender, Command cmd, String[] args) {
 		if(args.length < 2)
 			return false;
 		
-		if(!hasPermission(player)) {
-			player.sendMessage("You don't have permission");
+		if(!hasPermission(sender)) {
+			sender.sendMessage("You don't have permission");
 			return true;
 		}
 		
@@ -59,18 +59,15 @@ public class CommandPurge extends BlockLogCommand {
 			}
 		}
 		
-		
-		
 		try {
-			Statement stmt = conn.createStatement();
-			
+			Query query;
 			for(String table : tables) {
-				ResultSet rs = stmt.executeQuery("SELECT COUNT(id) AS count FROM blocklog_" + table + " WHERE date < " + (currentTime - time));
-				rs.next();
-				Integer count = rs.getInt("count");
-				if(count != 0) {
-					stmt.executeUpdate("DELETE FROM blocklog_" + table + " WHERE date < " + (currentTime - time));
-					player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Removed " + ChatColor.GREEN + count + ChatColor.GOLD + " results from blocklog_" + table);
+				query = new Query("blocklog_" + table);
+				query.where("date", currentTime - time, "<");
+				int count = query.deleteRows();
+				
+				if(count > 0) {
+					sender.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Removed " + ChatColor.GREEN + count + ChatColor.GOLD + " results from blocklog_" + table);
 				}
 			}
 	    } catch (SQLException e) {

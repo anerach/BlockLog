@@ -1,7 +1,7 @@
 package me.arno.blocklog.commands;
 
 import org.bukkit.command.Command;
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
 
 public class CommandSave extends BlockLogCommand {
 	public CommandSave() {
@@ -10,22 +10,22 @@ public class CommandSave extends BlockLogCommand {
 	}
 
 	@Override
-	public boolean execute(Player player, Command cmd, String[] args) {
+	public boolean execute(CommandSender sender, Command cmd, String[] args) {
 		if(args.length > 1)
 			return false;
 		
-		if(!hasPermission(player)) {
-			player.sendMessage("You don't have permission");
+		if(!hasPermission(sender)) {
+			sender.sendMessage("You don't have permission");
 			return true;
 		}
 		
 		if(args.length == 0) {
-			plugin.saveLogs(100, player);
+			plugin.saveLogs(100, sender);
 		} else if(args.length == 1) {
 			if(args[0].equalsIgnoreCase("all")) {
-				plugin.saveLogs(0, player);
+				plugin.saveLogs(0, sender);
 			} else {
-				plugin.saveLogs(Integer.valueOf(args[0]), player);
+				plugin.saveLogs(Integer.valueOf(args[0]), sender);
 			}
 		}
 		return true;

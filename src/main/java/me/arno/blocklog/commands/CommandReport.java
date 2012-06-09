@@ -1,10 +1,10 @@
 package me.arno.blocklog.commands;
 
-import java.sql.SQLException;
-import java.sql.Statement;
+import me.arno.blocklog.logs.ReportEntry;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class CommandReport extends BlockLogCommand {
@@ -14,33 +14,30 @@ public class CommandReport extends BlockLogCommand {
 	}
 
 	@Override
-	public boolean execute(Player player, Command cmd, String[] args) {
+	public boolean execute(CommandSender sender, Command cmd, String[] args) {
 		if(args.length < 1)
 			return false;
 		
-		if(!plugin.getConfig().getBoolean("blocklog.reports")) {
-			player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "The report system is disabled");
+		if(!getSettingsManager().isReportsEnabled()) {
+			sender.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "The report system is disabled");
 			return true;
 		}
 		
-		if(!hasPermission(player)) {
-			player.sendMessage("You don't have permission");
+		if(!hasPermission(sender)) {
+			sender.sendMessage("You don't have permission");
 			return true;
 		}
 		
-		String msg = "";
+		Player player = (Player) sender;
+		
+		String message = "";
 		
 		for(int i = 0; i < args.length;i++)
-			msg += ((i == 0) ? "" : " ") + args[i];
+			message += ((i == 0) ? "" : " ") + args[i];
 		
-		try {
-			Statement stmt = conn.createStatement();
-			stmt.executeUpdate("INSERT INTO blocklog_reports (player, message, date, seen) VALUES ('" + player.getName() + "', '" + msg.replace("\\", "\\\\").replace("'", "\\'") + "', " + System.currentTimeMillis()/1000 +", 0)");
-			player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "Your report has been created");
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		ReportEntry report = new ReportEntry(player.getName(), message, player.getLocation());
+		report.save();
+		player.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "Your report has been created");
 		return true;
 	}
-
 }

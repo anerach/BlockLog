@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import me.arno.blocklog.BlockLog;
@@ -64,24 +65,17 @@ public class BlockLogCommand {
 	}
 	
 	public void sendAdminMessage(String msg) {
-		for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-	    	if (player.isOp() || player.hasPermission("blocklog.notices")) {
-	    		player.sendMessage(msg);
-	        }
-	    }
+		Bukkit.broadcast(msg, "blocklog.notices");
+		log.info(msg);
 	}
 	
-	public Boolean hasPermission(Player player) {
-		if(player == null && console)
+	public boolean hasPermission(CommandSender sender) {
+		if(permission == null)
 			return true;
-		else if(player == null && console == false)
-			return false;
-		else if(permission != null && player != null)
-			return player.hasPermission(permission);
-		else if(player != null)
-			return player.isOp();
-		
-		return false;
+		else if(sender instanceof Player)
+			return sender.hasPermission(permission);
+		else
+			return console;
 	}
 	
 	public HashMap<Integer, Integer> getSchedules() {
@@ -107,8 +101,8 @@ public class BlockLogCommand {
 		return time;
 	}
 	
-	public boolean execute(Player player, Command cmd, String[] args) {
-		player.sendMessage("This command doesn't exists. Say " + ChatColor.GOLD + "/bl help " + ChatColor.WHITE + "for a list of available commands.");
+	public boolean execute(CommandSender sender, Command cmd, String[] args) {
+		sender.sendMessage("This command doesn't exists. Say " + ChatColor.GOLD + "/bl help " + ChatColor.WHITE + "for a list of available commands.");
 		return true;
 	}
 }

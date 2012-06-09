@@ -2,21 +2,21 @@ package me.arno.blocklog.commands;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
 
 public class CommandConfig extends BlockLogCommand {
 	public CommandConfig() {
-		super("blocklog.config");
+		super("blocklog.config", true);
 		setCommandUsage("/bl config <set|get|help> <config> [value]");
 	}
 
 	@Override
-	public boolean execute(Player player, Command cmd, String[] args) {
+	public boolean execute(CommandSender sender, Command cmd, String[] args) {
 		if(args.length < 1)
 			return false;
 		
-		if(!hasPermission(player)) {
-			player.sendMessage("You don't have permission");
+		if(!hasPermission(sender)) {
+			sender.sendMessage("You don't have permission");
 			return true;
 		}
 		
@@ -25,10 +25,10 @@ public class CommandConfig extends BlockLogCommand {
 		String ConfigValue;
 		
 		if(action.equalsIgnoreCase("help")) {
-			player.sendMessage(ChatColor.DARK_RED + "[BlockLog][Config] " + ChatColor.GOLD + "Help");
-			player.sendMessage(ChatColor.DARK_GREEN + "/bl config help - Shows this message");
-			player.sendMessage(ChatColor.DARK_GREEN + "/bl config set <key> <value> - Changes a blocklog config value");
-			player.sendMessage(ChatColor.DARK_GREEN + "/bl config get <key> - Shows a blocklog config value");
+			sender.sendMessage(ChatColor.DARK_RED + "[BlockLog][Config] " + ChatColor.GOLD + "Help");
+			sender.sendMessage(ChatColor.DARK_GREEN + "/bl config help - Shows this message");
+			sender.sendMessage(ChatColor.DARK_GREEN + "/bl config set <key> <value> - Changes a blocklog config value");
+			sender.sendMessage(ChatColor.DARK_GREEN + "/bl config get <key> - Shows a blocklog config value");
 		} else if(action.equalsIgnoreCase("set")) {
 			if(args.length != 3)
 				return false;
@@ -45,7 +45,7 @@ public class CommandConfig extends BlockLogCommand {
 			else
 				return false;
 			
-			player.sendMessage(ChatColor.DARK_RED +"[BlockLog][Config] " + ChatColor.GOLD + "Changed value of " + ConfigKey + " to " + ConfigValue);
+			sender.sendMessage(ChatColor.DARK_RED +"[BlockLog][Config] " + ChatColor.GOLD + "Changed value of " + ConfigKey + " to " + ConfigValue);
 			getSettingsManager().saveConfig();
 			getSettingsManager().reloadConfig();
 		} else if(action.equalsIgnoreCase("get")) {
@@ -64,7 +64,7 @@ public class CommandConfig extends BlockLogCommand {
 			else 
 				return false;
 				
-			player.sendMessage(ChatColor.DARK_RED +"[BlockLog][Config] " + ChatColor.GOLD + "Value of " + ConfigKey + ": " + Result);
+			sender.sendMessage(ChatColor.DARK_RED +"[BlockLog][Config] " + ChatColor.GOLD + "Value of " + ConfigKey + ": " + Result);
 
 		}
 		return true;

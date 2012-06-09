@@ -11,28 +11,31 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 public class CommandLookup extends BlockLogCommand {
 	public CommandLookup() {
 		super("blocklog.lookup");
-		setCommandUsage("/bl lookup [player <value>] [entity <value>] [since <value>] [until <value>]");
+		setCommandUsage("/bl lookup [player <value>] [entity <value>] [since <value>] [until <value>] [area <value>]");
 	}
 
 	@Override
-	public boolean execute(Player player, Command cmd, String[] args) {
+	public boolean execute(CommandSender sender, Command cmd, String[] args) {
 		if(args.length < 2)
 			return false;
 		
 		if(args.length % 2 != 0) {
-			player.sendMessage("Invalid amount of args");
+			sender.sendMessage("Invalid amount of args");
 			return true;
 		}
 		
-		if(!hasPermission(player)) {
-			player.sendMessage("You don't have permission");
+		if(!hasPermission(sender)) {
+			sender.sendMessage("You don't have permission");
 			return true;
 		}
+		
+		Player player = (Player) sender;
 		
 		try {
 			String target = null;
@@ -106,13 +109,12 @@ public class CommandLookup extends BlockLogCommand {
 			
 			ResultSet actions = query.getResult();
 			player.sendMessage(ChatColor.YELLOW + "Player History" + ChatColor.DARK_GRAY + " -------------------------------");
-            player.sendMessage(ChatColor.GRAY + Util.addSpaces("Name", 90) + Util.addSpaces("Action", 75) + "Details");
+			player.sendMessage(ChatColor.GRAY + Util.addSpaces("Name", 90) + Util.addSpaces("Action", 75) + "Details");
             
             while(actions.next()) {
 				String name = Material.getMaterial(actions.getInt("block_id")).toString();
 				LogType type = LogType.values()[actions.getInt("type")];
 				
-				//player.sendMessage(ChatColor.DARK_RED + "[World:" + actions.getString("world") + ", X:" + actions.getString("x") + ", Y:" + actions.getString("y") + ", Z:" + actions.getString("z") + "]");
 				player.sendMessage(Util.addSpaces(ChatColor.GOLD + actions.getString("triggered"), 99) + Util.addSpaces(ChatColor.DARK_RED + type.name(), 81) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + actions.getString("date") + "]");
 			}
 		} catch(SQLException e) {

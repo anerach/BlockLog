@@ -7,21 +7,21 @@ import me.arno.blocklog.util.Query;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
 
 public class CommandSearch extends BlockLogCommand {
 	public CommandSearch() {
-		super("blocklog.search");
+		super("blocklog.search", true);
 		setCommandUsage("/bl search <table> [player <value>] [since <value>] [until <value>]");
 	}
 
 	@Override
-	public boolean execute(Player player, Command cmd, String[] args) {
+	public boolean execute(CommandSender sender, Command cmd, String[] args) {
 		if(args.length < 3)
 			return false;
 		
-		if(!hasPermission(player)) {
-			player.sendMessage("You don't have permission");
+		if(!hasPermission(sender)) {
+			sender.sendMessage("You don't have permission");
 			return true;
 		}
 		
@@ -58,7 +58,7 @@ public class CommandSearch extends BlockLogCommand {
 			}
 			
 			if(untilTime != 0 && sinceTime > untilTime) {
-				player.sendMessage(ChatColor.WHITE + "Until can't be bigger than since.");
+				sender.sendMessage(ChatColor.WHITE + "Until can't be bigger than since.");
 				return true;
 			}
 			
@@ -83,15 +83,15 @@ public class CommandSearch extends BlockLogCommand {
 			
 			while(actions.next()) {
 				if(table.equalsIgnoreCase("chat"))
-					player.sendMessage(ChatColor.DARK_RED + "[" + table + "]" + ChatColor.BLUE + "[" + actions.getString("ldate") + "] " + ChatColor.GOLD + "Player: " + ChatColor.GREEN + actions.getString("player") + ChatColor.GOLD +  " Message: " + ChatColor.GREEN + actions.getString("message"));
+					sender.sendMessage(ChatColor.DARK_RED + "[" + table + "]" + ChatColor.BLUE + "[" + actions.getString("ldate") + "] " + ChatColor.GOLD + "Player: " + ChatColor.GREEN + actions.getString("player") + ChatColor.GOLD +  " Message: " + ChatColor.GREEN + actions.getString("message"));
 				else if(table.equalsIgnoreCase("commands"))
-					player.sendMessage(ChatColor.DARK_RED + "[" + table + "]" + ChatColor.BLUE + "[" + actions.getString("ldate") + "] " + ChatColor.GOLD + "Player: " + ChatColor.GREEN + actions.getString("player") + ChatColor.GOLD +  " Executed: " + ChatColor.GREEN + actions.getString("command"));
+					sender.sendMessage(ChatColor.DARK_RED + "[" + table + "]" + ChatColor.BLUE + "[" + actions.getString("ldate") + "] " + ChatColor.GOLD + "Player: " + ChatColor.GREEN + actions.getString("player") + ChatColor.GOLD +  " Executed: " + ChatColor.GREEN + actions.getString("command"));
 				else if(table.equalsIgnoreCase("kills"))
-					player.sendMessage(ChatColor.DARK_RED + "[" + table + "]" + ChatColor.BLUE + "[" + actions.getString("ldate") + "] " + ChatColor.GOLD + "Victem: " + ChatColor.GREEN + actions.getString("victem") + ChatColor.GOLD +  " Killer: " + ChatColor.GREEN + actions.getString("killer"));
+					sender.sendMessage(ChatColor.DARK_RED + "[" + table + "]" + ChatColor.BLUE + "[" + actions.getString("ldate") + "] " + ChatColor.GOLD + "Victem: " + ChatColor.GREEN + actions.getString("victem") + ChatColor.GOLD +  " Killer: " + ChatColor.GREEN + actions.getString("killer"));
 				else if(table.equalsIgnoreCase("deaths"))
-					player.sendMessage(ChatColor.DARK_RED + "[" + table + "]" + ChatColor.BLUE + "[" + actions.getString("ldate") + "] " + ChatColor.GOLD + "Player: " + ChatColor.GREEN + actions.getString("player"));
+					sender.sendMessage(ChatColor.DARK_RED + "[" + table + "]" + ChatColor.BLUE + "[" + actions.getString("ldate") + "] " + ChatColor.GOLD + "Player: " + ChatColor.GREEN + actions.getString("player"));
 				else
-					player.sendMessage(ChatColor.YELLOW + "Invalid table name");
+					sender.sendMessage(ChatColor.YELLOW + "Invalid table name");
 			}
 		} catch(SQLException e) {
 			

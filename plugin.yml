@@ -8,7 +8,7 @@ description: >
 softdepend: [Pail]
 commands:
     blocklog:
-        description: Shows basic blocklog information
+        description: BlockLog's main command
         aliases: bl
         usage: /<command>
 permissions:

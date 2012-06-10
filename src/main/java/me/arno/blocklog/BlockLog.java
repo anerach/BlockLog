@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
@@ -164,7 +165,7 @@ public class BlockLog extends JavaPlugin {
 		    	@Override
 		        public int getValue() {
 		        	try {
-						return new Query().from(DatabaseManager.databasePrefix + "blocks").getRowCount();
+						return new Query(DatabaseManager.databasePrefix + "blocks").getRowCount();
 					} catch (SQLException e) { e.printStackTrace(); }
 		        	return 0;
 		        }
@@ -174,49 +175,29 @@ public class BlockLog extends JavaPlugin {
 			    @Override
 			    public int getValue() {
 			    	try {
-						return new Query().from(DatabaseManager.databasePrefix + "interactions").getRowCount();
+						return new Query(DatabaseManager.databasePrefix + "interactions").getRowCount();
 			    	} catch (SQLException e) { e.printStackTrace(); }
 			    	return 0;
 			    }
 		    });
-		    /*
-		    graph.addPlotter(new Metrics.Plotter("Chat Messages") {
+		    graph.addPlotter(new Metrics.Plotter("Chest Items") {
 			    @Override
 			    public int getValue() {
 			    	try {
-						return new Query().from(DatabaseManager.databasePrefix + "chat").getRowCount();
+						return new Query(DatabaseManager.databasePrefix + "chests").getRowCount();
 			    	} catch (SQLException e) { e.printStackTrace(); }
 			    	return 0;
 			    }
 		    });
-		    graph.addPlotter(new Metrics.Plotter("Executed Commands") {
+		    graph.addPlotter(new Metrics.Plotter("Other Data") {
 			    @Override
 			    public int getValue() {
 			    	try {
-						return new Query().from(DatabaseManager.databasePrefix + "commands").getRowCount();
+						return new Query(DatabaseManager.databasePrefix + "data").getRowCount();
 			    	} catch (SQLException e) { e.printStackTrace(); }
 			    	return 0;
 			    }
 		    });
-		    graph.addPlotter(new Metrics.Plotter("Player Kills") {
-			    @Override
-			    public int getValue() {
-			    	try {
-						return new Query().from(DatabaseManager.databasePrefix + "kills").getRowCount();
-			    	} catch (SQLException e) { e.printStackTrace(); }
-			    	return 0;
-			    }
-		    });
-		    graph.addPlotter(new Metrics.Plotter("Entity Deaths") {
-			    @Override
-			    public int getValue() {
-			    	try {
-						return new Query().from(DatabaseManager.databasePrefix + "deaths").getRowCount();
-			    	} catch (SQLException e) { e.printStackTrace(); }
-			    	return 0;
-			    }
-		    });
-		    */
 		    metrics.start();
 		} catch (IOException e) {
 			log.warning("Unable to submit the statistics");
@@ -333,58 +314,54 @@ public class BlockLog extends JavaPlugin {
 			return true;
 		}
 		
-		ArrayList<String> argList = new ArrayList<String>();
+		commandLabel = args[0];
 		
-		if(args.length > 1) {
-			for(int i=1;i<args.length;i++) {
-				argList.add(args[i]);
-			}
-		}
-		
-		String[] newArgs = argList.toArray(new String[]{});
+		ArrayList<String> argList = new ArrayList<String>(Arrays.asList(args));
+		argList.remove(0);
+		args = argList.toArray(new String[]{});
 		
 		BlockLogCommand command = new BlockLogCommand();
 		
-		if(args[0].equalsIgnoreCase("help") || args[0].equalsIgnoreCase("h"))
+		if(commandLabel.equalsIgnoreCase("help") || commandLabel.equalsIgnoreCase("h"))
 			command = new CommandHelp();
-		else if(args[0].equalsIgnoreCase("autosave"))
+		else if(commandLabel.equalsIgnoreCase("autosave"))
 			command = new CommandAutoSave();
-		else if(args[0].equalsIgnoreCase("cancel"))
+		else if(commandLabel.equalsIgnoreCase("cancel"))
 			command = new CommandCancel();
-		else if(args[0].equalsIgnoreCase("config") || args[0].equalsIgnoreCase("cfg"))
+		else if(commandLabel.equalsIgnoreCase("config") || commandLabel.equalsIgnoreCase("cfg"))
 			command = new CommandConfig();
-		else if(args[0].equalsIgnoreCase("lookup"))
+		else if(commandLabel.equalsIgnoreCase("lookup"))
 			command = new CommandLookup();
-		else if(args[0].equalsIgnoreCase("purge"))
+		else if(commandLabel.equalsIgnoreCase("purge"))
 			command = new CommandPurge();
-		else if(args[0].equalsIgnoreCase("queue"))
+		else if(commandLabel.equalsIgnoreCase("queue"))
 			command = new CommandQueue();
-		else if(args[0].equalsIgnoreCase("read"))
+		else if(commandLabel.equalsIgnoreCase("read"))
 			command = new CommandRead();
-		else if(args[0].equalsIgnoreCase("reload"))
+		else if(commandLabel.equalsIgnoreCase("reload"))
 			command = new CommandReload();
-		else if(args[0].equalsIgnoreCase("report"))
+		else if(commandLabel.equalsIgnoreCase("report"))
 			command = new CommandReport();
-		else if(args[0].equalsIgnoreCase("rollback") || args[0].equalsIgnoreCase("rb"))
+		else if(commandLabel.equalsIgnoreCase("rollback") || commandLabel.equalsIgnoreCase("rb"))
 			command = new CommandRollback();
-		else if(args[0].equalsIgnoreCase("rollbacklist") || args[0].equalsIgnoreCase("rblist") || args[0].equalsIgnoreCase("rbl"))
+		else if(commandLabel.equalsIgnoreCase("rollbacklist") || commandLabel.equalsIgnoreCase("rblist") || commandLabel.equalsIgnoreCase("rbl"))
 			command = new CommandRollbackList();
-		else if(args[0].equalsIgnoreCase("save"))
+		else if(commandLabel.equalsIgnoreCase("save"))
 			command = new CommandSave();
-		else if(args[0].equalsIgnoreCase("search"))
+		else if(commandLabel.equalsIgnoreCase("search"))
 			command = new CommandSearch();
-		else if(args[0].equalsIgnoreCase("simrollback") || args[0].equalsIgnoreCase("simrb"))
+		else if(commandLabel.equalsIgnoreCase("simrollback") || commandLabel.equalsIgnoreCase("simrb"))
 			command = new CommandSimulateRollback();
-		else if(args[0].equalsIgnoreCase("simundo"))
+		else if(commandLabel.equalsIgnoreCase("simundo"))
 			command = new CommandSimulateUndo();
-		else if(args[0].equalsIgnoreCase("storage"))
+		else if(commandLabel.equalsIgnoreCase("storage"))
 			command = new CommandStorage();
-		else if(args[0].equalsIgnoreCase("undo"))
+		else if(commandLabel.equalsIgnoreCase("undo"))
 			command = new CommandUndo();
-		else if(args[0].equalsIgnoreCase("wand"))
+		else if(commandLabel.equalsIgnoreCase("wand"))
 			command = new CommandWand();
 		
 		cmd.setUsage(command.getCommandUsage());
-		return command.execute(sender, cmd, newArgs);
+		return command.execute(sender, cmd, args);
 	}
 }

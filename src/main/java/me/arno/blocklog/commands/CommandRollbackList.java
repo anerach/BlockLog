@@ -37,7 +37,6 @@ public class CommandRollbackList extends BlockLogCommand {
 			Integer id = 0;
 			Integer untilTime = 0;
 			Integer sinceTime = 0;
-			Integer area = 0;
 			
 			for(int i=0;i<args.length;i+=2) {
 				String type = args[i];
@@ -46,8 +45,6 @@ public class CommandRollbackList extends BlockLogCommand {
 					target = value;
 				} else if(type.equalsIgnoreCase("id")) {
 					id = Integer.valueOf(value);
-				} else if(type.equalsIgnoreCase("area")) {
-					area = Integer.valueOf(value);
 				} else if(type.equalsIgnoreCase("since")) {
 					Character c = value.charAt(value.length() - 1);
 					sinceTime = convertToUnixtime(Integer.valueOf(value.replace(c, ' ').trim()), c.toString());
@@ -63,19 +60,16 @@ public class CommandRollbackList extends BlockLogCommand {
 			}
 			
 			Query query = new Query("blocklog_rollbacks");
-			query.leftJoin("blocklog_undos", "id", "rollback_id");
+			query.leftJoin("blocklog_undos", "id", "rollback");
 			
 			query.select("blocklog_rollbacks.id","blocklog_rollbacks.player");
 			query.selectDateAs("blocklog_rollbacks.date", "date");
-			
 			query.selectAs("blocklog_undos.player", "uplayer");
-			
-			if(target != null)
-				query.where("blocklog_rollbacks.player", target);
+
 			if(id != 0)
 				query.where("blocklog_rollbacks.id", id);
-			if(area != 0)
-				query.where("blocklog_rollbacks.area", area);
+			if(target != null)
+				query.where("blocklog_rollbacks.player", target);
 			if(sinceTime != 0)
 				query.where("blocklog_rollbacks.date", sinceTime, ">");
 			if(untilTime != 0)

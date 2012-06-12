@@ -11,6 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.EntityType;
 
@@ -36,19 +37,21 @@ public class BlockEntry extends DataEntry {
 	public boolean rollback(int rollback) {
 		try {
 			World world = Bukkit.getWorld(getWorld());
-			if(this.rollback == 0) {
-				if(!getType().isCreateLog())
-					world.getBlockAt(getLocation()).setTypeIdAndData(block, getDataValue(), false);
+			Block block = world.getBlockAt(getLocation());
+			
+			if(rollback == 0) {
+				if(!this.getType().isCreateLog())
+					block.setTypeIdAndData(this.getBlock(), this.getDataValue(), false);
 				else
-					world.getBlockAt(getLocation()).setType(Material.AIR);
+					block.setType(Material.AIR);
 			} else {
-				if(!getType().isCreateLog())
-					world.getBlockAt(getLocation()).setType(Material.AIR);
+				if(!this.getType().isCreateLog())
+					block.setType(Material.AIR);
 				else
-					world.getBlockAt(getLocation()).setTypeIdAndData(block, getDataValue(), false);
+					block.setTypeIdAndData(this.getBlock(), this.getDataValue(), false);
 			}
 			
-			if(id == 0) {
+			if(this.getId() == 0) {
 				this.setRollback(rollback);
 			} else {
 				Statement stmt = BlockLog.plugin.conn.createStatement();

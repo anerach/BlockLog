@@ -30,14 +30,7 @@ permissions:
             blocklog.rollback: true
             blocklog.storage: true
             blocklog.queue: true
-            blocklog.report.read: true
             blocklog.search: true
-    blocklog.user:
-        description: Gives access to some blocklog commands
-        children:
-            blocklog.help: true
-            blocklog.report.write: true
-        default: true
     blocklog.help:
         description: Gives access to the help command
     blocklog.wand:
@@ -60,9 +53,5 @@ permissions:
         description: Gives access to the queue command
     blocklog.purge:
         description: Gives access to the purge command
-    blocklog.report.write:
-        description: Gives the ability to report griefs
-    blocklog.report.read:
-        description: Gives the ability to read grief reports
     blocklog.search:
         description: Gives access to the search command

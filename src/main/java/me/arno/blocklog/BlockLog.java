@@ -336,12 +336,8 @@ public class BlockLog extends JavaPlugin {
 			command = new CommandPurge();
 		else if(commandLabel.equalsIgnoreCase("queue"))
 			command = new CommandQueue();
-		else if(commandLabel.equalsIgnoreCase("read"))
-			command = new CommandRead();
 		else if(commandLabel.equalsIgnoreCase("reload"))
 			command = new CommandReload();
-		else if(commandLabel.equalsIgnoreCase("report"))
-			command = new CommandReport();
 		else if(commandLabel.equalsIgnoreCase("rollback") || commandLabel.equalsIgnoreCase("rb"))
 			command = new CommandRollback();
 		else if(commandLabel.equalsIgnoreCase("rollbacklist") || commandLabel.equalsIgnoreCase("rblist") || commandLabel.equalsIgnoreCase("rbl"))

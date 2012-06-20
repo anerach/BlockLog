@@ -33,12 +33,6 @@ public class CommandHelp extends BlockLogCommand {
 		if(sender.hasPermission("blocklog.config"))
 			sender.sendMessage(ChatColor.DARK_RED +"/bl config" + ChatColor.GOLD + " - Change blocklog's command values ingame");
 		
-		if(sender.hasPermission("blocklog.report.write") && plugin.getConfig().getBoolean("blocklog.reports"))
-			sender.sendMessage(ChatColor.DARK_RED +"/bl report" + ChatColor.GOLD + " - Create a grief report");
-		
-		if(sender.hasPermission("blocklog.report.read") && plugin.getConfig().getBoolean("blocklog.reports"))
-			sender.sendMessage(ChatColor.DARK_RED +"/bl read" + ChatColor.GOLD + " - Read a grief report");
-		
 		if(sender.hasPermission("blocklog.storage"))
 			sender.sendMessage(ChatColor.DARK_RED +"/bl storage" + ChatColor.GOLD + " - Shows the total amount of stored block edits and interactions");
 		

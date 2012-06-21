@@ -237,13 +237,15 @@ public class QueueManager extends BlockLogManager {
 	 * @param index The index of the queued block interaction
 	 */
 	public void saveQueuedEdit(int index) {
-		if(getEditQueueSize() > index) {
-			BlockEntry edit = getQueuedEdit(index);
-			if(edit != null) {
-				edit.save();
-				blockEntries.remove(index);
+		try {
+			if(getEditQueueSize() > index) {
+				BlockEntry edit = getQueuedEdit(index);
+				if(edit != null) {
+					edit.save();
+					blockEntries.remove(index);
+				}
 			}
-		}
+		} catch(IndexOutOfBoundsException e) {}
 	}
 	
 	/**
@@ -252,13 +254,15 @@ public class QueueManager extends BlockLogManager {
 	 * @param index The index of the queued block interaction
 	 */
 	public void saveQueuedInteraction(int index) {
-		if(getInteractionQueueSize() > index) {
-			InteractionEntry interaction = getQueuedInteraction(index);
-			if(interaction != null) {
-				interaction.save();
-				interactionEntries.remove(index);
+		try {
+			if(getInteractionQueueSize() > index) {
+				InteractionEntry interaction = getQueuedInteraction(index);
+				if(interaction != null) {
+					interaction.save();
+					interactionEntries.remove(index);
+				}
 			}
-		}
+		} catch(IndexOutOfBoundsException e) {}
 	}
 	
 	/**
@@ -267,13 +271,15 @@ public class QueueManager extends BlockLogManager {
 	 * @param index The index of the queued data entry
 	 */
 	public void saveQueuedData(int index) {
-		if(getDataQueueSize() > index) {
-			DataEntry data = getQueuedData(index);
-			if(data != null) {
-				data.save();
-				dataEntries.remove(index);
+		try {
+			if(getDataQueueSize() > index) {
+				DataEntry data = getQueuedData(index);
+				if(data != null) {
+					data.save();
+					dataEntries.remove(index);
+				}
 			}
-		}
+		} catch(IndexOutOfBoundsException e) {}
 	}
 	
 	/**
@@ -282,13 +288,15 @@ public class QueueManager extends BlockLogManager {
 	 * @param index The index of the queued chest interaction
 	 */
 	public void saveQueuedChest(int index) {
-		if(getChestQueueSize() > index) {
-			ChestEntry chest = getQueuedChest(index);
-			if(chest != null) {
-				chest.save();
-				chestEntries.remove(index);
+		try {
+			if(getChestQueueSize() > index) {
+				ChestEntry chest = getQueuedChest(index);
+				if(chest != null) {
+					chest.save();
+					chestEntries.remove(index);
+				}
 			}
-		}
+		} catch(IndexOutOfBoundsException e) {}
 	}
 	
 	public boolean isQueueEmpty() {

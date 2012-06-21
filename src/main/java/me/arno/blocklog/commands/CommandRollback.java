@@ -37,43 +37,19 @@ public class CommandRollback extends BlockLogCommand {
 		Player player = (Player) sender;
 		
 		try {
-			String target = null;
-			String entity = null;
-			int untilTime = 0;
-			int sinceTime = 0;
-			int area = 0;
-			int limit = 200;
-			int delay = 3;
+			Syntax syn = new Syntax(args);
 			
-			String arg_until = null;
-			String arg_since = null;
-			String arg_delay = null;
+			String target = syn.getString("player");
+			String entity = syn.getString("entity");
+			int untilTime = syn.getTimeFromNow("until");
+			int sinceTime = syn.getTimeFromNow("since");
+			int area = syn.getInt("area");
+			int limit = syn.getInt("limit", 200);
+			int delay = syn.getTime("delay", "3s");
 			
-			for(int i=0;i<args.length;i+=2) {
-				String type = args[i];
-				String value = args[i+1];
-				if(type.equalsIgnoreCase("limit")) {
-					limit = Integer.valueOf(value);
-				} else if(type.equalsIgnoreCase("area")) {
-					area = Integer.valueOf(value);
-				} else if(type.equalsIgnoreCase("player")) {
-					target = value;
-				} else if(type.equalsIgnoreCase("entity")) {
-					entity = value;
-				} else if(type.equalsIgnoreCase("since")) {
-					arg_since = value;
-					Character c = value.charAt(value.length() - 1);
-					sinceTime = convertToUnixtime(Integer.valueOf(value.replace(c, ' ').trim()), c.toString());
-				} else if(type.equalsIgnoreCase("until")) {
-					arg_until = value;
-					Character c = value.charAt(value.length() - 1);
-					untilTime = convertToUnixtime(Integer.valueOf(value.replace(c, ' ').trim()), c.toString());
-				} else if(type.equalsIgnoreCase("delay")) {
-					arg_delay = value;
-					Character c = value.charAt(value.length() - 1);
-					delay = Integer.valueOf(value.replace(c, ' ').trim());
-				}
-			}
+			String arg_until = syn.getString("until");
+			String arg_since = syn.getString("since");
+			String arg_delay = syn.getString("delay");
 			
 			if(untilTime != 0 && sinceTime > untilTime) {
 				player.sendMessage(ChatColor.WHITE + "Until can't be bigger than since.");

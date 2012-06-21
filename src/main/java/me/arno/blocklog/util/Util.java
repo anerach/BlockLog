@@ -18,7 +18,6 @@ public class Util {
 		return true;
 	}
 	
-	
 	public static String getResourceContent(String file) {
 		try {
 			InputStream resourceFile = BlockLog.plugin.getResource("resources/" + file);

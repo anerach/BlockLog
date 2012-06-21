@@ -33,26 +33,12 @@ public class CommandRollbackList extends BlockLogCommand {
 		Player player = (Player) sender;
 		
 		try {
-			String target = null;
-			Integer id = 0;
-			Integer untilTime = 0;
-			Integer sinceTime = 0;
+			Syntax syn = new Syntax(args);
 			
-			for(int i=0;i<args.length;i+=2) {
-				String type = args[i];
-				String value = args[i+1];
-				if(type.equalsIgnoreCase("player")) {
-					target = value;
-				} else if(type.equalsIgnoreCase("id")) {
-					id = Integer.valueOf(value);
-				} else if(type.equalsIgnoreCase("since")) {
-					Character c = value.charAt(value.length() - 1);
-					sinceTime = convertToUnixtime(Integer.valueOf(value.replace(c, ' ').trim()), c.toString());
-				} else if(type.equalsIgnoreCase("until")) {
-					Character c = value.charAt(value.length() - 1);
-					untilTime = convertToUnixtime(Integer.valueOf(value.replace(c, ' ').trim()), c.toString());
-				}
-			}
+			int id = syn.getInt("id");
+			String target = syn.getString("player");
+			int untilTime = syn.getTimeFromNow("until");
+			int sinceTime = syn.getTimeFromNow("since");
 			
 			if(untilTime != 0 && sinceTime > untilTime) {
 				player.sendMessage(ChatColor.WHITE + "Until can't be bigger than since.");

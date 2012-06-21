@@ -22,15 +22,12 @@ public class CommandQueue extends BlockLogCommand {
 			return true;
 		}
 		
-		sender.sendMessage(String.format(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "The queue contains %s block edits", getQueueManager().getEditQueueSize()));
-		
 		sender.sendMessage(ChatColor.YELLOW + "BlockLog Queue" + ChatColor.DARK_GRAY + " -------------------------------");
 		sender.sendMessage(ChatColor.GRAY + Util.addSpaces("Queue", 100) + "Amount");
-		sender.sendMessage(Util.addSpaces(ChatColor.GOLD + "Blocks", 109) + getQueueManager().getEditQueueSize());
-		sender.sendMessage(Util.addSpaces(ChatColor.GOLD + "Chests", 109) + getQueueManager().getChestQueueSize());
-		sender.sendMessage(Util.addSpaces(ChatColor.GOLD + "Data", 109) + getQueueManager().getDataQueueSize());
-		sender.sendMessage(Util.addSpaces(ChatColor.GOLD + "Interactions", 109) + getQueueManager().getInteractionQueueSize());
-		
+		sender.sendMessage(Util.addSpaces(ChatColor.GOLD + "Blocks", 110) + getQueueManager().getEditQueueSize());
+		sender.sendMessage(Util.addSpaces(ChatColor.GOLD + "Chests", 110) + getQueueManager().getChestQueueSize());
+		sender.sendMessage(Util.addSpaces(ChatColor.GOLD + "Data", 110) + getQueueManager().getDataQueueSize());
+		sender.sendMessage(Util.addSpaces(ChatColor.GOLD + "Interactions", 110) + getQueueManager().getInteractionQueueSize());
 		return true;
 	}
 }

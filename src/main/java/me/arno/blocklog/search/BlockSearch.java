@@ -99,8 +99,8 @@ public class BlockSearch {
 			query.where("x", xMin, ">=").where("x", xMax, "<=").where("y", yMin, ">=").where("y", yMax, "<=").where("z", zMin, ">=").where("z", zMax, "<=");
 		if(world != null)
 			query.where("world", world.getName());
-		if(rollback != 0)
-			query.where("rollback", rollback);
+		
+		query.where("rollback", rollback);
 		
 		if(groupByLocation)
 			query.groupBy("x", "y", "z");
@@ -145,10 +145,10 @@ public class BlockSearch {
 	}
 	
 	public boolean checkEdit(BlockEntry edit) {
-		if(!edit.getWorld().equalsIgnoreCase(world))
+		if(!world.equalsIgnoreCase(edit.getWorld()))
 			return false;
 		
-		if(edit.getRollback() != rollback)
+		if(rollback != edit.getRollback())
 			return false;
 		
 		if(player != null) {
@@ -161,13 +161,13 @@ public class BlockSearch {
 				return false;
 		}
 		
-		if(since != 0) {
-			if(edit.getDate() < since)
+		if(since > 0) {
+			if(edit.getDate() > since)
 				return false;
 		}
 		
-		if(until != 0) {
-			if(edit.getDate() > until)
+		if(until > 0) {
+			if(edit.getDate() < until)
 				return false;
 		}
 		

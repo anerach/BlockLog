@@ -33,7 +33,7 @@ public class RollbackSchedule implements Runnable {
 		this.isRollback = false;
 		
 		this.blockEntries = undo.getBlocks();
-		this.totalBlocks = blockEntries.size();
+		this.totalBlocks = Integer.valueOf(blockEntries.size());
 	}
 	
 	public RollbackSchedule(Rollback rb) {
@@ -45,7 +45,7 @@ public class RollbackSchedule implements Runnable {
 		this.isRollback = true;
 		
 		this.blockEntries = rb.getBlocks();
-		this.totalBlocks = blockEntries.size();
+		this.totalBlocks = Integer.valueOf(blockEntries.size());
 	}
 	
 	public void setId(Integer sid) {

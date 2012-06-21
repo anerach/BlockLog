@@ -39,7 +39,7 @@ public class BlockEntry extends DataEntry {
 			World world = Bukkit.getWorld(getWorld());
 			Block block = world.getBlockAt(getLocation());
 			
-			if(rollback == 0) {
+			if(this.rollback == 0) {
 				if(!this.getType().isCreateLog())
 					block.setTypeIdAndData(this.getBlock(), this.getDataValue(), false);
 				else

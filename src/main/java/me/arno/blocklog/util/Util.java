@@ -4,10 +4,30 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import me.arno.blocklog.BlockLog;
 
 public class Util {
+	
+	public static String getDate(long time) {
+		String format = BlockLog.plugin.getSettingsManager().getDateFormat();
+		
+		Calendar calendar = GregorianCalendar.getInstance();
+		calendar.setTimeInMillis(time * 1000);
+		
+		String seconds = (calendar.get(Calendar.SECOND) > 9 ? "" : "0") + calendar.get(Calendar.SECOND);
+		String minutes = (calendar.get(Calendar.SECOND) > 9 ? "" : "0") + calendar.get(Calendar.MINUTE);
+		String hours = (calendar.get(Calendar.SECOND) > 9 ? "" : "0") + calendar.get(Calendar.HOUR_OF_DAY);
+		
+		String day =  (calendar.get(Calendar.DAY_OF_MONTH) > 9 ? "" : "0") + calendar.get(Calendar.DAY_OF_MONTH);
+		String month = (calendar.get(Calendar.MONTH) > 9 ? "" : "0") + calendar.get(Calendar.MONTH);
+		String year = (calendar.get(Calendar.SECOND) > 9 ? "" : "0") + calendar.get(Calendar.MONTH);
+		
+		String date = format.replace("%s", seconds).replace("%i", minutes).replace("%H", hours).replace("%d", day).replace("%m", month).replace("%Y", year);
+		return date;
+	}
 	
 	public static boolean isNumeric(String str) {
 		try {

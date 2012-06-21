@@ -87,6 +87,10 @@ public class QueueManager extends BlockLogManager {
 		return blockEntries;
 	}
 	
+	public ArrayList<DataEntry> getDataEntries() {
+		return dataEntries;
+	}
+	
 	/**
 	 * Returns true if the queue is empty
 	 * 

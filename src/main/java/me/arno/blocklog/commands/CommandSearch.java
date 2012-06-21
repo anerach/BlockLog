@@ -1,18 +1,20 @@
 package me.arno.blocklog.commands;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
-import me.arno.blocklog.util.Query;
+import me.arno.blocklog.logs.DataEntry;
+import me.arno.blocklog.search.DataSearch;
+import me.arno.blocklog.util.Util;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 
 public class CommandSearch extends BlockLogCommand {
 	public CommandSearch() {
 		super("blocklog.search", true);
-		setCommandUsage("/bl search <table> [player <value>] [since <value>] [until <value>]");
+		setCommandUsage("/bl search [player <value>] [data <value>] [type <value>] [world <value>] [x|y|z <value>] [since <value>] [until <value>]");
 	}
 
 	@Override
@@ -25,76 +27,29 @@ public class CommandSearch extends BlockLogCommand {
 			return true;
 		}
 		
-		try {
-			String table = args[0];
-			String target = null;
-			String victem = null;
-			String killer = null;
-			Integer untilTime = 0;
-			Integer sinceTime = 0;
-			
-			for(int i=1;i<args.length;i+=2) {
-				String type = args[i];
-				String value = args[i+1];
-				if(table.equalsIgnoreCase("kills")) {
-					if(type.equalsIgnoreCase("victem")) {
-						victem = value;
-					} else if(type.equalsIgnoreCase("killer")) {
-						killer = value;
-					}
-				} else {
-					if(type.equalsIgnoreCase("player")) {
-						target = value;
-					}
-				}
-				
-				if(type.equalsIgnoreCase("since")) {
-					Character c = value.charAt(value.length() - 1);
-					sinceTime = convertToUnixtime(Integer.valueOf(value.replace(c, ' ').trim()), c.toString());
-				} else if(type.equalsIgnoreCase("until")) {
-					Character c = value.charAt(value.length() - 1);
-					untilTime = convertToUnixtime(Integer.valueOf(value.replace(c, ' ').trim()), c.toString());
-				}
-			}
-			
-			if(untilTime != 0 && sinceTime > untilTime) {
-				sender.sendMessage(ChatColor.WHITE + "Until can't be bigger than since.");
-				return true;
-			}
-			
-			Query query = new Query("blocklog_" + table);
-			query.select("*");
-			query.selectDateAs("date" , "ldate");
-			if(target != null)
-				query.where("player", target);
-			if(victem != null)
-				query.where("victem", victem);
-			if(killer != null)
-				query.where("killer", killer);
-			if(sinceTime != 0)
-				query.where("date", sinceTime.toString(), "<");
-			if(untilTime != 0)
-				query.where("date", untilTime.toString(), ">");
-			
-			query.orderBy("date", "DESC");
-			query.limit(getSettingsManager().getMaxResults());
-			
-			ResultSet actions = query.getResult();
-			
-			while(actions.next()) {
-				if(table.equalsIgnoreCase("chat"))
-					sender.sendMessage(ChatColor.DARK_RED + "[" + table + "]" + ChatColor.BLUE + "[" + actions.getString("ldate") + "] " + ChatColor.GOLD + "Player: " + ChatColor.GREEN + actions.getString("player") + ChatColor.GOLD +  " Message: " + ChatColor.GREEN + actions.getString("message"));
-				else if(table.equalsIgnoreCase("commands"))
-					sender.sendMessage(ChatColor.DARK_RED + "[" + table + "]" + ChatColor.BLUE + "[" + actions.getString("ldate") + "] " + ChatColor.GOLD + "Player: " + ChatColor.GREEN + actions.getString("player") + ChatColor.GOLD +  " Executed: " + ChatColor.GREEN + actions.getString("command"));
-				else if(table.equalsIgnoreCase("kills"))
-					sender.sendMessage(ChatColor.DARK_RED + "[" + table + "]" + ChatColor.BLUE + "[" + actions.getString("ldate") + "] " + ChatColor.GOLD + "Victem: " + ChatColor.GREEN + actions.getString("victem") + ChatColor.GOLD +  " Killer: " + ChatColor.GREEN + actions.getString("killer"));
-				else if(table.equalsIgnoreCase("deaths"))
-					sender.sendMessage(ChatColor.DARK_RED + "[" + table + "]" + ChatColor.BLUE + "[" + actions.getString("ldate") + "] " + ChatColor.GOLD + "Player: " + ChatColor.GREEN + actions.getString("player"));
-				else
-					sender.sendMessage(ChatColor.YELLOW + "Invalid table name");
-			}
-		} catch(SQLException e) {
-			
+		Syntax syn = new Syntax(args);
+		
+		int untilTime = syn.getTimeFromNow("until");
+		int sinceTime = syn.getTimeFromNow("since");
+		
+		if(untilTime != 0 && sinceTime > untilTime) {
+			sender.sendMessage(ChatColor.WHITE + "Until can't be bigger than since.");
+			return true;
+		}
+		
+		DataSearch search = new DataSearch();
+		
+		search.setPlayer(syn.getString("player"));
+		search.setData(syn.getString("data"));
+		search.setLocation(new Location(Bukkit.getWorld(syn.getString("world")), syn.getInt("x"), syn.getInt("y"), syn.getInt("z")));
+		search.setType(syn.getInt("type"));
+		search.setDate(sinceTime, untilTime);
+		
+		sender.sendMessage(ChatColor.YELLOW + "Data Search " + ChatColor.DARK_GRAY + " -------------------------------");
+		sender.sendMessage(ChatColor.GRAY + Util.addSpaces("Player", 90) + Util.addSpaces("Action", 75) + "Date");
+		for(DataEntry data : search.getResults()) {
+			sender.sendMessage(ChatColor.DARK_BLUE + Util.addSpaces(data.getPlayer(), 90) + ChatColor.DARK_PURPLE + Util.addSpaces(data.getType().toString(), 75) + ChatColor.BLUE + Util.getDate(data.getDate()));
+			sender.sendMessage(ChatColor.DARK_RED + "Data: " + ChatColor.GOLD + data.getData());
 		}
 		return true;
 	}

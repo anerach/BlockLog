@@ -46,7 +46,7 @@ public class SaveSchedule implements Runnable {
 			}
 	
 			if(count == 0) {
-				while(getQueueManager().isQueueEmpty()) {
+				while(!getQueueManager().isQueueEmpty()) {
 					getQueueManager().saveQueue();
 				}
 			} else {

@@ -1,11 +1,10 @@
 package me.arno.blocklog.schedules;
 
 import java.net.URL;
-import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import me.arno.blocklog.BlockLog;
+import me.arno.blocklog.util.Util;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -13,10 +12,15 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public class UpdatesSchedule implements Runnable {
+	private String current;
+	private String latest;
+	
+	public UpdatesSchedule(String currentVersion) {
+		this.current = currentVersion;
+	}
 
 	@Override
 	public void run() {
-		Logger log = BlockLog.plugin.log;
 		try {
         	URL url = new URL("http://dev.bukkit.org/server-mods/block-log/files.rss");
             Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(url.openConnection().getInputStream());
@@ -28,18 +32,25 @@ public class UpdatesSchedule implements Runnable {
                 NodeList firstElementTagName = firstElement.getElementsByTagName("title");
                 Element firstNameElement = (Element) firstElementTagName.item(0);
                 NodeList firstNodes = firstNameElement.getChildNodes();
-                BlockLog.plugin.newVersion = firstNodes.item(0).getNodeValue().replace("BlockLog", "").trim();
+                latest = firstNodes.item(0).getNodeValue().replace("BlockLog", "").trim();
             }
 			
-            BlockLog.plugin.doubleCurrentVersion = Double.valueOf(BlockLog.plugin.currentVersion.replaceFirst("\\.", ""));
-            BlockLog.plugin.doubleNewVersion = Double.valueOf(BlockLog.plugin.newVersion.replaceFirst("\\.", ""));
+            String[] currentVersion = current.split("\\.");
+            String[] latestVersion = latest.split("\\.");
+            
+            boolean updateAvailable = false;
+            
+            for(int i=0;i<currentVersion.length;i++) {
+            	if(Integer.valueOf(latestVersion[i]) > Integer.valueOf(currentVersion[i]))
+            		updateAvailable = true;
+            }
 			
-			if(BlockLog.plugin.doubleNewVersion > BlockLog.plugin.doubleCurrentVersion) {
-				log.warning("BlockLog v" + BlockLog.plugin.newVersion + " is released! You're using BlockLog v" + BlockLog.plugin.currentVersion);
-				log.warning("Update BlockLog at http://dev.bukkit.org/server-mods/block-log/");
+			if(updateAvailable) {
+				Util.sendNotice("BlockLog v" + latest + " is released! You're using BlockLog v" + current);
+				Util.sendNotice("Update BlockLog at http://dev.bukkit.org/server-mods/block-log/");
 			}
         } catch (Exception e) {
-        	// Nothing
+        	// This happens when dev.bukkit.org is offline
         }
 	}
 }

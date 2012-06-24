@@ -6,10 +6,22 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.logging.Level;
+
+import org.bukkit.Bukkit;
 
 import me.arno.blocklog.BlockLog;
 
 public class Util {
+	
+	public static void sendNotice(String message) {
+		sendNotice(message, Level.WARNING);
+	}
+	
+	public static void sendNotice(String message, Level level) {
+		Bukkit.broadcast(message, "blocklog.notices");
+		Bukkit.getLogger().log(level, message);
+	}
 	
 	public static String getDate(long time) {
 		String format = BlockLog.plugin.getSettingsManager().getDateFormat();

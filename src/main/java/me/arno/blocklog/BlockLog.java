@@ -46,8 +46,6 @@ public class BlockLog extends JavaPlugin {
 	
 	public String newVersion;
 	public String currentVersion;
-	public double doubleNewVersion;
-	public double doubleCurrentVersion;
 	
 	public int autoSave = 0;
 	public boolean saving = false;
@@ -220,7 +218,6 @@ public class BlockLog extends JavaPlugin {
 	
 	private void loadPlugin() {
 		BlockLog.plugin = this;
-		currentVersion = getDescription().getVersion();
 		log = getLogger();
 		
 		log.info("Loading the configurations");
@@ -258,8 +255,7 @@ public class BlockLog extends JavaPlugin {
     		getServer().getPluginManager().registerEvents(new McMMOListener(), this);
     	
     	if(getConfig().getBoolean("blocklog.updates")) {
-	    	getServer().getScheduler().scheduleSyncRepeatingTask(this, new UpdatesSchedule(), 1L, 1 * 60 * 60 * 20L); // Check every hour for a new version
-	    	getServer().getPluginManager().registerEvents(new NoticeListener(), this);
+	    	getServer().getScheduler().scheduleSyncRepeatingTask(this, new UpdatesSchedule(getDescription().getVersion()), 1L, 1 * 60 * 60 * 20L); // Check every hour for a new version
 	    }
     }
 	

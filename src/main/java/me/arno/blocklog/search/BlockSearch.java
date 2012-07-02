@@ -15,19 +15,21 @@ import me.arno.blocklog.logs.LogType;
 import me.arno.blocklog.util.Query;
 
 public class BlockSearch {
-	public String player;
-	public String entity;
+	private String player;
+	private String entity;
 	
-	public String world;
-	public Location location;
-	public int area = 0;
+	private String world;
+	private Location location;
+	private int area = 0;
 	
-	public int rollback = 0;
+	private int rollback = 0;
 	
-	public int since = 0;
-	public int until = 0;
+	private int since = 0;
+	private int until = 0;
 	
-	public boolean groupByLocation = true;
+	private boolean groupByLocation = true;
+	
+	private int limit = 5;
 	
 	public void setPlayer(String player) {
 		this.player = player;
@@ -66,6 +68,10 @@ public class BlockSearch {
 	public void setDate(int since, int until) {
 		this.since = since;
 		this.until = until;
+	}
+	
+	public void setLimit(int limit) {
+		this.limit = limit;
 	}
 	
 	public ArrayList<BlockEntry> getResults() {
@@ -111,11 +117,18 @@ public class BlockSearch {
 			ResultSet rs = query.getResult();
 			
 			for(BlockEntry edit : BlockLog.plugin.getQueueManager().getBlockEntries()) {
-				if(checkEdit(edit))
+				if(limit == 0)
+					break;
+				if(checkEdit(edit)) {
 					blockEntries.add(edit);
+					limit--;
+				}
 			}
 			
 			while(rs.next()) {
+				if(limit == 0)
+					break;
+				
 				int id = rs.getInt("id");
 				String player = rs.getString("player");
 				String entity = rs.getString("entity");
@@ -136,6 +149,7 @@ public class BlockSearch {
 				blockEntry.setDate(date);
 				
 				blockEntries.add(blockEntry);
+				limit--;
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

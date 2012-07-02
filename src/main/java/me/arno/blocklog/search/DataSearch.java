@@ -13,16 +13,18 @@ import me.arno.blocklog.logs.LogType;
 import me.arno.blocklog.util.Query;
 
 public class DataSearch {
-	public String player;
-	public String data;
+	private String player;
+	private String data;
 	
-	public String world;
-	public Location location;
+	private String world;
+	private Location location;
 	
-	public int type;
+	private int type;
 	
-	public int since = 0;
-	public int until = 0;
+	private int since = 0;
+	private int until = 0;
+	
+	private int limit = 5;
 	
 	public boolean groupByLocation = true;
 	
@@ -56,6 +58,10 @@ public class DataSearch {
 		this.until = until;
 	}
 	
+	public void setLimit(int limit) {
+		this.limit = limit;
+	}
+	
 	public ArrayList<DataEntry> getResults() {
 		ArrayList<DataEntry> dataEntries = new ArrayList<DataEntry>();
 		
@@ -85,11 +91,18 @@ public class DataSearch {
 			ResultSet rs = query.getResult();
 			
 			for(DataEntry edit : BlockLog.plugin.getQueueManager().getDataEntries()) {
-				if(checkEdit(edit))
+				if(limit == 0)
+					break;
+				if(checkEdit(edit)) {
 					dataEntries.add(edit);
+					limit--;
+				}
 			}
 			
 			while(rs.next()) {
+				if(limit == 0)
+					break;
+				
 				int id = rs.getInt("id");
 				String player = rs.getString("player");
 				String data = rs.getString("data");

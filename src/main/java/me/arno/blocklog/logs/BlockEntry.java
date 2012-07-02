@@ -9,7 +9,6 @@ import me.arno.blocklog.util.Query;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
@@ -18,20 +17,52 @@ import org.bukkit.entity.EntityType;
 public class BlockEntry extends DataEntry {
 	private int id = 0;
 	private String entity;
+	
 	private int block;
 	private byte datavalue;
+	
+	private int oldBlock;
+	private byte oldDatavalue;
+	
 	private int rollback = 0;
+	
+	public BlockEntry(LogType type, BlockState block) {
+		this("Environment", EntityType.UNKNOWN, type, block.getLocation(), block.getType().getId(), block.getRawData());
+	}
+	
+	public BlockEntry(EntityType entity, LogType type, BlockState block) {
+		this("Environment", entity, type, block.getLocation(), block.getType().getId(), block.getRawData());
+	}
 	
 	public BlockEntry(String player, EntityType entity, LogType type, BlockState block) {
 		this(player, entity, type, block.getLocation(), block.getType().getId(), block.getRawData());
 	}
 	
 	public BlockEntry(String player, EntityType entity, LogType type, Location location, int block, byte data) {
+		this(player, entity, type, location, block, data, 0, (byte) 0);
+	}
+	
+	public BlockEntry(LogType type, BlockState newState, BlockState oldState) {
+		this("Environment", EntityType.UNKNOWN, type, newState.getLocation(), newState.getBlock().getTypeId(), newState.getRawData(), oldState.getBlock().getTypeId(), oldState.getRawData());
+	}
+	
+	public BlockEntry(EntityType entity, LogType type, BlockState newState, BlockState oldState) {
+		this("Environment", entity, type, newState.getLocation(), newState.getBlock().getTypeId(), newState.getRawData(), oldState.getBlock().getTypeId(), oldState.getRawData());
+	}
+	
+	public BlockEntry(String player, EntityType entity, LogType type, BlockState newState, BlockState oldState) {
+		this(player, entity, type, newState.getLocation(), newState.getBlock().getTypeId(), newState.getRawData(), oldState.getBlock().getTypeId(), oldState.getRawData());
+	}
+	
+	public BlockEntry(String player, EntityType entity, LogType type, Location location, int block, byte data, int oldBlock, byte oldData) {
 		super(player, type, location, null);
 		
 		this.entity = entity.toString().toLowerCase();
 		this.block = block;
 		this.datavalue = data;
+		
+		this.oldBlock = oldBlock;
+		this.oldDatavalue = oldData;
 	}
 	
 	public boolean rollback(int rollback) {
@@ -43,10 +74,10 @@ public class BlockEntry extends DataEntry {
 				if(!this.getType().isCreateLog())
 					block.setTypeIdAndData(this.getBlock(), this.getDataValue(), false);
 				else
-					block.setType(Material.AIR);
+					block.setTypeIdAndData(this.getOldBlock(), this.getOldDataValue(), false);
 			} else {
 				if(!this.getType().isCreateLog())
-					block.setType(Material.AIR);
+					block.setTypeIdAndData(this.getOldBlock(), this.getOldDataValue(), false);
 				else
 					block.setTypeIdAndData(this.getBlock(), this.getDataValue(), false);
 			}
@@ -74,6 +105,8 @@ public class BlockEntry extends DataEntry {
 			values.put("entity", getEntity());
 			values.put("block", getBlock());
 			values.put("data", getDataValue());
+			values.put("old_block", getOldBlock());
+			values.put("old_data", getOldDataValue());
 			values.put("type", getTypeId());
 			values.put("rollback", getRollback());
 			values.put("world", getWorld());
@@ -104,8 +137,16 @@ public class BlockEntry extends DataEntry {
 		return block;
 	}
 	
+	public int getOldBlock() {
+		return oldBlock;
+	}
+	
 	public byte getDataValue() {
 		return datavalue;
+	}
+	
+	public byte getOldDataValue() {
+		return oldDatavalue;
 	}
 	
 	public int getRollback() {

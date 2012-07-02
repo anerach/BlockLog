@@ -1,9 +1,11 @@
 package me.arno.blocklog.listeners;
 
+import me.arno.blocklog.logs.BlockEntry;
 import me.arno.blocklog.logs.LogType;
 
 import org.bukkit.TreeType;
 import org.bukkit.block.BlockState;
+import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.world.StructureGrowEvent;
@@ -21,7 +23,7 @@ public class WorldListener extends BlockLogListener {
 			return;
 		
 		for(BlockState block : event.getBlocks()) {
-			getQueueManager().queueBlockEdit(event.getPlayer().getName(), block, type);
+			getQueueManager().queueBlock(new BlockEntry(event.getPlayer().getName(), EntityType.PLAYER, type, block));
 		}
 	}
 	

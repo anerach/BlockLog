@@ -2,15 +2,10 @@ package me.arno.blocklog.managers;
 
 import java.util.ArrayList;
 
-import org.bukkit.block.BlockState;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
-
 import me.arno.blocklog.logs.BlockEntry;
 import me.arno.blocklog.logs.ChestEntry;
 import me.arno.blocklog.logs.DataEntry;
 import me.arno.blocklog.logs.InteractionEntry;
-import me.arno.blocklog.logs.LogType;
 
 public class QueueManager extends BlockLogManager {
 	private final ArrayList<DataEntry> dataEntries = new ArrayList<DataEntry>();
@@ -20,6 +15,15 @@ public class QueueManager extends BlockLogManager {
 	
 	public void queueData(DataEntry dataEntry) {
 		dataEntries.add(dataEntry);
+	}
+	
+	/**
+	 * Logs a block edit by a player or the environment
+	 * 
+	 * @param chestEntry {@link BlockEntry} of the edit that was made
+	 */
+	public void queueBlock(BlockEntry blockEntry) {
+		blockEntries.add(blockEntry);
 	}
 	
 	public void queueInteraction(InteractionEntry interactionEntry) {
@@ -33,54 +37,6 @@ public class QueueManager extends BlockLogManager {
 	 */
 	public void queueData(ChestEntry chestEntry) {
 		chestEntries.add(chestEntry);
-	}
-	
-	/**
-	 * Logs a block edit by the environment.
-	 * This can be either a block that has been created or a block that has been destroyed
-	 * 
-	 * @param block {@link BlockState} of the block that got destroyed
-	 * @param type {@link LogType} of the log
-	 */
-	public void queueBlockEdit(BlockState block, LogType type) {
-		queueBlockEdit("environment", block, EntityType.UNKNOWN, type);
-	}
-	
-	/**
-	 * Logs a block edit by a player.
-	 * This can be either a block that has been created or a block that has been destroyed
-	 * 
-	 * @param player The player that triggered the event
-	 * @param block {@link BlockState} of the block that got destroyed
-	 * @param type {@link LogType} of the log
-	 */
-	public void queueBlockEdit(String player, BlockState block, LogType type) {
-		queueBlockEdit(player, block, EntityType.PLAYER, type);
-	}
-	
-	/**
-	 * Logs a block edit by an entity other than a player.
-	 * This can be either a block that has been created or a block that has been destroyed
-	 * 
-	 * @param block {@link BlockState} of the block that got destroyed
-	 * @param entity {@link EntityType} of the entity that triggered this event
-	 * @param type {@link LogType} of the log
-	 */
-	public void queueBlockEdit(BlockState block, EntityType entity, LogType type) {
-		queueBlockEdit("environment", block, entity, type);
-	}
-	
-	/**
-	 * Logs a block edit by an entity that got triggered by a player.
-	 * This can be either a block that has been created or a block that has been destroyed
-	 * 
-	 * @param player The {@link Player} that triggered the event
-	 * @param block {@link BlockState} of the block that got destroyed
-	 * @param entity {@link EntityType} of the entity that triggered this event
-	 * @param type {@link LogType} of the log
-	 */
-	public void queueBlockEdit(String player, BlockState block, EntityType entity, LogType type) {
-		blockEntries.add(new BlockEntry(player, entity, type, block));
 	}
 	
 	public ArrayList<BlockEntry> getBlockEntries() {

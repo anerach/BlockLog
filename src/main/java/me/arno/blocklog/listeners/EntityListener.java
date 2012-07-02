@@ -1,5 +1,6 @@
 package me.arno.blocklog.listeners;
 
+import me.arno.blocklog.logs.BlockEntry;
 import me.arno.blocklog.logs.DataEntry;
 import me.arno.blocklog.logs.LogType;
 
@@ -50,10 +51,31 @@ public class EntityListener extends BlockLogListener {
 		for(Block block : event.blockList()) {
 			if(block.getType() != Material.TNT) {
 				if(player == null)
-					getQueueManager().queueBlockEdit(block.getState(), entityType, logType);
+					getQueueManager().queueBlock(new BlockEntry(entityType, logType, block.getState()));
 				else
-					getQueueManager().queueBlockEdit(player, block.getState(), entityType, logType);
+					getQueueManager().queueBlock(new BlockEntry(player, entityType, logType, block.getState()));
 			}
+		}
+	}
+	
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void onEntityChangeBlock(EntityChangeBlockEvent event) {
+		Entity entity = event.getEntity();
+		
+		if(!(entity instanceof Enderman))
+			return;
+		
+		BlockState state = event.getBlock().getState();
+		
+		if(event.getTo() == Material.AIR && getSettingsManager().isLoggingEnabled(entity.getWorld(), LogType.ENDERMAN_PICKUP)) {
+			getQueueManager().queueBlock(new BlockEntry(null, entity.getType(), LogType.ENDERMAN_PICKUP, state.getLocation(), state.getTypeId(), state.getRawData()));
+		} else if(getSettingsManager().isLoggingEnabled(entity.getWorld(), LogType.ENDERMAN_PLACE)) {
+			Enderman enderman = (Enderman) entity;
+			
+			if(enderman.getCarriedMaterial() != null)
+				state.setData(enderman.getCarriedMaterial());
+			
+			getQueueManager().queueBlock(new BlockEntry(null, entity.getType(), LogType.ENDERMAN_PLACE, state.getLocation(), state.getTypeId(), state.getRawData(), event.getTo().getId(), (byte) 0));
 		}
 	}
 	
@@ -75,27 +97,6 @@ public class EntityListener extends BlockLogListener {
 						getQueueManager().queueData(new DataEntry(player.getName(), LogType.PLAYER_DEATH, player.getLocation(), damager.getType().getName()));
 				}
 			}
-		}
-	}
-	
-	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-	public void onEntityChangeBlock(EntityChangeBlockEvent event) {
-		Entity entity = event.getEntity();
-		
-		if(!(entity instanceof Enderman))
-			return;
-		
-		if(event.getTo() == Material.AIR && getSettingsManager().isLoggingEnabled(entity.getWorld(), LogType.ENDERMAN_PICKUP)) {
-			getQueueManager().queueBlockEdit(event.getBlock().getState(), entity.getType(), LogType.ENDERMAN_PICKUP);
-		} else if(getSettingsManager().isLoggingEnabled(entity.getWorld(), LogType.ENDERMAN_PLACE)) {
-			Enderman enderman = (Enderman) entity;
-			BlockState state = event.getBlock().getState();
-			
-			if(enderman.getCarriedMaterial() != null) {
-				state.setData(enderman.getCarriedMaterial());
-			}
-			
-			getQueueManager().queueBlockEdit(event.getBlock().getState(), entity.getType(), LogType.ENDERMAN_PLACE);
 		}
 	}
 }

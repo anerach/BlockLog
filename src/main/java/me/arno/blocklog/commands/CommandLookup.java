@@ -1,15 +1,14 @@
 package me.arno.blocklog.commands;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
+import me.arno.blocklog.logs.BlockEntry;
 import me.arno.blocklog.logs.LogType;
-import me.arno.blocklog.util.Query;
+import me.arno.blocklog.search.BlockSearch;
 import me.arno.blocklog.util.Util;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -37,88 +36,34 @@ public class CommandLookup extends BlockLogCommand {
 		
 		Player player = (Player) sender;
 		
-		try {
-			String target = null;
-			String entity = null;
-			Integer untilTime = 0;
-			Integer sinceTime = 0;
-			Integer area = 0;
+		Syntax syn = new Syntax(args);
+		
+		int untilTime = syn.getTimeFromNow("until");
+		int sinceTime = syn.getTimeFromNow("since");
+		
+		if(untilTime != 0 && sinceTime > untilTime) {
+			player.sendMessage("Until can't be bigger than since.");
+			return true;
+		}
+		
+		BlockSearch search = new BlockSearch();
+		
+		search.setPlayer(syn.getString("player"));
+		search.setEntity(syn.getString("entity"));
+		search.setArea(syn.getInt("area"));
+		search.setLocation(new Location(Bukkit.getWorld(syn.getString("world")), syn.getInt("x"), syn.getInt("y"), syn.getInt("z")));
+		search.setRollback(syn.getInt("rollback"));
+		search.setDate(sinceTime, untilTime);
+		search.setLimit(getSettingsManager().getMaxResults());
+		
+		player.sendMessage(ChatColor.YELLOW + "Edit Search" + ChatColor.DARK_GRAY + " -------------------------------");
+		player.sendMessage(ChatColor.GRAY + Util.addSpaces("Name", 90) + Util.addSpaces("Action", 75) + "Details");
+		
+        for(BlockEntry block : search.getResults()) {
+        	String name = Material.getMaterial(block.getBlock()).toString();
+			LogType type = block.getType();
 			
-			for(int i=0;i<args.length;i+=2) {
-				String type = args[i];
-				String value = args[i+1];
-				if(type.equalsIgnoreCase("area")) {
-					area = Integer.valueOf(value);
-				} else if(type.equalsIgnoreCase("player")) {
-					target = value;
-				} else if(type.equalsIgnoreCase("entity")) {
-					entity = value;
-				} else if(type.equalsIgnoreCase("since")) {
-					Character c = value.charAt(value.length() - 1);
-					sinceTime = convertToUnixtime(Integer.valueOf(value.replace(c, ' ').trim()), c.toString());
-				} else if(type.equalsIgnoreCase("until")) {
-					Character c = value.charAt(value.length() - 1);
-					untilTime = convertToUnixtime(Integer.valueOf(value.replace(c, ' ').trim()), c.toString());
-				}
-			}
-			
-			if(untilTime != 0 && sinceTime > untilTime) {
-				player.sendMessage("Until can't be bigger than since.");
-				return true;
-			}
-			
-			World world = player.getWorld();
-			
-			Query query = new Query("blocklog_blocks");
-			query.select("*");
-			query.selectDate("date");
-			if(target != null) {
-				query.where("entity", "player");
-				query.where("triggered", target);
-			}
-			if(entity != null)
-				query.where("entity", entity);
-			if(sinceTime != 0)
-				query.where("date", sinceTime.toString(), "<");
-			if(untilTime != 0)
-				query.where("date", untilTime.toString(), ">");
-			if(area != 0) {
-				Integer xMin = player.getLocation().getBlockX() - area;
-				Integer xMax = player.getLocation().getBlockX() + area;
-				Integer yMin = player.getLocation().getBlockY() - area;
-				Integer yMax = player.getLocation().getBlockY() + area;
-				Integer zMin = player.getLocation().getBlockZ() - area;
-				Integer zMax = player.getLocation().getBlockZ() + area;
-				
-				query.where("x", xMin.toString(), ">=");
-				query.where("x", xMax.toString(), "<=");
-				
-				query.where("y", yMin.toString(), ">=");
-				query.where("y", yMax.toString(), "<=");
-				
-				query.where("z", zMin.toString(), ">=");
-				query.where("z", zMax.toString(), "<=");
-			}
-			query.where("world", world.getName());
-			query.where("rollback_id", 0);
-			query.groupBy("x");
-			query.groupBy("y");
-			query.groupBy("z");
-			query.orderBy("date", "DESC");
-			query.limit(getSettingsManager().getMaxResults());
-			
-			ResultSet actions = query.getResult();
-			player.sendMessage(ChatColor.YELLOW + "Player History" + ChatColor.DARK_GRAY + " -------------------------------");
-			player.sendMessage(ChatColor.GRAY + Util.addSpaces("Name", 90) + Util.addSpaces("Action", 75) + "Details");
-            
-            while(actions.next()) {
-				String name = Material.getMaterial(actions.getInt("block_id")).toString();
-				LogType type = LogType.values()[actions.getInt("type")];
-				
-				player.sendMessage(Util.addSpaces(ChatColor.GOLD + actions.getString("triggered"), 99) + Util.addSpaces(ChatColor.DARK_RED + type.name(), 81) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + actions.getString("date") + "]");
-			}
-		} catch(SQLException e) {
-			
+			player.sendMessage(Util.addSpaces(ChatColor.GOLD + block.getPlayer(), 99) + Util.addSpaces(ChatColor.DARK_RED + type.name(), 81) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + Util.getDate(block.getDate()) + "]");
 		}
 		return true;
 	}

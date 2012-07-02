@@ -31,36 +31,15 @@ public class CommandSimulateRollback extends BlockLogCommand {
 		Player player = (Player) sender;
 		
 		try {
-			String target = null;
-			String entity = null;
-			Integer untilTime = 0;
-			Integer sinceTime = 0;
-			Integer area = 0;
-			Integer limit = 200;
-			Integer delay = 3;
+			Syntax syn = new Syntax(args);
 			
-			for(int i=0;i<args.length;i+=2) {
-				String type = args[i];
-				String value = args[i+1];
-				if(type.equalsIgnoreCase("limit")) {
-					limit = Integer.valueOf(value);
-				} else if(type.equalsIgnoreCase("area")) {
-					area = Integer.valueOf(value);
-				} else if(type.equalsIgnoreCase("player")) {
-					target = value;
-				} else if(type.equalsIgnoreCase("entity")) {
-					entity = value;
-				} else if(type.equalsIgnoreCase("since")) {
-					Character c = value.charAt(value.length() - 1);
-					sinceTime = convertToUnixtime(Integer.valueOf(value.replace(c, ' ').trim()), c.toString());
-				} else if(type.equalsIgnoreCase("until")) {
-					Character c = value.charAt(value.length() - 1);
-					untilTime = convertToUnixtime(Integer.valueOf(value.replace(c, ' ').trim()), c.toString());
-				} else if(type.equalsIgnoreCase("delay")) {
-					Character c = value.charAt(value.length() - 1);
-					delay = Integer.valueOf(value.replace(c, ' ').trim());
-				}
-			}
+			String target = syn.getString("player");
+			String entity = syn.getString("entity");
+			int untilTime = syn.getTimeFromNow("until");
+			int sinceTime = syn.getTimeFromNow("since");
+			int area = syn.getInt("area");
+			int limit = syn.getInt("limit", 200);
+			int delay = syn.getTime("delay", "3s");
 			
 			if(untilTime != 0 && sinceTime > untilTime) {
 				player.sendMessage(ChatColor.WHITE + "Until can't be bigger than since.");

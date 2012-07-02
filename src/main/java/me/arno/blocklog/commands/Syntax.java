@@ -5,7 +5,7 @@ import java.util.HashMap;
 import me.arno.blocklog.util.Util;
 
 public class Syntax {
-	private final HashMap<String, String> args = new HashMap<String, String>();
+	private final HashMap<String, String> clauses = new HashMap<String, String>();
 	
 	public Syntax(String[] args) {
 		this(args, 0);
@@ -16,12 +16,16 @@ public class Syntax {
 			String arg = args[i];
 			String value = args[i+1];
 			
-			this.args.put(arg, value);
+			this.clauses.put(arg, value);
 		}
 	}
 	
+	public boolean containsArg(String arg) {
+		return clauses.containsKey(arg);
+	}
+	
 	public String getString(String arg) {
-		return args.containsKey(arg) ? args.get(arg) : null;
+		return clauses.containsKey(arg) ? clauses.get(arg) : null;
 	}
 	
 	public int getInt(String arg) {
@@ -29,7 +33,7 @@ public class Syntax {
 	}
 	
 	public int getInt(String arg, int defaultVal) {
-		String value = args.containsKey(arg) ? args.get(arg) : null;
+		String value = clauses.containsKey(arg) ? clauses.get(arg) : null;
 		
 		if(value == null)
 			return defaultVal;
@@ -45,7 +49,7 @@ public class Syntax {
 	}
 	
 	public int getTime(String arg, String defaultTime) {
-		String value = args.containsKey(arg) ? args.get(arg) : defaultTime;
+		String value = clauses.containsKey(arg) ? clauses.get(arg) : defaultTime;
 		
 		if(value.equalsIgnoreCase("0s"))
 			return 0;

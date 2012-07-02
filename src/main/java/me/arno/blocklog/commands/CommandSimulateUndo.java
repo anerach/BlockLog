@@ -31,8 +31,10 @@ public class CommandSimulateUndo extends BlockLogCommand {
 		int rollbackID = 0;
 		
 		try {
-			Integer limit = 200;
-			Integer delay = 3;
+			Syntax syn = new Syntax(args);
+
+			int limit = syn.getInt("limit", 200);
+			int delay = syn.getTime("delay", "3s");
 			
 			for(int i=1;i<args.length;i+=2) {
 				String type = args[i];

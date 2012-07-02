@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 
 import me.arno.blocklog.Undo;
+import me.arno.blocklog.util.Syntax;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;

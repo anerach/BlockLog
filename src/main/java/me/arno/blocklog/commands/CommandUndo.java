@@ -7,6 +7,7 @@ import java.util.HashMap;
 import me.arno.blocklog.Undo;
 import me.arno.blocklog.schedules.RollbackSchedule;
 import me.arno.blocklog.util.Query;
+import me.arno.blocklog.util.Syntax;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;

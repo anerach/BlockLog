@@ -6,6 +6,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import me.arno.blocklog.Rollback;
+import me.arno.blocklog.util.Syntax;
 
 public class CommandSimulateRollback extends BlockLogCommand {
 	public CommandSimulateRollback() {

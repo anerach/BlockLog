@@ -8,6 +8,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import me.arno.blocklog.util.Query;
+import me.arno.blocklog.util.Syntax;
 
 public class CommandRollbackList extends BlockLogCommand {
 	public CommandRollbackList() {

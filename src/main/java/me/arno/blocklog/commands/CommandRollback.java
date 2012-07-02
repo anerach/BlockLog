@@ -12,6 +12,7 @@ import org.bukkit.entity.Player;
 import me.arno.blocklog.Rollback;
 import me.arno.blocklog.schedules.RollbackSchedule;
 import me.arno.blocklog.util.Query;
+import me.arno.blocklog.util.Syntax;
 
 public class CommandRollback extends BlockLogCommand {
 	public CommandRollback() {

@@ -1,8 +1,6 @@
-package me.arno.blocklog.commands;
+package me.arno.blocklog.util;
 
 import java.util.HashMap;
-
-import me.arno.blocklog.util.Util;
 
 public class Syntax {
 	private final HashMap<String, String> clauses = new HashMap<String, String>();

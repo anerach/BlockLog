@@ -3,6 +3,7 @@ package me.arno.blocklog.commands;
 import me.arno.blocklog.logs.BlockEntry;
 import me.arno.blocklog.logs.LogType;
 import me.arno.blocklog.search.BlockSearch;
+import me.arno.blocklog.util.Syntax;
 import me.arno.blocklog.util.Util;
 
 import org.bukkit.Bukkit;

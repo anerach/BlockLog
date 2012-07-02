@@ -44,9 +44,6 @@ public class BlockLog extends JavaPlugin {
 	
 	private HashMap<Integer, Integer> schedules = new HashMap<Integer, Integer>();
 	
-	public String newVersion;
-	public String currentVersion;
-	
 	public int autoSave = 0;
 	public boolean saving = false;
 	

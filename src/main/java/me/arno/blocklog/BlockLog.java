@@ -24,7 +24,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -38,9 +37,7 @@ public class BlockLog extends JavaPlugin {
 	private QueueManager queueManager;
 	private DependencyManager dependencyManager;
 	
-	public ArrayList<String> users = new ArrayList<String>();
-	public HashMap<String, ItemStack> playerItemStack = new HashMap<String, ItemStack>();
-	public HashMap<String, Integer> playerItemSlot = new HashMap<String, Integer>();
+	public HashMap<String, WandSettings> wandSettings = new HashMap<String, WandSettings>();
 	
 	private HashMap<Integer, Integer> schedules = new HashMap<Integer, Integer>();
 	

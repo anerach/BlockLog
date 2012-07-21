@@ -4,17 +4,29 @@ import org.bukkit.inventory.ItemStack;
 
 public class WandSettings {
 	private int maxResults;
+	private int since;
+	private int until;
 	private ResultType resultType;
 	private PlayerItem previousItem;
 	
-	public WandSettings(int results, PlayerItem previousItem, ResultType resultType) {
+	public WandSettings(int results, int since, int until, PlayerItem previousItem, ResultType resultType) {
 		this.maxResults = results;
+		this.since = since;
+		this.until = until;
 		this.previousItem = previousItem;
 		this.resultType = resultType;
 	}
 	
 	public int getMaxResults() {
 		return maxResults;
+	}
+	
+	public int getSince() {
+		return since;
+	}
+	
+	public int getUntil() {
+		return until;
 	}
 	
 	public ResultType getResultType() {

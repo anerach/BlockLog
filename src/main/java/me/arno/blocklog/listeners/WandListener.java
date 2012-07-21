@@ -62,7 +62,12 @@ public class WandListener extends BlockLogListener {
 				Query blockQuery = null;
 				Query chestQuery = null;
 				Query interactionQuery = null;
-
+				
+				if(wandSettings.getSince() != 0)
+					query.where("date", wandSettings.getSince(), ">");
+				if(wandSettings.getUntil() != 0)
+					query.where("date", wandSettings.getUntil(), "<");
+				
 				query.orderBy("date", "DESC");
 				query.limit(maxResults - blockCount);
 

@@ -15,7 +15,7 @@ import org.bukkit.inventory.ItemStack;
 public class CommandWand extends BlockLogCommand {
 	public CommandWand() {
 		super("blocklog.wand");
-		setCommandUsage("/bl wand [results <amount>] [type <all|blocks|chests|interactions>]");
+		setCommandUsage("/bl wand [results <value>] [since <value>] [until <value>] [type <all|blocks|chests|interactions>]");
 	}
 	
 	@Override
@@ -52,7 +52,7 @@ public class CommandWand extends BlockLogCommand {
 			if(resultType == null)
 				resultType = ResultType.ALL;
 			
-			WandSettings wandSettings = new WandSettings(syn.getInt("results", getSettingsManager().getMaxResults()), new PlayerItem(player.getItemInHand(), player.getInventory().getHeldItemSlot()), resultType);
+			WandSettings wandSettings = new WandSettings(syn.getInt("results", getSettingsManager().getMaxResults()), syn.getTime("since"), syn.getTime("until"), new PlayerItem(player.getItemInHand(), player.getInventory().getHeldItemSlot()), resultType);
 			
 			plugin.wandSettings.put(player.getName(), wandSettings);
 

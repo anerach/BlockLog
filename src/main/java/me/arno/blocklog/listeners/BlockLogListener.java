@@ -16,12 +16,16 @@ public class BlockLogListener implements Listener {
 	private float time;
 	
 	public BlockLogListener() {
-		this.plugin = BlockLog.plugin;
+		this.plugin = BlockLog.getInstance();
 		this.log = plugin.log;
 	}
 	
 	public void sendAdminMessage(String msg) {
 		Bukkit.broadcast(msg, "blocklog.notices");
+	}
+	
+	public DatabaseManager getDatabaseManager() {
+		return plugin.getDatabaseManager();
 	}
 	
 	public SettingsManager getSettingsManager() {

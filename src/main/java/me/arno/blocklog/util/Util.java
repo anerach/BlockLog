@@ -24,7 +24,7 @@ public class Util {
 	}
 	
 	public static String getDate(long time) {
-		String format = BlockLog.plugin.getSettingsManager().getDateFormat();
+		String format = BlockLog.getInstance().getSettingsManager().getDateFormat();
 		
 		Calendar calendar = GregorianCalendar.getInstance();
 		calendar.setTimeInMillis(time * 1000);
@@ -52,7 +52,7 @@ public class Util {
 	
 	public static String getResourceContent(String file) {
 		try {
-			InputStream resourceFile = BlockLog.plugin.getResource("resources/" + file);
+			InputStream resourceFile = BlockLog.getInstance().getResource("resources/" + file);
 			 
 			final char[] buffer = new char[0x10000];
 			StringBuilder strBuilder = new StringBuilder();

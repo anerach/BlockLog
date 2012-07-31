@@ -1,7 +1,5 @@
 package me.arno.blocklog.schedules;
 
-import java.sql.SQLException;
-
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.managers.QueueManager;
 
@@ -12,38 +10,30 @@ public class SaveSchedule implements Runnable {
 	private final BlockLog plugin;
 
 	private final CommandSender sender;
-	private final Integer count;
-	private final Boolean messages;
+	private final int count;
+	private final boolean messages;
 
-	public SaveSchedule(Integer count, CommandSender sender) {
+	public SaveSchedule(int count, CommandSender sender) {
 		this(count, sender, true);
 	}
 
-	public SaveSchedule(Integer count, CommandSender sender, Boolean messages) {
-		this.plugin = BlockLog.plugin;
+	public SaveSchedule(int count, CommandSender sender, boolean messages) {
+		this.plugin = BlockLog.getInstance();
 		this.count = count;
 		this.sender = sender;
 		this.messages = messages;
 	}
 	
+	private QueueManager getQueueManager() {
+		return BlockLog.getInstance().getQueueManager();
+	}
+	
 	@Override
 	public void run() {
-		try {
-			if(plugin.conn == null)
-				plugin.conn = plugin.getDatabaseManager().getConnection();
-			
-			if(plugin.conn.isClosed())
-				plugin.conn = plugin.getDatabaseManager().getConnection();
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		
 		if(!plugin.saving || count == 1) {
 			plugin.saving = true;
-			if(messages) {
-				if(sender != null) sender.sendMessage(ChatColor.DARK_RED + "[BlockLog]" + ChatColor.GOLD + " Saving " + ((count == 0) ? "all the" : count) + " block edits");
-			}
+			
+			if(messages && sender != null) sender.sendMessage(ChatColor.DARK_RED + "[BlockLog]" + ChatColor.GOLD + " Saving " + ((count == 0) ? "all the" : count) + " block edits");
 	
 			if(count == 0) {
 				while(!getQueueManager().isQueueEmpty()) {
@@ -59,13 +49,7 @@ public class SaveSchedule implements Runnable {
 	
 			plugin.saving = false;
 	
-			if(messages) {
-				if(sender != null) sender.sendMessage(ChatColor.DARK_RED + "[BlockLog]" + ChatColor.GOLD + " Successfully saved " + ((count == 0) ? "all the" : count) + " block edits");
-			}
+			if(messages && sender != null) sender.sendMessage(ChatColor.DARK_RED + "[BlockLog]" + ChatColor.GOLD + " Successfully saved " + ((count == 0) ? "all the" : count) + " block edits");
 		}
-	}
-	
-	private QueueManager getQueueManager() {
-		return BlockLog.plugin.getQueueManager();
 	}
 }

@@ -13,7 +13,7 @@ public class DependencyManager extends BlockLogManager {
 	private final HashMap<String, Plugin> availableDependencies = new HashMap<String, Plugin>();
 	
 	public DependencyManager() {
-		PluginManager pm = BlockLog.plugin.getServer().getPluginManager();
+		PluginManager pm = BlockLog.getInstance().getServer().getPluginManager();
 		for(String dependency : optionalDependencies) {
 			if(pm.isPluginEnabled(dependency))
 				availableDependencies.put(dependency, pm.getPlugin(dependency));

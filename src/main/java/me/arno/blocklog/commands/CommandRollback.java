@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -82,12 +83,12 @@ public class CommandRollback extends BlockLogCommand {
 			int rollbackID = rollback.getInt("id");
 			
 			Rollback rb = new Rollback(player, target, entity, sinceTime, untilTime, area, delay, limit, rollbackID);
+			int blockCount = rb.getAffectedBlockCount();
+			
 			RollbackSchedule rbSchedule = new RollbackSchedule(rb);
-			int sid = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, rbSchedule, 20L, delay * 20L);
+			int sid = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, rbSchedule, 20L, delay * 20L);
 			rbSchedule.setId(sid);
 			addSchedule(sid, rollbackID);
-			
-			int blockCount = rb.getAffectedBlockCount();
 			
 			player.sendMessage(ChatColor.BLUE + "This rollback will affect " + ChatColor.GOLD + blockCount + " blocks");
 			player.sendMessage(ChatColor.BLUE + "At a speed of " + ChatColor.GOLD + (limit/delay) + " blocks/second");

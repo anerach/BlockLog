@@ -25,7 +25,7 @@ public class RollbackSchedule implements Runnable {
 	private int sid;
 	
 	public RollbackSchedule(Undo undo) {
-		this.plugin = BlockLog.plugin;
+		this.plugin = BlockLog.getInstance();
 		this.player = undo.getSender();
 		this.limit = undo.getLimit();
 		this.rollback = undo.getRollback();
@@ -37,7 +37,7 @@ public class RollbackSchedule implements Runnable {
 	}
 	
 	public RollbackSchedule(Rollback rb) {
-		this.plugin = BlockLog.plugin;
+		this.plugin = BlockLog.getInstance();
 		this.player = rb.getSender();
 		this.limit = rb.getLimit();
 		this.rollback = rb.getId();
@@ -48,7 +48,7 @@ public class RollbackSchedule implements Runnable {
 		this.totalBlocks = Integer.valueOf(blockEntries.size());
 	}
 	
-	public void setId(Integer sid) {
+	public void setId(int sid) {
 		this.sid = sid;
 	}
 	

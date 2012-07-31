@@ -28,7 +28,7 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class BlockLog extends JavaPlugin {
-	public static BlockLog plugin;
+	private static BlockLog plugin;
 	public Logger log;
 	public Connection conn;
 	
@@ -43,6 +43,10 @@ public class BlockLog extends JavaPlugin {
 	
 	public int autoSave = 0;
 	public boolean saving = false;
+	
+	public static BlockLog getInstance() {
+		return plugin;
+	}
 	
 	public HashMap<Integer, Integer> getSchedules() {
 		return schedules;
@@ -271,7 +275,7 @@ public class BlockLog extends JavaPlugin {
 			}
 			log.info("Successfully saved all the queued logs!");
 			
-			if(conn != null)
+			if(conn != null && !conn.isClosed())
 				conn.close();
 		} catch(SQLException e) {
 			e.printStackTrace();

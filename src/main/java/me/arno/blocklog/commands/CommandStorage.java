@@ -1,5 +1,6 @@
 package me.arno.blocklog.commands;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 
 import me.arno.blocklog.util.Query;
@@ -26,12 +27,14 @@ public class CommandStorage extends BlockLogCommand {
 		}
 		
 		try {
+			Connection conn = getDatabaseManager().getConnection();
 			sender.sendMessage(ChatColor.YELLOW + "BlockLog Queue" + ChatColor.DARK_GRAY + " -------------------------------");
 			sender.sendMessage(ChatColor.GRAY + Util.addSpaces("Queue", 100) + "Amount");
-			sender.sendMessage(Util.addSpaces(ChatColor.GOLD + "Blocks", 109) + new Query("blocklog_blocks").getRowCount());
-			sender.sendMessage(Util.addSpaces(ChatColor.GOLD + "Chests", 109) + new Query("blocklog_chests").getRowCount());
-			sender.sendMessage(Util.addSpaces(ChatColor.GOLD + "Data", 109) + new Query("blocklog_data").getRowCount());
-			sender.sendMessage(Util.addSpaces(ChatColor.GOLD + "Interactions", 109) + new Query("blocklog_interactions").getRowCount());
+			sender.sendMessage(Util.addSpaces(ChatColor.GOLD + "Blocks", 109) + new Query("blocklog_blocks").getRowCount(conn));
+			sender.sendMessage(Util.addSpaces(ChatColor.GOLD + "Chests", 109) + new Query("blocklog_chests").getRowCount(conn));
+			sender.sendMessage(Util.addSpaces(ChatColor.GOLD + "Data", 109) + new Query("blocklog_data").getRowCount(conn));
+			sender.sendMessage(Util.addSpaces(ChatColor.GOLD + "Interactions", 109) + new Query("blocklog_interactions").getRowCount(conn));
+			conn.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

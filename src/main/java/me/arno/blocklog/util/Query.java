@@ -60,7 +60,7 @@ public class Query {
 	}
 	
 	public Query selectDate(String select, String format, String as) {
-		String defaultFormat = BlockLog.plugin.getSettingsManager().getDateFormat();
+		String defaultFormat = BlockLog.getInstance().getSettingsManager().getDateFormat();
 		format = (format == null) ? defaultFormat : format;
 		String str = "FROM_UNIXTIME(" + select + ", '" + format + "')" + (as == null ? "" : " AS " + as);
 		
@@ -193,6 +193,10 @@ public class Query {
 	}
 	
 	public int deleteRows() throws SQLException {
+		return deleteRows(BlockLog.getInstance().conn);
+	}
+	
+	public int deleteRows(Connection conn) throws SQLException {
 		String query = "DELETE";
 		if(fromClause != null)
 			query += " " + fromClause;
@@ -201,21 +205,33 @@ public class Query {
 		if(whereClause != null)
 			query += " " + whereClause;
 		
-		Connection conn = BlockLog.plugin.conn;
 		Statement stmt = conn.createStatement();
+		int affected = stmt.executeUpdate(query);
 		
-		return stmt.executeUpdate(query);
+		stmt.close();
+		
+		return affected;
 	}
 	
 	public ResultSet getResult() throws SQLException {
-		Connection conn = BlockLog.plugin.conn;
-		Statement stmt = conn.createStatement();
-		
-		return stmt.executeQuery(getQuery());
+		return getResult(BlockLog.getInstance().conn);
 	}
 	
+	public ResultSet getResult(Connection conn) throws SQLException {
+		Statement stmt = conn.createStatement();
+		
+		ResultSet rs = stmt.executeQuery(getQuery());
+		
+		stmt.close();
+		
+		return rs;
+	}
+
 	public int getRowCount() throws SQLException {
-		Connection conn = BlockLog.plugin.conn;
+		return getRowCount(BlockLog.getInstance().conn);
+	}
+	
+	public int getRowCount(Connection conn) throws SQLException {
 		Statement stmt = conn.createStatement();
 		
 		String query = "SELECT COUNT(*) AS count";
@@ -236,11 +252,19 @@ public class Query {
 		
 		ResultSet rs = stmt.executeQuery(query);
 		rs.next();
-		return rs.getInt("count");
+		int count = rs.getInt("count");
+		
+		rs.close();
+		stmt.close();
+		
+		return count;
 	}
 	
-	public int insert(HashMap<String, Object> rowsValues) throws SQLException {
-		Connection conn = BlockLog.plugin.conn;
+	public int insert(HashMap<String, Object> values) throws SQLException {
+		return insert(values, BlockLog.getInstance().conn);
+	}
+	
+	public int insert(HashMap<String, Object> hashMap, Connection conn) throws SQLException {
 		Statement stmt = conn.createStatement();
 		
 		String rows = "";
@@ -248,13 +272,16 @@ public class Query {
 		
 		boolean first = true;
 		
-		Set<Entry<String, Object>> argSet = rowsValues.entrySet();
+		Set<Entry<String, Object>> argSet = hashMap.entrySet();
 		for (Entry<String, Object> arg : argSet) {
 			rows += (first) ? "`" + arg.getKey() + "`" : ", `" + arg.getKey() + "`";
 			values += (first) ? "'" + arg.getValue() + "'" : ", '" + arg.getValue() + "'";
 			first = false;
 	    }
 		
-		return stmt.executeUpdate("INSERT INTO " + table + " (" + rows + ") VALUES (" + values + ")");
+		int affected = stmt.executeUpdate("INSERT INTO " + table + " (" + rows + ") VALUES (" + values + ")");
+		stmt.close();
+		
+		return affected;
 	}
 }

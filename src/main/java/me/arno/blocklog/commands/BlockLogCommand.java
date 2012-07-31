@@ -1,6 +1,5 @@
 package me.arno.blocklog.commands;
 
-import java.sql.Connection;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
@@ -18,7 +17,6 @@ import me.arno.blocklog.managers.SettingsManager;
 public class BlockLogCommand {
 	public final BlockLog plugin;
 	public final Logger log;
-	public final Connection conn;
 	public final String permission;
 	public final boolean console;
 	
@@ -37,9 +35,8 @@ public class BlockLogCommand {
 	}
 	
 	public BlockLogCommand(String permission, Boolean console) {
-		this.plugin = BlockLog.plugin;
+		this.plugin = BlockLog.getInstance();
 		this.log = plugin.log;
-		this.conn = plugin.conn;
 		this.permission = permission;
 		this.console = console;
 	}

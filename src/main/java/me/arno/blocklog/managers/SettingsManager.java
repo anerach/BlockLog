@@ -82,14 +82,14 @@ public class SettingsManager extends BlockLogManager {
 	}
 	
 	public FileConfiguration getConfig() {
-		return BlockLog.plugin.getConfig();
+		return BlockLog.getInstance().getConfig();
 	}
 	
 	public void saveConfig() {
-		BlockLog.plugin.saveConfig();
+		BlockLog.getInstance().saveConfig();
 	}
 	
 	public void reloadConfig() {
-		BlockLog.plugin.reloadConfig();
+		BlockLog.getInstance().reloadConfig();
 	}
 }

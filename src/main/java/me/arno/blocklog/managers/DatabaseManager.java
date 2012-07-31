@@ -22,8 +22,8 @@ public class DatabaseManager extends BlockLogManager {
 		} catch (InstantiationException e) {
 		} catch (IllegalAccessException e) {
 		} catch (SQLException e) {
-			BlockLog.plugin.log.severe("Unable to connect to the MySQL Server");
-			BlockLog.plugin.log.severe("Please check your MySQL settings in your config.yml");
+			BlockLog.getInstance().log.severe("Unable to connect to the MySQL Server");
+			BlockLog.getInstance().log.severe("Please check your MySQL settings in your config.yml");
 		} catch (ClassNotFoundException e) {
 			throw new SQLException("Unable to find the MySQL JDBC Driver");
 		}
@@ -55,22 +55,22 @@ public class DatabaseManager extends BlockLogManager {
 	}
 	
 	public String getHost() {
-		return BlockLog.plugin.getConfig().getString("mysql.host");
+		return BlockLog.getInstance().getConfig().getString("mysql.host");
 	}
 	
 	public String getUsername() {
-		return BlockLog.plugin.getConfig().getString("mysql.username");
+		return BlockLog.getInstance().getConfig().getString("mysql.username");
 	}
 	
 	public String getPassword() {
-		return BlockLog.plugin.getConfig().getString("mysql.password");
+		return BlockLog.getInstance().getConfig().getString("mysql.password");
 	}
 	
 	public String getDatabase() {
-		return BlockLog.plugin.getConfig().getString("mysql.database");
+		return BlockLog.getInstance().getConfig().getString("mysql.database");
 	}
 	
 	public int getPort() {
-		return BlockLog.plugin.getConfig().getInt("mysql.port");
+		return BlockLog.getInstance().getConfig().getInt("mysql.port");
 	}
 }

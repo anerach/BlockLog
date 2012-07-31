@@ -1,9 +1,9 @@
 package me.arno.blocklog.commands;
 
 import java.sql.ResultSet;
-import java.sql.Statement;
 
 import me.arno.blocklog.Undo;
+import me.arno.blocklog.util.Query;
 import me.arno.blocklog.util.Syntax;
 
 import org.bukkit.ChatColor;
@@ -37,22 +37,10 @@ public class CommandSimulateUndo extends BlockLogCommand {
 			int limit = syn.getInt("limit", 200);
 			int delay = syn.getTime("delay", "3s");
 			
-			for(int i=1;i<args.length;i+=2) {
-				String type = args[i];
-				String value = args[i+1];
-				if(type.equalsIgnoreCase("limit")) {
-					limit = Integer.valueOf(value);
-				} else if(type.equalsIgnoreCase("delay")) {
-					Character c = value.charAt(value.length() - 1);
-					delay = Integer.valueOf(value.replace(c, ' ').trim());
-				}
-			}
-			
-			Statement rollbackStmt = conn.createStatement();
 			if(args.length == 1) {
 				rollbackID = Integer.valueOf(args[0]);
 			} else {
-				ResultSet rs = rollbackStmt.executeQuery("SELECT id FROM blocklog_rollbacks ORDER BY id DESC");
+				ResultSet rs = new Query("blocklog_rollbacks").select("id").orderBy("id", "DESC").getResult();
 				rs.next();
 				rollbackID = rs.getInt("id");
 			}

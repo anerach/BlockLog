@@ -30,8 +30,8 @@ public class CommandCancel extends BlockLogCommand {
 			if(getSchedules().containsKey(sid)) {
 				Bukkit.getServer().getScheduler().cancelTask(sid);
 				
-				sender.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "You've cancelled the scheduled rollback #" + sid);
-				sender.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "Use the command " + ChatColor.GREEN + "/bl undo " + getSchedules().get(sid) + ChatColor.GOLD + " to undo this rollback!");
+				sender.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "You've cancelled the scheduled rollback/undo #" + sid);
+				sender.sendMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "Use the command " + ChatColor.GREEN + "/bl undo " + getSchedules().get(sid) + ChatColor.GOLD + " to undo the changes made by the rollback!");
 			} else {
 				sender.sendMessage(ChatColor.BLUE + "There is no scheduled rollback with the id #" + sid);
 			}

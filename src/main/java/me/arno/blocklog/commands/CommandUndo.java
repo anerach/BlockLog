@@ -9,6 +9,7 @@ import me.arno.blocklog.schedules.RollbackSchedule;
 import me.arno.blocklog.util.Query;
 import me.arno.blocklog.util.Syntax;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -40,17 +41,6 @@ public class CommandUndo extends BlockLogCommand {
 			int limit = syn.getInt("limit", 200);
 			int delay = syn.getTime("delay", "3s");
 			
-			for(int i=1;i<args.length;i+=2) {
-				String type = args[i];
-				String value = args[i+1];
-				if(type.equalsIgnoreCase("limit")) {
-					limit = Integer.valueOf(value);
-				} else if(type.equalsIgnoreCase("delay")) {
-					Character c = value.charAt(value.length() - 1);
-					delay = Integer.valueOf(value.replace(c, ' ').trim());
-				}
-			}
-			
 			if(args.length == 1) {
 				rollbackID = Integer.valueOf(args[0]);
 			} else {
@@ -74,11 +64,12 @@ public class CommandUndo extends BlockLogCommand {
 			query.insert(values);
 			
 			Undo undo = new Undo(player, delay, limit, rollbackID);
-			RollbackSchedule undoSchedule = new RollbackSchedule(undo);
-			int sid = plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, undoSchedule, 20L, delay * 20L);
-			undoSchedule.setId(sid);
+			int blockCount = undo.getAffectedBlockCount();
 			
-			int blockCount = undoSchedule.getBlockCount();
+			RollbackSchedule undoSchedule = new RollbackSchedule(undo);
+			int sid = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, undoSchedule, 20L, delay * 20L);
+			undoSchedule.setId(sid);
+			addSchedule(sid, rollbackID);
 			
 			player.sendMessage(ChatColor.BLUE + "This undo will affect " + ChatColor.GOLD + blockCount + " blocks");
 			player.sendMessage(ChatColor.BLUE + "At a speed of about " + ChatColor.GOLD + Math.round(limit/delay) + " blocks/second");

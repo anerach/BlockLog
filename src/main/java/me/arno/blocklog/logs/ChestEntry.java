@@ -1,24 +1,33 @@
 package me.arno.blocklog.logs;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 
 import me.arno.blocklog.util.Query;
 
-import org.bukkit.block.BlockState;
-import org.bukkit.entity.EntityType;
+import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
-public class ChestEntry extends BlockEntry {
-	private ItemStack[] items;
+public class ChestEntry extends DataEntry {
+	private LogType type;
+	private ItemStack[] items = null;
+	private ItemStack item = null;
 	
-	public ChestEntry(String player, BlockState block, ItemStack[] items) {
-		super(player, EntityType.PLAYER, LogType.INTERACTION, block);
+	// Used for gathering chestEntries from the database
+	public ChestEntry(String player, Location loc, LogType type, ItemStack item) {
+		super(player, LogType.CHEST_PUT, loc, null);
+		this.item = item;
+	}
+	
+	// Used for storing chestEntries
+	public ChestEntry(String player, Location loc, ItemStack[] items) {
+		super(player, LogType.CHEST_PUT, loc, null);
 		this.items = items;
 	}
 	
 	@Override
-	public void save() {
+	public void save(Connection conn) {
 		try {
 			Query query = new Query("blocklog_chests");
 			HashMap<String, Object> values = new HashMap<String, Object>();
@@ -41,11 +50,19 @@ public class ChestEntry extends BlockEntry {
 				values.put("data", itemStack.getData().getData());
 				values.put("type", getTypeId());
 				
-				query.insert(values);
+				query.insert(values, conn);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public LogType getType() {
+		return type;
+	}
+	
+	public ItemStack getItem() {
+		return item;
 	}
 	
 	public ItemStack[] getItems() {

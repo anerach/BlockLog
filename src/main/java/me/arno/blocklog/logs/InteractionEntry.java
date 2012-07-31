@@ -1,5 +1,6 @@
 package me.arno.blocklog.logs;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 
@@ -17,7 +18,7 @@ public class InteractionEntry extends DataEntry {
 	}
 	
 	@Override
-	public void save() {
+	public void save(Connection conn) {
 		try {
 			Query query = new Query("blocklog_interactions");
 			HashMap<String, Object> values = new HashMap<String, Object>();
@@ -30,7 +31,7 @@ public class InteractionEntry extends DataEntry {
 			values.put("z", getX());
 			values.put("date", getDate());
 			
-			query.insert(values);
+			query.insert(values, conn);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

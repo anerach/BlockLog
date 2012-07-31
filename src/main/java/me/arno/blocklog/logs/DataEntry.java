@@ -1,5 +1,6 @@
 package me.arno.blocklog.logs;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 
@@ -40,7 +41,7 @@ public class DataEntry {
 		this.data = data;
 	}
 	
-	public void save() {
+	public void save(Connection conn) {
 		try {
 			Query query = new Query("blocklog_data");
 			
@@ -55,7 +56,7 @@ public class DataEntry {
 			values.put("type", getTypeId());
 			values.put("date", getDate());
 			
-			query.insert(values);
+			query.insert(values, conn);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

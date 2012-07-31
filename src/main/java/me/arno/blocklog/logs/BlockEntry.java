@@ -1,5 +1,6 @@
 package me.arno.blocklog.logs;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
@@ -85,7 +86,7 @@ public class BlockEntry extends DataEntry {
 			if(this.getId() == 0) {
 				this.setRollback(rollback);
 			} else {
-				Statement stmt = BlockLog.plugin.conn.createStatement();
+				Statement stmt = BlockLog.getInstance().conn.createStatement();
 				stmt.executeUpdate("UPDATE blocklog_blocks SET rollback = " + rollback + " WHERE id = " + id);
 			}
 			return true;
@@ -94,9 +95,9 @@ public class BlockEntry extends DataEntry {
 		}
 		return false;
 	}
-
+	
 	@Override
-	public void save() {
+	public void save(Connection conn) {
 		try {
 			Query query = new Query("blocklog_blocks");
 			HashMap<String, Object> values = new HashMap<String, Object>();
@@ -115,7 +116,7 @@ public class BlockEntry extends DataEntry {
 			values.put("z", getZ());
 			values.put("date", getDate());
 			
-			query.insert(values);
+			query.insert(values, conn);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

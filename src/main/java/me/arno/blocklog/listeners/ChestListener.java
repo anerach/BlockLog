@@ -41,7 +41,7 @@ public class ChestListener extends BlockLogListener {
 		if(diff.length <= 0)
 			return;
 		
-		getQueueManager().queueData(new ChestEntry(player.getName(), state, diff));
+		getQueueManager().queueData(new ChestEntry(player.getName(), state.getLocation(), diff));
 		
 		containers.remove(player.getName());
 	}

@@ -1,5 +1,7 @@
 package me.arno.blocklog.managers;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import me.arno.blocklog.logs.BlockEntry;
@@ -8,10 +10,19 @@ import me.arno.blocklog.logs.DataEntry;
 import me.arno.blocklog.logs.InteractionEntry;
 
 public class QueueManager extends BlockLogManager {
+	private Connection conn;
 	private final ArrayList<DataEntry> dataEntries = new ArrayList<DataEntry>();
 	private final ArrayList<BlockEntry> blockEntries = new ArrayList<BlockEntry>();
 	private final ArrayList<InteractionEntry> interactionEntries = new ArrayList<InteractionEntry>();
 	private final ArrayList<ChestEntry> chestEntries = new ArrayList<ChestEntry>();
+	
+	public QueueManager() {
+		try {
+			conn = getDatabaseManager().getConnection();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
 	
 	public void queueData(DataEntry dataEntry) {
 		dataEntries.add(dataEntry);
@@ -35,12 +46,20 @@ public class QueueManager extends BlockLogManager {
 	 * 
 	 * @param chestEntry {@link ChestEntry} of the chest that got opened
 	 */
-	public void queueData(ChestEntry chestEntry) {
+	public void queueChest(ChestEntry chestEntry) {
 		chestEntries.add(chestEntry);
 	}
 	
 	public ArrayList<BlockEntry> getBlockEntries() {
 		return blockEntries;
+	}
+
+	public ArrayList<ChestEntry> getChestEntries() {
+		return chestEntries;
+	}
+	
+	public ArrayList<InteractionEntry> getInteractionEntries() {
+		return interactionEntries;
 	}
 	
 	public ArrayList<DataEntry> getDataEntries() {
@@ -201,7 +220,7 @@ public class QueueManager extends BlockLogManager {
 			if(getEditQueueSize() > index) {
 				BlockEntry edit = getQueuedEdit(index);
 				if(edit != null) {
-					edit.save();
+					edit.save(conn);
 					blockEntries.remove(index);
 				}
 			}
@@ -218,7 +237,7 @@ public class QueueManager extends BlockLogManager {
 			if(getInteractionQueueSize() > index) {
 				InteractionEntry interaction = getQueuedInteraction(index);
 				if(interaction != null) {
-					interaction.save();
+					interaction.save(conn);
 					interactionEntries.remove(index);
 				}
 			}
@@ -235,7 +254,7 @@ public class QueueManager extends BlockLogManager {
 			if(getDataQueueSize() > index) {
 				DataEntry data = getQueuedData(index);
 				if(data != null) {
-					data.save();
+					data.save(conn);
 					dataEntries.remove(index);
 				}
 			}
@@ -252,7 +271,7 @@ public class QueueManager extends BlockLogManager {
 			if(getChestQueueSize() > index) {
 				ChestEntry chest = getQueuedChest(index);
 				if(chest != null) {
-					chest.save();
+					chest.save(conn);
 					chestEntries.remove(index);
 				}
 			}

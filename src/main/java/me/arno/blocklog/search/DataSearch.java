@@ -1,5 +1,6 @@
 package me.arno.blocklog.search;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import me.arno.blocklog.logs.LogType;
 import me.arno.blocklog.util.Query;
 
 public class DataSearch {
+	private Connection conn;
 	private String player;
 	private String data;
 	
@@ -25,6 +27,9 @@ public class DataSearch {
 	private int until = 0;
 	
 	private int limit = 5;
+
+	public DataSearch() { this.conn = BlockLog.getInstance().conn; }
+	public DataSearch(Connection conn) { this.conn = conn; }
 	
 	public boolean groupByLocation = true;
 	
@@ -88,9 +93,9 @@ public class DataSearch {
 		query.orderBy("date", "DESC");
 		
 		try {
-			ResultSet rs = query.getResult();
+			ResultSet rs = query.getResult(conn);
 			
-			for(DataEntry edit : BlockLog.plugin.getQueueManager().getDataEntries()) {
+			for(DataEntry edit : BlockLog.getInstance().getQueueManager().getDataEntries()) {
 				if(limit == 0)
 					break;
 				if(checkEdit(edit)) {

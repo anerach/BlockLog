@@ -8,45 +8,31 @@ import java.util.ArrayList;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.entity.EntityType;
+import org.bukkit.inventory.ItemStack;
 
 import me.arno.blocklog.BlockLog;
-import me.arno.blocklog.logs.BlockEntry;
+import me.arno.blocklog.logs.ChestEntry;
 import me.arno.blocklog.logs.LogType;
 import me.arno.blocklog.util.Query;
 
-public class BlockSearch {
+public class ChestSearch {
 	private Connection conn;
 	private String player;
-	private String entity;
 	
 	private String world;
 	private Location location;
 	private int area = 0;
 	
-	private int rollback = 0;
-	
 	private int since = 0;
 	private int until = 0;
 	
-	private boolean groupByLocation = true;
-	
 	private int limit = 5;
-	
-	public BlockSearch() { this.conn = BlockLog.getInstance().conn; }
-	public BlockSearch(Connection conn) { this.conn = conn; }
 
+	public ChestSearch() { this.conn = BlockLog.getInstance().conn; }
+	public ChestSearch(Connection conn) { this.conn = conn; }
+	
 	public void setPlayer(String player) {
 		this.player = player;
-	}
-	
-	public void setEntity(String entity) {
-		if(entity != null) {
-			if(entity.equalsIgnoreCase("tnt"))
-				entity = "primed_tnt";
-		}
-		
-		this.entity = entity;
 	}
 	
 	public void setWorld(String world) {
@@ -62,10 +48,6 @@ public class BlockSearch {
 		this.area = area;
 	}
 	
-	public void setRollback(int rollback) {
-		this.rollback = rollback;
-	}
-	
 	public void setDate(int since) {
 		setDate(since, 0);
 	}
@@ -79,8 +61,8 @@ public class BlockSearch {
 		this.limit = limit;
 	}
 	
-	public ArrayList<BlockEntry> getResults() {
-		ArrayList<BlockEntry> blockEntries = new ArrayList<BlockEntry>();
+	public ArrayList<ChestEntry> getResults() {
+		ArrayList<ChestEntry> chestEntries = new ArrayList<ChestEntry>();
 		
 		World world = null;
 		int xMin = 0; int xMax = 0; int yMin = 0; int yMax = 0; int zMin = 0; int zMax = 0;
@@ -100,8 +82,6 @@ public class BlockSearch {
 		query.select("*");
 		if(player != null)
 			query.where("player", player);
-		if(entity != null)
-			query.where("entity", entity);
 		if(since != 0)
 			query.where("date", since, ">");
 		if(until != 0)
@@ -111,21 +91,16 @@ public class BlockSearch {
 		if(world != null)
 			query.where("world", world.getName());
 		
-		query.where("rollback", rollback);
-		
-		if(groupByLocation)
-			query.groupBy("x", "y", "z");
-		
 		query.orderBy("date", "DESC");
 		
 		try {
 			ResultSet rs = query.getResult(conn);
 			
-			for(BlockEntry edit : BlockLog.getInstance().getQueueManager().getBlockEntries()) {
+			for(ChestEntry interaction : BlockLog.getInstance().getQueueManager().getChestEntries()) {
 				if(limit == 0)
 					break;
-				if(checkEdit(edit)) {
-					blockEntries.add(edit);
+				if(checkChestEntry(interaction)) {
+					chestEntries.add(interaction);
 					limit--;
 				}
 			}
@@ -136,64 +111,51 @@ public class BlockSearch {
 				
 				int id = rs.getInt("id");
 				String player = rs.getString("player");
-				String entity = rs.getString("entity");
-				int block = rs.getInt("block");
+				int item = rs.getInt("item");
+				int amount = rs.getInt("amount");
 				byte data = rs.getByte("data");
-				int oldBlock = rs.getInt("old_block");
-				byte oldData = rs.getByte("old_data");
 				int type = rs.getInt("type");
-				int rollback = rs.getInt("rollback");
 				long date = rs.getLong("date");
 				
 				Location loc = new Location(Bukkit.getWorld(rs.getString("world")), rs.getInt("x"), rs.getInt("y"), rs.getInt("z"));
-
-				EntityType entityType = EntityType.valueOf(entity.toUpperCase());
-				LogType logType = LogType.values()[type];
 				
-				BlockEntry blockEntry = new BlockEntry(player, entityType, logType, loc, block, data, oldBlock, oldData);
-				blockEntry.setId(id);
-				blockEntry.setRollback(rollback);
-				blockEntry.setDate(date);
+				ItemStack is = new ItemStack(item, amount, (short)0, data);
 				
-				blockEntries.add(blockEntry);
+				ChestEntry chestEntry = new ChestEntry(player, loc, LogType.values()[type], is);
+				chestEntry.setId(id);
+				chestEntry.setDate(date);
+				
+				chestEntries.add(chestEntry);
 				limit--;
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		
-		return blockEntries;
+		return chestEntries;
 	}
 	
-	public boolean checkEdit(BlockEntry edit) {
-		if(!world.equalsIgnoreCase(edit.getWorld()))
-			return false;
-		
-		if(rollback != edit.getRollback())
+	public boolean checkChestEntry(ChestEntry chest) {
+		if(!world.equalsIgnoreCase(chest.getWorld()))
 			return false;
 		
 		if(player != null) {
-			if(!player.equalsIgnoreCase(edit.getPlayer()))
-				return false;
-		}
-		
-		if(entity != null) {
-			if(!entity.equalsIgnoreCase(edit.getEntity()))
+			if(!player.equalsIgnoreCase(chest.getPlayer()))
 				return false;
 		}
 		
 		if(since > 0) {
-			if(edit.getDate() > since)
+			if(chest.getDate() > since)
 				return false;
 		}
 		
 		if(until > 0) {
-			if(edit.getDate() < until)
+			if(chest.getDate() < until)
 				return false;
 		}
 		
 		if(area > 0) {
-			if(!(edit.getX() >= location.getX() && edit.getX() <= location.getX() && edit.getY() >= location.getY() && edit.getY() <= location.getY() && edit.getZ() <= location.getZ() && edit.getZ() >= location.getZ()))
+			if(!(chest.getX() >= location.getX() && chest.getX() <= location.getX() && chest.getY() >= location.getY() && chest.getY() <= location.getY() && chest.getZ() <= location.getZ() && chest.getZ() >= location.getZ()))
 				return false;
 		}
 		

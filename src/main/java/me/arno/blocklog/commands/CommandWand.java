@@ -48,7 +48,7 @@ public class CommandWand extends BlockLogCommand {
 			plugin.wandSettings.remove(player.getName());
 			player.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Wand disabled!");
 		} else {
-			ResultType resultType = ResultType.valueOf(syn.getString("type").toUpperCase());
+			ResultType resultType = ResultType.valueOf(syn.getString("type", "all").toUpperCase());
 			if(resultType == null)
 				resultType = ResultType.ALL;
 			

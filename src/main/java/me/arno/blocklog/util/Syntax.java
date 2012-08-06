@@ -23,7 +23,11 @@ public class Syntax {
 	}
 	
 	public String getString(String arg) {
-		return clauses.containsKey(arg) ? clauses.get(arg) : null;
+		return getString(arg, null);
+	}
+
+	public String getString(String arg, String defaultVal) {
+		return clauses.containsKey(arg) ? clauses.get(arg) : defaultVal;
 	}
 	
 	public int getInt(String arg) {

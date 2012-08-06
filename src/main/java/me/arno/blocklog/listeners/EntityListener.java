@@ -75,7 +75,7 @@ public class EntityListener extends BlockLogListener {
 			if(enderman.getCarriedMaterial() != null)
 				state.setData(enderman.getCarriedMaterial());
 			
-			getQueueManager().queueBlock(new BlockEntry(null, entity.getType(), LogType.ENDERMAN_PLACE, state.getLocation(), state.getTypeId(), state.getRawData(), event.getTo().getId(), (byte) 0));
+			getQueueManager().queueBlock(new BlockEntry("Environment", entity.getType(), LogType.ENDERMAN_PLACE, state.getLocation(), state.getTypeId(), state.getRawData(), event.getTo().getId(), (byte) 0));
 		}
 	}
 	

@@ -220,11 +220,7 @@ public class Query {
 	public ResultSet getResult(Connection conn) throws SQLException {
 		Statement stmt = conn.createStatement();
 		
-		ResultSet rs = stmt.executeQuery(getQuery());
-		
-		stmt.close();
-		
-		return rs;
+		return stmt.executeQuery(getQuery());
 	}
 
 	public int getRowCount() throws SQLException {

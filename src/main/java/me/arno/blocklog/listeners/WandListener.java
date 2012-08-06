@@ -1,17 +1,21 @@
 package me.arno.blocklog.listeners;
 
-import java.sql.ResultSet;
+import java.util.List;
+import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.util.ArrayList;
+import java.util.Collections;
 
-import me.arno.blocklog.BlockLog;
+import me.arno.blocklog.OrderByDate;
 import me.arno.blocklog.WandSettings;
 import me.arno.blocklog.WandSettings.ResultType;
 import me.arno.blocklog.logs.BlockEntry;
-import me.arno.blocklog.logs.LogType;
-import me.arno.blocklog.util.Query;
+import me.arno.blocklog.logs.ChestEntry;
+import me.arno.blocklog.logs.DataEntry;
+import me.arno.blocklog.logs.InteractionEntry;
+import me.arno.blocklog.search.BlockSearch;
+import me.arno.blocklog.search.ChestSearch;
+import me.arno.blocklog.search.InteractionSearch;
 import me.arno.blocklog.util.Util;
 
 import org.bukkit.ChatColor;
@@ -24,92 +28,77 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 public class WandListener extends BlockLogListener {
-	
+
 	public void getBlockEdits(Player player, Location location) {
 		try {
 			player.sendMessage(ChatColor.YELLOW + "Block History" + ChatColor.BLUE + " (" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ")" + ChatColor.DARK_GRAY + " ------------------------");
-            player.sendMessage(ChatColor.GRAY + Util.addSpaces("Name", 90) + Util.addSpaces("Action", 75) + "Details");
-            
-            WandSettings wandSettings = plugin.wandSettings.get(player.getName());
-            int blockNumber = 0;
-            int blockCount = 0;
-			int blockSize = getQueueManager().getEditQueueSize();
+			player.sendMessage(ChatColor.GRAY + Util.addSpaces("Name", 90) + Util.addSpaces("Action", 75) + "Details");
+
+			WandSettings wandSettings = plugin.wandSettings.get(player.getName());
 			int maxResults = wandSettings.getMaxResults();
+
+			Connection conn = getDatabaseManager().getConnection();
+
+			ArrayList<DataEntry> logs = new ArrayList<DataEntry>();
 			
-			while(blockSize > blockNumber) {
-				BlockEntry LBlock = getQueueManager().getQueuedEdit(blockNumber); 
-				if(LBlock.getX() == location.getX() && LBlock.getY() == location.getY() && LBlock.getZ() == location.getZ() && LBlock.getWorld().equalsIgnoreCase(location.getWorld().getName())) {
-					if(blockCount == maxResults)
-						break;
-					
-					Calendar calendar = GregorianCalendar.getInstance();
-					calendar.setTimeInMillis(LBlock.getDate() * 1000);
-					
-					String date =  calendar.get(Calendar.DAY_OF_MONTH) + "-" + (calendar.get(Calendar.MONTH) + 1) + " " + calendar.get(Calendar.HOUR_OF_DAY) + ":" + calendar.get(Calendar.MINUTE);
-					
-					String name = Material.getMaterial(LBlock.getBlock()).toString();
-					LogType type = LBlock.getType();
-					
-					player.sendMessage(Util.addSpaces(ChatColor.GOLD + LBlock.getPlayer(), 99) + Util.addSpaces(ChatColor.DARK_RED + type.toString(), 80) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + date + "]");
-					blockCount++;
-				}
-				blockNumber++;
+			if (wandSettings.getResultType() == ResultType.BLOCKS || wandSettings.getResultType() == ResultType.ALL) {
+				BlockSearch blockSearch = new BlockSearch(conn);
+				blockSearch.setLocation(location);
+				blockSearch.setLimit(maxResults);
+
+				logs.addAll(blockSearch.getResults());
+			}
+
+			if (wandSettings.getResultType() == ResultType.INTERACTIONS || wandSettings.getResultType() == ResultType.ALL) {
+				InteractionSearch interactionSearch = new InteractionSearch(conn);
+				interactionSearch.setLocation(location);
+				interactionSearch.setLimit(maxResults);
+
+				logs.addAll(interactionSearch.getResults());
+			}
+
+			if (wandSettings.getResultType() == ResultType.CHESTS || wandSettings.getResultType() == ResultType.ALL) {
+				ChestSearch chestSearch = new ChestSearch(conn);
+				chestSearch.setLocation(location);
+				chestSearch.setLimit(maxResults);
+
+				logs.addAll(chestSearch.getResults());
 			}
 			
+			conn.close();
 			
-			if(blockCount < maxResults) {
-				Query query = new Query();
-				Query blockQuery = null;
-				Query chestQuery = null;
-				Query interactionQuery = null;
+			Collections.sort(logs, new OrderByDate());
+			List<DataEntry> dataEntries = logs;
+			
+			if(logs.size() > maxResults)
+				dataEntries = logs.subList(logs.size() - maxResults, logs.size() - 1);
+			
+			for(DataEntry data : dataEntries) {
+				String name = null;
+				String action = null;
+				String details = null;
 				
-				if(wandSettings.getSince() != 0)
-					query.where("date", wandSettings.getSince(), ">");
-				if(wandSettings.getUntil() != 0)
-					query.where("date", wandSettings.getUntil(), "<");
-				
-				query.orderBy("date", "DESC");
-				query.limit(maxResults - blockCount);
-
-				ResultSet rs = null;
-				Statement stmt = BlockLog.plugin.conn.createStatement();
-				
-				if(wandSettings.getResultType() == ResultType.BLOCKS || wandSettings.getResultType() == ResultType.ALL) {
-					blockQuery = new Query("blocklog_blocks");
-					blockQuery.select("player", "entity", "block", "data", "0 AS amount", "type").selectDate("date");
-					blockQuery.where("x", location.getBlockX()).where("y", location.getBlockY()).where("z", location.getBlockZ());
-					blockQuery.where("world", location.getWorld().getName());
-				}
-				
-				if(wandSettings.getResultType() == ResultType.CHESTS || wandSettings.getResultType() == ResultType.ALL) {
-					chestQuery = new Query("blocklog_chests");
-					chestQuery.select("player", "'player'", "item", "data", "amount", "type").selectDate("date");
-					chestQuery.where("x", location.getBlockX()).where("y", location.getBlockY()).where("z", location.getBlockZ());
-					chestQuery.where("world", location.getWorld().getName());
-				}
-				
-				if(wandSettings.getResultType() == ResultType.INTERACTIONS || wandSettings.getResultType() == ResultType.ALL) {
-					interactionQuery = new Query("blocklog_interactions");
-					interactionQuery.select("player", "'player'", "block", "0", "0", "19").selectDate("date");
-					interactionQuery.where("x", location.getBlockX()).where("y", location.getBlockY()).where("z", location.getBlockZ());
-					interactionQuery.where("world", location.getWorld().getName());
-				}
-				
-				if(wandSettings.getResultType() == ResultType.ALL)
-					rs = stmt.executeQuery(query.unionClause(blockQuery, chestQuery, interactionQuery));
-				else if(wandSettings.getResultType() == ResultType.CHESTS)
-					rs = chestQuery.getResult();
-				else if(wandSettings.getResultType() == ResultType.BLOCKS)
-					rs = blockQuery.getResult();
-				else if(wandSettings.getResultType() == ResultType.INTERACTIONS)
-					rs = interactionQuery.getResult();
-				
-				while(rs.next()) {
-					String name = Material.getMaterial(rs.getInt("block")).toString() + (rs.getInt("amount") == 0 ? "" : " (" + rs.getInt("amount") + ")");
-					LogType type = LogType.values()[rs.getInt("type")];
+				if(data instanceof BlockEntry) {
+					BlockEntry block = (BlockEntry) data;
 					
-					player.sendMessage(Util.addSpaces(ChatColor.GOLD + rs.getString("player"), 99) + Util.addSpaces(ChatColor.DARK_RED + type.toString(), 81) + ChatColor.GREEN + name + ChatColor.AQUA + " [" + rs.getString("date") + "]");
+					name = Material.getMaterial(block.getBlock()).name();
+					action = block.getType().name();
+					details = Util.getDate(block.getDate());
+				} else if(data instanceof InteractionEntry) {
+					InteractionEntry interaction = (InteractionEntry) data;
+					
+					name = Material.getMaterial(interaction.getBlock()).name();
+					action = interaction.getType().name();
+					details = Util.getDate(interaction.getDate());
+				} else if(data instanceof ChestEntry) {
+					ChestEntry chest = (ChestEntry) data;
+					
+					name = chest.getItem().getType().name() + " (" + chest.getItem().getAmount() + ")";
+					action = chest.getType().name();
+					details = Util.getDate(chest.getDate());
 				}
+				
+				player.sendMessage(Util.addSpaces(ChatColor.GOLD + name, 99) + Util.addSpaces(ChatColor.DARK_RED + action, 81) + ChatColor.AQUA + details);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -118,25 +107,29 @@ public class WandListener extends BlockLogListener {
 			e.printStackTrace();
 		}
 	}
-	
+
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		Player player = event.getPlayer();
-		if(plugin.wandSettings.containsKey(player.getName()) && player.getItemInHand().getType() == getSettingsManager().getWand()) {
-			if(event.getAction() == Action.LEFT_CLICK_BLOCK) {
+		if (plugin.wandSettings.containsKey(player.getName())
+				&& player.getItemInHand().getType() == getSettingsManager()
+						.getWand()) {
+			if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
 				getBlockEdits(player, event.getClickedBlock().getLocation());
 				event.setCancelled(true);
 			}
 		}
 	}
-	
+
 	@EventHandler
 	public void onBlockPlace(BlockPlaceEvent event) {
 		Player player = event.getPlayer();
-		if(!getSettingsManager().getWand().isBlock())
+		if (!getSettingsManager().getWand().isBlock())
 			return;
-		
-		if(plugin.wandSettings.containsKey(player.getName()) && player.getItemInHand().getType() == getSettingsManager().getWand()) {
+
+		if (plugin.wandSettings.containsKey(player.getName())
+				&& player.getItemInHand().getType() == getSettingsManager()
+						.getWand()) {
 			getBlockEdits(player, event.getBlock().getLocation());
 			event.setCancelled(true);
 		}

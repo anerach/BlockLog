@@ -55,7 +55,8 @@ public class BlockSearch {
 	
 	public void setLocation(Location location) {
 		this.location = location;
-		setWorld(location.getWorld().getName());
+		if(location != null)
+			setWorld(location.getWorld().getName());
 	}
 	
 	public void setArea(int area) {

@@ -240,7 +240,8 @@ public class BlockLog extends JavaPlugin {
 		}
 	    
 		log.info("Starting BlockLog");
-		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new SaveSchedule(1, null, false), 100L, getSettingsManager().getBlockSaveDelay() * 20L);
+		
+		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Thread(new SaveSchedule(1, null, false)), 100L, getSettingsManager().getBlockSaveDelay() * 20L);
     	
     	getServer().getPluginManager().registerEvents(new BlockListener(), this);
     	getServer().getPluginManager().registerEvents(new ChestListener(), this);

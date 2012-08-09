@@ -13,6 +13,7 @@ import org.bukkit.inventory.ItemStack;
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.logs.ChestEntry;
 import me.arno.blocklog.logs.LogType;
+import me.arno.blocklog.util.BukkitUtil;
 import me.arno.blocklog.util.Query;
 
 public class ChestSearch {
@@ -78,7 +79,7 @@ public class ChestSearch {
 			zMax = location.getBlockZ() + area;
 		}
 		
-		Query query = new Query("blocklog_blocks");
+		Query query = new Query("blocklog_chests");
 		query.select("*");
 		if(player != null)
 			query.where("player", player);
@@ -135,27 +136,27 @@ public class ChestSearch {
 		return chestEntries;
 	}
 	
-	public boolean checkChestEntry(ChestEntry chest) {
-		if(!world.equalsIgnoreCase(chest.getWorld()))
+	public boolean checkChestEntry(ChestEntry entry) {
+		if(!world.equalsIgnoreCase(entry.getWorld()))
 			return false;
 		
 		if(player != null) {
-			if(!player.equalsIgnoreCase(chest.getPlayer()))
+			if(!player.equalsIgnoreCase(entry.getPlayer()))
 				return false;
 		}
 		
 		if(since > 0) {
-			if(chest.getDate() > since)
+			if(entry.getDate() > since)
 				return false;
 		}
 		
 		if(until > 0) {
-			if(chest.getDate() < until)
+			if(entry.getDate() < until)
 				return false;
 		}
 		
 		if(area > 0) {
-			if(!(chest.getX() >= location.getX() && chest.getX() <= location.getX() && chest.getY() >= location.getY() && chest.getY() <= location.getY() && chest.getZ() <= location.getZ() && chest.getZ() >= location.getZ()))
+			if(!BukkitUtil.isInRange(entry.getLocation(), location, area))
 				return false;
 		}
 		

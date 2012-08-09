@@ -11,6 +11,7 @@ import org.bukkit.World;
 
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.logs.InteractionEntry;
+import me.arno.blocklog.util.BukkitUtil;
 import me.arno.blocklog.util.Query;
 
 public class InteractionSearch {
@@ -76,7 +77,7 @@ public class InteractionSearch {
 			zMax = location.getBlockZ() + area;
 		}
 		
-		Query query = new Query("blocklog_blocks");
+		Query query = new Query("blocklog_interactions");
 		query.select("*");
 		if(player != null)
 			query.where("player", player);
@@ -128,27 +129,27 @@ public class InteractionSearch {
 		return interactionEntries;
 	}
 	
-	public boolean checkInteraction(InteractionEntry interaction) {
-		if(!world.equalsIgnoreCase(interaction.getWorld()))
+	public boolean checkInteraction(InteractionEntry entry) {
+		if(!world.equalsIgnoreCase(entry.getWorld()))
 			return false;
 		
 		if(player != null) {
-			if(!player.equalsIgnoreCase(interaction.getPlayer()))
+			if(!player.equalsIgnoreCase(entry.getPlayer()))
 				return false;
 		}
 		
 		if(since > 0) {
-			if(interaction.getDate() > since)
+			if(entry.getDate() > since)
 				return false;
 		}
 		
 		if(until > 0) {
-			if(interaction.getDate() < until)
+			if(entry.getDate() < until)
 				return false;
 		}
 		
 		if(area > 0) {
-			if(!(interaction.getX() >= location.getX() && interaction.getX() <= location.getX() && interaction.getY() >= location.getY() && interaction.getY() <= location.getY() && interaction.getZ() <= location.getZ() && interaction.getZ() >= location.getZ()))
+			if(!BukkitUtil.isInRange(entry.getLocation(), location, area))
 				return false;
 		}
 		

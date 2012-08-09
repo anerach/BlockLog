@@ -13,6 +13,7 @@ import org.bukkit.entity.EntityType;
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.logs.BlockEntry;
 import me.arno.blocklog.logs.LogType;
+import me.arno.blocklog.util.BukkitUtil;
 import me.arno.blocklog.util.Query;
 
 public class BlockSearch {
@@ -125,6 +126,7 @@ public class BlockSearch {
 			for(BlockEntry edit : BlockLog.getInstance().getQueueManager().getBlockEntries()) {
 				if(limit == 0)
 					break;
+				
 				if(checkEdit(edit)) {
 					blockEntries.add(edit);
 					limit--;
@@ -166,35 +168,35 @@ public class BlockSearch {
 		return blockEntries;
 	}
 	
-	public boolean checkEdit(BlockEntry edit) {
-		if(!world.equalsIgnoreCase(edit.getWorld()))
+	public boolean checkEdit(BlockEntry entry) {
+		if(!world.equalsIgnoreCase(entry.getWorld()))
 			return false;
 		
-		if(rollback != edit.getRollback())
+		if(rollback != entry.getRollback())
 			return false;
 		
 		if(player != null) {
-			if(!player.equalsIgnoreCase(edit.getPlayer()))
+			if(!player.equalsIgnoreCase(entry.getPlayer()))
 				return false;
 		}
 		
 		if(entity != null) {
-			if(!entity.equalsIgnoreCase(edit.getEntity()))
+			if(!entity.equalsIgnoreCase(entry.getEntity()))
 				return false;
 		}
 		
 		if(since > 0) {
-			if(edit.getDate() > since)
+			if(entry.getDate() > since)
 				return false;
 		}
 		
 		if(until > 0) {
-			if(edit.getDate() < until)
+			if(entry.getDate() < until)
 				return false;
 		}
 		
 		if(area > 0) {
-			if(!(edit.getX() >= location.getX() && edit.getX() <= location.getX() && edit.getY() >= location.getY() && edit.getY() <= location.getY() && edit.getZ() <= location.getZ() && edit.getZ() >= location.getZ()))
+			if(!BukkitUtil.isInRange(entry.getLocation(), location, area))
 				return false;
 		}
 		

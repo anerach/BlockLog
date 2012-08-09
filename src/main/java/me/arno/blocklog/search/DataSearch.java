@@ -70,7 +70,7 @@ public class DataSearch {
 	public ArrayList<DataEntry> getResults() {
 		ArrayList<DataEntry> dataEntries = new ArrayList<DataEntry>();
 		
-		Query query = new Query("blocklog_blocks");
+		Query query = new Query("blocklog_data");
 		query.select("*");
 		if(player != null)
 			query.where("player", player);
@@ -131,44 +131,45 @@ public class DataSearch {
 		return dataEntries;
 	}
 	
-	public boolean checkEdit(DataEntry edit) {
-		if(!world.equalsIgnoreCase(edit.getWorld()))
+	public boolean checkEdit(DataEntry entry) {
+		if(!world.equalsIgnoreCase(entry.getWorld()))
 			return false;
 		
 		if(player != null) {
-			if(!player.equalsIgnoreCase(edit.getPlayer()))
+			if(!player.equalsIgnoreCase(entry.getPlayer()))
 				return false;
 			
 		}
 		
 		if(data != null) {
-			if(!data.equalsIgnoreCase(edit.getData()))
+			if(!data.equalsIgnoreCase(entry.getData()))
 				return false;
 		}
 		
 		if(location != null) {
-			if(location.getBlockX() != edit.getX())
+			if(location.getBlockX() != entry.getX())
 				return false;
-			if(location.getBlockY() != edit.getY())
+			if(location.getBlockY() != entry.getY())
 				return false;
-			if(location.getBlockZ() != edit.getZ())
+			if(location.getBlockZ() != entry.getZ())
 				return false;
 		}
 		
 		if(type > -1) {
-			if(edit.getTypeId() != type)
+			if(entry.getTypeId() != type)
 				return false;
 		}
 		
 		if(since > 0) {
-			if(edit.getDate() > since)
+			if(entry.getDate() > since)
 				return false;
 		}
 		
 		if(until > 0) {
-			if(edit.getDate() < until)
+			if(entry.getDate() < until)
 				return false;
 		}
+		
 		return true;
 	}
 }

@@ -22,7 +22,7 @@ public class BlockListener extends BlockLogListener {
 		Player player = event.getPlayer();
 		
 		if(getSettingsManager().isLoggingEnabled(player.getWorld(), LogType.BLOCK_PLACE))
-			getQueueManager().queueBlock(new BlockEntry(player.getName(), EntityType.PLAYER, LogType.BLOCK_PLACE, event.getBlock().getState(), event.getBlockReplacedState()));
+			getQueueManager().queueBlock(new BlockEntry(player.getName(), EntityType.PLAYER, LogType.BLOCK_PLACE, event.getBlock().getState()));
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

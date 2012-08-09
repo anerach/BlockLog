@@ -1,9 +1,12 @@
 package me.arno.blocklog.listeners;
 
+import java.util.Arrays;
+
 import me.arno.blocklog.logs.DataEntry;
 import me.arno.blocklog.logs.InteractionEntry;
 import me.arno.blocklog.logs.LogType;
 
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -78,6 +81,11 @@ public class PlayerListener extends BlockLogListener {
 		if(block instanceof InventoryHolder)
 			return;
 		
-		getQueueManager().queueData(new InteractionEntry(player.getName(), block.getLocation(), block.getType().getId()));
+		Material[] allowedMaterials = new Material[]{Material.WOODEN_DOOR, Material.IRON_DOOR_BLOCK, Material.FENCE_GATE, Material.ENCHANTMENT_TABLE, Material.BREWING_STAND, Material.BURNING_FURNACE, Material.FURNACE, Material.WORKBENCH, Material.CAULDRON, Material.BED_BLOCK, Material.CAKE_BLOCK};
+		
+
+		if(Arrays.asList(allowedMaterials).contains(block.getType())) {
+			getQueueManager().queueData(new InteractionEntry(player.getName(), block.getLocation(), block.getType().getId()));
+		}
 	}
 }

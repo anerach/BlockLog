@@ -27,6 +27,8 @@ public class InteractionSearch {
 	
 	private int limit = 5;
 
+	private boolean ignoreLimit = true;
+
 	public InteractionSearch() { this.conn = BlockLog.getInstance().conn; }
 	public InteractionSearch(Connection conn) { this.conn = conn; }
 	
@@ -58,6 +60,11 @@ public class InteractionSearch {
 	
 	public void setLimit(int limit) {
 		this.limit = limit;
+		this.ignoreLimit = false;
+	}
+	
+	public void setIgnoreLimit(boolean ignore) {
+		this.ignoreLimit = ignore;
 	}
 	
 	public ArrayList<InteractionEntry> getResults() {
@@ -96,7 +103,7 @@ public class InteractionSearch {
 			ResultSet rs = query.getResult(conn);
 			
 			for(InteractionEntry interaction : BlockLog.getInstance().getQueueManager().getInteractionEntries()) {
-				if(limit == 0)
+				if(limit == 0 && !ignoreLimit)
 					break;
 				if(checkInteraction(interaction)) {
 					interactionEntries.add(interaction);
@@ -105,7 +112,7 @@ public class InteractionSearch {
 			}
 			
 			while(rs.next()) {
-				if(limit == 0)
+				if(limit == 0 && !ignoreLimit)
 					break;
 				
 				int id = rs.getInt("id");
@@ -130,8 +137,10 @@ public class InteractionSearch {
 	}
 	
 	public boolean checkInteraction(InteractionEntry entry) {
-		if(!world.equalsIgnoreCase(entry.getWorld()))
-			return false;
+		if(world != null) {
+			if(!world.equalsIgnoreCase(entry.getWorld()))
+				return false;
+		}
 		
 		if(player != null) {
 			if(!player.equalsIgnoreCase(entry.getPlayer()))

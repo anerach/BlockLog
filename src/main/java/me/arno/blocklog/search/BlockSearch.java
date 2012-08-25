@@ -30,9 +30,10 @@ public class BlockSearch {
 	private int since = 0;
 	private int until = 0;
 	
-	private boolean groupByLocation = true;
+	private int limit = 0;
 	
-	private int limit = 5;
+	private boolean groupByLocation = true;
+	private boolean ignoreLimit = true;
 	
 	public BlockSearch() { this.conn = BlockLog.getInstance().conn; }
 	public BlockSearch(Connection conn) { this.conn = conn; }
@@ -79,6 +80,11 @@ public class BlockSearch {
 	
 	public void setLimit(int limit) {
 		this.limit = limit;
+		this.ignoreLimit = false;
+	}
+	
+	public void setIgnoreLimit(boolean ignore) {
+		this.ignoreLimit = ignore;
 	}
 	
 	public ArrayList<BlockEntry> getResults() {
@@ -124,7 +130,7 @@ public class BlockSearch {
 			ResultSet rs = query.getResult(conn);
 			
 			for(BlockEntry edit : BlockLog.getInstance().getQueueManager().getBlockEntries()) {
-				if(limit == 0)
+				if(limit == 0 && !ignoreLimit)
 					break;
 				
 				if(checkEdit(edit)) {
@@ -134,7 +140,7 @@ public class BlockSearch {
 			}
 			
 			while(rs.next()) {
-				if(limit == 0)
+				if(limit == 0 && !ignoreLimit)
 					break;
 				
 				int id = rs.getInt("id");
@@ -169,8 +175,10 @@ public class BlockSearch {
 	}
 	
 	public boolean checkEdit(BlockEntry entry) {
-		if(!world.equalsIgnoreCase(entry.getWorld()))
-			return false;
+		if(world != null) {
+			if(!world.equalsIgnoreCase(entry.getWorld()))
+				return false;
+		}
 		
 		if(rollback != entry.getRollback())
 			return false;

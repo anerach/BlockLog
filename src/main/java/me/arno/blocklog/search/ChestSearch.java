@@ -28,6 +28,8 @@ public class ChestSearch {
 	private int until = 0;
 	
 	private int limit = 5;
+	
+	private boolean ignoreLimit = true;
 
 	public ChestSearch() { this.conn = BlockLog.getInstance().conn; }
 	public ChestSearch(Connection conn) { this.conn = conn; }
@@ -60,6 +62,11 @@ public class ChestSearch {
 	
 	public void setLimit(int limit) {
 		this.limit = limit;
+		this.ignoreLimit = false;
+	}
+	
+	public void setIgnoreLimit(boolean ignore) {
+		this.ignoreLimit = ignore;
 	}
 	
 	public ArrayList<ChestEntry> getResults() {
@@ -98,7 +105,7 @@ public class ChestSearch {
 			ResultSet rs = query.getResult(conn);
 			
 			for(ChestEntry interaction : BlockLog.getInstance().getQueueManager().getChestEntries()) {
-				if(limit == 0)
+				if(limit == 0 && !ignoreLimit)
 					break;
 				if(checkChestEntry(interaction)) {
 					chestEntries.add(interaction);
@@ -107,7 +114,7 @@ public class ChestSearch {
 			}
 			
 			while(rs.next()) {
-				if(limit == 0)
+				if(limit == 0 && !ignoreLimit)
 					break;
 				
 				int id = rs.getInt("id");
@@ -137,8 +144,10 @@ public class ChestSearch {
 	}
 	
 	public boolean checkChestEntry(ChestEntry entry) {
-		if(!world.equalsIgnoreCase(entry.getWorld()))
-			return false;
+		if(world != null) {
+			if(!world.equalsIgnoreCase(entry.getWorld()))
+				return false;
+		}
 		
 		if(player != null) {
 			if(!player.equalsIgnoreCase(entry.getPlayer()))

@@ -28,6 +28,8 @@ public class DataSearch {
 	
 	private int limit = 5;
 
+	private boolean ignoreLimit = true;
+
 	public DataSearch() { this.conn = BlockLog.getInstance().conn; }
 	public DataSearch(Connection conn) { this.conn = conn; }
 	
@@ -65,6 +67,11 @@ public class DataSearch {
 	
 	public void setLimit(int limit) {
 		this.limit = limit;
+		this.ignoreLimit = false;
+	}
+	
+	public void setIgnoreLimit(boolean ignore) {
+		this.ignoreLimit = ignore;
 	}
 	
 	public ArrayList<DataEntry> getResults() {
@@ -96,7 +103,7 @@ public class DataSearch {
 			ResultSet rs = query.getResult(conn);
 			
 			for(DataEntry edit : BlockLog.getInstance().getQueueManager().getDataEntries()) {
-				if(limit == 0)
+				if(limit == 0 && !ignoreLimit)
 					break;
 				if(checkEdit(edit)) {
 					dataEntries.add(edit);
@@ -105,7 +112,7 @@ public class DataSearch {
 			}
 			
 			while(rs.next()) {
-				if(limit == 0)
+				if(limit == 0 && !ignoreLimit)
 					break;
 				
 				int id = rs.getInt("id");
@@ -132,8 +139,10 @@ public class DataSearch {
 	}
 	
 	public boolean checkEdit(DataEntry entry) {
-		if(!world.equalsIgnoreCase(entry.getWorld()))
-			return false;
+		if(world != null) {
+			if(!world.equalsIgnoreCase(entry.getWorld()))
+				return false;
+		}
 		
 		if(player != null) {
 			if(!player.equalsIgnoreCase(entry.getPlayer()))

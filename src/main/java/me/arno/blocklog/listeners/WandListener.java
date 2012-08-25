@@ -31,11 +31,13 @@ public class WandListener extends BlockLogListener {
 
 	public void getBlockEdits(Player player, Location location) {
 		try {
-			player.sendMessage(ChatColor.YELLOW + "Block History" + ChatColor.BLUE + " (" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ")" + ChatColor.DARK_GRAY + " ------------------------");
+			player.sendMessage(ChatColor.YELLOW + "Block History " + ChatColor.BLUE + "[ID: " + location.getBlock().getTypeId() + " Name: " + location.getBlock().getType().name() + "] [" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + "]" + ChatColor.DARK_GRAY + " ------------------------");
 			player.sendMessage(ChatColor.GRAY + Util.addSpaces("Name", 90) + Util.addSpaces("Action", 75) + "Details");
 
 			WandSettings wandSettings = plugin.wandSettings.get(player.getName());
 			int maxResults = wandSettings.getMaxResults();
+			int since = wandSettings.getSince();
+			int until = wandSettings.getUntil();
 
 			Connection conn = getDatabaseManager().getConnection();
 
@@ -45,6 +47,7 @@ public class WandListener extends BlockLogListener {
 				BlockSearch blockSearch = new BlockSearch(conn);
 				blockSearch.setLocation(location);
 				blockSearch.setLimit(maxResults);
+				blockSearch.setDate(since, until);
 
 				logs.addAll(blockSearch.getResults());
 			}
@@ -53,6 +56,7 @@ public class WandListener extends BlockLogListener {
 				InteractionSearch interactionSearch = new InteractionSearch(conn);
 				interactionSearch.setLocation(location);
 				interactionSearch.setLimit(maxResults);
+				interactionSearch.setDate(since, until);
 
 				logs.addAll(interactionSearch.getResults());
 			}
@@ -61,6 +65,7 @@ public class WandListener extends BlockLogListener {
 				ChestSearch chestSearch = new ChestSearch(conn);
 				chestSearch.setLocation(location);
 				chestSearch.setLimit(maxResults);
+				chestSearch.setDate(since, until);
 
 				logs.addAll(chestSearch.getResults());
 			}
@@ -68,10 +73,11 @@ public class WandListener extends BlockLogListener {
 			conn.close();
 			
 			Collections.sort(logs, new OrderByDate());
+			
 			List<DataEntry> dataEntries = logs;
 			
 			if(logs.size() > maxResults)
-				dataEntries = logs.subList(logs.size() - maxResults, logs.size() - 1);
+				dataEntries = logs.subList(0, maxResults - 1);
 			
 			for(DataEntry data : dataEntries) {
 				String name = null;

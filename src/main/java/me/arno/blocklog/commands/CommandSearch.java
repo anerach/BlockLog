@@ -42,16 +42,17 @@ public class CommandSearch extends BlockLogCommand {
 		
 		search.setPlayer(syn.getString("player"));
 		search.setData(syn.getString("data"));
-		search.setLocation(new Location(Bukkit.getWorld(syn.getString("world")), syn.getInt("x"), syn.getInt("y"), syn.getInt("z")));
+		if(syn.containsArg("world") && syn.containsArg("x") && syn.containsArg("y") && syn.containsArg("z"))
+			search.setLocation(new Location(Bukkit.getWorld(syn.getString("world")), syn.getInt("x"), syn.getInt("y"), syn.getInt("z")));
 		search.setType(syn.getInt("type"));
 		search.setDate(sinceTime, untilTime);
 		search.setLimit(getSettingsManager().getMaxResults());
 		
-		sender.sendMessage(ChatColor.YELLOW + "Data Search " + ChatColor.DARK_GRAY + " -------------------------------");
+		sender.sendMessage(ChatColor.YELLOW + "Data Search" + ChatColor.DARK_GRAY + " -------------------------------");
 		sender.sendMessage(ChatColor.GRAY + Util.addSpaces("Player", 90) + Util.addSpaces("Action", 75) + "Date");
 		
 		for(DataEntry data : search.getResults()) {
-			sender.sendMessage(ChatColor.DARK_BLUE + Util.addSpaces(data.getPlayer(), 90) + ChatColor.DARK_PURPLE + Util.addSpaces(data.getType().toString(), 75) + ChatColor.BLUE + Util.getDate(data.getDate()));
+			sender.sendMessage(ChatColor.DARK_BLUE + Util.addSpaces(data.getPlayer(), 99) + ChatColor.DARK_PURPLE + Util.addSpaces(data.getType().toString(), 81) + ChatColor.BLUE + Util.getDate(data.getDate()));
 			sender.sendMessage(ChatColor.DARK_RED + "Data: " + ChatColor.GOLD + data.getData());
 		}
 		return true;

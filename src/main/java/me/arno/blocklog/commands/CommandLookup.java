@@ -17,7 +17,7 @@ import org.bukkit.entity.Player;
 public class CommandLookup extends BlockLogCommand {
 	public CommandLookup() {
 		super("blocklog.lookup");
-		setCommandUsage("/bl lookup [player <value>] [entity <value>] [since <value>] [until <value>] [area <value>]");
+		setCommandUsage("/bl lookup [player <value>] [entity <value>] [rollback <value>] [world <value>] [x|y|z <value>] [since <value>] [until <value>]");
 	}
 
 	@Override
@@ -52,7 +52,8 @@ public class CommandLookup extends BlockLogCommand {
 		search.setPlayer(syn.getString("player"));
 		search.setEntity(syn.getString("entity"));
 		search.setArea(syn.getInt("area"));
-		search.setLocation(new Location(Bukkit.getWorld(syn.getString("world")), syn.getInt("x"), syn.getInt("y"), syn.getInt("z")));
+		if(syn.containsArg("world") && syn.containsArg("x") && syn.containsArg("y") && syn.containsArg("z"))
+			search.setLocation(new Location(Bukkit.getWorld(syn.getString("world")), syn.getInt("x"), syn.getInt("y"), syn.getInt("z")));
 		search.setRollback(syn.getInt("rollback"));
 		search.setDate(sinceTime, untilTime);
 		search.setLimit(getSettingsManager().getMaxResults());

@@ -22,8 +22,8 @@ public class BlockEntry extends DataEntry {
 	private int block;
 	private byte datavalue;
 	
-	private int oldBlock;
-	private byte oldDatavalue;
+	private int originalBlock;
+	private byte originalData;
 	
 	private int rollback = 0;
 	
@@ -44,26 +44,26 @@ public class BlockEntry extends DataEntry {
 	}
 	
 	public BlockEntry(LogType type, BlockState newState, BlockState oldState) {
-		this("Environment", EntityType.UNKNOWN, type, newState.getLocation(), newState.getBlock().getTypeId(), newState.getRawData(), oldState.getBlock().getTypeId(), oldState.getRawData());
+		this("Environment", EntityType.UNKNOWN, type, (newState != null ? newState : oldState).getLocation(), newState.getTypeId(), newState.getRawData(), oldState.getTypeId(), oldState.getRawData());
 	}
 	
 	public BlockEntry(EntityType entity, LogType type, BlockState newState, BlockState oldState) {
-		this("Environment", entity, type, newState.getLocation(), newState.getBlock().getTypeId(), newState.getRawData(), oldState.getBlock().getTypeId(), oldState.getRawData());
+		this("Environment", entity, type, (newState != null ? newState : oldState).getLocation(), (newState != null) ? newState.getTypeId() : 0, (newState != null) ? newState.getRawData() : 0, oldState.getTypeId(), oldState.getRawData());
 	}
 	
 	public BlockEntry(String player, EntityType entity, LogType type, BlockState newState, BlockState oldState) {
-		this(player, entity, type, newState.getLocation(), newState.getBlock().getTypeId(), newState.getRawData(), oldState.getBlock().getTypeId(), oldState.getRawData());
+		this(player, entity, type, (newState != null ? newState : oldState).getLocation(), newState.getTypeId(), newState.getRawData(), oldState.getTypeId(), oldState.getRawData());
 	}
 	
-	public BlockEntry(String player, EntityType entity, LogType type, Location location, int block, byte data, int oldBlock, byte oldData) {
+	public BlockEntry(String player, EntityType entity, LogType type, Location location, int block, byte data, int originalBlock, byte originalData) {
 		super(player, type, location, null);
 		
 		this.entity = entity.toString().toLowerCase();
 		this.block = block;
 		this.datavalue = data;
 		
-		this.oldBlock = oldBlock;
-		this.oldDatavalue = oldData;
+		this.originalBlock = originalBlock;
+		this.originalData = originalData;
 	}
 	
 	public boolean rollback(int rollback) {
@@ -72,15 +72,9 @@ public class BlockEntry extends DataEntry {
 			Block block = world.getBlockAt(getLocation());
 			
 			if(this.rollback == 0) {
-				if(!this.getType().isCreateLog())
-					block.setTypeIdAndData(this.getBlock(), this.getDataValue(), false);
-				else
-					block.setTypeIdAndData(this.getOldBlock(), this.getOldDataValue(), false);
+				block.setTypeIdAndData(this.getOldBlock(), this.getOldDataValue(), false);
 			} else {
-				if(!this.getType().isCreateLog())
-					block.setTypeIdAndData(this.getOldBlock(), this.getOldDataValue(), false);
-				else
-					block.setTypeIdAndData(this.getBlock(), this.getDataValue(), false);
+				block.setTypeIdAndData(this.getBlock(), this.getDataValue(), false);
 			}
 			
 			if(this.getId() == 0) {
@@ -98,6 +92,9 @@ public class BlockEntry extends DataEntry {
 	
 	@Override
 	public void save(Connection conn) {
+		if(this.getId() > 0)
+			return;
+		
 		try {
 			Query query = new Query("blocklog_blocks");
 			HashMap<String, Object> values = new HashMap<String, Object>();
@@ -106,8 +103,8 @@ public class BlockEntry extends DataEntry {
 			values.put("entity", getEntity());
 			values.put("block", getBlock());
 			values.put("data", getDataValue());
-			values.put("old_block", getOldBlock());
-			values.put("old_data", getOldDataValue());
+			values.put("original_block", getOldBlock());
+			values.put("original_data", getOldDataValue());
 			values.put("type", getTypeId());
 			values.put("rollback", getRollback());
 			values.put("world", getWorld());
@@ -139,7 +136,7 @@ public class BlockEntry extends DataEntry {
 	}
 	
 	public int getOldBlock() {
-		return oldBlock;
+		return originalBlock;
 	}
 	
 	public byte getDataValue() {
@@ -147,7 +144,7 @@ public class BlockEntry extends DataEntry {
 	}
 	
 	public byte getOldDataValue() {
-		return oldDatavalue;
+		return originalData;
 	}
 	
 	public int getRollback() {

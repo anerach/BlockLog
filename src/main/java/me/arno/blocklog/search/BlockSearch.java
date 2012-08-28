@@ -148,8 +148,8 @@ public class BlockSearch {
 				String entity = rs.getString("entity");
 				int block = rs.getInt("block");
 				byte data = rs.getByte("data");
-				int oldBlock = rs.getInt("old_block");
-				byte oldData = rs.getByte("old_data");
+				int originalBlock = rs.getInt("original_block");
+				byte originalData = rs.getByte("original_data");
 				int type = rs.getInt("type");
 				int rollback = rs.getInt("rollback");
 				long date = rs.getLong("date");
@@ -159,7 +159,7 @@ public class BlockSearch {
 				EntityType entityType = EntityType.valueOf(entity.toUpperCase());
 				LogType logType = LogType.values()[type];
 				
-				BlockEntry blockEntry = new BlockEntry(player, entityType, logType, loc, block, data, oldBlock, oldData);
+				BlockEntry blockEntry = new BlockEntry(player, entityType, logType, loc, block, data, originalBlock, originalData);
 				blockEntry.setId(id);
 				blockEntry.setRollback(rollback);
 				blockEntry.setDate(date);

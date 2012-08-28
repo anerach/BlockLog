@@ -30,7 +30,7 @@ public class BlockListener extends BlockLogListener {
 		Player player = event.getPlayer();
 		
 		if(getSettingsManager().isLoggingEnabled(player.getWorld(), LogType.BLOCK_BREAK))
-			getQueueManager().queueBlock(new BlockEntry(player.getName(), EntityType.PLAYER, LogType.BLOCK_BREAK, event.getBlock().getState()));
+			getQueueManager().queueBlock(new BlockEntry(player.getName(), EntityType.PLAYER, LogType.BLOCK_BREAK, null, event.getBlock().getState()));
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -54,12 +54,12 @@ public class BlockListener extends BlockLogListener {
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockBurn(BlockBurnEvent event) {
 		if(getSettingsManager().isLoggingEnabled(event.getBlock().getWorld(), LogType.BLOCK_BURN))
-			getQueueManager().queueBlock(new BlockEntry(LogType.BLOCK_BURN, event.getBlock().getState()));
+			getQueueManager().queueBlock(new BlockEntry(LogType.BLOCK_BURN, null, event.getBlock().getState()));
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onLeavesDecay(LeavesDecayEvent event) {
 		if(getSettingsManager().isLoggingEnabled(event.getBlock().getWorld(), LogType.LEAVES_DECAY))
-			getQueueManager().queueBlock(new BlockEntry(LogType.LEAVES_DECAY, event.getBlock().getState()));
+			getQueueManager().queueBlock(new BlockEntry(LogType.LEAVES_DECAY, null, event.getBlock().getState()));
 	}
 }

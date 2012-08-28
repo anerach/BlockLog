@@ -51,9 +51,9 @@ public class EntityListener extends BlockLogListener {
 		for(Block block : event.blockList()) {
 			if(block.getType() != Material.TNT) {
 				if(player == null)
-					getQueueManager().queueBlock(new BlockEntry(entityType, logType, block.getState()));
+					getQueueManager().queueBlock(new BlockEntry(entityType, logType, null, block.getState()));
 				else
-					getQueueManager().queueBlock(new BlockEntry(player, entityType, logType, block.getState()));
+					getQueueManager().queueBlock(new BlockEntry(player, entityType, logType, null, block.getState()));
 			}
 		}
 	}
@@ -68,7 +68,7 @@ public class EntityListener extends BlockLogListener {
 		BlockState state = event.getBlock().getState();
 		
 		if(event.getTo() == Material.AIR && getSettingsManager().isLoggingEnabled(entity.getWorld(), LogType.ENDERMAN_PICKUP)) {
-			getQueueManager().queueBlock(new BlockEntry(null, entity.getType(), LogType.ENDERMAN_PICKUP, state.getLocation(), state.getTypeId(), state.getRawData()));
+			getQueueManager().queueBlock(new BlockEntry(null, entity.getType(), LogType.ENDERMAN_PICKUP, null, state));
 		} else if(getSettingsManager().isLoggingEnabled(entity.getWorld(), LogType.ENDERMAN_PLACE)) {
 			Enderman enderman = (Enderman) entity;
 			

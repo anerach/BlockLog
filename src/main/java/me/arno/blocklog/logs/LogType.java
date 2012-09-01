@@ -31,30 +31,30 @@ public enum LogType {
 	PLAYER_LOGOUT(27, "LOGOUT"),
 	PVP_DEATH(28, "DEATH"),
 	MOB_DEATH(29, "DEATH");
-	
+
 	int id;
 	String name;
 	boolean blockCreate;
-	
+
 	LogType(int id, String name) {
 		this(id, name, false);
 	}
-	
+
 	LogType(int id, String name, boolean blockCreate) {
 		this.id = id;
 		this.name = name;
 		this.blockCreate = blockCreate;
 	}
-	
+
 	@Override
 	public String toString() {
 		return this.name;
 	}
-	
+
 	public int getId() {
 		return this.id;
 	}
-	
+
 	/**
 	 * This method returns whether the {@link LogType} is used when something gets created or not
 	 * 
@@ -63,7 +63,7 @@ public enum LogType {
 	public boolean isCreateLog() {
 		return blockCreate;
 	}
-	
+
 	public LogType getType() {
 		return this;
 	}

@@ -52,7 +52,7 @@ public class BlockEntry extends DataEntry {
 	}
 	
 	public BlockEntry(String player, EntityType entity, LogType type, BlockState newState, BlockState oldState) {
-		this(player, entity, type, (newState != null ? newState : oldState).getLocation(), newState.getTypeId(), newState.getRawData(), oldState.getTypeId(), oldState.getRawData());
+		this(player, entity, type, (newState != null ? newState : oldState).getLocation(), (newState != null ? newState.getTypeId() : 0), (newState != null ? newState.getRawData() : 0), oldState.getTypeId(), oldState.getRawData());
 	}
 	
 	public BlockEntry(String player, EntityType entity, LogType type, Location location, int block, byte data, int originalBlock, byte originalData) {
@@ -72,7 +72,7 @@ public class BlockEntry extends DataEntry {
 			Block block = world.getBlockAt(getLocation());
 			
 			if(this.rollback == 0) {
-				block.setTypeIdAndData(this.getOldBlock(), this.getOldDataValue(), false);
+				block.setTypeIdAndData(this.getOriginalBlock(), this.getOriginalDataValue(), false);
 			} else {
 				block.setTypeIdAndData(this.getBlock(), this.getDataValue(), false);
 			}
@@ -103,8 +103,8 @@ public class BlockEntry extends DataEntry {
 			values.put("entity", getEntity());
 			values.put("block", getBlock());
 			values.put("data", getDataValue());
-			values.put("original_block", getOldBlock());
-			values.put("original_data", getOldDataValue());
+			values.put("original_block", getOriginalBlock());
+			values.put("original_data", getOriginalDataValue());
 			values.put("type", getTypeId());
 			values.put("rollback", getRollback());
 			values.put("world", getWorld());
@@ -135,7 +135,7 @@ public class BlockEntry extends DataEntry {
 		return block;
 	}
 	
-	public int getOldBlock() {
+	public int getOriginalBlock() {
 		return originalBlock;
 	}
 	
@@ -143,7 +143,7 @@ public class BlockEntry extends DataEntry {
 		return datavalue;
 	}
 	
-	public byte getOldDataValue() {
+	public byte getOriginalDataValue() {
 		return originalData;
 	}
 	

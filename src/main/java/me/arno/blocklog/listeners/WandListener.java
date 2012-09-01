@@ -32,7 +32,7 @@ public class WandListener extends BlockLogListener {
 	public void getBlockEdits(Player player, Location location) {
 		try {
 			player.sendMessage(ChatColor.YELLOW + "Block History " + ChatColor.BLUE + "[ID: " + location.getBlock().getTypeId() + " Name: " + location.getBlock().getType().name() + "] [" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + "]" + ChatColor.DARK_GRAY + " ------------------------");
-			player.sendMessage(ChatColor.GRAY + Util.addSpaces("Name", 90) + Util.addSpaces("Action", 75) + "Details");
+			player.sendMessage(ChatColor.GRAY + Util.addSpaces("Name", 80) + Util.addSpaces("Action", 100) + "Details");
 
 			WandSettings wandSettings = plugin.wandSettings.get(player.getName());
 			int maxResults = wandSettings.getMaxResults();
@@ -80,31 +80,35 @@ public class WandListener extends BlockLogListener {
 				dataEntries = logs.subList(0, maxResults - 1);
 			
 			for(DataEntry data : dataEntries) {
+				String playerName = null;
 				String name = null;
 				String action = null;
-				String details = null;
+				String date = null;
 				
 				if(data instanceof BlockEntry) {
 					BlockEntry block = (BlockEntry) data;
-					
-					name = Material.getMaterial(block.getBlock()).name();
+
+					playerName = (block.getPlayer() == null || block.getPlayer() == "Environment") ? block.getEntity() : block.getPlayer();
+					name = Material.getMaterial((block.getType().isCreateLog() ? block.getBlock() : block.getOriginalBlock())).name();
 					action = block.getType().name();
-					details = Util.getDate(block.getDate());
+					date = " [" + Util.getDate(block.getDate()) + "]";
 				} else if(data instanceof InteractionEntry) {
 					InteractionEntry interaction = (InteractionEntry) data;
-					
+
+					playerName = interaction.getPlayer();
 					name = Material.getMaterial(interaction.getBlock()).name();
 					action = interaction.getType().name();
-					details = Util.getDate(interaction.getDate());
+					date = Util.getDate(interaction.getDate());
 				} else if(data instanceof ChestEntry) {
 					ChestEntry chest = (ChestEntry) data;
 					
+					playerName = chest.getPlayer();
 					name = chest.getItem().getType().name() + " (" + chest.getItem().getAmount() + ")";
 					action = chest.getType().name();
-					details = Util.getDate(chest.getDate());
+					date = Util.getDate(chest.getDate());
 				}
 				
-				player.sendMessage(Util.addSpaces(ChatColor.GOLD + name, 99) + Util.addSpaces(ChatColor.DARK_RED + action, 81) + ChatColor.AQUA + details);
+				player.sendMessage(Util.addSpaces(ChatColor.GOLD + playerName, 85) + Util.addSpaces(ChatColor.DARK_RED + action, 115) + ChatColor.AQUA + name + " " + date);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

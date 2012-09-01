@@ -40,9 +40,19 @@ public class UpdatesSchedule implements Runnable {
             
             boolean updateAvailable = false;
             
-            for(int i=0;i<currentVersion.length;i++) {
-            	if(Integer.valueOf(latestVersion[i]) > Integer.valueOf(currentVersion[i]))
-            		updateAvailable = true;
+            for(int i=0;i<latestVersion.length;i++) {
+            	if (currentVersion.length < latestVersion.length && Integer.valueOf(latestVersion[0]) >= Integer.valueOf(currentVersion[0]) && Integer.valueOf(latestVersion[1]) >= Integer.valueOf(currentVersion[1]))
+                {
+                    updateAvailable = true;
+                    break;
+                }
+            	else if(Integer.valueOf(latestVersion[i]) > Integer.valueOf(currentVersion[i]))
+                {
+                    updateAvailable = true;
+                    break;
+                }
+                else if(Integer.valueOf(latestVersion[i]) < Integer.valueOf(currentVersion[i]))
+                    break;
             }
 			
 			if(updateAvailable) {

@@ -144,6 +144,11 @@ public class DataSearch {
 				return false;
 		}
 		
+		if(location != null) {
+			if(location.getBlockX() != entry.getX() || location.getBlockY() != entry.getY() || location.getBlockZ() != entry.getZ());
+				return false;
+		}
+		
 		if(player != null) {
 			if(!player.equalsIgnoreCase(entry.getPlayer()))
 				return false;
@@ -152,15 +157,6 @@ public class DataSearch {
 		
 		if(data != null) {
 			if(!data.equalsIgnoreCase(entry.getData()))
-				return false;
-		}
-		
-		if(location != null) {
-			if(location.getBlockX() != entry.getX())
-				return false;
-			if(location.getBlockY() != entry.getY())
-				return false;
-			if(location.getBlockZ() != entry.getZ())
 				return false;
 		}
 		

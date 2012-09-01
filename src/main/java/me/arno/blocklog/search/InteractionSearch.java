@@ -94,6 +94,8 @@ public class InteractionSearch {
 			query.where("date", until, "<");
 		if(area != 0 && location != null)
 			query.where("x", xMin, ">=").where("x", xMax, "<=").where("y", yMin, ">=").where("y", yMax, "<=").where("z", zMin, ">=").where("z", zMax, "<=");
+		else if(location != null)
+			query.where("x", location.getBlockX()).where("y", location.getBlockY()).where("z", location.getBlockZ());
 		if(world != null)
 			query.where("world", world.getName());
 		
@@ -139,6 +141,11 @@ public class InteractionSearch {
 	public boolean checkInteraction(InteractionEntry entry) {
 		if(world != null) {
 			if(!world.equalsIgnoreCase(entry.getWorld()))
+				return false;
+		}
+		
+		if(location != null) {
+			if(location.getBlockX() != entry.getX() || location.getBlockY() != entry.getY() || location.getBlockZ() != entry.getZ());
 				return false;
 		}
 		

@@ -28,11 +28,11 @@ public class BlockEntry extends DataEntry {
 	private int rollback = 0;
 	
 	public BlockEntry(LogType type, BlockState block) {
-		this("Environment", EntityType.UNKNOWN, type, block.getLocation(), block.getType().getId(), block.getRawData());
+		this("environment", EntityType.UNKNOWN, type, block.getLocation(), block.getType().getId(), block.getRawData());
 	}
 	
 	public BlockEntry(EntityType entity, LogType type, BlockState block) {
-		this("Environment", entity, type, block.getLocation(), block.getType().getId(), block.getRawData());
+		this("environment", entity, type, block.getLocation(), block.getType().getId(), block.getRawData());
 	}
 	
 	public BlockEntry(String player, EntityType entity, LogType type, BlockState block) {
@@ -43,16 +43,16 @@ public class BlockEntry extends DataEntry {
 		this(player, entity, type, location, block, data, 0, (byte) 0);
 	}
 	
-	public BlockEntry(LogType type, BlockState newState, BlockState oldState) {
-		this("Environment", EntityType.UNKNOWN, type, (newState != null ? newState : oldState).getLocation(), newState.getTypeId(), newState.getRawData(), oldState.getTypeId(), oldState.getRawData());
+	public BlockEntry(LogType type, BlockState newState, BlockState originalState) {
+		this("environment", EntityType.UNKNOWN, type, (newState != null ? newState : originalState).getLocation(), (newState != null) ? newState.getTypeId() : 0, (newState != null) ? newState.getRawData() : 0, originalState.getTypeId(), originalState.getRawData());
 	}
 	
-	public BlockEntry(EntityType entity, LogType type, BlockState newState, BlockState oldState) {
-		this("Environment", entity, type, (newState != null ? newState : oldState).getLocation(), (newState != null) ? newState.getTypeId() : 0, (newState != null) ? newState.getRawData() : 0, oldState.getTypeId(), oldState.getRawData());
+	public BlockEntry(EntityType entity, LogType type, BlockState newState, BlockState originalState) {
+		this("environment", entity, type, (newState != null ? newState : originalState).getLocation(), (newState != null) ? newState.getTypeId() : 0, (newState != null) ? newState.getRawData() : 0, originalState.getTypeId(), originalState.getRawData());
 	}
 	
-	public BlockEntry(String player, EntityType entity, LogType type, BlockState newState, BlockState oldState) {
-		this(player, entity, type, (newState != null ? newState : oldState).getLocation(), (newState != null ? newState.getTypeId() : 0), (newState != null ? newState.getRawData() : 0), oldState.getTypeId(), oldState.getRawData());
+	public BlockEntry(String player, EntityType entity, LogType type, BlockState newState, BlockState originalState) {
+		this(player, entity, type, (newState != null ? newState : originalState).getLocation(), (newState != null ? newState.getTypeId() : 0), (newState != null ? newState.getRawData() : 0), originalState.getTypeId(), originalState.getRawData());
 	}
 	
 	public BlockEntry(String player, EntityType entity, LogType type, Location location, int block, byte data, int originalBlock, byte originalData) {

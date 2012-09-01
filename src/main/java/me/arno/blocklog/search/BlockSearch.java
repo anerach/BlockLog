@@ -32,6 +32,7 @@ public class BlockSearch {
 	
 	private int limit = 0;
 	
+	private boolean onlyOneLocation = false;
 	private boolean groupByLocation = true;
 	private boolean ignoreLimit = true;
 	
@@ -53,6 +54,10 @@ public class BlockSearch {
 	
 	public void setWorld(String world) {
 		this.world = world;
+	}
+	
+	public void setOnlyOneLocation(boolean onlyOneLocation) {
+		this.onlyOneLocation = onlyOneLocation;
 	}
 	
 	public void setLocation(Location location) {
@@ -116,7 +121,7 @@ public class BlockSearch {
 			query.where("date", until, "<");
 		if(area != 0 && location != null)
 			query.where("x", xMin, ">=").where("x", xMax, "<=").where("y", yMin, ">=").where("y", yMax, "<=").where("z", zMin, ">=").where("z", zMax, "<=");
-		else if(location != null)
+		else if(location != null && onlyOneLocation)
 			query.where("x", location.getBlockX()).where("y", location.getBlockY()).where("z", location.getBlockZ());
 		if(world != null)
 			query.where("world", world.getName());

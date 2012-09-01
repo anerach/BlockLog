@@ -48,6 +48,7 @@ public class WandListener extends BlockLogListener {
 				blockSearch.setLocation(location);
 				blockSearch.setLimit(maxResults);
 				blockSearch.setDate(since, until);
+				blockSearch.setOnlyOneLocation(true);
 
 				logs.addAll(blockSearch.getResults());
 			}

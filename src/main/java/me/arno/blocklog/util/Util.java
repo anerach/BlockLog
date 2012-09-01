@@ -30,12 +30,12 @@ public class Util {
 		calendar.setTimeInMillis(time * 1000);
 		
 		String seconds = (calendar.get(Calendar.SECOND) > 9 ? "" : "0") + calendar.get(Calendar.SECOND);
-		String minutes = (calendar.get(Calendar.SECOND) > 9 ? "" : "0") + calendar.get(Calendar.MINUTE);
-		String hours = (calendar.get(Calendar.SECOND) > 9 ? "" : "0") + calendar.get(Calendar.HOUR_OF_DAY);
+		String minutes = (calendar.get(Calendar.MINUTE) > 9 ? "" : "0") + calendar.get(Calendar.MINUTE);
+		String hours = (calendar.get(Calendar.HOUR_OF_DAY) > 9 ? "" : "0") + calendar.get(Calendar.HOUR_OF_DAY);
 		
 		String day =  (calendar.get(Calendar.DAY_OF_MONTH) > 9 ? "" : "0") + calendar.get(Calendar.DAY_OF_MONTH);
-		String month = (calendar.get(Calendar.MONTH) > 9 ? "" : "0") + calendar.get(Calendar.MONTH);
-		String year = (calendar.get(Calendar.SECOND) > 9 ? "" : "0") + calendar.get(Calendar.MONTH);
+		String month = ((calendar.get(Calendar.MONTH) + 1) > 9 ? "" : "0") + (calendar.get(Calendar.MONTH) + 1);
+		String year = (calendar.get(Calendar.YEAR) > 9 ? "" : "0") + calendar.get(Calendar.YEAR);
 		
 		String date = format.replace("%s", seconds).replace("%i", minutes).replace("%H", hours).replace("%d", day).replace("%m", month).replace("%Y", year);
 		return date;

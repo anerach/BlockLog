@@ -32,7 +32,7 @@ public class WandListener extends BlockLogListener {
 	public void getBlockEdits(Player player, Location location) {
 		try {
 			player.sendMessage(ChatColor.YELLOW + "Block History " + ChatColor.BLUE + "[ID: " + location.getBlock().getTypeId() + " Name: " + location.getBlock().getType().name() + "] [" + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + "]" + ChatColor.DARK_GRAY + " ------------------------");
-			player.sendMessage(ChatColor.GRAY + Util.addSpaces("Name", 80) + Util.addSpaces("Action", 100) + "Details");
+			player.sendMessage(ChatColor.GRAY + Util.addSpaces("Name", 80) + Util.addSpaces("Action", 90) + "Details");
 
 			WandSettings wandSettings = plugin.wandSettings.get(player.getName());
 			int maxResults = wandSettings.getMaxResults();
@@ -48,7 +48,7 @@ public class WandListener extends BlockLogListener {
 				blockSearch.setLocation(location);
 				blockSearch.setLimit(maxResults);
 				blockSearch.setDate(since, until);
-				blockSearch.setOnlyOneLocation(true);
+				blockSearch.setUseLocation(true);
 
 				logs.addAll(blockSearch.getResults());
 			}
@@ -109,7 +109,7 @@ public class WandListener extends BlockLogListener {
 					date = Util.getDate(chest.getDate());
 				}
 				
-				player.sendMessage(Util.addSpaces(ChatColor.GOLD + playerName, 85) + Util.addSpaces(ChatColor.DARK_RED + action, 115) + ChatColor.AQUA + name + " " + date);
+				player.sendMessage(Util.addSpaces(ChatColor.GOLD + playerName, 85) + Util.addSpaces(ChatColor.DARK_RED + action, 105) + ChatColor.AQUA + name + " " + date);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

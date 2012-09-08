@@ -14,13 +14,13 @@ import me.arno.blocklog.BlockLog;
 
 public class Util {
 	
-	public static void sendNotice(String message) {
+	public static void sendNotice(Object message) {
 		sendNotice(message, Level.WARNING);
 	}
 	
-	public static void sendNotice(String message, Level level) {
-		Bukkit.broadcast(message, "blocklog.notices");
-		Bukkit.getLogger().log(level, message);
+	public static void sendNotice(Object message, Level level) {
+		Bukkit.broadcast(message.toString(), "blocklog.notices");
+		Bukkit.getLogger().log(level, message.toString());
 	}
 	
 	public static String getDate(long time) {

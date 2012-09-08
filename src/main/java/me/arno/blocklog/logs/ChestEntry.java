@@ -10,13 +10,12 @@ import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
 public class ChestEntry extends DataEntry {
-	private LogType type;
 	private ItemStack[] items = null;
 	private ItemStack item = null;
 	
 	// Used for gathering chestEntries from the database
 	public ChestEntry(String player, Location loc, LogType type, ItemStack item) {
-		super(player, LogType.CHEST_PUT, loc, null);
+		super(player, type, loc, null);
 		this.item = item;
 	}
 	
@@ -46,7 +45,7 @@ public class ChestEntry extends DataEntry {
 					setType(LogType.CHEST_TAKE);
 				
 				values.put("item", itemStack.getType().getId());
-				values.put("amount", itemStack.getAmount());
+				values.put("amount", Math.abs(itemStack.getAmount()));
 				values.put("data", itemStack.getData().getData());
 				values.put("type", getTypeId());
 				
@@ -55,10 +54,6 @@ public class ChestEntry extends DataEntry {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	public LogType getType() {
-		return type;
 	}
 	
 	public ItemStack getItem() {

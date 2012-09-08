@@ -166,12 +166,12 @@ public class DataSearch {
 		}
 		
 		if(since > 0) {
-			if(entry.getDate() > since)
+			if(entry.getDate() < since)
 				return false;
 		}
 		
 		if(until > 0) {
-			if(entry.getDate() < until)
+			if(entry.getDate() > until)
 				return false;
 		}
 		

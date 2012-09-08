@@ -7,11 +7,9 @@ import java.util.ArrayList;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.World;
 
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.logs.InteractionEntry;
-import me.arno.blocklog.util.BukkitUtil;
 import me.arno.blocklog.util.Query;
 
 public class InteractionSearch {
@@ -20,7 +18,6 @@ public class InteractionSearch {
 	
 	private String world;
 	private Location location;
-	private int area = 0;
 	
 	private int since = 0;
 	private int until = 0;
@@ -45,10 +42,6 @@ public class InteractionSearch {
 		setWorld(location.getWorld().getName());
 	}
 	
-	public void setArea(int area) {
-		this.area = area;
-	}
-	
 	public void setDate(int since) {
 		setDate(since, 0);
 	}
@@ -70,20 +63,6 @@ public class InteractionSearch {
 	public ArrayList<InteractionEntry> getResults() {
 		ArrayList<InteractionEntry> interactionEntries = new ArrayList<InteractionEntry>();
 		
-		World world = null;
-		int xMin = 0; int xMax = 0; int yMin = 0; int yMax = 0; int zMin = 0; int zMax = 0;
-		
-		if(location != null) {
-			world = location.getWorld();
-			
-			xMin = location.getBlockX() - area;
-			xMax = location.getBlockX() + area;
-			yMin = location.getBlockY() - area;
-			yMax = location.getBlockY() + area;
-			zMin = location.getBlockZ() - area;
-			zMax = location.getBlockZ() + area;
-		}
-		
 		Query query = new Query("blocklog_interactions");
 		query.select("*");
 		if(player != null)
@@ -92,12 +71,10 @@ public class InteractionSearch {
 			query.where("date", since, ">");
 		if(until != 0)
 			query.where("date", until, "<");
-		if(area != 0 && location != null)
-			query.where("x", xMin, ">=").where("x", xMax, "<=").where("y", yMin, ">=").where("y", yMax, "<=").where("z", zMin, ">=").where("z", zMax, "<=");
-		else if(location != null)
-			query.where("x", location.getBlockX()).where("y", location.getBlockY()).where("z", location.getBlockZ());
 		if(world != null)
-			query.where("world", world.getName());
+			query.where("world", world);
+		if(location != null)
+			query.where("x", location.getBlockX()).where("y", location.getBlockY()).where("z", location.getBlockZ());
 		
 		query.orderBy("date", "DESC");
 		
@@ -155,17 +132,12 @@ public class InteractionSearch {
 		}
 		
 		if(since > 0) {
-			if(entry.getDate() > since)
+			if(entry.getDate() < since)
 				return false;
 		}
 		
 		if(until > 0) {
-			if(entry.getDate() < until)
-				return false;
-		}
-		
-		if(area > 0) {
-			if(!BukkitUtil.isInRange(entry.getLocation(), location, area))
+			if(entry.getDate() > until)
 				return false;
 		}
 		

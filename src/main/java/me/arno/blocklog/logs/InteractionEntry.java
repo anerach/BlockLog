@@ -26,9 +26,9 @@ public class InteractionEntry extends DataEntry {
 			values.put("player", getPlayer());
 			values.put("block", getBlock());
 			values.put("world", getWorld());
-			values.put("x", getZ());
+			values.put("x", getX());
 			values.put("y", getY());
-			values.put("z", getX());
+			values.put("z", getZ());
 			values.put("date", getDate());
 			
 			query.insert(values, conn);

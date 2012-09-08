@@ -54,8 +54,6 @@ public class CommandLookup extends BlockLogCommand {
 		search.setArea(syn.getInt("area"));
 		if(syn.containsArg("world") && syn.containsArg("x") && syn.containsArg("y") && syn.containsArg("z")) {
 			search.setLocation(new Location(Bukkit.getWorld(syn.getString("world")), syn.getInt("x"), syn.getInt("y"), syn.getInt("z")));
-			if(syn.getInt("area") == 0)
-				search.setOnlyOneLocation(true);
 		}
 		search.setRollback(syn.getInt("rollback"));
 		search.setDate(sinceTime, untilTime);

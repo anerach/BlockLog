@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS `blocklog_blocks` (
+CREATE TABLE IF NOT EXISTS `{prefix}blocks` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `player` VARCHAR(255) NOT NULL,
   `entity` VARCHAR(255) NOT NULL,

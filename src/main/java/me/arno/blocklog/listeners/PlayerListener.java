@@ -5,6 +5,7 @@ import java.util.Arrays;
 import me.arno.blocklog.logs.DataEntry;
 import me.arno.blocklog.logs.InteractionEntry;
 import me.arno.blocklog.logs.LogType;
+import me.arno.blocklog.util.Util;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -26,7 +27,7 @@ public class PlayerListener extends BlockLogListener {
 	public void onPlayerChat(AsyncPlayerChatEvent event) {
 		Player player = event.getPlayer();
 		
-		String message = event.getMessage();
+		String message = Util.escape(event.getMessage());
 		
 		if(message.length() > 255) {
 			message.substring(message.length() - 255 - 3);

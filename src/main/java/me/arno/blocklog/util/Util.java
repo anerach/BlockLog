@@ -14,6 +14,10 @@ import me.arno.blocklog.BlockLog;
 
 public class Util {
 	
+	public static String escape(String message) {
+		return message.replace("\\", "\\\\").replace("'", "\\'");
+	}
+	
 	public static void sendNotice(Object message) {
 		sendNotice(message, Level.WARNING);
 	}

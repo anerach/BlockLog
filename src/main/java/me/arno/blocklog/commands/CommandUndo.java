@@ -36,7 +36,7 @@ public class CommandUndo extends BlockLogCommand {
 		int rollbackID = 0;
 		
 		try {
-			Syntax syn = new Syntax(args);
+			Syntax syn = new Syntax(args, 1);
 
 			int limit = syn.getInt("limit", 200);
 			int delay = syn.getTime("delay", "3s");

@@ -81,6 +81,10 @@ public class SettingsManager extends BlockLogManager {
 		return getConfig().getInt("blocklog.results");
 	}
 	
+	public String getDatabasePrefix() {
+		return getConfig().getString("database.prefix");
+	}
+	
 	public FileConfiguration getConfig() {
 		return BlockLog.getInstance().getConfig();
 	}

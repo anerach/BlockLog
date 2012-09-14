@@ -28,7 +28,7 @@ public class RollbackSchedule implements Runnable {
 		this.plugin = BlockLog.getInstance();
 		this.player = undo.getSender();
 		this.limit = undo.getLimit();
-		this.rollback = undo.getRollback();
+		this.rollback = 0;
 		
 		this.isRollback = false;
 		

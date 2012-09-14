@@ -5,7 +5,6 @@ author: anerach
 dev-url: http://dev.bukkit.org/server-mods/block-log
 description: >
             A simple and effective log plugin with anti-grief features
-softdepend: [Pail]
 commands:
     blocklog:
         description: BlockLog's main command

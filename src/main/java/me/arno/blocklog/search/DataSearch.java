@@ -30,7 +30,7 @@ public class DataSearch {
 
 	private boolean ignoreLimit = true;
 
-	public DataSearch() { this.conn = BlockLog.getInstance().conn; }
+	public DataSearch() { this.conn = BlockLog.getInstance().getConnection(); }
 	public DataSearch(Connection conn) { this.conn = conn; }
 	
 	public boolean groupByLocation = true;

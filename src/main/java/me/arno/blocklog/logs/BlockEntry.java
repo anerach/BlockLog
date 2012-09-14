@@ -80,7 +80,7 @@ public class BlockEntry extends DataEntry {
 			if(this.getId() == 0) {
 				this.setRollback(rollback);
 			} else {
-				Statement stmt = BlockLog.getInstance().conn.createStatement();
+				Statement stmt = BlockLog.getInstance().getConnection().createStatement();
 				stmt.executeUpdate("UPDATE blocklog_blocks SET rollback = " + rollback + " WHERE id = " + id);
 			}
 			return true;

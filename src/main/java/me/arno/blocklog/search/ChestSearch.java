@@ -28,7 +28,7 @@ public class ChestSearch {
 	
 	private boolean ignoreLimit = true;
 
-	public ChestSearch() { this.conn = BlockLog.getInstance().conn; }
+	public ChestSearch() { this.conn = BlockLog.getInstance().getConnection(); }
 	public ChestSearch(Connection conn) { this.conn = conn; }
 	
 	public void setPlayer(String player) {

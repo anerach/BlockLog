@@ -193,7 +193,7 @@ public class Query {
 	}
 	
 	public int deleteRows() throws SQLException {
-		return deleteRows(BlockLog.getInstance().conn);
+		return deleteRows(BlockLog.getInstance().getConnection());
 	}
 	
 	public int deleteRows(Connection conn) throws SQLException {
@@ -214,7 +214,7 @@ public class Query {
 	}
 	
 	public ResultSet getResult() throws SQLException {
-		return getResult(BlockLog.getInstance().conn);
+		return getResult(BlockLog.getInstance().getConnection());
 	}
 	
 	public ResultSet getResult(Connection conn) throws SQLException {
@@ -224,7 +224,7 @@ public class Query {
 	}
 
 	public int getRowCount() throws SQLException {
-		return getRowCount(BlockLog.getInstance().conn);
+		return getRowCount(BlockLog.getInstance().getConnection());
 	}
 	
 	public int getRowCount(Connection conn) throws SQLException {
@@ -257,7 +257,7 @@ public class Query {
 	}
 	
 	public int insert(HashMap<String, Object> values) throws SQLException {
-		return insert(values, BlockLog.getInstance().conn);
+		return insert(values, BlockLog.getInstance().getConnection());
 	}
 	
 	public int insert(HashMap<String, Object> hashMap, Connection conn) throws SQLException {

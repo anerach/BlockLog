@@ -26,7 +26,7 @@ public class InteractionSearch {
 
 	private boolean ignoreLimit = true;
 
-	public InteractionSearch() { this.conn = BlockLog.getInstance().conn; }
+	public InteractionSearch() { this.conn = BlockLog.getInstance().getConnection(); }
 	public InteractionSearch(Connection conn) { this.conn = conn; }
 	
 	public void setPlayer(String player) {

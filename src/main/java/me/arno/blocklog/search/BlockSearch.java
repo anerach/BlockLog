@@ -36,7 +36,7 @@ public class BlockSearch {
 	private boolean groupByLocation = true;
 	private boolean ignoreLimit = true;
 	
-	public BlockSearch() { this.conn = BlockLog.getInstance().conn; }
+	public BlockSearch() { this.conn = BlockLog.getInstance().getConnection(); }
 	public BlockSearch(Connection conn) { this.conn = conn; }
 
 	public void setPlayer(String player) {
@@ -114,9 +114,9 @@ public class BlockSearch {
 			query.where("player", player);
 		if(entity != null)
 			query.where("entity", entity);
-		if(since != 0)
+		if(since > 0)
 			query.where("date", since, ">");
-		if(until != 0)
+		if(until > 0)
 			query.where("date", until, "<");
 		if(location != null && area > 0)
 			query.where("x", xMin, ">=").where("x", xMax, "<=").where("y", yMin, ">=").where("y", yMax, "<=").where("z", zMin, ">=").where("z", zMax, "<=");
@@ -190,7 +190,9 @@ public class BlockSearch {
 		if(location != null && area > 0) {
 			if(!BukkitUtil.isInRange(entry.getLocation(), location, area))
 				return false;
-		} else if(location != null && useLocation) {
+		}
+		
+		if(location != null && useLocation) {
 			if(location.getBlockX() != entry.getX() || location.getBlockY() != entry.getY() || location.getBlockZ() != entry.getZ());
 				return false;
 		}

@@ -30,7 +30,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class BlockLog extends JavaPlugin {
 	private static BlockLog plugin;
 	public Logger log;
-	public Connection conn;
+	private Connection conn;
 	
 	private SettingsManager settingsManager;
 	private DatabaseManager databaseManager;
@@ -46,6 +46,20 @@ public class BlockLog extends JavaPlugin {
 	
 	public static BlockLog getInstance() {
 		return plugin;
+	}
+	
+	public Connection getConnection() {
+		try {
+			if(conn == null)
+				conn = databaseManager.getConnection();
+			else if(conn.isClosed())
+				conn = databaseManager.getConnection();
+			else if(!conn.isValid(5000))
+				conn = databaseManager.getConnection();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return conn;
 	}
 	
 	public HashMap<Integer, Integer> getSchedules() {
@@ -82,11 +96,12 @@ public class BlockLog extends JavaPlugin {
 			worldConfig.saveConfig();
 		}
 		
-		getConfig().addDefault("mysql.host", "localhost");
-	    getConfig().addDefault("mysql.username", "root");
-	    getConfig().addDefault("mysql.password", "");
-	    getConfig().addDefault("mysql.database", "bukkit");
-	    getConfig().addDefault("mysql.port", 3306);
+		getConfig().addDefault("database.host", "localhost");
+	    getConfig().addDefault("database.username", "root");
+	    getConfig().addDefault("database.password", "");
+	    getConfig().addDefault("database.database", "bukkit");
+	    getConfig().addDefault("database.prefix", "blocklog_");
+	    getConfig().addDefault("database.port", 3306);
 	    getConfig().addDefault("blocklog.wand", 19);
 	   	getConfig().addDefault("blocklog.results", 5);
 	   	getConfig().addDefault("blocklog.save-delay", 1);
@@ -134,7 +149,7 @@ public class BlockLog extends JavaPlugin {
 	    	Statement stmt = conn.createStatement();
 	    	
 	    	for(String table : DatabaseManager.databaseTables) {
-	    		stmt.executeUpdate(Util.getResourceContent("database/" + DatabaseManager.databasePrefix + table + ".sql"));
+	    		stmt.executeUpdate(Util.getResourceContent("database/" + DatabaseManager.databasePrefix + table + ".sql").replace("{prefix}", DatabaseManager.databasePrefix));
 	    	}
 		} catch (SQLException e) {
 			e.printStackTrace();

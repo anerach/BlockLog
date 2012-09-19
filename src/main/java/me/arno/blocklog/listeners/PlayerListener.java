@@ -82,7 +82,7 @@ public class PlayerListener extends BlockLogListener {
 		if(block instanceof InventoryHolder)
 			return;
 		
-		Material[] allowedMaterials = new Material[]{Material.WOODEN_DOOR, Material.IRON_DOOR_BLOCK, Material.FENCE_GATE, Material.ENCHANTMENT_TABLE, Material.BREWING_STAND, Material.BURNING_FURNACE, Material.FURNACE, Material.WORKBENCH, Material.CAULDRON, Material.BED_BLOCK, Material.CAKE_BLOCK};
+		Material[] allowedMaterials = new Material[]{Material.WOODEN_DOOR, Material.IRON_DOOR_BLOCK, Material.LEVER, Material.STONE_BUTTON, Material.FENCE_GATE, Material.ENCHANTMENT_TABLE, Material.BREWING_STAND, Material.BURNING_FURNACE, Material.FURNACE, Material.WORKBENCH, Material.CAULDRON, Material.BED_BLOCK, Material.CAKE_BLOCK};
 		
 
 		if(Arrays.asList(allowedMaterials).contains(block.getType())) {

@@ -35,6 +35,11 @@ public class ChestListener extends BlockLogListener {
 		
 		final ItemStack[] before = cont.items;
 		
+		try {
+			((InventoryHolder)state).getInventory().getSize();
+		} catch (NullPointerException e) {
+			return;
+		}
 		final ItemStack[] after = Inventory.compressInv(((InventoryHolder)state).getInventory().getContents());
 		final ItemStack[] diff = Inventory.compareInventories(before, after);
 		

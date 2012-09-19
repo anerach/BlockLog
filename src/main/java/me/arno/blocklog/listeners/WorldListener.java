@@ -23,7 +23,7 @@ public class WorldListener extends BlockLogListener {
 			return;
 		
 		for(BlockState block : event.getBlocks()) {
-			getQueueManager().queueBlock(new BlockEntry(event.getPlayer().getName(), EntityType.PLAYER, type, block));
+			getQueueManager().queueBlock(new BlockEntry((event.getPlayer() == null) ? "environment" : event.getPlayer().getName(), EntityType.PLAYER, type, block));
 		}
 	}
 	

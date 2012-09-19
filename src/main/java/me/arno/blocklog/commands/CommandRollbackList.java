@@ -7,6 +7,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import me.arno.blocklog.managers.DatabaseManager;
 import me.arno.blocklog.util.Query;
 import me.arno.blocklog.util.Syntax;
 
@@ -46,23 +47,23 @@ public class CommandRollbackList extends BlockLogCommand {
 				return true;
 			}
 			
-			Query query = new Query("blocklog_rollbacks");
-			query.leftJoin("blocklog_undos", "id", "rollback");
+			Query query = new Query(DatabaseManager.databasePrefix + "rollbacks");
+			query.leftJoin(DatabaseManager.databasePrefix + "undos", "id", "rollback");
 			
-			query.select("blocklog_rollbacks.id","blocklog_rollbacks.player");
-			query.selectDateAs("blocklog_rollbacks.date", "date");
-			query.selectAs("blocklog_undos.player", "uplayer");
+			query.select(DatabaseManager.databasePrefix + "rollbacks.id", DatabaseManager.databasePrefix + "rollbacks.player");
+			query.selectDate(DatabaseManager.databasePrefix + "rollbacks.date");
+			query.selectAs(DatabaseManager.databasePrefix + "undos.player", "uplayer");
 
 			if(id != 0)
-				query.where("blocklog_rollbacks.id", id);
+				query.where(DatabaseManager.databasePrefix + "rollbacks.id", id);
 			if(target != null)
-				query.where("blocklog_rollbacks.player", target);
+				query.where(DatabaseManager.databasePrefix + "rollbacks.player", target);
 			if(sinceTime != 0)
-				query.where("blocklog_rollbacks.date", sinceTime, ">");
+				query.where(DatabaseManager.databasePrefix + "rollbacks.date", sinceTime, ">");
 			if(untilTime != 0)
-				query.where("blocklog_rollbacks.date", untilTime, "<");
+				query.where(DatabaseManager.databasePrefix + "rollbacks.date", untilTime, "<");
 			
-			query.orderBy("blocklog_rollbacks.date", "DESC");
+			query.orderBy(DatabaseManager.databasePrefix + "rollbacks.date", "DESC");
 			query.limit(getSettingsManager().getMaxResults());
 			
 			ResultSet rollbacks = query.getResult();

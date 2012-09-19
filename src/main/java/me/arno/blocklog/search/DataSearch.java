@@ -11,6 +11,7 @@ import org.bukkit.Location;
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.logs.DataEntry;
 import me.arno.blocklog.logs.LogType;
+import me.arno.blocklog.managers.DatabaseManager;
 import me.arno.blocklog.util.Query;
 
 public class DataSearch {
@@ -77,7 +78,7 @@ public class DataSearch {
 	public ArrayList<DataEntry> getResults() {
 		ArrayList<DataEntry> dataEntries = new ArrayList<DataEntry>();
 		
-		Query query = new Query("blocklog_data");
+		Query query = new Query(DatabaseManager.databasePrefix + "data");
 		query.select("*");
 		if(player != null)
 			query.where("player", player);

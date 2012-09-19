@@ -10,6 +10,7 @@ import org.bukkit.Location;
 
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.logs.InteractionEntry;
+import me.arno.blocklog.managers.DatabaseManager;
 import me.arno.blocklog.util.Query;
 
 public class InteractionSearch {
@@ -63,7 +64,7 @@ public class InteractionSearch {
 	public ArrayList<InteractionEntry> getResults() {
 		ArrayList<InteractionEntry> interactionEntries = new ArrayList<InteractionEntry>();
 		
-		Query query = new Query("blocklog_interactions");
+		Query query = new Query(DatabaseManager.databasePrefix + "interactions");
 		query.select("*");
 		if(player != null)
 			query.where("player", player);

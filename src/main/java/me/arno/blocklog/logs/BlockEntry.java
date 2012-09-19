@@ -6,6 +6,7 @@ import java.sql.Statement;
 import java.util.HashMap;
 
 import me.arno.blocklog.BlockLog;
+import me.arno.blocklog.managers.DatabaseManager;
 import me.arno.blocklog.util.Query;
 
 import org.bukkit.Bukkit;
@@ -81,7 +82,7 @@ public class BlockEntry extends DataEntry {
 				this.setRollback(rollback);
 			} else {
 				Statement stmt = BlockLog.getInstance().getConnection().createStatement();
-				stmt.executeUpdate("UPDATE blocklog_blocks SET rollback = " + rollback + " WHERE id = " + id);
+				stmt.executeUpdate("UPDATE " + DatabaseManager.databasePrefix + "blocks SET rollback = " + rollback + " WHERE id = " + id);
 			}
 			return true;
 		} catch (Exception e) {
@@ -96,7 +97,7 @@ public class BlockEntry extends DataEntry {
 			return;
 		
 		try {
-			Query query = new Query("blocklog_blocks");
+			Query query = new Query(DatabaseManager.databasePrefix + "blocks");
 			HashMap<String, Object> values = new HashMap<String, Object>();
 			
 			values.put("player", getPlayer());

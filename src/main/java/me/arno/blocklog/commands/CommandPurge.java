@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
+import me.arno.blocklog.managers.DatabaseManager;
 import me.arno.blocklog.util.Query;
 
 import org.bukkit.ChatColor;
@@ -62,12 +63,12 @@ public class CommandPurge extends BlockLogCommand {
 		try {
 			Query query;
 			for(String table : tables) {
-				query = new Query("blocklog_" + table);
+				query = new Query(DatabaseManager.databasePrefix + table);
 				query.where("date", currentTime - time, "<");
 				int count = query.deleteRows();
 				
 				if(count > 0) {
-					sender.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Removed " + ChatColor.GREEN + count + ChatColor.GOLD + " results from blocklog_" + table);
+					sender.sendMessage(ChatColor.DARK_RED +"[BlockLog] " + ChatColor.GOLD + "Removed " + ChatColor.GREEN + count + ChatColor.GOLD + " results from " + DatabaseManager.databasePrefix + table);
 				}
 			}
 	    } catch (SQLException e) {

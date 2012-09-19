@@ -15,6 +15,7 @@ import me.arno.blocklog.commands.*;
 import me.arno.blocklog.listeners.*;
 import me.arno.blocklog.logs.LogType;
 import me.arno.blocklog.managers.*;
+import me.arno.blocklog.schedules.AliveSchedule;
 import me.arno.blocklog.schedules.SaveSchedule;
 import me.arno.blocklog.schedules.UpdatesSchedule;
 import me.arno.blocklog.util.Query;
@@ -145,11 +146,11 @@ public class BlockLog extends JavaPlugin {
 	
 	private void loadDatabase() {
 		try {
-	    	conn = getDatabaseManager().getConnection();
+		    conn = databaseManager.getConnection();
 	    	Statement stmt = conn.createStatement();
 	    	
 	    	for(String table : DatabaseManager.databaseTables) {
-	    		stmt.executeUpdate(Util.getResourceContent("database/" + DatabaseManager.databasePrefix + table + ".sql").replace("{prefix}", DatabaseManager.databasePrefix));
+	    		stmt.executeUpdate(Util.getResourceContent("database/blocklog_" + table + ".sql").replace("{prefix}", DatabaseManager.databasePrefix));
 	    	}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -257,6 +258,7 @@ public class BlockLog extends JavaPlugin {
 		log.info("Starting BlockLog");
 		
 		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Thread(new SaveSchedule(1, null, false)), 100L, getSettingsManager().getBlockSaveDelay() * 20L);
+		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Thread(new AliveSchedule()), 60L * 60L * 20L, 2L * 60L * 60L * 20L); // Check every two hours if the mysql server is alive
     	
     	getServer().getPluginManager().registerEvents(new BlockListener(), this);
     	getServer().getPluginManager().registerEvents(new ChestListener(), this);
@@ -269,7 +271,7 @@ public class BlockLog extends JavaPlugin {
     		getServer().getPluginManager().registerEvents(new McMMOListener(), this);
     	
     	if(getConfig().getBoolean("blocklog.updates")) {
-	    	getServer().getScheduler().scheduleSyncRepeatingTask(this, new UpdatesSchedule(getDescription().getVersion()), 1L, 1 * 60 * 60 * 20L); // Check every hour for a new version
+	    	getServer().getScheduler().scheduleSyncRepeatingTask(this, new UpdatesSchedule(getDescription().getVersion()), 1L, 1L * 60L * 60L * 20L); // Check every hour for a new version
 	    }
     }
 	

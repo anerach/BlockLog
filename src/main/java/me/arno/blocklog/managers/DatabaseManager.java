@@ -15,21 +15,19 @@ public class DatabaseManager extends BlockLogManager {
 	public static final String[] databaseTables = {"blocks", "rollbacks", "undos", "interactions", "data", "chests"};
 	public static final String[] purgeableTables = {"blocks", "interactions", "chests", "data"};
 	
-	public DatabaseManager() {
+	public Connection getConnection() {
 		DatabaseManager.databasePrefix = getSettingsManager().getDatabasePrefix();
-	}
-	
-	public Connection getConnection() throws SQLException {
 		try {
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
 			return DriverManager.getConnection("jdbc:mysql://" + getHost() + ":" + getPort() + "/" + getDatabase(), getUsername(), getPassword());
 		} catch (InstantiationException e) {
 		} catch (IllegalAccessException e) {
 		} catch (SQLException e) {
+			e.printStackTrace();
 			BlockLog.getInstance().log.severe("Unable to connect to the MySQL Server");
 			BlockLog.getInstance().log.severe("Please check your MySQL settings in your config.yml");
 		} catch (ClassNotFoundException e) {
-			throw new SQLException("Unable to find the MySQL JDBC Driver");
+			BlockLog.getInstance().log.severe("Unable to find the MySQL JDBC Driver");
 		}
 		return null;
 	}
@@ -59,22 +57,22 @@ public class DatabaseManager extends BlockLogManager {
 	}
 	
 	public String getHost() {
-		return BlockLog.getInstance().getConfig().getString("mysql.host");
+		return BlockLog.getInstance().getConfig().getString("database.host");
 	}
 	
 	public String getUsername() {
-		return BlockLog.getInstance().getConfig().getString("mysql.username");
+		return BlockLog.getInstance().getConfig().getString("database.username");
 	}
 	
 	public String getPassword() {
-		return BlockLog.getInstance().getConfig().getString("mysql.password");
+		return BlockLog.getInstance().getConfig().getString("database.password");
 	}
 	
 	public String getDatabase() {
-		return BlockLog.getInstance().getConfig().getString("mysql.database");
+		return BlockLog.getInstance().getConfig().getString("database.database");
 	}
 	
 	public int getPort() {
-		return BlockLog.getInstance().getConfig().getInt("mysql.port");
+		return BlockLog.getInstance().getConfig().getInt("database.port");
 	}
 }

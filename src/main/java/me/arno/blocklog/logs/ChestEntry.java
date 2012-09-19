@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 
+import me.arno.blocklog.managers.DatabaseManager;
 import me.arno.blocklog.util.Query;
 
 import org.bukkit.Location;
@@ -28,7 +29,7 @@ public class ChestEntry extends DataEntry {
 	@Override
 	public void save(Connection conn) {
 		try {
-			Query query = new Query("blocklog_chests");
+			Query query = new Query(DatabaseManager.databasePrefix + "chests");
 			HashMap<String, Object> values = new HashMap<String, Object>();
 			
 			values.put("player", getPlayer());

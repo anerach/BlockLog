@@ -13,6 +13,7 @@ import org.bukkit.entity.EntityType;
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.logs.BlockEntry;
 import me.arno.blocklog.logs.LogType;
+import me.arno.blocklog.managers.DatabaseManager;
 import me.arno.blocklog.util.BukkitUtil;
 import me.arno.blocklog.util.Query;
 
@@ -108,7 +109,7 @@ public class BlockSearch {
 			zMax = location.getBlockZ() + area;
 		}
 		
-		Query query = new Query("blocklog_blocks");
+		Query query = new Query(DatabaseManager.databasePrefix + "blocks");
 		query.select("*");
 		if(player != null)
 			query.where("player", player);

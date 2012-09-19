@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 
+import me.arno.blocklog.managers.DatabaseManager;
 import me.arno.blocklog.util.Query;
 
 import org.bukkit.Bukkit;
@@ -43,7 +44,7 @@ public class DataEntry {
 	
 	public void save(Connection conn) {
 		try {
-			Query query = new Query("blocklog_data");
+			Query query = new Query(DatabaseManager.databasePrefix + "data");
 			
 			HashMap<String, Object> values = new HashMap<String, Object>();
 			

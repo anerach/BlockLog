@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 
 import me.arno.blocklog.Undo;
+import me.arno.blocklog.managers.DatabaseManager;
 import me.arno.blocklog.schedules.RollbackSchedule;
 import me.arno.blocklog.util.Query;
 import me.arno.blocklog.util.Syntax;
@@ -44,7 +45,7 @@ public class CommandUndo extends BlockLogCommand {
 			if(args.length == 1) {
 				rollbackID = Integer.valueOf(args[0]);
 			} else {
-				ResultSet rs = new Query("blocklog_rollbacks").select("id").orderBy("id", "DESC").getResult();
+				ResultSet rs = new Query(DatabaseManager.databasePrefix + "rollbacks").select("id").orderBy("id", "DESC").getResult();
 				rs.next();
 				rollbackID = rs.getInt("id");
 			}
@@ -54,7 +55,7 @@ public class CommandUndo extends BlockLogCommand {
 				return true;
 			}
 			
-			Query query = new Query("blocklog_undos");
+			Query query = new Query(DatabaseManager.databasePrefix + "undos");
 			
 			HashMap<String, Object> values = new HashMap<String, Object>();
 			values.put("rollback", rollbackID);

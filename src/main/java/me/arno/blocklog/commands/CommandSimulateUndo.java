@@ -3,6 +3,7 @@ package me.arno.blocklog.commands;
 import java.sql.ResultSet;
 
 import me.arno.blocklog.Undo;
+import me.arno.blocklog.managers.DatabaseManager;
 import me.arno.blocklog.util.Query;
 import me.arno.blocklog.util.Syntax;
 
@@ -40,7 +41,7 @@ public class CommandSimulateUndo extends BlockLogCommand {
 			if(args.length == 1) {
 				rollbackID = Integer.valueOf(args[0]);
 			} else {
-				ResultSet rs = new Query("blocklog_rollbacks").select("id").orderBy("id", "DESC").getResult();
+				ResultSet rs = new Query(DatabaseManager.databasePrefix + "rollbacks").select("id").orderBy("id", "DESC").getResult();
 				rs.next();
 				rollbackID = rs.getInt("id");
 			}

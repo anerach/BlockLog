@@ -1,7 +1,6 @@
 package me.arno.blocklog.managers;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.ArrayList;
 
 import me.arno.blocklog.logs.BlockEntry;
@@ -17,11 +16,7 @@ public class QueueManager extends BlockLogManager {
 	private final ArrayList<ChestEntry> chestEntries = new ArrayList<ChestEntry>();
 	
 	public QueueManager() {
-		try {
-			conn = getDatabaseManager().getConnection();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+		conn = getDatabaseManager().getConnection();
 	}
 	
 	public void queueData(DataEntry dataEntry) {

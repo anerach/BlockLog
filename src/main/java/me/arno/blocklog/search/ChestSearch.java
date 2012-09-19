@@ -12,6 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.logs.ChestEntry;
 import me.arno.blocklog.logs.LogType;
+import me.arno.blocklog.managers.DatabaseManager;
 import me.arno.blocklog.util.Query;
 
 public class ChestSearch {
@@ -64,7 +65,7 @@ public class ChestSearch {
 	
 	public ArrayList<ChestEntry> getResults() {
 		ArrayList<ChestEntry> chestEntries = new ArrayList<ChestEntry>();
-		Query query = new Query("blocklog_chests");
+		Query query = new Query(DatabaseManager.databasePrefix + "chests");
 		query.select("*");
 		if(player != null)
 			query.where("player", player);

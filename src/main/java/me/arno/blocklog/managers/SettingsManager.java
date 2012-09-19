@@ -5,6 +5,7 @@ import java.io.File;
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.Config;
 import me.arno.blocklog.logs.LogType;
+import me.arno.blocklog.util.Util;
 
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -43,6 +44,10 @@ public class SettingsManager extends BlockLogManager {
 	
 	public int getBlockSaveDelay() {
 		return getConfig().getInt("blocklog.save-delay");
+	}
+	
+	public int getDatabaseAliveCheckInterval() {
+		return Util.getTime(getConfig().getString("database.alive-check"));
 	}
 	
 	public boolean isAutoSaveEnabled() {

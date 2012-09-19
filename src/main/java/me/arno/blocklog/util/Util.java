@@ -27,6 +27,27 @@ public class Util {
 		Bukkit.getLogger().log(level, message.toString());
 	}
 	
+	public static int getTime(String value) {
+		if(value.equalsIgnoreCase("0s"))
+			return 0;
+		
+		char character = value.charAt(value.length() - 1);
+		int time = Integer.valueOf(value.replace(character, ' ').trim());
+		String timeVal = Character.toString(character);
+		
+		if(timeVal.equalsIgnoreCase("s"))
+			return time;
+		else if(timeVal.equalsIgnoreCase("m"))
+			return time * 60;
+		else if(timeVal.equalsIgnoreCase("h"))
+			return time * 60 * 60;
+		else if(timeVal.equalsIgnoreCase("d"))
+			return time * 60 * 60 * 24;
+		else if(timeVal.equalsIgnoreCase("w"))
+			return time * 60 * 60 * 24 * 7;
+		return 0;
+	}
+	
 	public static String getDate(long time) {
 		String format = BlockLog.getInstance().getSettingsManager().getDateFormat();
 		

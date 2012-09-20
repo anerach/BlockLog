@@ -78,7 +78,10 @@ public class Util {
 	public static String getResourceContent(String file) {
 		try {
 			InputStream resourceFile = BlockLog.getInstance().getResource("resources/" + file);
-			 
+			
+			if(resourceFile == null)
+				resourceFile = BlockLog.getInstance().getResource(file);
+			
 			final char[] buffer = new char[0x10000];
 			StringBuilder strBuilder = new StringBuilder();
 			Reader inputReader = new InputStreamReader(resourceFile, "UTF-8");

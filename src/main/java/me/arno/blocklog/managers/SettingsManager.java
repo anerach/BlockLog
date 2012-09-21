@@ -38,6 +38,18 @@ public class SettingsManager extends BlockLogManager {
 		return getConfig().getBoolean("purge.log");
 	}
 	
+	public int getWarningBlocks() {
+		return getConfig().getInt("warning.blocks");
+	}
+	
+	public int getWarningDelay() {
+		return Util.getTime(getConfig().getString("warning.delay"));
+	}
+	
+	public int getWarningRepeat() {
+		return getConfig().getInt("warning.repeat");
+	}
+	
 	public int getPurgeDate(String table) {
 		return getConfig().getInt("purge." + table + ".days");
 	}
@@ -62,10 +74,6 @@ public class SettingsManager extends BlockLogManager {
 		return (isAutoSaveEnabled() && getConfig().getBoolean("auto-save.world-save"));
 	}
 	
-	public boolean isReportsEnabled() {
-		return getConfig().getBoolean("blocklog.reports");
-	}
-	
 	public boolean isUpdatesEnabled() {
 		return getConfig().getBoolean("blocklog.updates");
 	}
@@ -84,10 +92,6 @@ public class SettingsManager extends BlockLogManager {
 	
 	public int getMaxResults() {
 		return getConfig().getInt("blocklog.results");
-	}
-	
-	public String getDatabasePrefix() {
-		return getConfig().getString("database.prefix");
 	}
 	
 	public FileConfiguration getConfig() {

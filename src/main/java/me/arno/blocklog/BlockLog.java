@@ -107,14 +107,13 @@ public class BlockLog extends JavaPlugin {
 	    getConfig().addDefault("blocklog.wand", 19);
 	   	getConfig().addDefault("blocklog.results", 5);
 	   	getConfig().addDefault("blocklog.save-delay", 1);
-	    getConfig().addDefault("blocklog.reports", true);
 	    getConfig().addDefault("blocklog.updates", true);
 	    getConfig().addDefault("blocklog.metrics", true);
 	    getConfig().addDefault("blocklog.dateformat", "%d-%m %H:%i");
 	    getConfig().addDefault("blocklog.debug", false);
 	    getConfig().addDefault("warning.blocks", 500);
 	    getConfig().addDefault("warning.repeat", 100);
-	    getConfig().addDefault("warning.delay", 30);
+	    getConfig().addDefault("warning.delay", "30s");
 	    getConfig().addDefault("auto-save.enabled", true);
 	    getConfig().addDefault("auto-save.blocks", 1000);
 	    getConfig().addDefault("auto-save.world-save", false);
@@ -271,7 +270,7 @@ public class BlockLog extends JavaPlugin {
     	if(getDependencyManager().isDependencyEnabled("mcMMO"))
     		getServer().getPluginManager().registerEvents(new McMMOListener(), this);
     	
-    	if(getConfig().getBoolean("blocklog.updates")) {
+    	if(getSettingsManager().isUpdatesEnabled()) {
 	    	getServer().getScheduler().scheduleSyncRepeatingTask(this, new UpdatesSchedule(getDescription().getVersion()), 1L, 1L * 60L * 60L * 20L); // Check every hour for a new version
 	    }
     }

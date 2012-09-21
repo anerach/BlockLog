@@ -1,27 +1,19 @@
 package me.arno.blocklog.listeners;
 
-import java.util.logging.Logger;
-
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.managers.*;
+import me.arno.blocklog.util.Util;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.Listener;
 
 public class BlockLogListener implements Listener {
 	public final BlockLog plugin;
-	public final Logger log;
 	
 	private float time;
 	
 	public BlockLogListener() {
 		this.plugin = BlockLog.getInstance();
-		this.log = plugin.log;
-	}
-	
-	public void sendAdminMessage(String msg) {
-		Bukkit.broadcast(msg, "blocklog.notices");
 	}
 	
 	public DatabaseManager getDatabaseManager() {
@@ -42,17 +34,17 @@ public class BlockLogListener implements Listener {
 	
 	public void BlocksLimitReached() {
 		int queueSize = getQueueManager().getEditQueueSize();
-		int maxQueueSize = getSettingsManager().getConfig().getInt("warning.blocks");
-		int delay = getSettingsManager().getConfig().getInt("warning.delay") * 1000;
-		int repeat = getSettingsManager().getConfig().getInt("warning.repeat");
+		int maxQueueSize = getSettingsManager().getWarningBlocks();
+		int delay = getSettingsManager().getWarningDelay() * 1000;
+		int repeat = getSettingsManager().getWarningRepeat();
 		
 		if(plugin.saving == false && queueSize >= plugin.autoSave && queueSize != 0 && plugin.autoSave != 0) {
 			plugin.saveLogs(0);
 		} else if(plugin.autoSave == 0 && (queueSize ==  maxQueueSize || (queueSize > maxQueueSize && (queueSize % repeat == 0)))) {
 			if(time < System.currentTimeMillis()) {
 				time = System.currentTimeMillis() +  delay;
-				sendAdminMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "BlockLog reached an internal storage of " + queueSize + "!");
-				sendAdminMessage(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "If you want to save all the queued logs use " + ChatColor.DARK_BLUE + "/bl save all");
+				Util.sendNotice(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "BlockLog reached an internal storage of " + queueSize + "!");
+				Util.sendNotice(ChatColor.DARK_RED + "[BlockLog] " + ChatColor.GOLD + "If you want to save all the queued logs use " + ChatColor.DARK_BLUE + "/bl save all");
 			}
 		}
 	}

@@ -16,7 +16,7 @@ public class DatabaseManager extends BlockLogManager {
 	public static final String[] purgeableTables = {"blocks", "interactions", "chests", "data"};
 	
 	public Connection getConnection() {
-		DatabaseManager.databasePrefix = getSettingsManager().getDatabasePrefix();
+		DatabaseManager.databasePrefix = getPrefix();
 		try {
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
 			return DriverManager.getConnection("jdbc:mysql://" + getHost() + ":" + getPort() + "/" + getDatabase(), getUsername(), getPassword());
@@ -54,6 +54,10 @@ public class DatabaseManager extends BlockLogManager {
 			}
 		}
 		writer.close();
+	}
+	
+	public String getPrefix() {
+		return BlockLog.getInstance().getConfig().getString("database.prefix");
 	}
 	
 	public String getHost() {

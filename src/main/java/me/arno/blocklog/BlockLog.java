@@ -118,14 +118,10 @@ public class BlockLog extends JavaPlugin {
 	    getConfig().addDefault("auto-save.blocks", 1000);
 	    getConfig().addDefault("auto-save.world-save", false);
 	    getConfig().addDefault("purge.log", true);
-	    getConfig().addDefault("purge.blocks.enabled", false);
-	    getConfig().addDefault("purge.blocks.days", 14);
-	    getConfig().addDefault("purge.interactions.enabled", false);
-	    getConfig().addDefault("purge.interactions.days", 14);
-	    getConfig().addDefault("purge.chests.enabled", false);
-	    getConfig().addDefault("purge.chests.days", 14);
-	    getConfig().addDefault("purge.data.enabled", false);
-	    getConfig().addDefault("purge.data.days", 14);
+	    getConfig().addDefault("purge.blocks", "0s");
+	    getConfig().addDefault("purge.interactions", "0s");
+	    getConfig().addDefault("purge.chests", "0s");
+	    getConfig().addDefault("purge.data", "0s");
 	    getConfig().options().copyDefaults(true);
 	    saveConfig();
 		

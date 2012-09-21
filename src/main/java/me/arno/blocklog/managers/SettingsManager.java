@@ -31,7 +31,7 @@ public class SettingsManager extends BlockLogManager {
 	}
 	
 	public boolean isPurgeEnabled(String table) {
-		return getConfig().getBoolean("purge." + table + ".enabled");
+		return Util.getTime(getConfig().getString("purge." + table)) == 0;
 	}
 	
 	public boolean isPurgeLoggingEnabled() {
@@ -51,7 +51,7 @@ public class SettingsManager extends BlockLogManager {
 	}
 	
 	public int getPurgeDate(String table) {
-		return getConfig().getInt("purge." + table + ".days");
+		return Util.getTime(getConfig().getString("purge." + table));
 	}
 	
 	public int getBlockSaveDelay() {

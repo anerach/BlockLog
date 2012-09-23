@@ -1,6 +1,6 @@
-name: BlockLog
+name: ${project.name}
 main: me.arno.blocklog.BlockLog
-version: 2.2.3
+version: ${project.version}
 author: anerach
 dev-url: http://dev.bukkit.org/server-mods/block-log
 description: >

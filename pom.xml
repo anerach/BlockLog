@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>me.arno.blocklog</groupId>
   <artifactId>BlockLog</artifactId>
-  <version>2.2.3</version>
+  <version>3.0-SNAPSHOT</version>
   <name>BlockLog</name>
   <description>An anti-grief plugin for servers running bukkit</description>
   <url>https://github.com/anerach/BlockLog</url>
@@ -28,4 +28,24 @@
 		<systemPath>${project.basedir}/lib/mcMMO.jar</systemPath>
 	</dependency>
   </dependencies>
+  <build>
+		<finalName>${project.name}</finalName>
+		<resources>
+			<resource>
+				<filtering>true</filtering>
+				<directory>${project.basedir}/src/main/resources</directory>
+			</resource>
+		</resources>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.5.1</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

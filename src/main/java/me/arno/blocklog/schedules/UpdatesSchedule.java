@@ -34,25 +34,36 @@ public class UpdatesSchedule implements Runnable {
                 NodeList firstNodes = firstNameElement.getChildNodes();
                 latest = firstNodes.item(0).getNodeValue().replace("BlockLog", "").trim();
             }
-			
+
+            boolean currentSnapshot = false;
+
+            if(current.contains("-")) {
+            	current = current.split("\\-")[0];
+            	currentSnapshot = true;
+            }
+            
             String[] currentVersion = current.split("\\.");
             String[] latestVersion = latest.split("\\.");
             
             boolean updateAvailable = false;
             
-            for(int i=0;i<latestVersion.length;i++) {
-            	if (currentVersion.length < latestVersion.length && Integer.valueOf(latestVersion[0]) >= Integer.valueOf(currentVersion[0]) && Integer.valueOf(latestVersion[1]) >= Integer.valueOf(currentVersion[1]))
-                {
-                    updateAvailable = true;
-                    break;
-                }
-            	else if(Integer.valueOf(latestVersion[i]) > Integer.valueOf(currentVersion[i]))
-                {
-                    updateAvailable = true;
-                    break;
-                }
-                else if(Integer.valueOf(latestVersion[i]) < Integer.valueOf(currentVersion[i]))
-                    break;
+            if(current == latest && currentSnapshot) {
+            	updateAvailable = true;
+            } else {
+            	for(int i=0;i<latestVersion.length;i++) {
+	            	if (currentVersion.length < latestVersion.length && Integer.valueOf(latestVersion[0]) >= Integer.valueOf(currentVersion[0]) && Integer.valueOf(latestVersion[1]) >= Integer.valueOf(currentVersion[1]))
+	                {
+	                    updateAvailable = true;
+	                    break;
+	                }
+	            	else if(Integer.valueOf(latestVersion[i]) > Integer.valueOf(currentVersion[i]))
+	                {
+	                    updateAvailable = true;
+	                    break;
+	                }
+	                else if(Integer.valueOf(latestVersion[i]) < Integer.valueOf(currentVersion[i]))
+	                    break;
+	            }
             }
 			
 			if(updateAvailable) {

@@ -15,7 +15,6 @@ import me.arno.blocklog.commands.*;
 import me.arno.blocklog.listeners.*;
 import me.arno.blocklog.logs.LogType;
 import me.arno.blocklog.managers.*;
-import me.arno.blocklog.schedules.AliveSchedule;
 import me.arno.blocklog.schedules.SaveSchedule;
 import me.arno.blocklog.schedules.UpdatesSchedule;
 import me.arno.blocklog.util.Query;
@@ -103,7 +102,6 @@ public class BlockLog extends JavaPlugin {
 	    getConfig().addDefault("database.database", "bukkit");
 	    getConfig().addDefault("database.prefix", "blocklog_");
 	    getConfig().addDefault("database.port", 3306);
-	    getConfig().addDefault("database.alive-check", "2h");
 	    getConfig().addDefault("blocklog.wand", 19);
 	   	getConfig().addDefault("blocklog.results", 5);
 	   	getConfig().addDefault("blocklog.save-delay", 1);
@@ -254,9 +252,8 @@ public class BlockLog extends JavaPlugin {
 		log.info("Starting BlockLog");
 		
 		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Thread(new SaveSchedule(1, null, false)), 100L, getSettingsManager().getBlockSaveDelay() * 20L);
-		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Thread(new AliveSchedule()), getSettingsManager().getDatabaseAliveCheckInterval() * 20L, getSettingsManager().getDatabaseAliveCheckInterval() * 20L); // Check if the mysql server is alive
-    	
-    	getServer().getPluginManager().registerEvents(new BlockListener(), this);
+
+		getServer().getPluginManager().registerEvents(new BlockListener(), this);
     	getServer().getPluginManager().registerEvents(new ChestListener(), this);
     	getServer().getPluginManager().registerEvents(new EntityListener(), this);
     	getServer().getPluginManager().registerEvents(new PlayerListener(), this);

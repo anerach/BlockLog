@@ -6,7 +6,6 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 
@@ -19,12 +18,7 @@ public class Util {
 	}
 	
 	public static void sendNotice(Object message) {
-		sendNotice(message, Level.WARNING);
-	}
-	
-	public static void sendNotice(Object message, Level level) {
 		Bukkit.broadcast(message.toString(), "blocklog.notices");
-		Bukkit.getLogger().log(level, message.toString());
 	}
 	
 	public static int getTime(String value) {

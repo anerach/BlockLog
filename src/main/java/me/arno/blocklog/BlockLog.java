@@ -55,7 +55,7 @@ public class BlockLog extends JavaPlugin {
 				conn = databaseManager.getConnection();
 			else if(conn.isClosed())
 				conn = databaseManager.getConnection();
-			else if(!conn.isValid(5000))
+			else if(!conn.isValid(1))
 				conn = databaseManager.getConnection();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -253,7 +253,7 @@ public class BlockLog extends JavaPlugin {
 	    
 		log.info("Starting BlockLog");
 		
-		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Thread(new SaveSchedule(1, null, false)), 100L, getSettingsManager().getBlockSaveDelay() * 20L);
+		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Thread(new SaveSchedule(1)), 100L, getSettingsManager().getBlockSaveDelay() * 20L);
 		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Thread(new AliveSchedule()), 100L, getSettingsManager().getDatabaseAliveCheckInterval() * 20L);
 
 		getServer().getPluginManager().registerEvents(new BlockListener(), this);

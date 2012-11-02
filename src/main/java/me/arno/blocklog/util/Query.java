@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 import java.util.Map.Entry;
 
@@ -189,6 +190,8 @@ public class Query {
 		if(limitClause != null)
 			query += " " + limitClause;
 		
+		query += ";";
+		
 		return query;
 	}
 	
@@ -256,13 +259,11 @@ public class Query {
 		return count;
 	}
 	
-	public int insert(HashMap<String, Object> values) throws SQLException {
-		return insert(values, BlockLog.getInstance().getConnection());
+	public String getInsertQuery(HashMap<String, Object> hashMap) {
+		return getInsertQuery(hashMap, false);
 	}
 	
-	public int insert(HashMap<String, Object> hashMap, Connection conn) throws SQLException {
-		Statement stmt = conn.createStatement();
-		
+	public String getInsertQuery(HashMap<String, Object> hashMap, boolean onlyValues) {
 		String rows = "";
 		String values = "";
 		
@@ -275,9 +276,47 @@ public class Query {
 			first = false;
 	    }
 		
-		int affected = stmt.executeUpdate("INSERT INTO " + table + " (" + rows + ") VALUES (" + values + ")");
+		if(onlyValues)
+			return  "(" + values + ")";
+		
+		return "INSERT INTO " + table + " (" + rows + ") VALUES (" + values + ");";
+	}
+	
+	public int insert(HashMap<String, Object> hashMap) throws SQLException {
+		return insert(hashMap, BlockLog.getInstance().getConnection());
+	}
+	
+	public int insert(HashMap<String, Object> hashMap, Connection conn) throws SQLException {
+		Statement stmt = conn.createStatement();
+		int affected = stmt.executeUpdate(getInsertQuery(hashMap));
 		stmt.close();
 		
 		return affected;
+	}
+	
+	public int insert(List<HashMap<String, Object>> values) throws SQLException {
+		return insert(values, BlockLog.getInstance().getConnection());
+	}
+	
+	public int insert(List<HashMap<String, Object>> rows, Connection conn) throws SQLException {
+		String sqlRows = "";
+		String sqlValues = "";
+		
+		if(rows.size() == 0)
+			return 0;
+		
+		for(String key : rows.get(0).keySet())
+			sqlRows += (sqlRows=="") ? "`" + key + "`" : ", `" + key + "`";
+		
+		int i = 0;
+		
+		for(HashMap<String, Object> values : rows) {
+			sqlValues += getInsertQuery(values, true) + (i == rows.size() -1 ? ";" : ",") + System.getProperty("line.separator");i++;
+		}
+		
+		String query = "INSERT INTO " + table + " (" + sqlRows + ") VALUES " + System.getProperty("line.separator") + sqlValues + ";";
+		
+		Statement stmt = conn.createStatement();
+		return stmt.executeUpdate(query);
 	}
 }

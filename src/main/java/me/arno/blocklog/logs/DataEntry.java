@@ -42,22 +42,28 @@ public class DataEntry {
 		this.data = data;
 	}
 	
+	public HashMap<String, Object> getValues() {
+		if(this.getId() > 0)
+			return null;
+		
+		HashMap<String, Object> values = new HashMap<String, Object>();
+			
+
+		values.put("player", getPlayer());
+		values.put("data", getData());
+		values.put("world", getWorld());
+		values.put("x", getX());
+		values.put("y", getY());
+		values.put("z", getZ());
+		values.put("type", getTypeId());
+		values.put("date", getDate());
+		return values;
+	}
+	
 	public void save(Connection conn) {
 		try {
 			Query query = new Query(DatabaseManager.databasePrefix + "data");
-			
-			HashMap<String, Object> values = new HashMap<String, Object>();
-			
-			values.put("player", getPlayer());
-			values.put("data", getData());
-			values.put("world", getWorld());
-			values.put("x", getX());
-			values.put("y", getY());
-			values.put("z", getZ());
-			values.put("type", getTypeId());
-			values.put("date", getDate());
-			
-			query.insert(values, conn);
+			query.insert(getValues(), conn);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

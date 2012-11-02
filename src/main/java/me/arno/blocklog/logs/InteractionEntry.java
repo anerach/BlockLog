@@ -19,20 +19,27 @@ public class InteractionEntry extends DataEntry {
 	}
 	
 	@Override
+	public HashMap<String, Object> getValues() {
+		if(this.getId() > 0)
+			return null;
+		
+		HashMap<String, Object> values = new HashMap<String, Object>();
+
+		values.put("player", getPlayer());
+		values.put("block", getBlock());
+		values.put("world", getWorld());
+		values.put("x", getX());
+		values.put("y", getY());
+		values.put("z", getZ());
+		values.put("date", getDate());
+		return values;
+	}
+	
+	@Override
 	public void save(Connection conn) {
 		try {
 			Query query = new Query(DatabaseManager.databasePrefix + "interactions");
-			HashMap<String, Object> values = new HashMap<String, Object>();
-			
-			values.put("player", getPlayer());
-			values.put("block", getBlock());
-			values.put("world", getWorld());
-			values.put("x", getX());
-			values.put("y", getY());
-			values.put("z", getZ());
-			values.put("date", getDate());
-			
-			query.insert(values, conn);
+			query.insert(getValues(), conn);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

@@ -11,47 +11,38 @@ import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
 public class ChestEntry extends DataEntry {
-	private ItemStack[] items = null;
-	private ItemStack item = null;
+	private final ItemStack item;
 	
-	// Used for gathering chestEntries from the database
 	public ChestEntry(String player, Location loc, LogType type, ItemStack item) {
 		super(player, type, loc, null);
 		this.item = item;
 	}
 	
-	// Used for storing chestEntries
-	public ChestEntry(String player, Location loc, ItemStack[] items) {
-		super(player, LogType.CHEST_PUT, loc, null);
-		this.items = items;
+	@Override
+	public HashMap<String, Object> getValues() {
+		if(this.getId() > 0)
+			return null;
+		
+		HashMap<String, Object> values = new HashMap<String, Object>();
+
+		values.put("player", getPlayer());
+		values.put("world", getWorld());
+		values.put("item", item.getType().getId());
+		values.put("amount", Math.abs(item.getAmount()));
+		values.put("data", item.getData().getData());
+		values.put("type", getTypeId());
+		values.put("x", getX());
+		values.put("y", getY());
+		values.put("z", getZ());
+		values.put("date", getDate());
+		return values;
 	}
 	
 	@Override
 	public void save(Connection conn) {
 		try {
 			Query query = new Query(DatabaseManager.databasePrefix + "chests");
-			HashMap<String, Object> values = new HashMap<String, Object>();
-			
-			values.put("player", getPlayer());
-			values.put("world", getWorld());
-			values.put("x", getX());
-			values.put("y", getY());
-			values.put("z", getZ());
-			values.put("date", getDate());
-			
-			for(ItemStack itemStack : getItems()) {
-				if(itemStack.getAmount() > 0)
-					setType(LogType.CHEST_PUT);
-				else
-					setType(LogType.CHEST_TAKE);
-				
-				values.put("item", itemStack.getType().getId());
-				values.put("amount", Math.abs(itemStack.getAmount()));
-				values.put("data", itemStack.getData().getData());
-				values.put("type", getTypeId());
-				
-				query.insert(values, conn);
-			}
+			query.insert(getValues(), conn);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -59,9 +50,5 @@ public class ChestEntry extends DataEntry {
 	
 	public ItemStack getItem() {
 		return item;
-	}
-	
-	public ItemStack[] getItems() {
-		return items;
 	}
 }

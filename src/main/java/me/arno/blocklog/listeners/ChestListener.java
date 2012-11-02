@@ -3,6 +3,7 @@ package me.arno.blocklog.listeners;
 import java.util.HashMap;
 
 import me.arno.blocklog.logs.ChestEntry;
+import me.arno.blocklog.logs.LogType;
 import me.arno.blocklog.util.Inventory;
 
 import org.bukkit.Location;
@@ -46,7 +47,9 @@ public class ChestListener extends BlockLogListener {
 		if(diff.length <= 0)
 			return;
 		
-		getQueueManager().queueChest(new ChestEntry(player.getName(), state.getLocation(), diff));
+		for(ItemStack itemStack : diff) {
+			getQueueManager().queueChest(new ChestEntry(player.getName(), state.getLocation(), (itemStack.getAmount() > 0) ? LogType.CHEST_PUT : LogType.CHEST_TAKE, itemStack));
+		}
 		
 		containers.remove(player.getName());
 	}

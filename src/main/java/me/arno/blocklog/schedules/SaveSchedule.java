@@ -72,14 +72,22 @@ public class SaveSchedule implements Runnable {
 			query.from(DatabaseManager.databasePrefix + "data");
 			query.insert(data);
 			
+			dataEntries.clear();
+			
 			query.from(DatabaseManager.databasePrefix + "blocks");
 			query.insert(blocks);
+			
+			blockEntries.clear();
 			
 			query.from(DatabaseManager.databasePrefix + "chests");
 			query.insert(chests);
 			
+			chestEntries.clear();
+			
 			query.from(DatabaseManager.databasePrefix + "interactions");
 			query.insert(interactions);
+			
+			interactionEntries.clear();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}

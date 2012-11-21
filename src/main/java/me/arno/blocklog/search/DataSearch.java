@@ -89,9 +89,9 @@ public class DataSearch {
 		if(location != null)
 			query.where("x", location.getBlockX()).where("y", location.getBlockY()).where("z", location.getBlockZ());
 		if(since != 0)
-			query.where("date", since, ">");
+			query.where("date", since, ">=");
 		if(until != 0)
-			query.where("date", until, "<");
+			query.where("date", until, "<=");
 		if(type != 0)
 			query.where("type", type);
 		
@@ -167,15 +167,14 @@ public class DataSearch {
 		}
 		
 		if(since > 0) {
-			if(entry.getDate() < since)
+			if(entry.getDate() >= since)
 				return false;
 		}
 		
 		if(until > 0) {
-			if(entry.getDate() > until)
+			if(entry.getDate() <= until)
 				return false;
 		}
-		
 		return true;
 	}
 }

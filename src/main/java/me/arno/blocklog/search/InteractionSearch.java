@@ -69,9 +69,9 @@ public class InteractionSearch {
 		if(player != null)
 			query.where("player", player);
 		if(since != 0)
-			query.where("date", since, ">");
+			query.where("date", since, ">=");
 		if(until != 0)
-			query.where("date", until, "<");
+			query.where("date", until, "<=");
 		if(world != null)
 			query.where("world", world);
 		if(location != null)
@@ -133,15 +133,14 @@ public class InteractionSearch {
 		}
 		
 		if(since > 0) {
-			if(entry.getDate() < since)
+			if(entry.getDate() >= since)
 				return false;
 		}
 		
 		if(until > 0) {
-			if(entry.getDate() > until)
+			if(entry.getDate() <= until)
 				return false;
 		}
-		
 		return true;
 	}
 }

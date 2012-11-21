@@ -115,10 +115,10 @@ public class BlockSearch {
 			query.where("player", player);
 		if(entity != null)
 			query.where("entity", entity);
-		if(since > 0)
-			query.where("date", since, ">");
-		if(until > 0)
-			query.where("date", until, "<");
+		if(since != 0)
+			query.where("date", since, ">=");
+		if(until != 0)
+			query.where("date", until, "<=");
 		if(location != null && area > 0)
 			query.where("x", xMin, ">=").where("x", xMax, "<=").where("y", yMin, ">=").where("y", yMax, "<=").where("z", zMin, ">=").where("z", zMax, "<=");
 		else if(location != null && useLocation)
@@ -212,12 +212,12 @@ public class BlockSearch {
 		}
 		
 		if(since > 0) {
-			if(entry.getDate() < since)
+			if(entry.getDate() >= since)
 				return false;
 		}
 		
 		if(until > 0) {
-			if(entry.getDate() > until)
+			if(entry.getDate() <= until)
 				return false;
 		}
 		return true;

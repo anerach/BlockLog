@@ -15,12 +15,12 @@ import org.bukkit.inventory.ItemStack;
 public class CommandWand extends BlockLogCommand {
 	public CommandWand() {
 		super("blocklog.wand");
-		setCommandUsage("/bl wand [results <value>] [since <value>] [until <value>] [type <all|blocks|chests|interactions>]");
+		setCommandUsage("/bl wand [info] [results <value>] [since <value>] [until <value>] [type <all|blocks|chests|interactions>]");
 	}
 	
 	@Override
 	public boolean execute(CommandSender sender, Command cmd, String[] args) {
-		if(args.length > 1)
+		if(args.length > 8)
 			return false;
 		
 		if(!hasPermission(sender)) {
@@ -31,6 +31,16 @@ public class CommandWand extends BlockLogCommand {
 		Player player = (Player) sender;
 		Syntax syn = new Syntax(args);
 		Material wand = getSettingsManager().getWand();
+		
+		if(syn.containsArg("info")) {
+			if(plugin.wandSettings.containsKey(player.getName())) {
+				WandSettings wandSettings = plugin.wandSettings.get(player.getName());
+				sender.sendMessage("Results: " + wandSettings.getMaxResults() + ", Type: " + wandSettings.getResultType().name());
+			} else {
+				sender.sendMessage("You don't have the wand enabled");
+			}
+			return true;
+		}
 		
 		if(plugin.wandSettings.containsKey(player.getName())) {
 			WandSettings wandSettings = plugin.wandSettings.get(player.getName());

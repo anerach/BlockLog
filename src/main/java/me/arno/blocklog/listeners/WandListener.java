@@ -45,10 +45,9 @@ public class WandListener extends BlockLogListener {
 			
 			if (wandSettings.getResultType() == ResultType.BLOCKS || wandSettings.getResultType() == ResultType.ALL) {
 				BlockSearch blockSearch = new BlockSearch(conn);
-				blockSearch.setLocation(location);
+				blockSearch.setLocation(location, true);
 				blockSearch.setLimit(maxResults);
 				blockSearch.setDate(since, until);
-				blockSearch.setUseLocation(true);
 
 				logs.addAll(blockSearch.getResults());
 			}

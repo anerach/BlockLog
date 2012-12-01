@@ -33,7 +33,7 @@ public class BlockSearch {
 	
 	private int limit = 0;
 	
-	private boolean useLocation = false;
+	private boolean forceUseLocation = false;
 	private boolean groupByLocation = true;
 	private boolean ignoreLimit = true;
 	
@@ -58,7 +58,12 @@ public class BlockSearch {
 	}
 	
 	public void setLocation(Location location) {
+		setLocation(location, false);
+	}
+	
+	public void setLocation(Location location, boolean forceUseLocation) {
 		this.location = location;
+		this.forceUseLocation = forceUseLocation;
 		if(location != null)
 			setWorld(location.getWorld().getName());
 	}
@@ -85,9 +90,6 @@ public class BlockSearch {
 		this.ignoreLimit = false;
 	}
 	
-	public void setUseLocation(boolean useLocation) {
-		this.useLocation = useLocation;
-	}
 	public void setIgnoreLimit(boolean ignore) {
 		this.ignoreLimit = ignore;
 	}
@@ -121,7 +123,7 @@ public class BlockSearch {
 			query.where("date", until, "<=");
 		if(location != null && area > 0)
 			query.where("x", xMin, ">=").where("x", xMax, "<=").where("y", yMin, ">=").where("y", yMax, "<=").where("z", zMin, ">=").where("z", zMax, "<=");
-		else if(location != null && useLocation)
+		else if(location != null && forceUseLocation)
 			query.where("x", location.getBlockX()).where("y", location.getBlockY()).where("z", location.getBlockZ());
 			
 		if(world != null)
@@ -193,8 +195,8 @@ public class BlockSearch {
 				return false;
 		}
 		
-		if(location != null && useLocation) {
-			if(location.getBlockX() != entry.getX() || location.getBlockY() != entry.getY() || location.getBlockZ() != entry.getZ());
+		if(location != null && forceUseLocation) {
+			if(location.getBlockX() != entry.getX() || location.getBlockY() != entry.getY() || location.getBlockZ() != entry.getZ())
 				return false;
 		}
 		
@@ -212,12 +214,12 @@ public class BlockSearch {
 		}
 		
 		if(since > 0) {
-			if(entry.getDate() >= since)
+			if(!(entry.getDate() >= since))
 				return false;
 		}
 		
 		if(until > 0) {
-			if(entry.getDate() <= until)
+			if(!(entry.getDate() <= until))
 				return false;
 		}
 		return true;

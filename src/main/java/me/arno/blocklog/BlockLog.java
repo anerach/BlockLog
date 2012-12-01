@@ -106,7 +106,8 @@ public class BlockLog extends JavaPlugin {
 	    getConfig().addDefault("database.alive-check", "2h");
 	    getConfig().addDefault("blocklog.wand", 19);
 	   	getConfig().addDefault("blocklog.results", 5);
-	   	getConfig().addDefault("blocklog.save-delay", 1);
+	   	getConfig().addDefault("blocklog.save-delay", "10s");
+	   	getConfig().addDefault("blocklog.save-amount", 10);
 	    getConfig().addDefault("blocklog.updates", true);
 	    getConfig().addDefault("blocklog.metrics", true);
 	    getConfig().addDefault("blocklog.dateformat", "%d-%m %H:%i");
@@ -253,7 +254,7 @@ public class BlockLog extends JavaPlugin {
 	    
 		log.info("Starting BlockLog");
 		
-		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Thread(new SaveSchedule(1)), 100L, getSettingsManager().getBlockSaveDelay() * 20L);
+		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Thread(new SaveSchedule(getSettingsManager().getBlockSaveAmount())), 200L, getSettingsManager().getBlockSaveDelay() * 20L);
 		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Thread(new AliveSchedule()), 100L, getSettingsManager().getDatabaseAliveCheckInterval() * 20L);
 
 		getServer().getPluginManager().registerEvents(new BlockListener(), this);

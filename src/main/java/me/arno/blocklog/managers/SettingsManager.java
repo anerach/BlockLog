@@ -55,7 +55,11 @@ public class SettingsManager extends BlockLogManager {
 	}
 	
 	public int getBlockSaveDelay() {
-		return getConfig().getInt("blocklog.save-delay");
+		return Util.getTime(getConfig().getString("blocklog.save-delay"));
+	}
+	
+	public int getBlockSaveAmount() {
+		return getConfig().getInt("blocklog.save-amount");
 	}
 	
 	public int getDatabaseAliveCheckInterval() {

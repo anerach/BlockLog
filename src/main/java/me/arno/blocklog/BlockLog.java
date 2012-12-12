@@ -281,12 +281,15 @@ public class BlockLog extends JavaPlugin {
 	}
 	
 	private void stopPlugin() {
+		if(conn == null)
+			return;
+		
 		try {
 			getServer().getScheduler().cancelTasks(this);
 			
 			log.info("Saving all the queued logs!");
-			while(!getQueueManager().isQueueEmpty())
-				getQueueManager().saveQueue();
+			
+			getServer().getScheduler().scheduleSyncDelayedTask(this, new Thread(new AliveSchedule()));
 			
 			log.info("Successfully saved all the queued logs!");
 			

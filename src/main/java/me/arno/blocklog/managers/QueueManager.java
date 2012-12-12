@@ -1,7 +1,7 @@
 package me.arno.blocklog.managers;
 
-import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.List;
 
 import me.arno.blocklog.logs.BlockEntry;
 import me.arno.blocklog.logs.ChestEntry;
@@ -9,15 +9,10 @@ import me.arno.blocklog.logs.DataEntry;
 import me.arno.blocklog.logs.InteractionEntry;
 
 public class QueueManager extends BlockLogManager {
-	private Connection conn;
 	private final ArrayList<DataEntry> dataEntries = new ArrayList<DataEntry>();
 	private final ArrayList<BlockEntry> blockEntries = new ArrayList<BlockEntry>();
 	private final ArrayList<InteractionEntry> interactionEntries = new ArrayList<InteractionEntry>();
 	private final ArrayList<ChestEntry> chestEntries = new ArrayList<ChestEntry>();
-	
-	public QueueManager() {
-		conn = getDatabaseManager().getConnection();
-	}
 	
 	public void queueData(DataEntry dataEntry) {
 		dataEntries.add(dataEntry);
@@ -59,6 +54,47 @@ public class QueueManager extends BlockLogManager {
 	
 	public ArrayList<DataEntry> getDataEntries() {
 		return dataEntries;
+	}
+	
+	public List<BlockEntry> getBlockEntries(int count) throws IndexOutOfBoundsException {
+		if(count > getEditQueueSize())
+			count = getEditQueueSize();
+		
+		if(count == 0)
+			return new ArrayList<BlockEntry>();
+		
+		return blockEntries.subList(0, count-1);
+	}
+	
+	public List<InteractionEntry> getInteractionEntries(int count) throws IndexOutOfBoundsException {
+		if(count > getInteractionQueueSize())
+			count = getInteractionQueueSize();
+		
+		if(count == 0)
+			return new ArrayList<InteractionEntry>();
+		
+		return interactionEntries.subList(0, count-1);
+	}
+	
+	public List<DataEntry> getDataEntries(int count) throws IndexOutOfBoundsException {
+		if(count > getDataQueueSize())
+			count = getDataQueueSize();
+		
+		if(count == 0)
+			return new ArrayList<DataEntry>();
+		
+		return dataEntries.subList(0, count-1);
+	}
+	
+	
+	public List<ChestEntry> getChestEntries(int count) throws IndexOutOfBoundsException {
+		if(count > getChestQueueSize())
+			count = getChestQueueSize();
+		
+		if(count == 0)
+			return new ArrayList<ChestEntry>();
+		
+		return chestEntries.subList(0, count-1);
 	}
 	
 	/**
@@ -165,8 +201,6 @@ public class QueueManager extends BlockLogManager {
 		return dataEntries.get(index);
 	}
 	
-
-
 	/**
 	 * Returns a queued chest interaction
 	 * 
@@ -177,110 +211,7 @@ public class QueueManager extends BlockLogManager {
 		return chestEntries.get(index);
 	}
 	
-	/**
-	 * Saves the oldest queued block edit
-	 */
-	public void saveQueuedEdit() {
-		saveQueuedEdit(0);
-	}
-	
-	/**
-	 * Saves the oldest queued interaction
-	 */
-	public void saveQueuedInteraction() {
-		saveQueuedInteraction(0);
-	}
-	
-	/**
-	 * Saves the oldest queued data entry
-	 */
-	public void saveQueuedData() {
-		saveQueuedData(0);
-	}
-	
-	/**
-	 * Saves the oldest queued chest interaction
-	 */
-	public void saveQueuedChest() {
-		saveQueuedChest(0);
-	}
-	
-	/**
-	 * Saves a queued block edit
-	 * 
-	 * @param index The index of the queued block interaction
-	 */
-	public void saveQueuedEdit(int index) {
-		try {
-			if(getEditQueueSize() > index) {
-				BlockEntry edit = getQueuedEdit(index);
-				if(edit != null) {
-					edit.save(conn);
-					blockEntries.remove(index);
-				}
-			}
-		} catch(IndexOutOfBoundsException e) {}
-	}
-	
-	/**
-	 * Saves a queued block edit
-	 * 
-	 * @param index The index of the queued block interaction
-	 */
-	public void saveQueuedInteraction(int index) {
-		try {
-			if(getInteractionQueueSize() > index) {
-				InteractionEntry interaction = getQueuedInteraction(index);
-				if(interaction != null) {
-					interaction.save(conn);
-					interactionEntries.remove(index);
-				}
-			}
-		} catch(IndexOutOfBoundsException e) {}
-	}
-	
-	/**
-	 * Saves a queued data entry
-	 * 
-	 * @param index The index of the queued data entry
-	 */
-	public void saveQueuedData(int index) {
-		try {
-			if(getDataQueueSize() > index) {
-				DataEntry data = getQueuedData(index);
-				if(data != null) {
-					data.save(conn);
-					dataEntries.remove(index);
-				}
-			}
-		} catch(IndexOutOfBoundsException e) {}
-	}
-	
-	/**
-	 * Saves a queued chest interaction
-	 * 
-	 * @param index The index of the queued chest interaction
-	 */
-	public void saveQueuedChest(int index) {
-		try {
-			if(getChestQueueSize() > index) {
-				ChestEntry chest = getQueuedChest(index);
-				if(chest != null) {
-					chest.save(conn);
-					chestEntries.remove(index);
-				}
-			}
-		} catch(IndexOutOfBoundsException e) {}
-	}
-	
 	public boolean isQueueEmpty() {
 		return isEditQueueEmpty() && isInteractionQueueEmpty() && isDataQueueEmpty() && isChestQueueEmpty();
-	}
-	
-	public void saveQueue() {
-		saveQueuedEdit();
-		saveQueuedInteraction();
-		saveQueuedData();
-		saveQueuedChest();
 	}
 }

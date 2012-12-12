@@ -48,11 +48,11 @@ public class SaveSchedule implements Runnable {
 		List<HashMap<String, Object>> blocks = new ArrayList<HashMap<String, Object>>();
 		List<HashMap<String, Object>> chests = new ArrayList<HashMap<String, Object>>();
 		List<HashMap<String, Object>> interactions = new ArrayList<HashMap<String, Object>>();
-
-		List<DataEntry> dataEntries = (count == 0) ? getQueueManager().getDataEntries() : getQueueManager().getDataEntries().subList(0, count - 1);
-		List<BlockEntry> blockEntries = (count == 0) ? getQueueManager().getBlockEntries() : getQueueManager().getBlockEntries().subList(0, count - 1);
-		List<ChestEntry> chestEntries = (count == 0) ? getQueueManager().getChestEntries() : getQueueManager().getChestEntries().subList(0, count - 1);
-		List<InteractionEntry> interactionEntries = (count == 0) ? getQueueManager().getInteractionEntries() : getQueueManager().getInteractionEntries().subList(0, count - 1);
+		
+		List<DataEntry> dataEntries = (count == 0) ? getQueueManager().getDataEntries() : getQueueManager().getDataEntries(count);
+		List<BlockEntry> blockEntries = (count == 0) ? getQueueManager().getBlockEntries() : getQueueManager().getBlockEntries(count);
+		List<ChestEntry> chestEntries = (count == 0) ? getQueueManager().getChestEntries() : getQueueManager().getChestEntries(count);
+		List<InteractionEntry> interactionEntries = (count == 0) ? getQueueManager().getInteractionEntries() : getQueueManager().getInteractionEntries(count);
 		
 		for(DataEntry dataEntry : dataEntries)
 			data.add(dataEntry.getValues());

@@ -90,6 +90,8 @@ public class SaveSchedule implements Runnable {
 			interactionEntries.clear();
 		} catch (SQLException e) {
 			e.printStackTrace();
+		} catch (Exception e) {
+			// Nothing
 		}
 		
 		if(messages && sender != null) sender.sendMessage(ChatColor.DARK_RED + "[BlockLog]" + ChatColor.GOLD + " Successfully saved " + ((count == 0) ? "all the" : count) + " logs");

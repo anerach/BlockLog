@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>me.arno.blocklog</groupId>
   <artifactId>BlockLog</artifactId>
-  <version>3.0-SNAPSHOT</version>
+  <version>3.0</version>
   <name>BlockLog</name>
   <description>An anti-grief plugin for servers running bukkit</description>
   <url>https://github.com/anerach/BlockLog</url>

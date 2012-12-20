@@ -86,7 +86,7 @@ public class PlayerListener extends BlockLogListener {
 		
 
 		if(Arrays.asList(allowedMaterials).contains(block.getType())) {
-			getQueueManager().queueData(new InteractionEntry(player.getName(), block.getLocation(), block.getType().getId()));
+			getQueueManager().queueInteraction(new InteractionEntry(player.getName(), block.getLocation(), block.getType().getId()));
 		}
 	}
 }

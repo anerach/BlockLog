@@ -31,7 +31,6 @@ public class InteractionEntry extends DataEntry {
 		values.put("x", getX());
 		values.put("y", getY());
 		values.put("z", getZ());
-		values.put("type", getTypeId());
 		values.put("date", getDate());
 		return values;
 	}

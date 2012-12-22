@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.MaterialData;
 
 import me.arno.blocklog.BlockLog;
 import me.arno.blocklog.logs.ChestEntry;
@@ -106,7 +107,9 @@ public class ChestSearch {
 				
 				Location loc = new Location(Bukkit.getWorld(rs.getString("world")), rs.getInt("x"), rs.getInt("y"), rs.getInt("z"));
 				
-				ItemStack is = new ItemStack(item, amount, (short)0, data);
+				MaterialData md = new MaterialData(item, data);
+				ItemStack is = new ItemStack(item, amount, (short)0);
+				is.setData(md);
 				
 				ChestEntry chestEntry = new ChestEntry(player, loc, LogType.values()[type], is);
 				chestEntry.setId(id);

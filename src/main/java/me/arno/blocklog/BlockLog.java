@@ -254,8 +254,8 @@ public class BlockLog extends JavaPlugin {
 	    
 		log.info("Starting BlockLog");
 		
-		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Thread(new SaveSchedule(getSettingsManager().getBlockSaveAmount())), 200L, getSettingsManager().getBlockSaveDelay() * 20L);
-		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Thread(new AliveSchedule()), 100L, getSettingsManager().getDatabaseAliveCheckInterval() * 20L);
+		getServer().getScheduler().runTaskTimerAsynchronously(this, new Thread(new SaveSchedule(getSettingsManager().getBlockSaveAmount())), 200L, getSettingsManager().getBlockSaveDelay() * 20L);
+		getServer().getScheduler().runTaskTimerAsynchronously(this, new Thread(new AliveSchedule()), 100L, getSettingsManager().getDatabaseAliveCheckInterval() * 20L);
 
 		getServer().getPluginManager().registerEvents(new BlockListener(), this);
     	getServer().getPluginManager().registerEvents(new ChestListener(), this);
@@ -277,7 +277,7 @@ public class BlockLog extends JavaPlugin {
 	}
 	
 	public void saveLogs(final int count, final CommandSender sender) {
-		getServer().getScheduler().scheduleAsyncDelayedTask(this, new Thread(new SaveSchedule(count, sender)));
+		getServer().getScheduler().runTaskAsynchronously(this, new Thread(new SaveSchedule(count, sender)));
 	}
 	
 	private void stopPlugin() {

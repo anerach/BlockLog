@@ -18,7 +18,7 @@
   	<dependency>
   		<groupId>org.bukkit</groupId>
   		<artifactId>bukkit</artifactId>
-  		<version>1.4.5-R0.2</version>
+  		<version>1.4.6-R0.1</version>
   	</dependency>
   	<dependency>
 		<groupId>com.gmail.nossr50.mcMMO</groupId>

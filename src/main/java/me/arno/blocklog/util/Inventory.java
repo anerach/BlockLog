@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.MaterialData;
 
 public class Inventory {
 	
@@ -60,8 +61,14 @@ public class Inventory {
 						break;
 					}
 				}
-				if(!found)
-					compressedInv.add(new ItemStack(type, item.getAmount(), (short) 0, data));
+				
+				if(!found) {
+					MaterialData md = new MaterialData(type, data);
+					ItemStack is = new ItemStack(type, item.getAmount(), (short)0);
+					is.setData(md);
+					
+					compressedInv.add(is);
+				}
 			}
 		}
 		

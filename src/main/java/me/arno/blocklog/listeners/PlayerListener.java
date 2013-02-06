@@ -43,7 +43,7 @@ public class PlayerListener extends BlockLogListener {
 	public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
 		Player player = event.getPlayer();
 		
-		String message = event.getMessage();
+		String message = Util.escape(event.getMessage());
 		
 		if(message.length() > 255) {
 			message.substring(message.length() - 255 - 3);

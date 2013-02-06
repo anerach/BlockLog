@@ -10,7 +10,7 @@ public class AliveSchedule implements Runnable {
 	@Override
 	public void run() {
 		try {
-			BlockLog.getInstance().getConnection().createStatement().executeUpdate("UPDATE blocklog_data SET `id`=1 WHERE `id`=1");
+			BlockLog.getInstance().getConnection().createStatement().executeUpdate("UPDATE " + BlockLog.getInstance().getDatabaseManager().getPrefix() + "data SET `id`=1 WHERE `id`=1");
 		} catch(SQLException e) {
 			Util.sendNotice("Something went wrong while sending the alive query");
 		}
